@@ -7,8 +7,8 @@ statements like "both contributed equally" without specifics.
 
 | Member Name | Unity ID | GitHub username |
 |---|---|---|
-| Member 1 | | |
-| Member 2 | | |
+| Member 1 | nsngo | NicholasNgo4 |
+| Member 2 | krchen | krchen1 |
 
 ## B. Result / Data-Point Attribution (Table 7)
 
