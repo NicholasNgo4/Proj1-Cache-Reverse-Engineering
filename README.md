@@ -6,7 +6,7 @@ Fall 2026 · Due September 10, 2026, 11:59 PM ET
 | Member | Unity ID | GitHub username |
 |---|---|---|
 | Member 1 | nsngo | NicholasNgo4 |
-| Member 2 | | |
+| Member 2 | krchen | krchen1 |
 
 ## Required Links
 - **GitHub repository:** `<PASTE URL HERE>` (must also appear on report page 1)
