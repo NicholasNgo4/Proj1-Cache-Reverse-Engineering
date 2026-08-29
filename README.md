@@ -9,8 +9,8 @@ Fall 2026 · Due September 10, 2026, 11:59 PM ET
 | Member 2 | krchen | krchen1 |
 
 ## Required Links
-- [**GitHub repository:**] (https://github.com/NicholasNgo4/Proj1-Cache-Reverse-Engineering) (must also appear on report page 1)
-- [**Overleaf project:**] (https://www.overleaf.com/project/6a933c98d84565980e9e4385) (must also appear on report page 1)
+- **GitHub repository:** (https://github.com/NicholasNgo4/Proj1-Cache-Reverse-Engineering) (must also appear on report page 1)
+- **Overleaf project:** (https://www.overleaf.com/project/6a933c98d84565980e9e4385) (must also appear on report page 1)
 - [✓ ] TA has been granted access to GitHub
 - [✓ ] TA has been granted access to Overleaf
 - [✓ ] Instructor has been granted access to GitHub
