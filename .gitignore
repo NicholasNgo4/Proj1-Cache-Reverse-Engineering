@@ -1,0 +1,30 @@
+# Build artifacts
+*.o
+*.out
+*.exe
+cache_bench
+*.dis
+*.s
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+
+# Large raw data — prefer Git LFS or keep out of Git if impractical.
+# Do NOT ignore data required for grading unless it's mirrored via the Moodle ZIP.
+# Uncomment/adjust if raw datasets get too large for GitHub:
+# data_raw/**/*.bin
+# data_raw/**/*.csv.gz
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# LaTeX build junk (if report source is mirrored here)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
