@@ -5,7 +5,7 @@ Fall 2026 · Due September 10, 2026, 11:59 PM ET
 ## Team
 | Member | Unity ID | GitHub username |
 |---|---|---|
-| Member 1 | | |
+| Member 1 | nsngo | NicholasNgo4 |
 | Member 2 | | |
 
 ## Required Links
