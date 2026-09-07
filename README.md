@@ -45,13 +45,23 @@ command, compiler/flags, affinity/binding, timer method, sample count, seed, and
 output filenames for every experiment on that machine. Fill these in as you go — do not
 backfill them the night before the deadline.
 
-## Build & Run (fill in once code exists)
+## Build & Run
 ```bash
-# Example — replace with actual final commands
-gcc -O0 -g -std=c11 -Wall -Wextra -fno-omit-frame-pointer \
-    -o cache_bench main_code/x86_64/cache_bench.c
+make                    # builds ./cache_bench from main_code/common/*.c (portable: timer.h
+                         # dispatches to x86_64/timer_x86.h or aarch64/timer_arm.h at compile time)
+
+# Capacity sweep (currently the only implemented --experiment); prints raw
+# per-batch CSV to stdout. line_size/associativity/latency/inclusion are not
+# yet implemented — see main_code/common/capacity.c for the pattern each will follow.
 taskset -c 4 ./cache_bench --experiment capacity --samples 1000000
+
+# End-to-end on a lab machine, writing into data_raw/ and data_processed/:
+./scripts/run_capacity_sweep.sh <machine_name> <core> --samples 1000000
+python3 scripts/summarize_raw.py data_raw/<machine_name>/capacity/capacity_*.csv \
+    -o data_processed/<machine_name>/capacity/summary.csv
+python3 scripts/detect_cache_hierarchy.py data_processed/<machine_name>/capacity/summary.csv
 ```
+On Hazel, replace `taskset -c 4` with `srun --cpu-bind=cores` (see `hpc_slurm/`).
 
 ECE lab machines: `ssh <unityid>@<hostname>.ece.ncsu.edu` (VPN group `8-Workshop-Temp`
 required). Hazel HPC: `ssh <unityid>@login.hpc.ncsu.edu`, submit via `sbatch` — never
@@ -69,7 +79,9 @@ benchmark on the login node. See `hpc_slurm/` for job scripts.
 ## Script Index
 | Script | Purpose |
 |---|---|
-| `scripts/` | *(fill in as scripts are added — one row per script)* |
+| `scripts/run_capacity_sweep.sh` | Build, pin (`taskset`), and run the capacity sweep on a lab machine; writes `data_raw/<machine>/capacity/`. |
+| `scripts/summarize_raw.py` | Reduce a raw per-batch CSV to one distribution-stats row per swept point (`data_raw` → `data_processed`). |
+| `scripts/detect_cache_hierarchy.py` | Infer cache-level boundaries from a processed capacity summary. |
 
 ## AI/LLM Assistance
 See `AI_DISCLOSURE.md`. If none was used, that file says "None."
