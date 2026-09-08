@@ -13,14 +13,14 @@ year the machine was purchased>`
 
 | Host | CPU model (from slides) | ISA / Architecture | Vendor | Microarchitecture / codename | Introduction year | Process node (if documented) | Source(s) |
 |---|---|---|---|---|---|---|---|
-| Sunbird | 2× Xeon E5-2680 v3 | |Intel | Hasewell|2014 |22 nm | |
-| Thunderbird | Ampere Q80-30 | |Ampere |ARM Neoverse N1 |2020 |7 nm | |
-| Skylark | 2× AMD EPYC 7532 | |AMD |Zen 2 |2019 |7 nm | |
-| Artemisia | 2× Xeon Gold 5420+ | |Intel |Saphire Rapids |2023 |10 nm, Intel 7 | |
-| Charnwood | Core i7-6700 | |Intel |Sky Lake |2015 |14 nm | |
-| Crux | Core i7-9700 | |Intel |Coffee Lake |2019 |14 nm | |
-| Ookay | Core i7-7700 | |Intel |Kaby Lake |2017 |14 nm | |
-| Upgrade | Core i7-8700 | |Intel |Coffee Lake |2017 |14 nm | |
+| Sunbird | 2× Xeon E5-2680 v3 |x86-64 |Intel | Hasewell|2014 |22 nm | |
+| Thunderbird | Ampere Q80-30 |AArch64 |Ampere |ARM Neoverse N1 |2020 |7 nm | |
+| Skylark | 2× AMD EPYC 7532 |x86-64 |AMD |Zen 2 |2019 |7 nm | |
+| Artemisia | 2× Xeon Gold 5420+ |x86-64 |Intel |Saphire Rapids |2023 |10 nm, Intel 7 | |
+| Charnwood | Core i7-6700 |x86-64 |Intel |Sky Lake |2015 |14 nm | |
+| Crux | Core i7-9700 |x86-64 |Intel |Coffee Lake |2019 |14 nm | |
+| Ookay | Core i7-7700 |x86-64 |Intel |Kaby Lake |2017 |14 nm | |
+| Upgrade | Core i7-8700 |x86-64 |Intel |Coffee Lake |2017 |14 nm | |
 
 *Sort the final table (in the report) oldest → newest by introduction year before
 plotting.*
