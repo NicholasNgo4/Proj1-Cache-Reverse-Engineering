@@ -32,6 +32,8 @@ static void usage(const char *prog)
         "  --max-bytes N          largest working-set size in bytes (default %llu)\n"
         "  --points-per-octave N  size samples per doubling (default %d)\n"
         "  --warmup-passes N      untimed full passes before timing (default %d)\n"
+        "  --pattern random|sequential  dependent-chain node order (default random);\n"
+        "                         sequential is the prefetcher-sanity control\n"
         "  -h, --help             show this help\n",
         prog,
         (unsigned long long)DEFAULT_SAMPLES,
@@ -65,6 +67,7 @@ int main(int argc, char **argv)
         .points_per_octave = DEFAULT_PTS_PER_OCTAVE,
         .warmup_passes = DEFAULT_WARMUP_PASSES,
         .seed = DEFAULT_SEED,
+        .pattern = ACCESS_PATTERN_RANDOM,
     };
 
     for (int i = 1; i < argc; i++) {
@@ -86,6 +89,17 @@ int main(int argc, char **argv)
             uint64_t s;
             if (parse_u64(argv[++i], &s) != 0) { usage(argv[0]); return 1; }
             cap_cfg.seed = (uint32_t)s;
+        } else if (strcmp(argv[i], "--pattern") == 0 && i + 1 < argc) {
+            const char *p = argv[++i];
+            if (strcmp(p, "random") == 0) {
+                cap_cfg.pattern = ACCESS_PATTERN_RANDOM;
+            } else if (strcmp(p, "sequential") == 0) {
+                cap_cfg.pattern = ACCESS_PATTERN_SEQUENTIAL;
+            } else {
+                fprintf(stderr, "Unknown --pattern '%s' (expected random|sequential)\n", p);
+                usage(argv[0]);
+                return 1;
+            }
         } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             usage(argv[0]);
             return 0;

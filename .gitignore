@@ -28,3 +28,8 @@ __pycache__/
 *.out
 *.toc
 *.synctex.gz
+
+# ...but keep reproduction-run transcript logs (run_capacity_full.sh etc.) --
+# these are traceability data, not build junk.
+!data_raw/**/*.log
+!data_processed/**/*.log

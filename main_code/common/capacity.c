@@ -33,12 +33,16 @@ int run_capacity_experiment(const struct capacity_config *cfg)
         return 1;
     }
 
+    const char *pattern_name =
+        (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) ? "sequential" : "random";
+
     printf("# experiment=capacity samples_requested=%" PRIu64
            " samples_achieved=%" PRIu64 " batch_size=%" PRIu64
-           " num_batches=%" PRIu64 " warmup_passes=%d seed=%u node_bytes=%zu\n",
+           " num_batches=%" PRIu64 " warmup_passes=%d seed=%u node_bytes=%zu"
+           " pattern=%s\n",
            cfg->samples, achieved_samples, cfg->batch_size, num_batches,
-           cfg->warmup_passes, cfg->seed, sizeof(struct node));
-    printf("size_bytes,num_nodes,batch_index,avg_ticks_per_access\n");
+           cfg->warmup_passes, cfg->seed, sizeof(struct node), pattern_name);
+    printf("size_bytes,num_nodes,pattern,batch_index,avg_ticks_per_access\n");
 
     size_t last_num_nodes = 0;
     double step = 1.0 / (double)cfg->points_per_octave;
@@ -63,7 +67,11 @@ int run_capacity_experiment(const struct capacity_config *cfg)
             return 1;
         }
 
-        make_random_cycle(nodes, num_nodes, cfg->seed);
+        if (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) {
+            make_sequential_cycle(nodes, num_nodes);
+        } else {
+            make_random_cycle(nodes, num_nodes, cfg->seed);
+        }
 
         /* Untimed pass(es): fault in pages and settle steady-state
          * residency for this working-set size before timing starts. */
@@ -76,8 +84,8 @@ int run_capacity_experiment(const struct capacity_config *cfg)
 
         uint64_t size_bytes = (uint64_t)num_nodes * sizeof(struct node);
         for (uint64_t b = 0; b < num_batches; b++) {
-            printf("%" PRIu64 ",%zu,%" PRIu64 ",%.4f\n",
-                   size_bytes, num_nodes, b, batch_latencies[b]);
+            printf("%" PRIu64 ",%zu,%s,%" PRIu64 ",%.4f\n",
+                   size_bytes, num_nodes, pattern_name, b, batch_latencies[b]);
         }
         fflush(stdout);
 

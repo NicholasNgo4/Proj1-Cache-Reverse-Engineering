@@ -1,6 +1,6 @@
 CC = gcc
 
-CFLAGS = -O0 -Wall -Wextra -std=c11
+CFLAGS = -O0 -g -std=c11 -Wall -Wextra -fno-omit-frame-pointer
 LDLIBS = -lm
 
 TARGET = cache_bench

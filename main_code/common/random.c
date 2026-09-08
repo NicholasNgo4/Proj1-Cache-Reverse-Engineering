@@ -24,7 +24,13 @@ void make_random_cycle(struct node *nodes, size_t n,uint32_t seed) {
         order[i] = order[j];
         order[j] = tmp;
     }
-    for (size_t i = 0; i < n; i++) 
+    for (size_t i = 0; i < n; i++)
         nodes[order[i]].next = &nodes[order[(i + 1) % n]];
     free(order);
+}
+
+void make_sequential_cycle(struct node *nodes, size_t n) {
+    if (n < 2) exit(1);
+    for (size_t i = 0; i < n; i++)
+        nodes[i].next = &nodes[(i + 1) % n];
 }

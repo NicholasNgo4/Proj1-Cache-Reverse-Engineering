@@ -87,6 +87,11 @@ def main():
     ap.add_argument("--freq-ghz", type=float, default=None,
                      help="self-calibrated counter frequency in GHz, to also report "
                           "latency in ns (do not use a vendor-listed clock speed)")
+    ap.add_argument("--machine-readable", action="store_true",
+                     help="print only the detected boundary sizes in bytes, one per "
+                          "line, nothing else -- for scripts to consume directly "
+                          "(e.g. `mapfile -t boundaries < <(detect_cache_hierarchy.py "
+                          "... --machine-readable)`)")
     args = ap.parse_args()
 
     points = load_points(args.summary_csv)
@@ -96,6 +101,11 @@ def main():
 
     knees = find_knees(points, args.rel_threshold, args.min_abs_ticks, args.confirm)
     segments = segments_from_knees(points, knees)
+
+    if args.machine_readable:
+        for _, hi, _, _ in segments[:-1]:
+            print(hi)
+        return
 
     ns_header = "ns/access" if args.freq_ghz else ""
     print(f"{'Level':<14}{'Size range (bytes)':<28}{'Median latency (ticks)':<26}"
