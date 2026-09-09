@@ -1,0 +1,9 @@
+== manual tail-extension2: skylark core=10 range=536870912-2147483648 ppo=48 seed=12345 ==
+== timestamp=20260908T171553Z ==
+-- orig: random --
+  wrote 97002 lines -> data_raw/skylark/capacity/capacity_denseTail2_orig_random_20260908T171553Z.csv
+Wrote 97 summary rows to data_processed/skylark/capacity/denseTail2_orig_random_summary.csv
+-- orig: sequential --
+  wrote 97002 lines -> data_raw/skylark/capacity/capacity_denseTail2_orig_sequential_20260908T171553Z.csv
+Wrote 97 summary rows to data_processed/skylark/capacity/denseTail2_orig_sequential_summary.csv
+-- rep1: random --
