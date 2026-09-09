@@ -12,12 +12,11 @@ file, the repo's data/READMEs, and git history are the only things that do.
 ## Current status (update this section as work progresses)
 
 **Capacity experiment: done (with caveats, see below) on Sunbird, Crux,
-Skylark, Upgrade, Charnwood, and Thunderbird — not yet started on
-Artemisia or Ookay.** Six different sessions ran this in parallel on
-different machines; this section was consolidated from all of their
-commits/READMEs during a merge, so re-check each machine's own
-`data_raw/<machine>/README.md` before citing a number — summaries below
-are necessarily compressed.
+Skylark, Upgrade, Charnwood, Thunderbird, and Ookay — not yet started on
+Artemisia.** Several sessions ran this in parallel on different machines;
+this section was consolidated from all of their commits/READMEs during a
+merge, so re-check each machine's own `data_raw/<machine>/README.md`
+before citing a number — summaries below are necessarily compressed.
 
 - **Sunbird** (`data_raw/sunbird/capacity/`): three flat/ramp transitions
   across 1 KiB-256 MiB, confirmed via independent repeat runs. See
@@ -99,11 +98,41 @@ are necessarily compressed.
   1 GiB (~2% run-to-run spread across 3 independent runs — explicitly
   checked, not assumed). See `data_raw/thunderbird/README.md` for full
   detail. Nothing outstanding on this machine.
+- **Ookay** (`data_raw/ookay/capacity/`): `run_capacity_full.sh ookay 1`
+  (default 64 MiB coarse ceiling) detected 6 boundaries (285864 / 440872 /
+  5439336 / 6468496 / 7692384 / 11863280 bytes) — the 4 between ~5.3 and
+  ~11.9 MiB are very likely one continuous steep transition rather than 4
+  real levels (the dense sweep bracketing the deepest one never flattens
+  anywhere within its own 1.48-94.9 MiB range, still +23%
+  last-quarter-vs-prior at its ceiling); only the ~280/430 KiB (L1/L2)
+  boundaries look like genuinely separate flat/ramp transitions. Topmost
+  region was still gently climbing at the default 256 MiB ceiling
+  (+1.6%, 254->279 ticks); a manual 256 MiB-1 GiB follow-up (run0 + 2
+  independent repeats) resolved it as a **confirmed** flat plateau
+  (~286-297 ticks/access, robust median-of-3 last-quarter-vs-prior only
+  +3.7%) once scattered single-run interference spikes — which recurred
+  at *different* sizes in each of the 3 runs, the same signature as
+  Sunbird/Crux/Charnwood/Thunderbird — were filtered out via a
+  median-of-3 combination. Notable anomalies: two other students' jobs
+  pinned cores 0 and 2 near 100% the entire session (confirmed via
+  `mpstat`/`ps`); a third user's job appeared on the originally-used core
+  1 mid-session, forcing a switch to core 3 for the follow-up (re-verified
+  idle first); a fourth user's job explicitly requested core 3's SMT
+  sibling (CPU7) shortly before the follow-up's last repeat, though it
+  had not started as of the last check; this host's VS Code Remote-SSH
+  runs with `--enable-remote-auto-shutdown`, so the follow-up's last
+  repeat was moved into a detached `tmux` session (`ookay_capacity`,
+  confirmed outside the VS Code server's process tree via `ps`) before
+  the user disconnected. `matplotlib`/`pip` unavailable on this machine
+  (no passwordless `sudo`, no `ensurepip`) — same failure mode as
+  Skylark/Thunderbird; plots still outstanding, pending the user
+  installing it via `sudo apt install python3-matplotlib`. See
+  `data_raw/ookay/README.md` for full detail.
 
 **`scripts/run_capacity_full.sh <machine> <core> [coarse_max_bytes]` is
 the one-command pipeline for running the capacity experiment on each
-remaining machine** (Artemisia, Ookay — and Charnwood again once quiet,
-and Upgrade needs its README backfilled + a plateau check): coarse sweep
+remaining machine** (Artemisia — and Charnwood again once quiet, and
+Upgrade needs its README backfilled + a plateau check): coarse sweep
 -> automatic boundary detection -> dense sweep per boundary ->
 reproducibility repeats on the deepest boundary -> tail-extension sweep
 to check for a further plateau -> plots -> gzips its own raw CSVs (commit
