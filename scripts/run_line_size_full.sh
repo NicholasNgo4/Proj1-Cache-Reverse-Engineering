@@ -47,7 +47,17 @@ MACHINE="$1"
 CORE="$2"
 FOOTPRINT_OVERRIDE="${3:-}"
 
-MULTIPLIER=1.2                # footprint_bytes = ceil(L1_boundary * MULTIPLIER)
+MULTIPLIER=2.0                # footprint_bytes = ceil(L1_boundary * MULTIPLIER)
+                               # Needs to leave several dense-sweep points of clean
+                               # plateau between the line-size knee (at true_line_size,
+                               # independent of MULTIPLIER) and the capacity-driven
+                               # fall-off (at true_line_size * MULTIPLIER -- see
+                               # scripts/detect_line_size.py's module docstring) for
+                               # detect_line_size.py's default --confirm=5 to have
+                               # enough room to confirm the plateau. Measured on Sunbird:
+                               # MULTIPLIER=1.2-1.5 leaves only 0-3 clean plateau points
+                               # before the fall-off starts and detection fails; 2.0
+                               # reliably leaves ~8-9.
 FOOTPRINT_FALLBACK=65536      # used only if no capacity data exists yet for this machine
 MIN_STRIDE=8
 MAX_STRIDE=1024
@@ -85,13 +95,36 @@ if [ -n "$FOOTPRINT_OVERRIDE" ]; then
 else
   CAP_DIR="data_processed/${MACHINE}/capacity"
   CAP_SUMMARY=""
-  for f in "${CAP_DIR}"/*combined*summary.csv "${CAP_DIR}"/*coarse*random*summary.csv "${CAP_DIR}"/summary.csv; do
-    if [ -f "$f" ]; then CAP_SUMMARY="$f"; break; fi
+  # Build the candidate list explicitly rather than looping over globs
+  # directly: bash expands each glob's matches in alphabetical order, and a
+  # *coarse*random*summary.csv glob also matches tail-extension sweeps like
+  # "coarse_ext256_random_summary.csv" or "coarse_ext_random_summary.csv"
+  # (built to check for a further plateau at a coarse step over a huge
+  # high-end range, not to resolve a clean low-end/L1 boundary) -- and
+  # "coarse_ext..." sorts alphabetically BEFORE "coarse_random...", so the
+  # old single-glob loop below would silently pick the tail-extension file
+  # first on any machine lacking a *combined* summary (hit Sunbird: silently
+  # fell back to FOOTPRINT_FALLBACK with a misleading "no capacity summary
+  # found" warning, even though a perfectly good coarse_random_summary.csv
+  # was sitting right there). Explicitly exclude *ext* files, and verify
+  # each candidate actually yields a boundary before accepting it (instead
+  # of accepting the first candidate that merely exists).
+  CAP_CANDIDATES=()
+  for pat in "${CAP_DIR}"/*combined*random*summary.csv "${CAP_DIR}"/coarse_random_summary.csv "${CAP_DIR}"/summary.csv; do
+    for f in $pat; do
+      [ -f "$f" ] || continue
+      case "$f" in *ext*) continue ;; esac
+      CAP_CANDIDATES+=("$f")
+    done
   done
-  if [ -n "$CAP_SUMMARY" ]; then
-    mapfile -t CAP_BOUNDARIES < <(python3 scripts/detect_cache_hierarchy.py "$CAP_SUMMARY" --machine-readable 2>/dev/null || true)
-    L1_BOUNDARY="${CAP_BOUNDARIES[0]:-}"
-  fi
+  for f in "${CAP_CANDIDATES[@]}"; do
+    mapfile -t TRY_BOUNDARIES < <(python3 scripts/detect_cache_hierarchy.py "$f" --machine-readable 2>/dev/null || true)
+    if [ -n "${TRY_BOUNDARIES[0]:-}" ]; then
+      CAP_SUMMARY="$f"
+      L1_BOUNDARY="${TRY_BOUNDARIES[0]}"
+      break
+    fi
+  done
   if [ -n "$L1_BOUNDARY" ]; then
     FOOTPRINT_BYTES=$(python3 -c "import math; print(math.ceil(${L1_BOUNDARY} * ${MULTIPLIER}))")
     echo "-- using L1 boundary ${L1_BOUNDARY} bytes from ${CAP_SUMMARY} -> footprint_bytes=${FOOTPRINT_BYTES} --"
@@ -132,11 +165,11 @@ summarize "$COARSE_S" "$COARSE_S_SUM"
 ALL_SUMMARIES+=("$COARSE_R_SUM" "$COARSE_S_SUM")
 
 # ---- automatic transition detection on the coarse random-pattern data ----
-BOUNDARY_ARGS=()
-if [ -n "$L1_BOUNDARY" ]; then
-  BOUNDARY_ARGS=(--boundary-bytes "$L1_BOUNDARY")
-fi
-mapfile -t LS_ESTIMATE_ARR < <(python3 scripts/detect_line_size.py "$COARSE_R_SUM" "${BOUNDARY_ARGS[@]}" --machine-readable 2>/dev/null || true)
+# detect_line_size.py finds the ramp-SATURATION point directly (see its
+# module docstring) -- this is already the true line-size estimate and
+# needs no footprint/boundary correction, unlike the old drop-based
+# approach this pipeline used to call with --boundary-bytes.
+mapfile -t LS_ESTIMATE_ARR < <(python3 scripts/detect_line_size.py "$COARSE_R_SUM" --machine-readable 2>/dev/null || true)
 ESTIMATE="${LS_ESTIMATE_ARR[0]:-}"
 echo "-- detected line-size estimate (bytes): ${ESTIMATE:-none} --"
 
@@ -173,6 +206,24 @@ if [ -n "$ESTIMATE" ]; then
   PLOT_BOUNDARY_ARGS=(--boundary "$ESTIMATE")
 else
   echo "-- no transition detected in the coarse sweep; skipping dense/repeat stages --"
+  if [ -z "$FOOTPRINT_OVERRIDE" ] && [ -n "$L1_BOUNDARY" ]; then
+    echo "WARNING: footprint_bytes=${FOOTPRINT_BYTES} was auto-derived from" >&2
+    echo "         detect_cache_hierarchy.py's boundary=${L1_BOUNDARY} on ${CAP_SUMMARY}," >&2
+    echo "         but no ramp-saturation plateau was found at that footprint. That" >&2
+    echo "         detector's first boundary is a coarse first-pass heuristic and is" >&2
+    echo "         NOT guaranteed to be the true L1 capacity (it can be off by an" >&2
+    echo "         order of magnitude -- confirmed on Sunbird, where it returns" >&2
+    echo "         ~279 KiB against a manually-established ~32 KiB L1). A footprint" >&2
+    echo "         built from a wrong boundary can span multiple cache levels, which" >&2
+    echo "         produces exactly this noisy/no-transition shape instead of a clean" >&2
+    echo "         line-size signal. The plot below is generated from ONLY the coarse" >&2
+    echo "         (noisy) data and should NOT be treated as a valid result -- re-run" >&2
+    echo "         with an explicit override, e.g.:" >&2
+    echo "           $0 ${MACHINE} ${CORE} <known_good_footprint_bytes>" >&2
+    echo "         (a good starting point is ~2x this machine's own confirmed L1" >&2
+    echo "         boundary from its capacity README section, not this script's" >&2
+    echo "         auto-detected one)." >&2
+  fi
 fi
 
 # ---- plots ----

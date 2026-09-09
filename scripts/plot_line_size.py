@@ -140,9 +140,28 @@ PATTERN_STYLE = {
 }
 
 
+def find_spikes(pts, spike_rel_threshold=0.3):
+    """Returns the strides among pts (sorted (stride, median, ...) tuples)
+    that sit sharply above their immediate neighbor(s) -- the same
+    shape-based check as detect_line_size.py's is_spike(). In this sweep's
+    data these are isolated conflict-miss artifacts at strides that slice
+    the 4096B page into very few pieces (256/512/1024 observed), not
+    evidence about line size or capacity; flagged here purely so the plot
+    doesn't read as if they were part of the real curve. The first/last
+    swept point has only one neighbor, so that one comparison decides it."""
+    spikes = set()
+    for i in range(len(pts)):
+        lat = pts[i][1]
+        neighbors = [pts[j][1] for j in (i - 1, i + 1) if 0 <= j < len(pts)]
+        if neighbors and all(lat > n * (1 + spike_rel_threshold) for n in neighbors):
+            spikes.add(pts[i][0])
+    return spikes
+
+
 def plot_curve(by_pattern, machine, footprint_bytes, out_prefix, title_suffix):
     fig, ax = plt.subplots(figsize=(7.5, 5))
 
+    spike_strides = set()
     for pattern, strides in sorted(by_pattern.items()):
         pts = sorted((s, float(row["median"]), float(row["q1"]), float(row["q3"]))
                      for s, row in strides.items())
@@ -154,6 +173,23 @@ def plot_curve(by_pattern, machine, footprint_bytes, out_prefix, title_suffix):
         ax.fill_between(xs, q1, q3, color=style["color"], alpha=0.15, linewidth=0)
         ax.plot(xs, med, color=style["color"], marker=style["marker"], markersize=4,
                  linewidth=1.6, label=style["label"])
+        spike_strides |= find_spikes(pts)
+
+    if spike_strides:
+        # Overlay isolated conflict-miss spikes (see find_spikes) with a
+        # distinct marker so they don't get read as line-size/capacity
+        # signal -- drawn from whichever pattern's row has each stride.
+        sx, sy = [], []
+        for pattern, strides in by_pattern.items():
+            for s in spike_strides:
+                if s in strides:
+                    sx.append(s)
+                    sy.append(float(strides[s]["median"]))
+        ax.scatter(sx, sy, s=90, facecolors="none", edgecolors="red", linewidths=1.5,
+                   zorder=5, label="Isolated spike (page-aliasing artifact, not signal)")
+        print(f"  note: flagged {len(spike_strides)} isolated spike stride(s) as "
+              f"probable page-aliasing artifacts: {sorted(spike_strides)}",
+              file=sys.stderr)
 
     ax.set_xlabel("Stride between nodes (bytes)")
     ax.set_ylabel("Median latency (timer ticks / access)")
@@ -164,7 +200,7 @@ def plot_curve(by_pattern, machine, footprint_bytes, out_prefix, title_suffix):
         title += f"\n{title_suffix}"
     ax.set_title(title, fontsize=11)
     style_axes(ax)
-    ax.legend(frameon=False, fontsize=10, loc="best")
+    ax.legend(frameon=False, fontsize=9, loc="best")
     fig.tight_layout()
 
     fig.savefig(f"{out_prefix}.pdf")
