@@ -28,4 +28,26 @@ void make_sequential_cycle(
     size_t n
 );
 
+/*
+ * Strided variants of make_random_cycle()/make_sequential_cycle(): node i is
+ * placed at (uint8_t*)base + i*stride instead of assuming stride equals
+ * sizeof(struct node). Used by the line_size experiment to hold a fixed
+ * virtual footprint (n*stride) while varying how many bytes separate
+ * consecutive nodes in memory. stride must be >= sizeof(struct node)
+ * (caller's responsibility -- not validated here, matching this file's
+ * existing style of not validating n>=2 either).
+ */
+void make_random_cycle_strided(
+    void *base,
+    size_t n,
+    size_t stride,
+    uint32_t seed
+);
+
+void make_sequential_cycle_strided(
+    void *base,
+    size_t n,
+    size_t stride
+);
+
 #endif

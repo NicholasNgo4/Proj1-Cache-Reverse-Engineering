@@ -3,10 +3,7 @@
 
 #include <stdint.h>
 
-enum access_pattern {
-    ACCESS_PATTERN_RANDOM = 0,     /* randomized dependent cycle (primary) */
-    ACCESS_PATTERN_SEQUENTIAL = 1, /* in-array-order dependent cycle (prefetcher control) */
-};
+#include "access_pattern.h"
 
 struct capacity_config {
     uint64_t samples;          /* total timed accesses per size point (>= 1e6 required) */
