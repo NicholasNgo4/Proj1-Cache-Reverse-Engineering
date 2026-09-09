@@ -71,12 +71,17 @@
 - Processing script -> data_processed path: `python3 scripts/summarize_raw.py <raw.csv>
   -o data_processed/ookay/capacity/<name>_summary.csv` for every raw file above, then
   `python3 scripts/detect_cache_hierarchy.py data_processed/ookay/capacity/coarse_combined_random_summary.csv`
-  for the first-pass boundary hypothesis. **Plots not yet generated**: `matplotlib` is
-  not installed on this machine and there is no passwordless `sudo` or working `pip`/
-  `ensurepip` to install it non-interactively (same failure mode hit on Skylark and
-  Thunderbird per `CLAUDE.md`); once available, run `python3 scripts/plot_capacity.py`
-  over all summary CSVs above with `--machine ookay --boundary 285864 --boundary 440872
-  --boundary 5439336 --boundary 6468496 --boundary 7692384 --boundary 11863280`.
+  for the first-pass boundary hypothesis. **Plots generated**: `matplotlib`/`pandas`/
+  `numpy` were bootstrapped via `get-pip.py --user --break-system-packages` (no
+  passwordless `sudo`, no `ensurepip`, no `python3-venv` on this machine, same
+  failure mode as Skylark/Thunderbird per `CLAUDE.md`), then
+  `python3 scripts/plot_capacity.py data_processed/ookay/capacity/*_summary.csv
+  -o data_processed/ookay/capacity/plots --machine ookay --boundary 285864
+  --boundary 440872 --boundary 5439336 --boundary 6468496 --boundary 7692384
+  --boundary 11863280` produced `data_processed/ookay/capacity/plots/capacity_curve.
+  {pdf,png}` and `capacity_boxplots.{pdf,png}`. The script's own duplicate-row
+  averaging flagged the same 256 MiB-1 GiB interference spikes documented above
+  (e.g. 824.6 MiB: 41.8% spread across the 3 combined runs) rather than hiding them.
 - Excluded runs (if any) and reason: none.
 
 - **Detected boundaries** (`detect_cache_hierarchy.py --machine-readable` on the
