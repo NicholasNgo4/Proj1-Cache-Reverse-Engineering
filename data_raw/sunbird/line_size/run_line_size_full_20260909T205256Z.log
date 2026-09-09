@@ -1,0 +1,128 @@
+== run_line_size_full: machine=sunbird core=20 seed=12345 ==
+== timestamp=20260909T205256Z ==
+-- using L1 boundary 285864 bytes from data_processed/sunbird/capacity/coarse_random_summary.csv -> footprint_bytes=571728 --
+-- coarse sweep 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/sunbird/line_size/line_size_coarse_random_20260909T205256Z.csv
+  wrote 128002 lines -> data_raw/sunbird/line_size/line_size_coarse_sequential_20260909T205256Z.csv
+Wrote 128 summary rows to data_processed/sunbird/line_size/coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/sunbird/line_size/coarse_sequential_summary.csv
+-- detected line-size estimate (bytes): none --
+-- no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- generating plots --
+  note: flagged 4 isolated spike stride(s) as probable page-aliasing artifacts: [256, 512, 768, 1024]
+Wrote data_processed/sunbird/line_size/plots/line_size_curve.pdf and .png
+Wrote data_processed/sunbird/line_size/plots/line_size_boxplots.pdf and .png
+== done ==
+== plots: data_processed/sunbird/line_size/plots/line_size_curve.{png,pdf}, data_processed/sunbird/line_size/plots/line_size_boxplots.{png,pdf} ==
+== detected line-size estimate (bytes): none ==
+== record in data_raw/sunbird/README.md: core=20, seed=12345, samples=1000000, footprint_bytes=571728, boundary_bytes=285864, timestamp=20260909T205256Z ==
+== full transcript saved to: data_raw/sunbird/line_size/run_line_size_full_20260909T205256Z.log ==
+]0;krchen@sunbird:~/Proj1-Cache-Reverse-Engineering[?2004h[krchen@sunbird Proj1-Cache-Reverse-Engineering]$ gits[K status
+[?2004lOn branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   data_raw/sunbird/README.md
+	modified:   scripts/detect_line_size.py
+	modified:   scripts/plot_line_size.py
+	modified:   scripts/run_line_size_full.sh
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	data_processed/sunbird/line_size/coarse_random_summary.csv
+	data_processed/sunbird/line_size/coarse_sequential_summary.csv
+	data_processed/sunbird/line_size/dense_random_summary.csv
+	data_processed/sunbird/line_size/dense_rep1_random_summary.csv
+	data_processed/sunbird/line_size/dense_rep1_sequential_summary.csv
+	data_processed/sunbird/line_size/dense_rep2_random_summary.csv
+	data_processed/sunbird/line_size/dense_rep2_sequential_summary.csv
+	data_processed/sunbird/line_size/dense_sequential_summary.csv
+	data_processed/sunbird/line_size/plots/
+	data_raw/sunbird/line_size/run_line_size_full_20260909T033014Z.log
+	data_raw/sunbird/line_size/run_line_size_full_20260909T202041Z.log
+	data_raw/sunbird/line_size/run_line_size_full_20260909T205256Z.log
+
+no changes added to commit (use "git add" and/or "git commit -a")
+]0;krchen@sunbird:~/Proj1-Cache-Reverse-Engineering[?2004h[krchen@sunbird Proj1-Cache-Reverse-Engineering]$ git add [7mdata_raw/sunbird/README.md[27mdata_raw/sunbird/README.md [7mscripts/detect_line_size.py[27mscripts/detect_line_size.py [7mscripts/p[27m[7ml[27m[7mot_line_size.py[27m[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cscripts/plot_line_size.py [7mscripts/run_line_size_full.sh[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cscripts/run_line_size_full.sh [7mdata_processed/sunbird/line_size/plots/[27mdata_processed/sunbird/line_size/plots/
+[?2004l]0;krchen@sunbird:~/Proj1-Cache-Reverse-Engineering[?2004h[krchen@sunbird Proj1-Cache-Reverse-Engineering]$ git status
+[?2004lOn branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	new file:   data_processed/sunbird/line_size/plots/line_size_boxplots.pdf
+	new file:   data_processed/sunbird/line_size/plots/line_size_boxplots.png
+	new file:   data_processed/sunbird/line_size/plots/line_size_curve.pdf
+	new file:   data_processed/sunbird/line_size/plots/line_size_curve.png
+	modified:   data_raw/sunbird/README.md
+	modified:   scripts/detect_line_size.py
+	modified:   scripts/plot_line_size.py
+	modified:   scripts/run_line_size_full.sh
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	data_processed/sunbird/line_size/coarse_random_summary.csv
+	data_processed/sunbird/line_size/coarse_sequential_summary.csv
+	data_processed/sunbird/line_size/dense_random_summary.csv
+	data_processed/sunbird/line_size/dense_rep1_random_summary.csv
+	data_processed/sunbird/line_size/dense_rep1_sequential_summary.csv
+	data_processed/sunbird/line_size/dense_rep2_random_summary.csv
+	data_processed/sunbird/line_size/dense_rep2_sequential_summary.csv
+	data_processed/sunbird/line_size/dense_sequential_summary.csv
+	data_raw/sunbird/line_size/run_line_size_full_20260909T033014Z.log
+	data_raw/sunbird/line_size/run_line_size_full_20260909T202041Z.log
+	data_raw/sunbird/line_size/run_line_size_full_20260909T205256Z.log
+
+]0;krchen@sunbird:~/Proj1-Cache-Reverse-Engineering[?2004h[krchen@sunbird Proj1-Cache-Reverse-Engineering]$ git cojmm[K[K[Kmmit
+[?2004lVim: Warning: Output is not to a terminal
+[?1049h[22;0;0t[>4;2m[?1h=[?2004h[?1004h[1;24r[?12h[?12l[27m[23m[29m[m[H[2J[?25l[24;1H"~/Proj1-Cache-Reverse-Engineering/.git/COMMIT_EDITMSG" 32L, 1509B[2;1H# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Committer: Kevin Richard Chen <krchen@sunbird.ece.ncsu.edu>
+#
+# On branch main
+# Your branch is up to date with 'origin/main'.
+#
+# Changes to be committed:
+#[7Cnew file:   data_processed/sunbird/line_size/plots/line_size_boxplots.pdf
+#[7Cnew file:   data_processed/sunbird/line_size/plots/line_size_boxplots.png
+#[7Cnew file:   data_processed/sunbird/line_size/plots/line_size_curve.pdf
+#[7Cnew file:   data_processed/sunbird/line_size/plots/line_size_curve.png
+#[7Cmodified:   data_raw/sunbird/README.md
+#[7Cmodified:   scripts/detect_line_size.py
+#[7Cmodified:   scripts/plot_line_size.py
+#[7Cmodified:   scripts/run_line_size_full.sh
+#
+# Untracked files:
+#[7Cdata_processed/sunbird/line_size/coarse_random_summary.csv
+#[7Cdata_processed/sunbird/line_size/coarse_sequential_summary.csv
+#[7Cdata_processed/sunbird/line_size/dense_random_summary.csv[1;1H[?25h[?25l[24;1H[1m-- INSERT --[m[24;13H[K[1;1H[?25h[?25ll[?25h[?25li[?25h[?25ln[?25h[?25le[?25h[?25l [?25h[?25ls[?25h[?25li[?25h[?25lz[?25h[?25le[?25h[?25l [?25h[?25lp[?25h[?25ll[?25h[?25lo[?25h[?25lt[?25h[?25ls[?25h[?25l [?25h[?25la[?25h[?25ln[?25h[?25ld[?25h[?25l [?25h[?25lu[?25h[?25lp[?25h[?25ld[?25h[?25la[?25h[?25lt[?25h[?25le[?25h[?25l[1;26H[K[1;26H[?25h[?25l[1;25H[K[1;25H[?25h[?25l[1;24H[K[1;24H[?25h[?25l[1;23H[K[1;23H[?25h[?25l[1;22H[K[1;22H[?25h[?25l[1;21H[K[1;21H[?25h[?25ls[?25h[?25lc[?25h[?25lr[?25h[?25li[?25h[?25lp[?25h[?25lt[?25h[?25l [?25h[?25ls[?25h[?25l[1;28H[K[1;28H[?25h[?25lu[?25h[?25lp[?25h[?25ld[?25h[?25la[?25h[?25lt[?25h[?25le[?25h[?25ls[?25h[?25l [?25h[24;1H[K[1;35H[?25l[?25h[?25l[24;1H:[?25hwq[?25l[?2004l[>4;m".git/COMMIT_EDITMSG" 32L, 1544B written
+[?1004l[?2004l[?1l>[?25h[>4;m[?1049l[23;0;0t[main ba23798] line size plots and script updates
+ Committer: Kevin Richard Chen <krchen@sunbird.ece.ncsu.edu>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly:
+
+    git config --global user.name "Your Name"
+    git config --global user.email you@example.com
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 8 files changed, 290 insertions(+), 94 deletions(-)
+ create mode 100644 data_processed/sunbird/line_size/plots/line_size_boxplots.pdf
+ create mode 100644 data_processed/sunbird/line_size/plots/line_size_boxplots.png
+ create mode 100644 data_processed/sunbird/line_size/plots/line_size_curve.pdf
+ create mode 100644 data_processed/sunbird/line_size/plots/line_size_curve.png
+]0;krchen@sunbird:~/Proj1-Cache-Reverse-Engineering[?2004h[krchen@sunbird Proj1-Cache-Reverse-Engineering]$ git push
+[?2004lTo https://github.com/NicholasNgo4/Proj1-Cache-Reverse-Engineering
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/NicholasNgo4/Proj1-Cache-Reverse-Engineering'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
