@@ -1,0 +1,18 @@
+== run_capacity_full: machine=thunderbird core=3 coarse_max=67108864 seed=12345 ==
+== timestamp=20260909T001422Z ==
+-- coarse sweep 1024-67108864 bytes --
+  wrote 129002 lines -> data_raw/thunderbird/capacity/capacity_coarse_random_20260909T001422Z.csv
+  wrote 129002 lines -> data_raw/thunderbird/capacity/capacity_coarse_sequential_20260909T001422Z.csv
+Wrote 129 summary rows to data_processed/thunderbird/capacity/coarse_random_summary.csv
+Wrote 129 summary rows to data_processed/thunderbird/capacity/coarse_sequential_summary.csv
+-- tail-extension sweep 67108864-268435456 bytes --
+  wrote 17002 lines -> data_raw/thunderbird/capacity/capacity_coarse_ext_random_20260909T001422Z.csv
+  wrote 17002 lines -> data_raw/thunderbird/capacity/capacity_coarse_ext_sequential_20260909T001422Z.csv
+Wrote 17 summary rows to data_processed/thunderbird/capacity/coarse_ext_random_summary.csv
+Wrote 17 summary rows to data_processed/thunderbird/capacity/coarse_ext_sequential_summary.csv
+-- detected boundaries (bytes): none --
+-- generating plots --
+Traceback (most recent call last):
+  File "/home/nsngo/ECE592/Proj1-Cache-Reverse-Engineering/scripts/plot_capacity.py", line 33, in <module>
+    import matplotlib
+ModuleNotFoundError: No module named 'matplotlib'
