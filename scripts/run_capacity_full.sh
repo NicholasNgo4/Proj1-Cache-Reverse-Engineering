@@ -197,6 +197,11 @@ python3 scripts/plot_capacity.py \
   --title-suffix "(Phase I timing-only, auto pipeline)" \
   "${BOUNDARY_ARGS[@]}"
 
+# ---- compress raw CSVs for git (all summarize_raw.py calls above already
+# read the uncompressed originals; gzip ~9x on this data, per .gitignore) ----
+echo "-- compressing raw CSVs --"
+gzip -f "${RAW_DIR}"/capacity_*.csv
+
 echo "== done =="
 echo "== plots: ${PLOT_DIR}/capacity_curve.{png,pdf}, ${PLOT_DIR}/capacity_boxplots.{png,pdf} =="
 echo "== detected boundaries (bytes): ${BOUNDARIES[*]:-none} =="

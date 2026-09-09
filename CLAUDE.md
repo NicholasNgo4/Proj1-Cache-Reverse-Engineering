@@ -11,42 +11,86 @@ file, the repo's data/READMEs, and git history are the only things that do.
 
 ## Current status (update this section as work progresses)
 
-**Capacity experiment: done on Sunbird and Crux, not yet started on the
-other 6 machines.** Sunbird's results (`data_raw/sunbird/capacity/`,
-`data_processed/sunbird/capacity/`, including `plots/capacity_curve.png`
-and `capacity_boxplots.png`) found three flat/ramp transitions across
-1 KiB-256 MiB, confirmed via independent repeat runs (see
-`data_raw/sunbird/README.md` for the full methodology notes, including a
-documented multi-tenant-interference finding and a plotting-script bug
-that was found and fixed along the way — read that file before trusting
-any plateau/boundary number at face value).
+**Capacity experiment: done (with caveats, see below) on Sunbird, Crux,
+Skylark, Upgrade, and Charnwood — not yet started on Thunderbird,
+Artemisia, or Ookay.** Five different sessions ran this in parallel on
+different machines; this section was consolidated from all of their
+commits/READMEs during a merge, so re-check each machine's own
+`data_raw/<machine>/README.md` before citing a number — summaries below
+are necessarily compressed.
 
-Crux (`data_raw/crux/capacity/`, `data_processed/crux/capacity/`): ran
-`scripts/run_capacity_full.sh crux 7` (default 64 MiB coarse ceiling),
-which detected 4 boundaries (262144 / 9147840 / 11863280 / 16777216
-bytes) but left its topmost region still climbing at the 256 MiB tail
-ceiling. Per the Sunbird precedent, did one manual follow-up (`orig` + 2
-repeats, ad hoc `crux_tail2.sh`, not committed) extending 256 MiB-1 GiB;
-it flattens into a genuine plateau (~245-250 ticks/access) confirmed
-across 3 independent runs agreeing within 0.5% at 1 GiB. The
-~64 KiB-4 MiB region is a soft continuous ramp with no confirmed flat
-shelf (flagged, not resolved) and the ~4-64 MiB steep transition showed
-large run-to-run spread (up to ~89% at some sizes) in its repeats — see
-`data_raw/crux/README.md` for full detail, including a ~3x wall-clock
-variance anomaly (same fixed workload, 13-40 min depending on other
-students' concurrent load) that did not measurably affect the timing
-medians themselves.
+- **Sunbird** (`data_raw/sunbird/capacity/`): three flat/ramp transitions
+  across 1 KiB-256 MiB, confirmed via independent repeat runs. See
+  `data_raw/sunbird/README.md` for a documented multi-tenant-interference
+  finding and a plotting-script bug found/fixed along the way. One gap:
+  its README cites a `build/cache_bench.source.dis` disassembly-evidence
+  file that was never actually generated (discovered while fixing a
+  `.gitignore` rule that was silently swallowing it for every machine) —
+  still a TODO, flagged in the README rather than faked.
+- **Crux** (`data_raw/crux/capacity/`): `scripts/run_capacity_full.sh crux
+  7` detected 4 boundaries (262144 / 9147840 / 11863280 / 16777216 bytes).
+  Topmost region was still climbing at the 256 MiB default ceiling; a
+  manual 256 MiB-1 GiB follow-up (3 independent runs) found it flattens
+  into a genuine plateau (~245-250 ticks/access, agreeing within 0.5% at
+  1 GiB). The ~64 KiB-4 MiB region is a soft ramp with no confirmed flat
+  shelf, and ~4-64 MiB showed up to ~89% run-to-run spread. Also flags a
+  ~3x wall-clock variance anomaly (13-40 min for the same workload,
+  tracking other students' concurrent load) that didn't measurably affect
+  the timing medians themselves. See `data_raw/crux/README.md`.
+- **Skylark** (`data_raw/skylark/capacity/`): `run_capacity_full.sh
+  skylark 10 134217728` (128 MiB coarse ceiling) detected 3 boundaries
+  (16777216 / 18295680 / 21757352 bytes). A manual follow-up extended all
+  the way to 2 GiB and found a genuinely settled plateau (~280 ticks/
+  access, only ~2% rise from 512 MiB, flattening by ~1.7 GiB, reproduced
+  within ~0.2% across 2 independent runs at 2 GiB) — this is the
+  cleanest/most fully-resolved topmost-region result of any machine so
+  far. Note: the pipeline's own plotting step failed mid-run on this
+  machine (`matplotlib` missing); data generation completed fine and
+  plots were regenerated standalone afterward. See
+  `data_raw/skylark/README.md`.
+- **Upgrade** (`data_raw/upgrade/capacity/`): raw/processed data and plots
+  were committed, but **`data_raw/upgrade/README.md` is still the blank
+  template** — hostname/CPU/environment fields were never filled in.
+  From the run transcript log only: `run_capacity_full.sh upgrade 5`
+  (default 64 MiB coarse ceiling), detected 6 boundaries (185360 / 311744
+  / 9975792 / 11863280 / 18295680 / 21757352 bytes); no tail-extension
+  follow-up past the default 256 MiB ceiling appears to have been done, so
+  its topmost-region plateau status is **unverified**. Needs both the
+  README backfilled and a plateau check, by whoever has access to that
+  machine to confirm the identification fields firsthand.
+- **Charnwood** (`data_raw/charnwood/capacity/`): **unresolved, not just
+  noisy — treat with caution before citing any boundary number.** Run
+  concurrently with another student's `associativity` benchmark pinned on
+  a different physical core the whole time (confirmed via `mpstat`/`ps`,
+  not just inferred); this produced strong bimodal contamination in 4 of
+  the 6 auto-detected boundaries (~1.83-11.31 MiB region, 12-157%
+  run-to-run spread). Only the ~304 KiB (L1) boundary looks clean.
+  Separately, the topmost region did **not** plateau within the default
+  256 MiB ceiling — a manual follow-up extension to 1 GiB found a real,
+  reproducible ~11-15% climb from ~12 MiB to ~600 MiB (not flat, likely
+  TLB/page-walk growth, to confirm in Phase II) plus a further,
+  less-reproducible divergence above ~700 MiB in one of two repeats
+  (likely more shared-machine memory pressure — swap was already
+  2.6-2.8 GiB in use at run time). **This machine likely needs a full
+  re-run when quiet** (check `ps`/`mpstat` for the `associativity`
+  process before re-running). See `data_raw/charnwood/README.md`.
 
 **`scripts/run_capacity_full.sh <machine> <core> [coarse_max_bytes]` is
 the one-command pipeline for running the capacity experiment on each
-remaining machine** (Thunderbird, Skylark, Artemisia, Charnwood, Crux,
-Ookay, Upgrade): coarse sweep -> automatic boundary detection -> dense
-sweep per boundary -> reproducibility repeats on the deepest boundary ->
-tail-extension sweep to check for a further plateau -> plots. It is
-deliberately non-adaptive (see the script's own header comment for why).
-After it finishes on a machine, fill in that machine's
-`data_raw/<machine>/README.md` using the core/seed/timestamp/boundaries
-it prints at the end.
+remaining machine** (Thunderbird, Artemisia, Ookay — and Charnwood again
+once quiet, and Upgrade needs its README backfilled + a plateau check):
+coarse sweep -> automatic boundary detection -> dense sweep per boundary
+-> reproducibility repeats on the deepest boundary -> tail-extension
+sweep to check for a further plateau -> plots -> gzips its own raw CSVs
+(commit the `.csv.gz`, not a decompressed copy — see `.gitignore`; the
+repo was already at ~291MB for just 2 machines/1 experiment type before
+this convention). It is deliberately non-adaptive (see the script's own
+header comment for why). After it finishes on a machine, fill in that
+machine's `data_raw/<machine>/README.md` using the core/seed/timestamp/
+boundaries it prints at the end, and — as done for Sunbird/Crux/Skylark/
+Charnwood — manually extend the tail further (with 1-2 repeats, gzip any
+ad hoc raw CSVs by hand before committing) if the topmost region is still
+climbing rather than flat at the script's default ceiling.
 
 **Before running it on Thunderbird (the one ARM/AArch64 machine):**
 `main_code/aarch64/timer_arm.h` has never been validated on real hardware.
