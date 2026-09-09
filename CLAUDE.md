@@ -11,8 +11,8 @@ file, the repo's data/READMEs, and git history are the only things that do.
 
 ## Current status (update this section as work progresses)
 
-**Capacity experiment: done on Sunbird, not yet started on the other 7
-machines.** Sunbird's results (`data_raw/sunbird/capacity/`,
+**Capacity experiment: done on Sunbird and Crux, not yet started on the
+other 6 machines.** Sunbird's results (`data_raw/sunbird/capacity/`,
 `data_processed/sunbird/capacity/`, including `plots/capacity_curve.png`
 and `capacity_boxplots.png`) found three flat/ramp transitions across
 1 KiB-256 MiB, confirmed via independent repeat runs (see
@@ -20,6 +20,22 @@ and `capacity_boxplots.png`) found three flat/ramp transitions across
 documented multi-tenant-interference finding and a plotting-script bug
 that was found and fixed along the way — read that file before trusting
 any plateau/boundary number at face value).
+
+Crux (`data_raw/crux/capacity/`, `data_processed/crux/capacity/`): ran
+`scripts/run_capacity_full.sh crux 7` (default 64 MiB coarse ceiling),
+which detected 4 boundaries (262144 / 9147840 / 11863280 / 16777216
+bytes) but left its topmost region still climbing at the 256 MiB tail
+ceiling. Per the Sunbird precedent, did one manual follow-up (`orig` + 2
+repeats, ad hoc `crux_tail2.sh`, not committed) extending 256 MiB-1 GiB;
+it flattens into a genuine plateau (~245-250 ticks/access) confirmed
+across 3 independent runs agreeing within 0.5% at 1 GiB. The
+~64 KiB-4 MiB region is a soft continuous ramp with no confirmed flat
+shelf (flagged, not resolved) and the ~4-64 MiB steep transition showed
+large run-to-run spread (up to ~89% at some sizes) in its repeats — see
+`data_raw/crux/README.md` for full detail, including a ~3x wall-clock
+variance anomaly (same fixed workload, 13-40 min depending on other
+students' concurrent load) that did not measurably affect the timing
+medians themselves.
 
 **`scripts/run_capacity_full.sh <machine> <core> [coarse_max_bytes]` is
 the one-command pipeline for running the capacity experiment on each
