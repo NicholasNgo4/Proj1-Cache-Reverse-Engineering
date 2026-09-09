@@ -108,6 +108,8 @@ def load_summaries(paths):
 
 
 def human_bytes(n):
+    if n >= 1024 * 1024 * 1024:
+        return f"{n / (1024 * 1024 * 1024):g} GiB"
     if n >= 1024 * 1024:
         return f"{n / (1024 * 1024):g} MiB"
     if n >= 1024:
@@ -155,11 +157,18 @@ def plot_curve(by_pattern, machine, out_prefix, title_suffix, log_y):
     # unlabeled even though data extends to it. Force ticks at every 3rd
     # octave (8x) from the smallest to largest size actually plotted, and
     # always add the exact max/min so the swept range's edges are labeled.
+    # A regular-grid tick that lands too close (in log space) to the exact
+    # min/max is dropped rather than kept alongside it, since two labels a
+    # couple octaves apart otherwise overlap/clip at this figure width.
     import math
-    lo_oct = math.floor(math.log2(min(all_sizes)))
-    hi_oct = math.ceil(math.log2(max(all_sizes)))
-    tick_locs = sorted(set([2 ** e for e in range(lo_oct, hi_oct + 1, 3)] +
-                            [min(all_sizes), max(all_sizes)]))
+    true_min, true_max = min(all_sizes), max(all_sizes)
+    lo_oct = math.floor(math.log2(true_min))
+    hi_oct = math.ceil(math.log2(true_max))
+    min_gap_octaves = 2
+    regular = [2 ** e for e in range(lo_oct, hi_oct + 1, 3)
+               if abs(e - math.log2(true_min)) > min_gap_octaves
+               and abs(e - math.log2(true_max)) > min_gap_octaves]
+    tick_locs = sorted(set(regular + [true_min, true_max]))
     ax.set_xticks(tick_locs)
     ax.set_xticks([], minor=True)
     if log_y:

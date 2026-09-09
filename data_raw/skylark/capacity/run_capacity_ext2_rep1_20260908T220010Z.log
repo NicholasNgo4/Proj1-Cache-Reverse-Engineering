@@ -1,0 +1,5 @@
+== denseTail2 rep1 (random+sequential), range=536870912-2147483648, core=10, seed=12345 ts=20260908T220010Z ==
+-- rep1: random --
+  wrote 97002 lines -> data_raw/skylark/capacity/capacity_denseTail2_rep1_random_20260908T220010Z.csv
+-- rep1: sequential --
+  wrote 97002 lines -> data_raw/skylark/capacity/capacity_denseTail2_rep1_sequential_20260908T220010Z.csv
