@@ -101,6 +101,38 @@
   with additional targeted sweeps this session since the follow-up work focused on the
   topmost (deepest/DRAM) region per this session's task.
 
+- **CORRECTION (2026-09-10, from already-committed coarse data — no new runs
+  needed):** the "L1, 279 KiB" and "L2, 430 KiB" labels above are wrong. Re-examining
+  the *full* coarse random-pattern curve from 1 KiB through ~1 MiB (not just the
+  dense0/dense1 windows immediately around 285,864/440,872 B) shows there is **no
+  flat shelf anywhere between 32,768 B and at least 961,544 B** — it's one smooth,
+  continuous, monotonic ramp (7.56 ticks at 32,768 B up to 36.4 ticks at 961,544 B),
+  and 285,864/440,872 are just two ordinary points on that ramp, not knees. Locally
+  tight/low-noise medians (the evidence originally cited) are consistent with *either*
+  a genuine plateau *or* a well-measured point on a smooth ramp — tightness alone
+  doesn't distinguish the two without looking at the wider trend, which is what this
+  correction adds.
+  What actually *is* a genuine flat plateau, missed by the original auto-detector run
+  (same failure mode documented on Thunderbird — no single adjacent coarse point
+  clears the default `--min-abs-ticks 3.0`, even though the region is flat before and
+  ramping after): **1,024-30,048 bytes, 66 points, 7.40-7.56 ticks/access, tight**,
+  with the ramp starting immediately at 32,768 B (7.56) and clearly underway by
+  35,728 B (8.17). Sequential-pattern control at the same two sizes stays flat
+  (7.512 vs 7.524 ticks) confirming this is a real random-access cache effect, not a
+  benchmark artifact. **Corrected L1 estimate: 32,768 bytes (32 KiB)** — same value
+  independently found the same way on Sunbird (hand-confirmed via associativity),
+  Crux, Skylark, Upgrade, and Charnwood (see each machine's own README) — consistent
+  across 6 of this team's 7 x86 machines checked so far. **PROVISIONAL** (clean in
+  the data; not yet cross-checked by an independent test the way Sunbird's was).
+  L2/L3 remain **UNRESOLVED** here: the entire 32,768 B-~5.3 MiB span is one
+  continuous ramp with no confirmed second shelf (960 KiB was the widest range
+  checked in this correction pass; the region from there to the already-flagged
+  ~5.3-11.9 MiB over-segmented transition was not re-examined point-by-point). Do
+  **not** use 285,864 or 440,872 bytes as an L1/L2 associativity stride — if
+  `run_associativity_full.sh` is run on Ookay, use 32,768 for L1 and leave L2/LLC
+  for a future session with either a targeted dense sweep to find a real L2 shelf
+  (if one exists) or an explicit decision to test at some other candidate value.
+
 - **Plateau status — topmost/DRAM region: CONFIRMED genuine flat plateau, resolved via
   follow-up.** The pipeline's default sweep only went to 256 MiB and was still
   gently rising at that ceiling (last-quarter-vs-prior-quarter +1.6%, median climbing

@@ -31,8 +31,42 @@
 - Sample count: 1,000,000 (timed; warm-up excluded)
 - Random seed(s): 12345
 - Raw output filename(s): `data_raw/skylark/capacity/capacity_{coarse,coarse_ext,dense0,dense1,dense2,dense2_rep1,dense2_rep2,denseTail}_{random,sequential}_20260908T160607Z.csv.gz` (gzipped after the fact, ~9x smaller, to keep repo size manageable; summaries below were generated from the uncompressed originals before compression)
-- Processing script -> data_processed path: `data_processed/skylark/capacity/{coarse,coarse_ext,dense0,dense1,dense2,dense2_rep1,dense2_rep2,denseTail}_{random,sequential}_summary.csv`, plotted via `scripts/plot_capacity.py` into `data_processed/skylark/capacity/plots/{capacity_curve,capacity_boxplots}.{png,pdf}`
+- Processing script -> data_processed path: `data_processed/skylark/capacity/{coarse,coarse_ext,dense0,dense1,dense2,dense2_rep1,dense2_rep2,denseTail}_{random,sequential}_summary.csv`, plotted via `scripts/plot_capacity.py` into `data_processed/skylark/capacity/plots/{capacity_curve,capacity_boxplots}.{png,pdf}`. **Regenerated 2026-09-10** with `--boundary 32768 --boundary 16777216 --boundary 18295680 --boundary 21757352` to add the newly-identified L1 edge (see below).
 - Detected boundaries (bytes): 16777216, 18295680, 21757352 (auto-detected by `run_capacity_full.sh`, dense-resampled and repeated 2x at the deepest one)
+- **L1 boundary (backfilled 2026-09-10, from the already-collected coarse sweep — no
+  new run needed):** `run_capacity_full.sh`'s auto-detector reported nothing below
+  16.7 MiB at its default thresholds, but the coarse random-pattern data itself shows
+  a clean flat plateau at 6.07-6.24 ticks/access from 1,024 to 32,768 bytes (41
+  points, low noise), with the ramp starting immediately after (35,728 B -> 7.06
+  ticks) and climbing steadily onward. **This gives L1 = 32,768 bytes (32 KiB)** —
+  same value independently found the same way for Upgrade (see that machine's
+  README) and matching Sunbird's hand-confirmed L1, via the same flat-then-ramp
+  signature in each machine's own data, not assumed from one another. The
+  auto-detector missed it for the same reason documented on Thunderbird: no single
+  adjacent-point jump in the 8-points/octave coarse data clears the default
+  `--min-abs-ticks 3.0`, even though the region is genuinely flat before and
+  climbing after. Re-running `detect_cache_hierarchy.py` with `--min-abs-ticks 0.5
+  --rel-threshold 0.1` recovers it: `L1: <= 32,768 bytes`. **PROVISIONAL** (clean in
+  the data; not yet cross-checked by an independent test the way Sunbird's L1 was by
+  its associativity knee).
+- **Candidate L2/L3 shelf, ~4-16.8 MiB (backfilled 2026-09-10):** after the L1 ramp
+  (6.24 ticks at 32,768 B climbing to 26.3 ticks at 4,194,304 B), the coarse data
+  goes essentially flat from 4.19 MiB to 16.78 MiB — 17 points ranging only
+  26.3-33.2 ticks with no monotonic trend (e.g. 27.6, 28.1, 27.0, 27.4, 27.9, 27.2,
+  27.6 ticks bouncing in place across 5-9 MiB) — then jumps sharply to 52.4 ticks at
+  18,295,680 B, a clear knee. At relaxed detector thresholds this whole 4-16.8 MiB
+  span groups into one level (`detect_cache_hierarchy.py --min-abs-ticks 0.5
+  --rel-threshold 0.1` reports `L7: 1,048,576–16,777,216 bytes, 27.22 ticks,
+  33 points`). This reads like a genuine second plateau (candidate L2 or combined
+  L2+L3, can't distinguish further without more targeted data) sitting before the
+  already-confirmed L3->DRAM transition at ~16.8-22 MiB below — but at only
+  8 points/octave this is not yet confirmed flat the same rigorous way Sunbird's
+  plateaus were (40+ dense points, <2% run-to-run spread, independent repeats).
+  **Would need a new 48-points/octave dense sweep across ~1-16 MiB on `skylark`
+  itself to confirm — not resolvable from data already in this checkout** (this
+  session has no access to `skylark`, only to this git checkout's already-collected
+  data; analysis above used only already-committed `data_processed/skylark/capacity/`
+  CSVs).
 - Excluded runs (if any) and reason: none excluded. Note: the automated pipeline's own plotting step failed partway through the run (`ModuleNotFoundError: No module named 'matplotlib'` on this machine — see `data_raw/skylark/capacity/run_capacity_full_20260908T160607Z.log`); all data generation stages completed successfully before that failure. matplotlib (+ pillow, cycler, fonttools, kiwisolver) was installed via `pip3 install --user` and the plotting step was re-run standalone with the same summary-file set and boundaries the script would have used — `data_processed/skylark/capacity/plots/` is now up to date with all of the above data.
 - Follow-up (not part of the automated `run_capacity_full.sh` pipeline): a manual tail-extension2 check further out (536870912-2147483648 bytes, i.e. 512 MiB-2 GiB), core=10, seed=12345, samples=1,000,000, warmup=3, points-per-octave=48 (same parameters as the script's own dense sweeps), to check for a further plateau beyond what the script's own tail-extension (128-512 MiB) covered.
   - `orig` pass: `run_capacity_ext2_20260908T171553Z.log` -> `data_raw/skylark/capacity/capacity_denseTail2_orig_{random,sequential}_20260908T171553Z.csv.gz` -> `data_processed/skylark/capacity/denseTail2_orig_{random,sequential}_summary.csv` (97 points each, complete).
