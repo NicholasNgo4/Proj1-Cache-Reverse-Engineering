@@ -133,8 +133,54 @@
 - Conflict-set construction method: node-to-node stride fixed at `cache_bytes` (32768 for this run) in a dependent pointer-chase cycle; since capacity = sets * line_size * ways is by construction a whole multiple of one set's address period, every node landed in the same cache set regardless of the (still unmeasured) line size or associativity, while getting a distinct tag each time (see `main_code/common/associativity.h`'s module docstring for the full argument). Swept `num_ways_probed` (cycle length) linearly from 2 to 64, one node added at a time, both randomized and sequential-order chase (`--pattern`), 1,000,000 timed accesses per point (batch size 1000), 3 untimed warm-up passes, seed 12345.
 - Raw output filename(s): `data_raw/sunbird/associativity/L1/associativity_{base,rep1,rep2}_{random,sequential}_20260910T170145Z.csv.gz`
 - Processing script -> data_processed path: `python3 scripts/summarize_raw.py <raw.csv> -o data_processed/sunbird/associativity/L1/<name>_summary.csv`, then `python3 scripts/detect_associativity.py data_processed/sunbird/associativity/L1/base_random_summary.csv` for the knee estimate, then `python3 scripts/plot_associativity.py data_processed/sunbird/associativity/L1/*_summary.csv -o data_processed/sunbird/associativity/L1/plots --machine sunbird --level L1 --estimate 8` for the curve and box-plot figures (all done automatically by `run_associativity_full.sh`).
-- Result: **8-way** at L1 (cache_bytes=32768). Median latency is flat at ~10.1-11.6 ticks/access for `num_ways_probed` 2 through 8 (0% run-to-run spread across 3 independent runs at num_ways=8), then jumps sharply to ~21.2 ticks at num_ways=9 (also 0% spread) and ~25.1 ticks by num_ways=10 -- a step, not a ramp, consistent with a cyclic dependent chase over N distinct blocks thrashing completely once N exceeds the set's way count. See `data_processed/sunbird/associativity/L1/plots/associativity_curve.png` and `associativity_boxplots.png`.
+- Result: **8-way** at L1 (cache_bytes=32768). Median latency is flat at ~10.1-11.6 ticks/access for `num_ways_probed` 2 through 8 (0% run-to-run spread across 3 independent runs at num_ways=8), then jumps sharply to ~21.2 ticks at num_ways=9 (also 0% spread) and ~25.1 ticks by num_ways=10 -- a step, not a ramp, consistent with a cyclic dependent chase over N distinct blocks thrashing completely once N exceeds the set's way count. See `data_processed/sunbird/associativity/L1/plots/associativity_curve.png` and `associativity_boxplots.png`. **Follow-up (2026-09-10): this post-L1-thrashing latency (~25.0-25.1 ticks) turns out to itself be a genuinely important signal -- it stays flat and clean for num_ways=10 through 37 (28 points, essentially 0 noise), well below LLC's independently-established ~48-51 ticks/access (see capacity section). Since these spilled-over accesses scatter across many sets of whatever level absorbs them (32,768 isn't a multiple of that level's own set-stride the way it is for L1), this is very likely genuine L2 hit latency, not a conflict artifact -- see the new L2 candidate subsection below, which corroborates this independently at a different `cache_bytes`.**
 - Notes: Latency drifts upward again gradually past num_ways~28-30 (both patterns), most visibly in the sequential-pattern curve, and gets noisier (higher run-to-run spread, e.g. 30-40% at several points above num_ways~29) than the clean L1 knee itself. This is most likely TLB/page-walk pressure as the touched virtual footprint grows past `num_ways * 32 KiB` (at num_ways=64 that's still only 2 MiB, but each node lives on its own page here since the stride equals a full 32 KiB, so it's really 64 distinct pages, not 64 distinct 32 KiB regions of a shared page set) rather than a second cache-level effect -- not investigated further since it sits well above the L1 knee this run was targeting; flag as a follow-up if a later experiment needs a clean baseline at large num_ways.
+
+#### L2 candidate (exploratory, 2026-09-10) -- evidence for a real level, associativity number not trustworthy
+
+Motivated by the L1 test's own post-thrashing plateau (~25.0-25.1 ticks,
+see above) sitting well below LLC's ~48-51 ticks -- a distinct third tier,
+not a transition toward LLC. The capacity section's coarse random-pattern
+data shows ~25 ticks/access occurring around 310-370 KiB, close to this
+chip family's textbook per-core L2 size (256 KiB) -- cited as a candidate
+to test, not used to derive anything. Ran `cache_bytes=262144` (256 KiB,
+a valid power of two) as an explicitly exploratory attempt (real L1 output
+moved aside first, same collision-avoidance procedure as the LLC attempts
+below; archived to `LLC_16MiB`-style naming as `L2_256KiB_candidate/`),
+`taskset -c 2`, core confirmed idle first, same samples/batch/warmup/seed.
+
+- Auto-detector estimate: 4-way. **But the curve is a multi-step staircase,
+  not a single knee** -- flat 10.07 (num_ways 2-4, matches L1 hit latency),
+  step to 18.06 (5-8), a single-point dip to 12.12 at num_ways=9 (likely
+  noise), then **flat at 24.996-25.06 for num_ways 10-16 -- matching the
+  L1 test's independently-found ~25-tick tier almost exactly**, then
+  further steps: ~33.0 (18-34), ~40.3 (35-45), ~44-46 (46-59), climbing
+  toward ~49-53 by num_ways=60-64 (approaching LLC's range). Sequential
+  pattern shows the same staircase shape (as expected for this experiment
+  -- unlike the capacity experiment's sequential control, both associativity
+  patterns touch the identical set of addresses, just in a different visit
+  order, so matching curves here is a consistency check passed, not a
+  surprise).
+- **Interpretation: the ~25-tick corroboration is the trustworthy part of
+  this result -- it now agrees between two independent tests (this one and
+  the L1 test's spillover), which is real evidence for a genuine
+  intermediate cache level with roughly that hit latency.** The *specific*
+  "4-way" estimate from this test should **not** be taken at face value,
+  though: a clean single-level associativity test (like the real L1 one)
+  produces exactly one step; this one produces five-plus. The additional
+  steps beyond the first are most plausibly a confound from testing at a
+  stride that doesn't align cleanly with any one level's own true
+  structure (the same failure mode already documented for the LLC attempts
+  below, just producing more visible internal structure here rather than
+  one big jump) -- not five real nested cache levels. **Net conclusion: this
+  session now has good evidence a real L2 (or some genuine intermediate
+  level) exists with ~25 ticks/access hit latency, but not a trustworthy
+  associativity (way-count) number for it.** Pinning that would need a
+  properly-isolated stride, which in turn needs the L2's true capacity
+  (not just its hit latency) determined independently first -- e.g. a
+  dedicated dense random-pattern capacity sweep across ~128 KiB-1 MiB to
+  find where the smooth ramp's *rate* changes, rather than relying on the
+  256 KiB textbook guess used here.
 
 #### LLC (exploratory, 2026-09-10) -- inconclusive, not a confirmed result
 

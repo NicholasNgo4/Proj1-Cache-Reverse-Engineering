@@ -96,7 +96,7 @@ boundaries and would not have produced a meaningful associativity result.
 
 | Machine | L1 | L2 | L3 / LLC |
 |---|---|---|---|
-| Sunbird | **32,768 B — HAND-CONFIRMED** (associativity knee, 0% spread, 8-way) | ~26-27 MiB — **PROVISIONAL** (robust per-bin floor, immune to this machine's known interference spikes, confirmed flat 8.4–26 MiB then a genuine sustained climb from ~26 MiB on, via 3 new 200-400-ppo sweeps run live this session; supersedes an earlier same-session ~20 MiB estimate that turned out to be measuring a single interference spike) | ~150 MiB onset — plateau itself (≥145 MiB, ~190-205 ticks/access) already confirmed genuine via multi-run repeats |
+| Sunbird | **32,768 B — HAND-CONFIRMED** (associativity knee, 0% spread, 8-way) | **~25 ticks/access hit latency confirmed (corroborated in 2 independent tests); capacity/associativity NOT resolved** — candidate capacity ~256 KiB (textbook value, untested independently); way-count from the 256 KiB associativity attempt (4-way) is not trustworthy (multi-step staircase, not a clean knee) | ~2–26 MiB plateau (~48-51 ticks/access) is this level's hit-latency region; ~26-27 MiB is where it ends — **PROVISIONAL** (robust per-bin floor, immune to this machine's known interference spikes, via 3 new 200-400-ppo sweeps run live this session; supersedes an earlier same-session ~20 MiB estimate that turned out to be measuring a single interference spike); separately, the DRAM plateau ≥145 MiB (~190-205 ticks/access) is already confirmed genuine via multi-run repeats |
 | Crux | **32,768 B — PROVISIONAL** (precise edge pinned 2026-09-10 from existing coarse data + sequential control) | UNRESOLVED (soft ramp ~64 KiB–4 MiB, no flat shelf) | UNRESOLVED discrete value (one dominant steep transition ~4–64 MiB); DRAM plateau ≥~100 MiB confirmed genuine (~245-250 ticks) |
 | Skylark | **32,768 B — PROVISIONAL** (found 2026-09-10 from existing coarse data + sequential control; detector missed it, same threshold issue as Thunderbird) | ~4–16.8 MiB — **PROVISIONAL-WEAK** (new candidate shelf, 17 coarse points, 26.3-33.2 ticks, no trend; needs a 48-ppo dense sweep to confirm) | UNRESOLVED discrete value (3 close auto-boundaries 16.7-21.8 MiB, one ramp not 3 levels); DRAM plateau confirmed flat 512 MiB–2 GiB (~280 ticks) |
 | Upgrade | **32,768 B — PROVISIONAL** (found 2026-09-10 from existing coarse data + sequential control) | UNRESOLVED (ramp 32 KiB–1.5 MiB); ~1.5–4.5 MiB soft near-plateau — **PROVISIONAL-WEAK**, needs a dense sweep | UNRESOLVED (noisy ~5–22 MiB transition, session-level interference between repeats, `rep2` systematically elevated at 60% of points); **DRAM region NOT flat at 256 MiB ceiling (+11.9%) — needs a genuinely new 256 MiB–1 GiB run on `upgrade` itself, not resolvable from existing data** |
@@ -148,6 +148,26 @@ cross-validation yet** (e.g. a clean associativity knee matching the
 assumed capacity). Before treating any PROVISIONAL/PROVISIONAL-STRONG
 value as final, that kind of cross-check — or an explicit decision to
 accept it as "provisional" in the report — is still needed.
+
+**New evidence (2026-09-10): Sunbird likely does have a real L2 after all,
+with ~25 ticks/access hit latency — but no trustworthy way-count yet.**
+Re-examining the *already-trusted* L1 associativity test's own
+post-thrashing behavior (num_ways 10-37, stride=32,768 B) shows a clean,
+flat ~25.0-25.1 tick plateau — a third tier, distinct from both L1
+(~10.1) and the independently-established LLC (~48-51). A follow-up
+associativity attempt at 262,144 B (256 KiB, this chip family's textbook
+L2 size, tested only as a candidate) corroborated the same ~25-tick tier
+at num_ways 10-16, but produced a 5-plus-step staircase overall rather
+than a single knee, so its "4-way" estimate isn't trustworthy — likely
+the same stride-doesn't-match-true-structure confound as the LLC attempts
+below, just producing more visible internal steps. **Net: L2 almost
+certainly exists (via latency, corroborated twice); its capacity and
+associativity are still unresolved** — this reopens the "no L2 shelf"
+conclusion from earlier in this document, which was based on the
+*capacity* sweep's smooth ramp (random access blends hits/misses near a
+real boundary rather than showing a sharp knee, which is consistent with
+a real L2 rather than evidence against one). See
+`data_raw/sunbird/README.md`'s new "L2 candidate" subsection.
 
 **Attempted (2026-09-10): Sunbird LLC associativity at 16 MiB and 32 MiB
 (the power-of-two brackets around the ~26-27 MiB estimate) — inconclusive.**
