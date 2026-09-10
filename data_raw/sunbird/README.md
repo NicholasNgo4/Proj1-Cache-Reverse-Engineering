@@ -181,6 +181,48 @@ below; archived to `LLC_16MiB`-style naming as `L2_256KiB_candidate/`),
   dedicated dense random-pattern capacity sweep across ~128 KiB-1 MiB to
   find where the smooth ramp's *rate* changes, rather than relying on the
   256 KiB textbook guess used here.
+- **Follow-up (2026-09-10): slope analysis of already-collected capacity data,
+  then a second candidate at 131,072 B (128 KiB).** Binning the clean
+  warm-started dense sweep (65,536-299,040 B, see capacity section) together
+  with coarse data out to 2 MiB and computing ticks-per-octave shows the ramp
+  *decelerating* from ~4.9 down to a minimum of ~1.1-1.2 around 121-155 KiB
+  (the flattest point in the whole ramp outside the confirmed plateaus), then
+  *re-accelerating* from ~175 KiB onward -- the classic signature of a real
+  level's capacity being approached then exceeded under random access. This
+  motivated testing 131,072 B (128 KiB, also a valid power of two) as a
+  second, better-data-grounded L2 candidate.
+  - Result (`data_raw/sunbird/associativity/L2_128KiB_candidate/`,
+    `data_processed/sunbird/associativity/L2_128KiB_candidate/`, timestamp
+    `20260910T214703Z`): flat 10.07-10.39 (num_ways 2-4), step to 18.06
+    (5-8), step to ~26.6-27.4 (9-16, matching the ~25-tick tier within normal
+    run-to-run variation -- a *third* independent corroboration of that
+    tier), then noisy ~40-49 for num_ways>=17 with no further clean step.
+  - **This is nearly identical in shape to the 256 KiB result** (same two
+    initial tiers: flat 10.07 for 2-4, flat 18.06 for 5-8, before reaching
+    the ~25-27 tick tier) -- reproducible across two different candidate
+    byte values, so it's a real effect, not noise from one run. But **neither
+    breaks at num_ways=9 the way L1's own clean test did at its correct
+    stride (32,768 B)** -- both break at num_ways=5 instead, which does not
+    match an "L2 is also 8-way" hypothesis. Not yet explained: 131,072 and
+    262,144 are both multiples of L1's own 4,096-byte set-stride (sets x
+    line_size, for a 32,768 B / 8-way / 64 B-line L1), so by the same
+    reasoning that correctly predicted L1's clean break at 9 for stride
+    32,768, both larger strides should show that same break -- they don't,
+    consistently. Root cause not yet identified (candidates not yet ruled
+    out: TLB set-associativity interacting with the larger inter-node page
+    stride, or some other confound specific to strides larger than L1's own
+    capacity) -- flagged as an open question rather than guessed at further.
+  - Plots for both `L2_128KiB_candidate` and `L2_256KiB_candidate` (and the
+    `LLC_16MiB`/`LLC_32MiB` attempts below) were regenerated with corrected
+    `--level` labels after an initial run -- `run_associativity_full.sh`
+    always titles its first (only, in these single-value invocations) level
+    "L1" internally regardless of the `cache_bytes` value tested, which is
+    correct behavior for its intended one-shot-per-level usage but produced
+    misleading plot titles here since these were all run as one-off L1-slot
+    substitutions (see the collision-avoidance procedure described above).
+    The underlying data was always correct throughout (verified directly
+    from each raw CSV's own `cache_bytes` header field and per-row column);
+    only the plot titles needed fixing, not the experiment itself.
 
 #### LLC (exploratory, 2026-09-10) -- inconclusive, not a confirmed result
 

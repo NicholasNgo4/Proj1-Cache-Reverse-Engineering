@@ -169,6 +169,26 @@ real boundary rather than showing a sharp knee, which is consistent with
 a real L2 rather than evidence against one). See
 `data_raw/sunbird/README.md`'s new "L2 candidate" subsection.
 
+**Follow-up (2026-09-10): a second L2 candidate (128 KiB) from a slope
+analysis of already-collected data, plus a labeling fix.** Binning the
+existing capacity data and computing ticks-per-octave showed the ramp
+decelerating to a minimum (~1.1-1.2 ticks/octave) around 121-155 KiB before
+re-accelerating — motivating a test at 131,072 B. Result: nearly identical
+shape to the 256 KiB attempt (same first two tiers, same ~25-27 tick tier
+at num_ways 9-16 — a third corroboration of that latency value), but also
+breaking at num_ways=5 rather than 9, inconsistent with an "L2 is 8-way"
+hypothesis and not yet mechanistically explained (open question: why do
+strides larger than L1's own 32,768 B capacity — both 131,072 and
+262,144 — consistently break earlier than L1's confirmed 8-way limit,
+when both are still multiples of L1's set-stride and by that reasoning
+should reproduce L1's clean break at 9?). Separately: the `L2_*_candidate`
+and `LLC_*MiB` plots were initially mislabeled "L1" in their titles (an
+artifact of `run_associativity_full.sh` always naming its first level "L1"
+internally, then this session's collision-avoidance renaming happening
+after plot generation) — verified the underlying data was always correct
+(each raw CSV's own `cache_bytes` field confirms it), then regenerated all
+four plots with correct labels.
+
 **Attempted (2026-09-10): Sunbird LLC associativity at 16 MiB and 32 MiB
 (the power-of-two brackets around the ~26-27 MiB estimate) — inconclusive.**
 `--cache-bytes` is hard-validated as an exact power of two, so the ~26-27 MiB
