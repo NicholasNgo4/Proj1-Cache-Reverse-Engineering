@@ -275,3 +275,21 @@ frozen/tagged first per `README.md`.
   so it survives the driving session disconnecting, and poll the log file
   for a completion sentinel rather than relying on harness-managed
   background-task tracking alone.
+- `cache_bench --experiment associativity`'s `--cache-bytes` argument is
+  hard-validated as an exact power of two (`main.c`'s `(cache_bytes &
+  (cache_bytes - 1)) != 0` check) — a capacity estimate from a soft/gradual
+  capacity-sweep knee (not a clean round number) will be rejected outright,
+  not just accepted-but-imprecise. Round to the nearest power of two before
+  attempting an associativity run at a boundary that isn't already one
+  (see Sunbird's ~26-27 MiB LLC estimate -> tested at 16 MiB and 32 MiB
+  instead, `data_raw/sunbird/README.md`).
+- A dense capacity sweep started right at the left edge of the size range
+  you actually care about can show a spurious "shelf" from CPU
+  frequency-ramp-up (the first several points run at a lower clock before
+  settling into steady-state turbo, elevating ticks/access in a way that
+  decays over the first few dozen points — not a cache effect). Confirmed
+  on Sunbird: a 128-512 KiB sweep starting at 131,072 B falsely showed a
+  clean plateau at ~133-173 KiB; restarting the same sweep from a colder
+  65,536 B start resolved it as one continuous ramp with no shelf at all.
+  Start dense sweeps meaningfully below the region of actual interest, not
+  exactly at its left edge.

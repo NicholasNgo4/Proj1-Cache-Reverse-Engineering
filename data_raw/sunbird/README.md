@@ -73,6 +73,30 @@
   figure in the report. (The ~145 MiB+ DRAM-like plateau below this bullet was
   already confirmed genuine via the rep2/rep3 analysis further down and is
   unaffected by this correction.)
+- **Checked for a hidden L2 shelf between L1 (32 KiB) and the ~2-26 MiB plateau
+  (2026-09-10): none found — this machine shows exactly two shelves (L1 and the
+  ~2-26 MiB plateau above), nothing else.** Two motivations: (1) the coarse
+  random-pattern data showed a mild, narrow inflection near 256 KiB (220,432 B ->
+  262,144 B: +2.5%, vs. +14-28% immediately before/after — suggestive but not
+  conclusive at 8-points/octave resolution); (2) 256 KiB is this chip family's
+  textbook per-core L2 size — cited here only as a candidate to test against the
+  empirical curve, not as something used to derive a boundary (Phase I stays
+  timing-only; this is exactly the kind of cross-check Phase II literature
+  comparison is for). A first dense sweep (128-512 KiB, 200 ppo,
+  `capacity_denseE_l2check_random_20260910T181421Z.csv.gz`) appeared to show a
+  genuine flat shelf at 15.7-15.8 ticks from ~133-173 KiB — but this was a false
+  lead: the sweep's own first several points (131,072 B: 20.64 -> 132,896 B: 17.0,
+  decaying toward the 15.7 baseline) show the classic signature of the CPU not yet
+  at steady-state clock frequency this early in the process, not a cache effect.
+  A second sweep starting from a colder 64 KiB (`capacity_denseE_l2check_
+  warmstart_random_20260910T181514Z.csv.gz`, same resolution), giving the CPU room
+  to reach steady frequency before entering the region of interest, resolved it:
+  **one smooth, continuous, monotonic ramp the entire way from 65,536 B
+  (14.02 ticks) through 299,040 B (24.66 ticks)** — no shelf anywhere, including no
+  shelf at 256 KiB. **Practical lesson for future dense sweeps on this or other
+  machines: start the size range meaningfully below the region of actual interest,
+  not exactly at its left edge, to avoid mistaking a cold-start frequency-ramp
+  artifact for a cache boundary.**
 
 ### line_size/
 - Source file(s): `main_code/common/{main.c,line_size.c,line_size.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
