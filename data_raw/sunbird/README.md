@@ -97,6 +97,19 @@
   machines: start the size range meaningfully below the region of actual interest,
   not exactly at its left edge, to avoid mistaking a cold-start frequency-ramp
   artifact for a cache boundary.**
+- **Coarse-resolution confirmation of the ~26-27 MiB boundary (2026-09-10):** a
+  standard 8-points/octave coarse sweep, 16-28.2 MiB (started well below the region
+  of interest per the lesson above), both patterns
+  (`capacity_coarseF_boundary26_{random,sequential}_20260910T195504Z/195506Z.csv.gz`).
+  Random-pattern medians: flat 48.5-49.1 ticks at 16.78/18.3/19.95/21.76/23.73/
+  25.87 MiB, then 51.3 ticks at 28.22 MiB -- consistent with (though coarser than,
+  and not contradicting) the high-resolution floor analysis above. Sequential
+  stayed perfectly flat at 10.12 ticks across all 7 points, again confirming a real
+  cache effect. This coarse grid doesn't happen to land a point between 26-27 MiB
+  specifically (octave spacing skips from 25.87 to 28.22 MiB at 8 ppo) -- the
+  high-resolution sweeps above remain the precise source for the boundary location
+  itself; this pass is corroborating evidence at standard resolution, not a
+  replacement for them.
 
 ### line_size/
 - Source file(s): `main_code/common/{main.c,line_size.c,line_size.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
