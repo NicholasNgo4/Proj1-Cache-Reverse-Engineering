@@ -42,8 +42,20 @@ unaffected. Artemisia's sub-48 KiB region is confounded by per-invocation
 P-state/turbo bimodality — already correctly documented as unresolved,
 unaffected by this pass.)
 
-**Two corrections to prior sessions' work**, both now fixed in the
-respective `data_raw/<machine>/README.md`:
+**Three corrections to prior work** (two from earlier sessions, one from
+earlier in this same session), all now fixed in the respective
+`data_raw/<machine>/README.md`:
+- **Sunbird L2/L3**: this document originally said Sunbird's ~20 MiB
+  boundary had been "upgraded to provisional-strong" from existing
+  `denseB` data. That was itself wrong — the 21,757,352 B point that looked
+  like a knee was an interference spike, not a real transition (this
+  machine's coarse/dense sweeps are well-documented as noisy in this exact
+  size range). A follow-up series of 200-400-points/octave sweeps (new
+  data, run live on Sunbird this session — see that machine's README)
+  computed a robust per-bin floor (minimum ticks/access, immune to
+  upward-only spikes) and found the true plateau holds flat to ~26 MiB,
+  with the floor itself only beginning a sustained climb after that.
+  **Corrected: ~26-27 MiB**, not ~20 MiB.
 - **Ookay**: previously reported "L1 = 285,864 B (279 KiB)" was wrong. The
   full ramp from 32,768 B to at least 961,544 B is one smooth continuous
   climb with no shelf anywhere in it — 285,864 B is just an ordinary point
@@ -84,7 +96,7 @@ boundaries and would not have produced a meaningful associativity result.
 
 | Machine | L1 | L2 | L3 / LLC |
 |---|---|---|---|
-| Sunbird | **32,768 B — HAND-CONFIRMED** (associativity knee, 0% spread, 8-way) | ~20 MiB — **PROVISIONAL-STRONG** (genuine 14-point flat plateau 8.4–20 MiB at ~48-49 ticks, ~3.5% spread, then a clear knee — re-examined 2026-09-10 from existing `denseB` data) | ~150 MiB onset — plateau itself (≥145 MiB, ~190-205 ticks/access) already confirmed genuine via multi-run repeats |
+| Sunbird | **32,768 B — HAND-CONFIRMED** (associativity knee, 0% spread, 8-way) | ~26-27 MiB — **PROVISIONAL** (robust per-bin floor, immune to this machine's known interference spikes, confirmed flat 8.4–26 MiB then a genuine sustained climb from ~26 MiB on, via 3 new 200-400-ppo sweeps run live this session; supersedes an earlier same-session ~20 MiB estimate that turned out to be measuring a single interference spike) | ~150 MiB onset — plateau itself (≥145 MiB, ~190-205 ticks/access) already confirmed genuine via multi-run repeats |
 | Crux | **32,768 B — PROVISIONAL** (precise edge pinned 2026-09-10 from existing coarse data + sequential control) | UNRESOLVED (soft ramp ~64 KiB–4 MiB, no flat shelf) | UNRESOLVED discrete value (one dominant steep transition ~4–64 MiB); DRAM plateau ≥~100 MiB confirmed genuine (~245-250 ticks) |
 | Skylark | **32,768 B — PROVISIONAL** (found 2026-09-10 from existing coarse data + sequential control; detector missed it, same threshold issue as Thunderbird) | ~4–16.8 MiB — **PROVISIONAL-WEAK** (new candidate shelf, 17 coarse points, 26.3-33.2 ticks, no trend; needs a 48-ppo dense sweep to confirm) | UNRESOLVED discrete value (3 close auto-boundaries 16.7-21.8 MiB, one ramp not 3 levels); DRAM plateau confirmed flat 512 MiB–2 GiB (~280 ticks) |
 | Upgrade | **32,768 B — PROVISIONAL** (found 2026-09-10 from existing coarse data + sequential control) | UNRESOLVED (ramp 32 KiB–1.5 MiB); ~1.5–4.5 MiB soft near-plateau — **PROVISIONAL-WEAK**, needs a dense sweep | UNRESOLVED (noisy ~5–22 MiB transition, session-level interference between repeats, `rep2` systematically elevated at 60% of points); **DRAM region NOT flat at 256 MiB ceiling (+11.9%) — needs a genuinely new 256 MiB–1 GiB run on `upgrade` itself, not resolvable from existing data** |
@@ -99,9 +111,17 @@ boundaries and would not have produced a meaningful associativity result.
 L1 is now PROVISIONAL-or-better on 7 of 8 machines (all x86 machines plus
 Thunderbird's ARM-appropriate value); only Artemisia's L1 remains
 genuinely unresolved, and that's a real hardware/measurement confound
-(P-state bimodality), not a missing-data problem. Sunbird's L2 was
-upgraded from a bare plot annotation to a data-grounded PROVISIONAL-STRONG
-value. Two prior L1 misidentifications (Ookay, Charnwood) were corrected.
+(P-state bimodality), not a missing-data problem. Two prior L1
+misidentifications (Ookay, Charnwood) were corrected.
+
+**Settled with new live data on Sunbird (the one machine this session has
+direct access to):** Sunbird's L2/L3 boundary was pinned at ~26-27 MiB via
+a robust floor analysis across 3 new high-resolution sweeps, correcting
+both the original ~20 MiB plot annotation and this document's own
+initial (wrong) attempt to validate that annotation from existing sparse
+data alone — a reminder that "locally clean-looking existing data" isn't
+always enough; sometimes a targeted new sweep is what actually settles a
+boundary, and re-analysis can itself need correcting.
 
 **Still requires genuinely new data collection — cannot be resolved by
 more analysis of what's already committed:**

@@ -46,18 +46,33 @@
 - With rep2/rep3 added, most size points >=16 MiB now have 3-5 independent measurements. Checked the >=145 MiB plateau specifically: across 40 points, the run-to-run spread in median (max-min across available runs, divided by mean) averages 3.6% and is under 2% at many points -- confirms this region is a genuine stable plateau (~190-205 ticks/access) rather than a still-noisy or still-climbing region; the wider apparent noise in earlier single/double-run plots there was mostly a small-sample-size artifact. The ~19-25 MiB transition region remains genuinely more variable run-to-run even after averaging (individual points still show 30-90 tick spreads across runs) -- this is a real property of measuring a steep transition, not something more averaging alone will fully clean up.
 - `capacity_boxplots.png/.pdf` now annotates each box with the number of independent runs combined at that point and their run-to-run median spread as a percentage (e.g. "5 runs, 4% spread"), or "1,000 samples" when only one run covered that exact size -- so the figure itself shows which boundary points are well-supported vs. which aren't, rather than that having to live only in this README. The 19.87 MiB "near 20 MiB boundary" box is a good example of the latter: 95% spread across 5 runs, correctly flagging it as an unreliable point sitting inside the steep transition rather than a clean boundary marker.
 - Known interference: many summary rows show per-point mean/stddev far above the median (batch maxima repeatedly near ~32.5-60k ticks among otherwise ~10-150 tick batches), consistent with occasional OS scheduling interruptions on this shared, multi-user machine rather than a cache effect. Use median (not mean) for boundary inference; report the outlier count and note this in box plots.
-- **~20 MiB boundary, re-examined (2026-09-10, from already-collected `denseB` data —
-  no new run needed):** `capacity_denseB` (8.39-67.1 MiB) shows a genuine flat
-  plateau from 8.39 MiB to 19.95 MiB — 14 points, 48.05-49.79 ticks/access, ~3.5%
-  spread, no trend — immediately followed by a clear knee: 21,757,352 B jumps to
-  54.07 ticks, then 23.7/25.9/28.2/30.8/33.6 MiB climb steadily to 56.7/82.0/100.8/
-  114.8/129.0 ticks. This is a real plateau-then-knee, not just an eyeballed
-  round-number plot annotation — the ~20 MiB `--boundary` flag used for the plots
-  turns out to sit almost exactly at the true transition point. Upgrades this
-  boundary from "provisional annotation" to **provisional-but-data-grounded**: still
-  short of Sunbird L1's associativity-confirmed status, but no longer just a guess.
-  (The ~145 MiB+ DRAM-like plateau below this bullet was already confirmed genuine
-  via the rep2/rep3 analysis above — that one doesn't need revisiting.)
+- **~20 MiB boundary: superseded by a more precise follow-up (2026-09-10).** An
+  initial re-examination of `denseB` (8-points/octave) mistakenly concluded the
+  transition began at ~20-22 MiB, based on a jump to 54.07 ticks at 21,757,352 B.
+  **This was wrong** — that single point was almost certainly one of this machine's
+  well-documented interference spikes, not the start of a real transition. Three
+  follow-up sweeps at 200-400 points/octave (`capacity_denseD_boundary{20,25,
+  28to42}_random_20260910T175351Z/175438Z/175644Z.csv.gz`, same core/seed/samples,
+  `taskset -c 2`, core confirmed >=96% idle via 3 `/proc/stat` samples before
+  running) resolved the true shape: computing the **robust floor** (minimum
+  ticks/access per 1 MiB bin — immune to upward-only interference spikes, unlike a
+  raw median at 8-points/octave resolution) shows the plateau (~48-51 ticks) holds
+  essentially flat from 8.39 MiB through **~26 MiB**, with individual points in the
+  20-26 MiB range spiking as high as 60-95 ticks (matching this machine's documented
+  noise pattern) while the *floor* stays flat — then, starting at ~26-27 MiB, the
+  floor itself begins a genuine sustained monotonic climb (50.6 at 26 MiB -> 52.3 at
+  27 -> 59.6 at 29 -> 70.2 at 32 -> 96.1 at 38 -> 106.1 at 41 MiB), confirming this is
+  a real transition, not more noise. Sequential-pattern control stays perfectly flat
+  (10.12-10.124 ticks, zero variation) across the entire 8-42 MiB range, confirming
+  the random-pattern floor climb is a genuine cache effect. **Corrected estimate: the
+  L2/L3 transition begins at ~26-27 MiB**, not ~20 MiB as originally plotted --
+  **PROVISIONAL** (data-grounded floor-based estimate; still not a single precise
+  byte value, and not yet cross-checked by an independent test the way L1 was).
+  `--boundary 20971520` in the current plots is now known to be measuring noise, not
+  the real knee -- regenerate plots with a ~27 MiB boundary flag before using this
+  figure in the report. (The ~145 MiB+ DRAM-like plateau below this bullet was
+  already confirmed genuine via the rep2/rep3 analysis further down and is
+  unaffected by this correction.)
 
 ### line_size/
 - Source file(s): `main_code/common/{main.c,line_size.c,line_size.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
