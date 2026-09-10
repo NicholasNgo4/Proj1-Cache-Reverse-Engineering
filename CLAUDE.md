@@ -202,35 +202,60 @@ put a second tmux session on just polling for completion, since a
 background-task watcher tied to the driving Claude Code session dies with
 that session even though the benchmark's own tmux session doesn't.
 
-**Associativity experiment: code done, one real data point (Sunbird L1 =
-8-way).** `--experiment associativity` now exists in `cache_bench`, with
-its own `scripts/{run_associativity_full.sh,detect_associativity.py,
-plot_associativity.py}` pipeline (mirrors the capacity/line_size pipeline
-shape: full per-level sweep -> knee detection -> 2 reproducibility repeats
--> plots; see `main_code/common/associativity.h`'s module docstring for
-the method — a node-to-node stride fixed at a cache level's own capacity
-forces every probed node into the same set with a distinct tag, so sweeping
-how many such nodes are chased finds the hit->thrashing knee = associativity
-for that level). Ran for real on Sunbird core 2 at cache_bytes=32768 (this
-team's hand-confirmed L1 capacity): **flat plateau through num_ways=8,
-sharp step at num_ways=9** (~10-12 ticks -> ~21+ ticks, 0% run-to-run
-spread at both the last-flat and first-thrashing points across 3
-independent runs) -> **L1 = 8-way**. See
-`data_raw/sunbird/associativity/L1/` and
-`data_processed/sunbird/associativity/L1/plots/`, documented in
-`data_raw/sunbird/README.md`'s associativity section. **Deliberately not
-yet run for L2/LLC on Sunbird or at all on the other 7 machines**: L2/LLC
-capacity boundaries aren't hand-confirmed the way L1 is (the capacity
-section's ~20 MiB / ~150 MiB Sunbird values are still provisional, and
-several other machines' non-L1 boundaries are flagged noisy/unresolved
-above) — `run_associativity_full.sh` will auto-detect+round a stride from
-an existing capacity summary if no override is given, but prints a loud
-warning not to trust that for L1 specifically (confirmed off by ~9x on
-Sunbird: detect_cache_hierarchy.py's coarse boundary is 285864B/~279 KiB
-vs the hand-confirmed 32 KiB). Prefer an explicit
-`cache_bytes_csv` override built from each machine's own confirmed
-capacity numbers once available, e.g.
-`./scripts/run_associativity_full.sh <machine> <core> <L1>,<L2>,<LLC>`.
+**Associativity experiment: L1 confirmed (8-way); L2/LLC blocked by a real
+tool limitation, not just unconfirmed capacity — read this before trying
+again.** `--experiment associativity` exists in `cache_bench`, with its own
+`scripts/{run_associativity_full.sh,detect_associativity.py,
+plot_associativity.py}` pipeline (mirrors capacity/line_size's shape: sweep
+-> knee detection -> 2 repeats -> plots; see
+`main_code/common/associativity.h`'s docstring for the method — a
+node-to-node stride fixed at a cache level's own capacity forces every
+probed node into the same set with a distinct tag, so sweeping how many
+nodes are chased finds the hit->thrashing knee = associativity for that
+level).
+
+- **L1 = 8-way, hand-confirmed.** Ran on Sunbird core 2 at cache_bytes=32768
+  (hand-confirmed L1 capacity): flat through num_ways=8, sharp step at 9,
+  0% run-to-run spread across 3 runs. See `data_raw/sunbird/associativity/L1/`,
+  documented in `data_raw/sunbird/README.md`.
+- **Evidence for a real L2 exists (~25-27 ticks/access hit latency,
+  corroborated 3 independent ways), but its capacity/associativity is NOT
+  resolved.** The original L1 test's own post-thrashing latency (num_ways
+  10-37 at cache_bytes=32768) sits at a clean, flat ~25 ticks — a third tier
+  distinct from L1 (~10) and LLC (~48-51, from the capacity section). Two
+  follow-up associativity attempts (256 KiB, then a slope-analysis-motivated
+  128 KiB) both reproduced that same ~25-27 tick tier, but neither gave a
+  clean single knee.
+- **Root cause found: `--cache-bytes`'s hard power-of-two requirement
+  (`main.c`) collides with this CPU's L1 DTLB structure for every candidate
+  above L1.** CPUID leaf 2 reports the DTLB as 4 KiB pages, 4-way, 64
+  entries -> 16 sets (checked directly on the machine — this is debugging
+  our own tool's confound, not consulting a cache-capacity table, so it's
+  fine pre-freeze). Whether a stride's touched pages collide into one DTLB
+  set depends on (cache_bytes/4096) mod 16: for 32,768 that's 8 (spreads
+  across 2 sets, so DTLB pressure never binds before L1's own 8-way limit
+  does — pure luck that the real L1 test came out clean); for **every power
+  of two >= 65,536 that's 0 (all pages collide into ONE DTLB set)**, so the
+  DTLB's own 4-way limit thrashes almost immediately and swamps whatever the
+  real cache would show. This one mechanism explains all 4 inconclusive
+  attempts so far (128 KiB, 256 KiB, 16 MiB, 32 MiB LLC candidates) — they
+  all broke around num_ways=4-7, matching the DTLB's 4-way limit, not any
+  cache's real associativity. There is no power of two between 32,768 and
+  65,536 to sidestep this with the tool as built.
+- **Fix identified, not yet applied:** the underlying math only requires a
+  stride that's a multiple of the target level's own (sets x line_size), not
+  a power of two specifically — `main.c`'s power-of-two check is stricter
+  than necessary. A stride like 98,304 (24x4096: still a multiple of L1's
+  4096-byte set-stride, but 24 mod 16 = 8, so it spreads across 2 DTLB sets
+  the same way 32,768 does) should sidestep the artifact. Relaxing that
+  validation and retesting with a non-power-of-two stride is the next step
+  for L2, whenever picked back up.
+- Full detail, all 4 raw datasets, and the CPUID verification are in
+  `data_raw/sunbird/README.md`'s L2-candidate/LLC subsections and
+  `CAPACITY_INFERENCE_STATUS.md`. **Still not attempted anywhere on the
+  other 7 machines** — same DTLB caveat likely applies to any x86 machine
+  with a similarly-sized (16-set-ish) L1 DTLB, worth checking per-machine
+  via CPUID before assuming a clean result there either.
 
 **Not yet started (data collection):** hit/miss latency, inclusion/
 exclusion experiments — not yet implemented in `cache_bench` at all.
