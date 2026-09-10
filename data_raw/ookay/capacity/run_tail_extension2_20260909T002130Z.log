@@ -1,0 +1,21 @@
+== tail-extension-2: machine=ookay core=3 seed=12345 timestamp=20260909T002130Z ==
+-- tail-extension-2 sweep 268435456-1073741824 bytes (run0) --
+  wrote 97002 lines -> data_raw/ookay/capacity/capacity_tailExt2_random_20260909T002130Z.csv
+  wrote 97002 lines -> data_raw/ookay/capacity/capacity_tailExt2_sequential_20260909T002130Z.csv
+Wrote 97 summary rows to data_processed/ookay/capacity/tailExt2_random_summary.csv
+Wrote 97 summary rows to data_processed/ookay/capacity/tailExt2_sequential_summary.csv
+-- tail-extension-2 repeat 1/2 --
+  wrote 97002 lines -> data_raw/ookay/capacity/capacity_tailExt2_rep1_random_20260909T002130Z.csv
+  wrote 97002 lines -> data_raw/ookay/capacity/capacity_tailExt2_rep1_sequential_20260909T002130Z.csv
+Wrote 97 summary rows to data_processed/ookay/capacity/tailExt2_rep1_random_summary.csv
+Wrote 97 summary rows to data_processed/ookay/capacity/tailExt2_rep1_sequential_summary.csv
+-- tail-extension-2 repeat 2/2 --
+== tmux cutover: resuming rep2 only (run0+rep1 already complete) ==
+== 20260909T023748Z core=3 range=268435456-1073741824 ==
+-- tail-extension-2 repeat 2/2 --
+  wrote 97002 lines -> data_raw/ookay/capacity/capacity_tailExt2_rep2_random_20260909T002130Z.csv
+  wrote 97002 lines -> data_raw/ookay/capacity/capacity_tailExt2_rep2_sequential_20260909T002130Z.csv
+Wrote 97 summary rows to data_processed/ookay/capacity/tailExt2_rep2_random_summary.csv
+Wrote 97 summary rows to data_processed/ookay/capacity/tailExt2_rep2_sequential_summary.csv
+== tail-extension-2 fully done (all of run0+rep1+rep2) ==
+READY_FOR_ANALYSIS

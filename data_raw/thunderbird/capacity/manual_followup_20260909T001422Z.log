@@ -1,0 +1,25 @@
+== manual follow-up (boundary auto-detect returned none; see README) ==
+-- dense window A: L1-plateau-edge / shallow-ramp region, 12KiB-768KiB --
+  wrote 289002 lines -> data_raw/thunderbird/capacity/capacity_denseA_random_20260909T001422Z.csv
+  wrote 289002 lines -> data_raw/thunderbird/capacity/capacity_denseA_sequential_20260909T001422Z.csv
+-- dense window B: steep transition + noisy zone, 4MiB-256MiB --
+  wrote 289002 lines -> data_raw/thunderbird/capacity/capacity_denseB_random_20260909T001422Z.csv
+  wrote 289002 lines -> data_raw/thunderbird/capacity/capacity_denseB_sequential_20260909T001422Z.csv
+  -- repeat 1/2 of dense window B (deepest/noisiest region) --
+  wrote 289002 lines -> data_raw/thunderbird/capacity/capacity_denseB_rep1_random_20260909T001422Z.csv
+  wrote 289002 lines -> data_raw/thunderbird/capacity/capacity_denseB_rep1_sequential_20260909T001422Z.csv
+  -- repeat 2/2 of dense window B (deepest/noisiest region) --
+  wrote 289002 lines -> data_raw/thunderbird/capacity/capacity_denseB_rep2_random_20260909T001422Z.csv
+  wrote 289002 lines -> data_raw/thunderbird/capacity/capacity_denseB_rep2_sequential_20260909T001422Z.csv
+-- tail-extension dense sweep: 256MiB-1073741824 bytes, checking top plateau --
+  wrote 97002 lines -> data_raw/thunderbird/capacity/capacity_denseTail_random_20260909T001422Z.csv
+  wrote 97002 lines -> data_raw/thunderbird/capacity/capacity_denseTail_sequential_20260909T001422Z.csv
+  -- repeat 1/2 of tail-extension window --
+== resumed under tmux (session: capbench) ==
+  -- repeat 1/2 of tail-extension window (256MiB-1073741824) --
+  wrote 97002 lines -> data_raw/thunderbird/capacity/capacity_denseTail_rep1_random_20260909T001422Z.csv
+  wrote 97002 lines -> data_raw/thunderbird/capacity/capacity_denseTail_rep1_sequential_20260909T001422Z.csv
+  -- repeat 2/2 of tail-extension window (256MiB-1073741824) --
+  wrote 97002 lines -> data_raw/thunderbird/capacity/capacity_denseTail_rep2_random_20260909T001422Z.csv
+  wrote 97002 lines -> data_raw/thunderbird/capacity/capacity_denseTail_rep2_sequential_20260909T001422Z.csv
+== ALL TAIL REPEATS DONE ==

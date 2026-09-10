@@ -1,0 +1,117 @@
+0000000000001a79 <x86_tsc_start>:
+    1a79:	55                   	push   %rbp
+    1a7a:	48 89 e5             	mov    %rsp,%rbp
+    1a7d:	0f ae e8             	lfence
+    1a80:	90                   	nop
+    1a81:	0f 31                	rdtsc
+    1a83:	48 c1 e2 20          	shl    $0x20,%rdx
+    1a87:	48 09 d0             	or     %rdx,%rax
+    1a8a:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
+    1a8e:	0f ae e8             	lfence
+    1a91:	90                   	nop
+    1a92:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+    1a96:	5d                   	pop    %rbp
+    1a97:	c3                   	ret
+
+
+0000000000001a98 <x86_tsc_stop>:
+    1a98:	55                   	push   %rbp
+    1a99:	48 89 e5             	mov    %rsp,%rbp
+    1a9c:	48 83 ec 20          	sub    $0x20,%rsp
+    1aa0:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+    1aa7:	00 00 
+    1aa9:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
+    1aad:	31 c0                	xor    %eax,%eax
+    1aaf:	48 8d 45 e4          	lea    -0x1c(%rbp),%rax
+    1ab3:	48 89 45 f0          	mov    %rax,-0x10(%rbp)
+    1ab7:	0f 01 f9             	rdtscp
+    1aba:	89 ce                	mov    %ecx,%esi
+    1abc:	48 8b 4d f0          	mov    -0x10(%rbp),%rcx
+    1ac0:	89 31                	mov    %esi,(%rcx)
+    1ac2:	48 c1 e2 20          	shl    $0x20,%rdx
+    1ac6:	48 09 d0             	or     %rdx,%rax
+    1ac9:	48 89 45 e8          	mov    %rax,-0x18(%rbp)
+    1acd:	0f ae e8             	lfence
+    1ad0:	90                   	nop
+    1ad1:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+    1ad5:	48 8b 55 f8          	mov    -0x8(%rbp),%rdx
+    1ad9:	64 48 2b 14 25 28 00 	sub    %fs:0x28,%rdx
+    1ae0:	00 00 
+    1ae2:	74 05                	je     1ae9 <x86_tsc_stop+0x51>
+    1ae4:	e8 77 f6 ff ff       	call   1160 <__stack_chk_fail@plt>
+    1ae9:	c9                   	leave
+    1aea:	c3                   	ret
+
+
+0000000000001b01 <measure_dependency_chain_batched>:
+    1b01:	f3 0f 1e fa          	endbr64
+    1b05:	55                   	push   %rbp
+    1b06:	48 89 e5             	mov    %rsp,%rbp
+    1b09:	48 83 ec 50          	sub    $0x50,%rsp
+    1b0d:	48 89 7d c8          	mov    %rdi,-0x38(%rbp)
+    1b11:	48 89 75 c0          	mov    %rsi,-0x40(%rbp)
+    1b15:	48 89 55 b8          	mov    %rdx,-0x48(%rbp)
+    1b19:	48 89 4d b0          	mov    %rcx,-0x50(%rbp)
+    1b1d:	48 8b 45 c8          	mov    -0x38(%rbp),%rax
+    1b21:	48 89 45 d8          	mov    %rax,-0x28(%rbp)
+    1b25:	48 c7 45 e0 00 00 00 	movq   $0x0,-0x20(%rbp)
+    1b2c:	00 
+    1b2d:	e9 b4 00 00 00       	jmp    1be6 <measure_dependency_chain_batched+0xe5>
+    1b32:	e8 b4 ff ff ff       	call   1aeb <timer_start>
+    1b37:	48 89 45 f0          	mov    %rax,-0x10(%rbp)
+    1b3b:	48 c7 45 e8 00 00 00 	movq   $0x0,-0x18(%rbp)
+    1b42:	00 
+    1b43:	eb 10                	jmp    1b55 <measure_dependency_chain_batched+0x54>
+    1b45:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+    1b49:	48 8b 00             	mov    (%rax),%rax
+    1b4c:	48 89 45 d8          	mov    %rax,-0x28(%rbp)
+    1b50:	48 83 45 e8 01       	addq   $0x1,-0x18(%rbp)
+    1b55:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+    1b59:	48 3b 45 c0          	cmp    -0x40(%rbp),%rax
+    1b5d:	72 e6                	jb     1b45 <measure_dependency_chain_batched+0x44>
+    1b5f:	e8 92 ff ff ff       	call   1af6 <timer_stop>
+    1b64:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
+    1b68:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+    1b6c:	48 2b 45 f0          	sub    -0x10(%rbp),%rax
+    1b70:	48 85 c0             	test   %rax,%rax
+    1b73:	78 0b                	js     1b80 <measure_dependency_chain_batched+0x7f>
+    1b75:	66 0f ef c0          	pxor   %xmm0,%xmm0
+    1b79:	f2 48 0f 2a c0       	cvtsi2sd %rax,%xmm0
+    1b7e:	eb 19                	jmp    1b99 <measure_dependency_chain_batched+0x98>
+    1b80:	48 89 c2             	mov    %rax,%rdx
+    1b83:	48 d1 ea             	shr    $1,%rdx
+    1b86:	83 e0 01             	and    $0x1,%eax
+    1b89:	48 09 c2             	or     %rax,%rdx
+    1b8c:	66 0f ef c0          	pxor   %xmm0,%xmm0
+    1b90:	f2 48 0f 2a c2       	cvtsi2sd %rdx,%xmm0
+    1b95:	f2 0f 58 c0          	addsd  %xmm0,%xmm0
+    1b99:	48 8b 45 c0          	mov    -0x40(%rbp),%rax
+    1b9d:	48 85 c0             	test   %rax,%rax
+    1ba0:	78 0b                	js     1bad <measure_dependency_chain_batched+0xac>
+    1ba2:	66 0f ef c9          	pxor   %xmm1,%xmm1
+    1ba6:	f2 48 0f 2a c8       	cvtsi2sd %rax,%xmm1
+    1bab:	eb 19                	jmp    1bc6 <measure_dependency_chain_batched+0xc5>
+    1bad:	48 89 c2             	mov    %rax,%rdx
+    1bb0:	48 d1 ea             	shr    $1,%rdx
+    1bb3:	83 e0 01             	and    $0x1,%eax
+    1bb6:	48 09 c2             	or     %rax,%rdx
+    1bb9:	66 0f ef c9          	pxor   %xmm1,%xmm1
+    1bbd:	f2 48 0f 2a ca       	cvtsi2sd %rdx,%xmm1
+    1bc2:	f2 0f 58 c9          	addsd  %xmm1,%xmm1
+    1bc6:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
+    1bca:	48 8d 14 c5 00 00 00 	lea    0x0(,%rax,8),%rdx
+    1bd1:	00 
+    1bd2:	48 8b 45 b0          	mov    -0x50(%rbp),%rax
+    1bd6:	48 01 d0             	add    %rdx,%rax
+    1bd9:	f2 0f 5e c1          	divsd  %xmm1,%xmm0
+    1bdd:	f2 0f 11 00          	movsd  %xmm0,(%rax)
+    1be1:	48 83 45 e0 01       	addq   $0x1,-0x20(%rbp)
+    1be6:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
+    1bea:	48 3b 45 b8          	cmp    -0x48(%rbp),%rax
+    1bee:	0f 82 3e ff ff ff    	jb     1b32 <measure_dependency_chain_batched+0x31>
+    1bf4:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+    1bf8:	48 89 05 51 34 00 00 	mov    %rax,0x3451(%rip)        # 5050 <bench_sink>
+    1bff:	90                   	nop
+    1c00:	c9                   	leave
+    1c01:	c3                   	ret
+

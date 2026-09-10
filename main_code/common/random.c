@@ -12,7 +12,11 @@ uint32_t xorshift32(uint32_t *state) {
     return *state = x;
 }
 
-void make_random_cycle(struct node *nodes, size_t n,uint32_t seed) {
+static struct node *node_at(void *base, size_t i, size_t stride) {
+    return (struct node *)((uint8_t *)base + i * stride);
+}
+
+void make_random_cycle_strided(void *base, size_t n, size_t stride, uint32_t seed) {
     size_t *order = malloc(n * sizeof(*order));
     if (!order || n < 2) exit(1);
     for (size_t i = 0; i < n; i++) order[i] = i;
@@ -25,12 +29,20 @@ void make_random_cycle(struct node *nodes, size_t n,uint32_t seed) {
         order[j] = tmp;
     }
     for (size_t i = 0; i < n; i++)
-        nodes[order[i]].next = &nodes[order[(i + 1) % n]];
+        node_at(base, order[i], stride)->next = node_at(base, order[(i + 1) % n], stride);
     free(order);
 }
 
-void make_sequential_cycle(struct node *nodes, size_t n) {
+void make_sequential_cycle_strided(void *base, size_t n, size_t stride) {
     if (n < 2) exit(1);
     for (size_t i = 0; i < n; i++)
-        nodes[i].next = &nodes[(i + 1) % n];
+        node_at(base, i, stride)->next = node_at(base, (i + 1) % n, stride);
+}
+
+void make_random_cycle(struct node *nodes, size_t n, uint32_t seed) {
+    make_random_cycle_strided(nodes, n, sizeof(struct node), seed);
+}
+
+void make_sequential_cycle(struct node *nodes, size_t n) {
+    make_sequential_cycle_strided(nodes, n, sizeof(struct node));
 }

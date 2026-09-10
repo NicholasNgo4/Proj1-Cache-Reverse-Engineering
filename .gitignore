@@ -17,6 +17,14 @@ Thumbs.db
 # data_raw/**/*.bin
 # data_raw/**/*.csv.gz
 
+# Raw per-batch capacity CSVs compress ~9x with gzip (measured on Charnwood's
+# data) -- commit data_raw/**/*.csv.gz, not the uncompressed .csv, for all
+# machines going forward (run_capacity_full.sh gzips its own output; gzip
+# manually for ad hoc runs). This does NOT retroactively affect already-
+# tracked uncompressed .csv files (e.g. Sunbird's) -- .gitignore only affects
+# untracked files.
+data_raw/**/*.csv
+
 # Python
 __pycache__/
 *.pyc
@@ -33,3 +41,9 @@ __pycache__/
 # these are traceability data, not build junk.
 !data_raw/**/*.log
 !data_processed/**/*.log
+
+# ...and keep the disassembly-inspection evidence cited by data_raw/*/README.md
+# (build/cache_bench.source.dis) -- it's proof the -O0 timer survived
+# unmodified, not a build artifact to discard. The blanket *.dis rule above
+# was silently swallowing this for every machine including Sunbird.
+!data_raw/**/*.dis

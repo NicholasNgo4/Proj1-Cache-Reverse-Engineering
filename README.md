@@ -50,16 +50,26 @@ backfill them the night before the deadline.
 make                    # builds ./cache_bench from main_code/common/*.c (portable: timer.h
                          # dispatches to x86_64/timer_x86.h or aarch64/timer_arm.h at compile time)
 
-# Capacity sweep (currently the only implemented --experiment); prints raw
-# per-batch CSV to stdout. line_size/associativity/latency/inclusion are not
-# yet implemented — see main_code/common/capacity.c for the pattern each will follow.
+# Capacity sweep; prints raw per-batch CSV to stdout.
+# associativity/latency/inclusion are not yet implemented — see
+# main_code/common/capacity.c for the pattern each will follow.
 taskset -c 4 ./cache_bench --experiment capacity --samples 1000000
+
+# Line-size sweep (fixed footprint, swept byte stride between nodes);
+# prints raw per-batch CSV to stdout. Footprint must be chosen near a
+# known capacity boundary or the line-size knee is invisible — see
+# scripts/run_line_size_full.sh, which picks it automatically from an
+# existing capacity summary.
+taskset -c 4 ./cache_bench --experiment line_size --footprint-bytes 39321 \
+    --min-stride 8 --max-stride 1024 --stride-step 1
 
 # End-to-end on a lab machine, writing into data_raw/ and data_processed/:
 ./scripts/run_capacity_sweep.sh <machine_name> <core> --samples 1000000
 python3 scripts/summarize_raw.py data_raw/<machine_name>/capacity/capacity_*.csv \
     -o data_processed/<machine_name>/capacity/summary.csv
 python3 scripts/detect_cache_hierarchy.py data_processed/<machine_name>/capacity/summary.csv
+
+./scripts/run_line_size_full.sh <machine_name> <core>
 ```
 On Hazel, replace `taskset -c 4` with `srun --cpu-bind=cores` (see `hpc_slurm/`).
 
@@ -80,8 +90,14 @@ benchmark on the login node. See `hpc_slurm/` for job scripts.
 | Script | Purpose |
 |---|---|
 | `scripts/run_capacity_sweep.sh` | Build, pin (`taskset`), and run the capacity sweep on a lab machine; writes `data_raw/<machine>/capacity/`. |
+| `scripts/run_capacity_full.sh` | One-command per-machine capacity pipeline: coarse sweep → boundary detection → dense sweeps → repeats → plots. |
 | `scripts/summarize_raw.py` | Reduce a raw per-batch CSV to one distribution-stats row per swept point (`data_raw` → `data_processed`). |
 | `scripts/detect_cache_hierarchy.py` | Infer cache-level boundaries from a processed capacity summary. |
+| `scripts/plot_capacity.py` | Plot the capacity curve and box plots from processed capacity summaries. |
+| `scripts/run_line_size_sweep.sh` | Build, pin (`taskset`), and run the line-size sweep on a lab machine; writes `data_raw/<machine>/line_size/`. |
+| `scripts/run_line_size_full.sh` | One-command per-machine line-size pipeline: auto-picks footprint from an existing capacity boundary → coarse sweep → transition detection → dense sweep → repeats → plots. |
+| `scripts/detect_line_size.py` | Infer the cache line size from a processed line-size summary (corrects for the footprint/boundary multiplier). |
+| `scripts/plot_line_size.py` | Plot the line-size curve and box plots from processed line-size summaries. |
 
 ## AI/LLM Assistance
 See `AI_DISCLOSURE.md`. If none was used, that file says "None."

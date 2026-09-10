@@ -12,7 +12,8 @@ SOURCES = \
 	$(COMMON_DIR)/benchmark.c \
 	$(COMMON_DIR)/pointer_chase.c \
 	$(COMMON_DIR)/random.c \
-	$(COMMON_DIR)/capacity.c
+	$(COMMON_DIR)/capacity.c \
+	$(COMMON_DIR)/line_size.c
 
 OBJECTS = $(SOURCES:.c=.o)
 
