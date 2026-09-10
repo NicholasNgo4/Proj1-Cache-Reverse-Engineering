@@ -202,15 +202,44 @@ put a second tmux session on just polling for completion, since a
 background-task watcher tied to the driving Claude Code session dies with
 that session even though the benchmark's own tmux session doesn't.
 
-**Not yet started (data collection):** line size, associativity, hit/miss
-latency, inclusion/exclusion experiments — no machine has run any of
-these yet (every `data_raw/<machine>/line_size/` etc. is still just a
-`.gitkeep`). Code-wise, `--experiment line_size` now exists in
-`cache_bench` (added by @krchen1, commit `5aaa83f`, with its own
-`scripts/{run_line_size_full.sh,run_line_size_sweep.sh,detect_line_size.py,
-plot_line_size.py}` pipeline — check that script's own header/`--help`
-before using it, this session hasn't read it yet); `--experiment capacity`
-remains the only one with real per-machine results. PMU verification
+**Associativity experiment: code done, one real data point (Sunbird L1 =
+8-way).** `--experiment associativity` now exists in `cache_bench`, with
+its own `scripts/{run_associativity_full.sh,detect_associativity.py,
+plot_associativity.py}` pipeline (mirrors the capacity/line_size pipeline
+shape: full per-level sweep -> knee detection -> 2 reproducibility repeats
+-> plots; see `main_code/common/associativity.h`'s module docstring for
+the method — a node-to-node stride fixed at a cache level's own capacity
+forces every probed node into the same set with a distinct tag, so sweeping
+how many such nodes are chased finds the hit->thrashing knee = associativity
+for that level). Ran for real on Sunbird core 2 at cache_bytes=32768 (this
+team's hand-confirmed L1 capacity): **flat plateau through num_ways=8,
+sharp step at num_ways=9** (~10-12 ticks -> ~21+ ticks, 0% run-to-run
+spread at both the last-flat and first-thrashing points across 3
+independent runs) -> **L1 = 8-way**. See
+`data_raw/sunbird/associativity/L1/` and
+`data_processed/sunbird/associativity/L1/plots/`, documented in
+`data_raw/sunbird/README.md`'s associativity section. **Deliberately not
+yet run for L2/LLC on Sunbird or at all on the other 7 machines**: L2/LLC
+capacity boundaries aren't hand-confirmed the way L1 is (the capacity
+section's ~20 MiB / ~150 MiB Sunbird values are still provisional, and
+several other machines' non-L1 boundaries are flagged noisy/unresolved
+above) — `run_associativity_full.sh` will auto-detect+round a stride from
+an existing capacity summary if no override is given, but prints a loud
+warning not to trust that for L1 specifically (confirmed off by ~9x on
+Sunbird: detect_cache_hierarchy.py's coarse boundary is 285864B/~279 KiB
+vs the hand-confirmed 32 KiB). Prefer an explicit
+`cache_bytes_csv` override built from each machine's own confirmed
+capacity numbers once available, e.g.
+`./scripts/run_associativity_full.sh <machine> <core> <L1>,<L2>,<LLC>`.
+
+**Not yet started (data collection):** hit/miss latency, inclusion/
+exclusion experiments — not yet implemented in `cache_bench` at all.
+Line size: `--experiment line_size` exists (added by @krchen1, commit
+`5aaa83f`) with its own `scripts/{run_line_size_full.sh,
+run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
+check that machine's own `data_raw/<machine>/README.md` and recent git log
+(not this paragraph) for its actual current per-machine data-collection
+status, since this file lags active work in progress. PMU verification
 (Phase II) and Hazel (Phase III) have not started; Phase I must be
 frozen/tagged first per `README.md`.
 

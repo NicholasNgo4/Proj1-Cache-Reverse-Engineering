@@ -21,6 +21,7 @@ Fall 2026 · Due September 10, 2026, 11:59 PM ET
 HW1_TeamName/
 ├── README.md                 <- this file
 ├── MACHINE_RESEARCH.md       <- Table 1: ISA/microarch/year research (Phase-I safe)
+├── CAPACITY_INFERENCE_STATUS.md <- per-machine/per-level capacity confidence snapshot (gates associativity L2/LLC runs)
 ├── PREDICTION_FREEZE.md      <- frozen lab-only prediction log + commit hash/timestamp
 ├── CONTRIBUTION_APPENDIX.md  <- Tables 6-14, mandatory team contribution appendix
 ├── AI_DISCLOSURE.md          <- Table 13, AI/LLM assistance disclosure
@@ -51,8 +52,8 @@ make                    # builds ./cache_bench from main_code/common/*.c (portab
                          # dispatches to x86_64/timer_x86.h or aarch64/timer_arm.h at compile time)
 
 # Capacity sweep; prints raw per-batch CSV to stdout.
-# associativity/latency/inclusion are not yet implemented — see
-# main_code/common/capacity.c for the pattern each will follow.
+# latency/inclusion are not yet implemented — see main_code/common/capacity.c
+# for the pattern each will follow.
 taskset -c 4 ./cache_bench --experiment capacity --samples 1000000
 
 # Line-size sweep (fixed footprint, swept byte stride between nodes);
@@ -63,6 +64,14 @@ taskset -c 4 ./cache_bench --experiment capacity --samples 1000000
 taskset -c 4 ./cache_bench --experiment line_size --footprint-bytes 39321 \
     --min-stride 8 --max-stride 1024 --stride-step 1
 
+# Associativity sweep (fixed node-to-node stride equal to a cache level's own
+# capacity, swept same-set node count); prints raw per-batch CSV to stdout.
+# cache-bytes MUST be that level's real capacity (a power of two) — see
+# main_code/common/associativity.h for why, and scripts/run_associativity_full.sh,
+# which prefers an explicit hand-confirmed override over auto-detection.
+taskset -c 4 ./cache_bench --experiment associativity --cache-bytes 32768 \
+    --min-ways 2 --max-ways 64
+
 # End-to-end on a lab machine, writing into data_raw/ and data_processed/:
 ./scripts/run_capacity_sweep.sh <machine_name> <core> --samples 1000000
 python3 scripts/summarize_raw.py data_raw/<machine_name>/capacity/capacity_*.csv \
@@ -70,6 +79,11 @@ python3 scripts/summarize_raw.py data_raw/<machine_name>/capacity/capacity_*.csv
 python3 scripts/detect_cache_hierarchy.py data_processed/<machine_name>/capacity/summary.csv
 
 ./scripts/run_line_size_full.sh <machine_name> <core>
+
+# cache_bytes_csv is optional (comma-separated per-level capacities); omit it
+# to auto-detect from an existing capacity run (prints a warning — prefer an
+# explicit, hand-confirmed override, see the script's header comment).
+./scripts/run_associativity_full.sh <machine_name> <core> <L1_bytes>,<L2_bytes>,<LLC_bytes>
 ```
 On Hazel, replace `taskset -c 4` with `srun --cpu-bind=cores` (see `hpc_slurm/`).
 
@@ -98,6 +112,9 @@ benchmark on the login node. See `hpc_slurm/` for job scripts.
 | `scripts/run_line_size_full.sh` | One-command per-machine line-size pipeline: auto-picks footprint from an existing capacity boundary → coarse sweep → transition detection → dense sweep → repeats → plots. |
 | `scripts/detect_line_size.py` | Infer the cache line size from a processed line-size summary (corrects for the footprint/boundary multiplier). |
 | `scripts/plot_line_size.py` | Plot the line-size curve and box plots from processed line-size summaries. |
+| `scripts/run_associativity_full.sh` | One-command per-machine, per-cache-level associativity pipeline: sweeps same-set node count at a fixed capacity-sized stride → knee detection → repeats → plots. |
+| `scripts/detect_associativity.py` | Infer a cache level's associativity (ways) from a processed associativity summary. |
+| `scripts/plot_associativity.py` | Plot the associativity curve and box plots for one cache level. |
 
 ## AI/LLM Assistance
 See `AI_DISCLOSURE.md`. If none was used, that file says "None."

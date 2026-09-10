@@ -13,7 +13,8 @@ SOURCES = \
 	$(COMMON_DIR)/pointer_chase.c \
 	$(COMMON_DIR)/random.c \
 	$(COMMON_DIR)/capacity.c \
-	$(COMMON_DIR)/line_size.c
+	$(COMMON_DIR)/line_size.c \
+	$(COMMON_DIR)/associativity.c
 
 OBJECTS = $(SOURCES:.c=.o)
 

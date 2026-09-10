@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "associativity.h"
 #include "capacity.h"
 #include "line_size.h"
 
@@ -22,6 +23,13 @@
 #define DEFAULT_STRIDE_STEP     8ULL
 #define DEFAULT_ALIGN_BYTES     4096ULL
 
+#define DEFAULT_CACHE_BYTES     (32ULL << 10)  /* 32 KiB fallback; run_associativity_full.sh
+                                                   overrides this from a real capacity
+                                                   boundary when one is available */
+#define DEFAULT_MIN_WAYS        2ULL
+#define DEFAULT_MAX_WAYS        64ULL
+#define DEFAULT_WAY_STEP        1ULL
+
 static void usage(const char *prog)
 {
     fprintf(stderr,
@@ -30,7 +38,9 @@ static void usage(const char *prog)
         "Experiments:\n"
         "  capacity   sweep working-set size to find cache-level boundaries\n"
         "  line_size  sweep node stride at a fixed footprint to find the cache line size\n"
-        "             (associativity, latency, inclusion: not yet implemented)\n"
+        "  associativity  sweep same-set node count at a fixed cache-capacity stride to\n"
+        "             find the number of ways per set (latency, inclusion: not yet\n"
+        "             implemented)\n"
         "\n"
         "Common options:\n"
         "  --samples N            total timed accesses per point (default %llu)\n"
@@ -56,6 +66,15 @@ static void usage(const char *prog)
         "  --align-bytes N        buffer base alignment, must be a power of two\n"
         "                         (default %llu)\n"
         "\n"
+        "associativity options:\n"
+        "  --cache-bytes N        stride between probed nodes, in bytes -- MUST be set\n"
+        "                         to the target cache level's own capacity (default\n"
+        "                         %llu); see scripts/run_associativity_full.sh, which\n"
+        "                         derives this from a completed capacity run\n"
+        "  --min-ways N           fewest same-set nodes probed (default %llu)\n"
+        "  --max-ways N           most same-set nodes probed (default %llu)\n"
+        "  --way-step N           linear increment in nodes probed (default %llu)\n"
+        "\n"
         "  -h, --help             show this help\n",
         prog,
         (unsigned long long)DEFAULT_SAMPLES,
@@ -69,7 +88,11 @@ static void usage(const char *prog)
         (unsigned long long)DEFAULT_MIN_STRIDE,
         (unsigned long long)DEFAULT_MAX_STRIDE,
         (unsigned long long)DEFAULT_STRIDE_STEP,
-        (unsigned long long)DEFAULT_ALIGN_BYTES);
+        (unsigned long long)DEFAULT_ALIGN_BYTES,
+        (unsigned long long)DEFAULT_CACHE_BYTES,
+        (unsigned long long)DEFAULT_MIN_WAYS,
+        (unsigned long long)DEFAULT_MAX_WAYS,
+        (unsigned long long)DEFAULT_WAY_STEP);
 }
 
 static int parse_u64(const char *s, uint64_t *out)
@@ -108,6 +131,17 @@ int main(int argc, char **argv)
         .seed = DEFAULT_SEED,
         .pattern = ACCESS_PATTERN_RANDOM,
     };
+    struct associativity_config assoc_cfg = {
+        .samples = DEFAULT_SAMPLES,
+        .batch_size = DEFAULT_BATCH_SIZE,
+        .cache_bytes = DEFAULT_CACHE_BYTES,
+        .min_ways = DEFAULT_MIN_WAYS,
+        .max_ways = DEFAULT_MAX_WAYS,
+        .way_step = DEFAULT_WAY_STEP,
+        .warmup_passes = DEFAULT_WARMUP_PASSES,
+        .seed = DEFAULT_SEED,
+        .pattern = ACCESS_PATTERN_RANDOM,
+    };
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--experiment") == 0 && i + 1 < argc) {
@@ -115,9 +149,11 @@ int main(int argc, char **argv)
         } else if (strcmp(argv[i], "--samples") == 0 && i + 1 < argc) {
             if (parse_u64(argv[++i], &cap_cfg.samples) != 0) { usage(argv[0]); return 1; }
             ls_cfg.samples = cap_cfg.samples;
+            assoc_cfg.samples = cap_cfg.samples;
         } else if (strcmp(argv[i], "--batch-size") == 0 && i + 1 < argc) {
             if (parse_u64(argv[++i], &cap_cfg.batch_size) != 0) { usage(argv[0]); return 1; }
             ls_cfg.batch_size = cap_cfg.batch_size;
+            assoc_cfg.batch_size = cap_cfg.batch_size;
         } else if (strcmp(argv[i], "--min-bytes") == 0 && i + 1 < argc) {
             if (parse_u64(argv[++i], &cap_cfg.min_bytes) != 0) { usage(argv[0]); return 1; }
         } else if (strcmp(argv[i], "--max-bytes") == 0 && i + 1 < argc) {
@@ -134,14 +170,24 @@ int main(int argc, char **argv)
             if (parse_u64(argv[++i], &ls_cfg.stride_step) != 0) { usage(argv[0]); return 1; }
         } else if (strcmp(argv[i], "--align-bytes") == 0 && i + 1 < argc) {
             if (parse_u64(argv[++i], &ls_cfg.align_bytes) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--cache-bytes") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &assoc_cfg.cache_bytes) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--min-ways") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &assoc_cfg.min_ways) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--max-ways") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &assoc_cfg.max_ways) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--way-step") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &assoc_cfg.way_step) != 0) { usage(argv[0]); return 1; }
         } else if (strcmp(argv[i], "--warmup-passes") == 0 && i + 1 < argc) {
             cap_cfg.warmup_passes = atoi(argv[++i]);
             ls_cfg.warmup_passes = cap_cfg.warmup_passes;
+            assoc_cfg.warmup_passes = cap_cfg.warmup_passes;
         } else if (strcmp(argv[i], "--seed") == 0 && i + 1 < argc) {
             uint64_t s;
             if (parse_u64(argv[++i], &s) != 0) { usage(argv[0]); return 1; }
             cap_cfg.seed = (uint32_t)s;
             ls_cfg.seed = cap_cfg.seed;
+            assoc_cfg.seed = cap_cfg.seed;
         } else if (strcmp(argv[i], "--pattern") == 0 && i + 1 < argc) {
             const char *p = argv[++i];
             if (strcmp(p, "random") == 0) {
@@ -154,6 +200,7 @@ int main(int argc, char **argv)
                 return 1;
             }
             ls_cfg.pattern = cap_cfg.pattern;
+            assoc_cfg.pattern = cap_cfg.pattern;
         } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             usage(argv[0]);
             return 0;
@@ -180,16 +227,28 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    if (assoc_cfg.batch_size < 1 || assoc_cfg.samples < assoc_cfg.batch_size ||
+        assoc_cfg.warmup_passes < 0 || assoc_cfg.cache_bytes < 1 ||
+        (assoc_cfg.cache_bytes & (assoc_cfg.cache_bytes - 1)) != 0 ||
+        assoc_cfg.min_ways < 2 || assoc_cfg.max_ways < assoc_cfg.min_ways ||
+        assoc_cfg.way_step < 1) {
+        fprintf(stderr, "Invalid associativity parameter values\n");
+        return 1;
+    }
+
     if (strcmp(experiment, "capacity") == 0) {
         return run_capacity_experiment(&cap_cfg);
     }
     if (strcmp(experiment, "line_size") == 0) {
         return run_line_size_experiment(&ls_cfg);
     }
+    if (strcmp(experiment, "associativity") == 0) {
+        return run_associativity_experiment(&assoc_cfg);
+    }
 
     fprintf(stderr,
-            "Unsupported --experiment '%s' (only 'capacity' and 'line_size' are "
-            "implemented so far)\n",
+            "Unsupported --experiment '%s' (only 'capacity', 'line_size', and "
+            "'associativity' are implemented so far)\n",
             experiment);
     return 1;
 }
