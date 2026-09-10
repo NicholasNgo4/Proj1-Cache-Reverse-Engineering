@@ -116,12 +116,57 @@
 ### associativity/
 - Source file(s): `main_code/common/{main.c,associativity.c,associativity.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
 - Build command: `make` (from repo root; see `Makefile`)
-- Run command + arguments: `./scripts/run_associativity_full.sh sunbird 2 32768` (pinned via `taskset -c 2`, same physical core/SMT-sibling-idle setup as the capacity section above; `who`/`ps` checked immediately before this run -- one other user logged in, all their processes idle, load average 1.02). `32768` (32 KiB) is this team's hand-confirmed L1 capacity from the capacity section above, passed as an explicit override -- NOT auto-detected from `detect_cache_hierarchy.py`, whose coarse first-pass boundary (285864B / ~279 KiB) is already documented as unreliable for L1 on this machine (see the line_size section above and `run_associativity_full.sh`'s header comment). L2/LLC associativity was deliberately NOT run yet: this machine's L2/LLC capacity boundaries are not yet hand-confirmed the way L1 is (the capacity section's ~20 MiB / ~150 MiB values are still provisional), and testing associativity at an unconfirmed stride risks a meaningless or misleading result -- confirm those boundaries by hand first, then re-run with `./scripts/run_associativity_full.sh sunbird 2 32768,<L2_bytes>,<LLC_bytes>`.
+- Run command + arguments: `./scripts/run_associativity_full.sh sunbird 2 32768` (pinned via `taskset -c 2`, same physical core/SMT-sibling-idle setup as the capacity section above; `who`/`ps` checked immediately before this run -- one other user logged in, all their processes idle, load average 1.02). `32768` (32 KiB) is this team's hand-confirmed L1 capacity from the capacity section above, passed as an explicit override -- NOT auto-detected from `detect_cache_hierarchy.py`, whose coarse first-pass boundary (285864B / ~279 KiB) is already documented as unreliable for L1 on this machine (see the line_size section above and `run_associativity_full.sh`'s header comment). **LLC associativity has since been attempted (2026-09-10) -- see the LLC subsection below; results were inconclusive, not confirmed.**
 - Conflict-set construction method: node-to-node stride fixed at `cache_bytes` (32768 for this run) in a dependent pointer-chase cycle; since capacity = sets * line_size * ways is by construction a whole multiple of one set's address period, every node landed in the same cache set regardless of the (still unmeasured) line size or associativity, while getting a distinct tag each time (see `main_code/common/associativity.h`'s module docstring for the full argument). Swept `num_ways_probed` (cycle length) linearly from 2 to 64, one node added at a time, both randomized and sequential-order chase (`--pattern`), 1,000,000 timed accesses per point (batch size 1000), 3 untimed warm-up passes, seed 12345.
 - Raw output filename(s): `data_raw/sunbird/associativity/L1/associativity_{base,rep1,rep2}_{random,sequential}_20260910T170145Z.csv.gz`
 - Processing script -> data_processed path: `python3 scripts/summarize_raw.py <raw.csv> -o data_processed/sunbird/associativity/L1/<name>_summary.csv`, then `python3 scripts/detect_associativity.py data_processed/sunbird/associativity/L1/base_random_summary.csv` for the knee estimate, then `python3 scripts/plot_associativity.py data_processed/sunbird/associativity/L1/*_summary.csv -o data_processed/sunbird/associativity/L1/plots --machine sunbird --level L1 --estimate 8` for the curve and box-plot figures (all done automatically by `run_associativity_full.sh`).
 - Result: **8-way** at L1 (cache_bytes=32768). Median latency is flat at ~10.1-11.6 ticks/access for `num_ways_probed` 2 through 8 (0% run-to-run spread across 3 independent runs at num_ways=8), then jumps sharply to ~21.2 ticks at num_ways=9 (also 0% spread) and ~25.1 ticks by num_ways=10 -- a step, not a ramp, consistent with a cyclic dependent chase over N distinct blocks thrashing completely once N exceeds the set's way count. See `data_processed/sunbird/associativity/L1/plots/associativity_curve.png` and `associativity_boxplots.png`.
 - Notes: Latency drifts upward again gradually past num_ways~28-30 (both patterns), most visibly in the sequential-pattern curve, and gets noisier (higher run-to-run spread, e.g. 30-40% at several points above num_ways~29) than the clean L1 knee itself. This is most likely TLB/page-walk pressure as the touched virtual footprint grows past `num_ways * 32 KiB` (at num_ways=64 that's still only 2 MiB, but each node lives on its own page here since the stride equals a full 32 KiB, so it's really 64 distinct pages, not 64 distinct 32 KiB regions of a shared page set) rather than a second cache-level effect -- not investigated further since it sits well above the L1 knee this run was targeting; flag as a follow-up if a later experiment needs a clean baseline at large num_ways.
+
+#### LLC (exploratory, 2026-09-10) -- inconclusive, not a confirmed result
+
+The capacity section above pins the LLC boundary at ~26-27 MiB via a robust
+floor analysis, but `--cache-bytes` is hard-validated as an exact power of
+two (`main.c`), and ~26-27 MiB isn't one -- ruled out a hidden L2 shelf
+first (see capacity section) before spending associativity time here, since
+that would have changed which level this actually tests. Ran both power-of-
+two values bracketing the estimate as explicitly provisional attempts,
+`taskset -c 2`, core confirmed >=96% idle first, same samples/batch/warmup/
+seed as the L1 run. To avoid colliding with `run_associativity_full.sh`'s
+fixed "first level = `L1/`" directory naming, the real L1 output was moved
+aside before each run and the result relabeled afterward (documented here
+for reproducibility, not part of the script itself):
+
+- **16 MiB** (`data_raw/sunbird/associativity/LLC_16MiB/`,
+  `data_processed/sunbird/associativity/LLC_16MiB/`, timestamp
+  `20260910T181751Z`): auto-detector estimate 6-way, but the curve is a
+  **staircase, not a single step**: flat 10.07 ticks through num_ways=6,
+  a small bump to ~12.6-14.3 at 7-9, then a large jump to ~47.8 at
+  num_ways=10 and ~54-57 for num_ways>=16 -- with 22-29% run-to-run spread
+  at several points, unlike L1's 0%-spread clean knee.
+- **32 MiB** (`data_raw/sunbird/associativity/LLC_32MiB/`,
+  `data_processed/sunbird/associativity/LLC_32MiB/`, timestamp
+  `20260910T181912Z`): auto-detector estimate 5-way, same staircase shape:
+  flat 10.07 through num_ways=5, a step to ~17 at 6-8, another step to
+  ~24 at num_ways=9, then a large jump to ~54-57 for num_ways>=10.
+
+**Interpretation: neither result should be read as "LLC is 5-way" or
+"6-way."** A multi-step staircase, not L1's clean single step, is exactly
+what the conflict-set-construction method predicts when `cache_bytes`
+doesn't exactly equal the true capacity (`associativity.h`'s doc comment:
+the same-set guarantee requires capacity to be a whole multiple of the
+stride, which an arbitrary nearby power of two isn't) -- the two steps
+likely correspond to the working set (`num_ways * cache_bytes`) crossing
+other unrelated size thresholds rather than any single set's true way
+count. That both power-of-two brackets around the ~26-27 MiB estimate
+produced the same qualitative failure mode is itself evidence the true
+LLC capacity genuinely isn't a nearby power of two -- consistent with real
+multi-socket Xeon LLC capacities often not being exact powers of two.
+**This associativity method as currently implemented cannot cleanly test
+Sunbird's LLC without either a non-power-of-two `--cache-bytes` (would
+need the hard validation in `main.c` relaxed, out of scope for this
+session) or a much more precise capacity estimate that happens to land on
+a power of two.**
 
 ### latency/
 - Source file(s): 

@@ -148,3 +148,18 @@ cross-validation yet** (e.g. a clean associativity knee matching the
 assumed capacity). Before treating any PROVISIONAL/PROVISIONAL-STRONG
 value as final, that kind of cross-check — or an explicit decision to
 accept it as "provisional" in the report — is still needed.
+
+**Attempted (2026-09-10): Sunbird LLC associativity at 16 MiB and 32 MiB
+(the power-of-two brackets around the ~26-27 MiB estimate) — inconclusive.**
+`--cache-bytes` is hard-validated as an exact power of two, so the ~26-27 MiB
+estimate itself can't be tested directly. Both bracket values produced a
+multi-step staircase (not L1's clean single knee), which is itself evidence
+the true LLC capacity isn't a nearby power of two — consistent with real
+multi-socket Xeon LLC sizes often not being exact powers of two. **This
+associativity method cannot cleanly test a non-power-of-two capacity as
+currently implemented.** See `data_raw/sunbird/README.md`'s LLC subsection
+for full detail. Net effect on this document: Sunbird's LLC stays
+PROVISIONAL (not upgraded) — the associativity attempt didn't confirm it,
+but it didn't contradict the ~26-27 MiB capacity estimate either, since a
+staircase from a wrong-by-construction stride is the expected failure mode,
+not evidence against the underlying capacity number.
