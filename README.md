@@ -59,8 +59,8 @@ taskset -c 4 ./cache_bench --experiment capacity --samples 1000000
 # Line-size sweep (fixed footprint, swept byte stride between nodes);
 # prints raw per-batch CSV to stdout. Footprint must be chosen near a
 # known capacity boundary or the line-size knee is invisible — see
-# scripts/run_line_size_full.sh, which picks it automatically from an
-# existing capacity summary.
+# scripts/run_line_size.sh, which derives it from boundaries you pass in
+# from an existing capacity summary.
 taskset -c 4 ./cache_bench --experiment line_size --footprint-bytes 39321 \
     --min-stride 8 --max-stride 1024 --stride-step 1
 
@@ -72,13 +72,23 @@ taskset -c 4 ./cache_bench --experiment line_size --footprint-bytes 39321 \
 taskset -c 4 ./cache_bench --experiment associativity --cache-bytes 32768 \
     --min-ways 2 --max-ways 64
 
+# Family-of-curves line-size sweep (fixed stride, swept footprint) --
+# PROJECT 1.pdf Figure 3 / "Example B"; run once per candidate stride and
+# overlay the resulting curves. See scripts/run_line_size.sh for the full
+# 5-step pipeline built on top of this.
+taskset -c 4 ./cache_bench --experiment line_size_family --stride 64 \
+    --min-bytes 1024 --max-bytes 1048576
+
 # End-to-end on a lab machine, writing into data_raw/ and data_processed/:
 ./scripts/run_capacity_sweep.sh <machine_name> <core> --samples 1000000
 python3 scripts/summarize_raw.py data_raw/<machine_name>/capacity/capacity_*.csv \
     -o data_processed/<machine_name>/capacity/summary.csv
 python3 scripts/detect_cache_hierarchy.py data_processed/<machine_name>/capacity/summary.csv
 
-./scripts/run_line_size_full.sh <machine_name> <core>
+./scripts/run_line_size.sh <machine_name> <core> <boundaries_csv>
+    # boundaries_csv = this machine's own capacity-experiment boundaries
+    # (see that machine's data_raw/<machine>/README.md capacity/ section),
+    # e.g. 32768,20971520,157286400 -- no auto-detection, pick deliberately.
 
 # cache_bytes_csv is optional (comma-separated per-level capacities); omit it
 # to auto-detect from an existing capacity run (prints a warning — prefer an
@@ -108,10 +118,11 @@ benchmark on the login node. See `hpc_slurm/` for job scripts.
 | `scripts/summarize_raw.py` | Reduce a raw per-batch CSV to one distribution-stats row per swept point (`data_raw` → `data_processed`). |
 | `scripts/detect_cache_hierarchy.py` | Infer cache-level boundaries from a processed capacity summary. |
 | `scripts/plot_capacity.py` | Plot the capacity curve and box plots from processed capacity summaries. |
-| `scripts/run_line_size_sweep.sh` | Build, pin (`taskset`), and run the line-size sweep on a lab machine; writes `data_raw/<machine>/line_size/`. |
-| `scripts/run_line_size_full.sh` | One-command per-machine line-size pipeline: auto-picks footprint from an existing capacity boundary → coarse sweep → transition detection → dense sweep → repeats → plots. |
-| `scripts/detect_line_size.py` | Infer the cache line size from a processed line-size summary (corrects for the footprint/boundary multiplier). |
-| `scripts/plot_line_size.py` | Plot the line-size curve and box plots from processed line-size summaries. |
+| `scripts/run_line_size.sh` | The one line-size pipeline script. Per cache-level boundary you pass in (from that machine's own capacity results): runs the family-of-curves method (PROJECT 1.pdf Figure 3 / "Example B", all 5 steps, per-level, offset-validated) AND the single-curve ramp-saturation method, then reports whether the two independently-designed methods agree. |
+| `scripts/detect_line_size.py` | Infer the cache line size from a processed single-curve line-size summary (corrects for the footprint/boundary multiplier). |
+| `scripts/plot_line_size.py` | Plot the single-curve line-size curve and box plots from processed summaries. |
+| `scripts/plot_line_size_family.py` | Plot the family-of-curves overlay + boxplots and infer the smallest stride whose elbow separates from the shared baseline. |
+| `scripts/plot_line_size_offset.py` | Plot the step-4 cross-alignment (node-0 offset) confirmation for one candidate stride. |
 | `scripts/run_associativity_full.sh` | One-command per-machine, per-cache-level associativity pipeline: sweeps same-set node count at a fixed capacity-sized stride → knee detection → repeats → plots. |
 | `scripts/detect_associativity.py` | Infer a cache level's associativity (ways) from a processed associativity summary. |
 | `scripts/plot_associativity.py` | Plot the associativity curve and box plots for one cache level. |

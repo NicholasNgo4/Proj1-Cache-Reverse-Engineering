@@ -169,7 +169,7 @@ def main():
     ap.add_argument("--confirm", type=int, default=5,
                      help="consecutive points required to confirm the plateau (default "
                           "5). Needs enough plateau length to fit before the "
-                          "capacity-driven drop -- see run_line_size_full.sh's "
+                          "capacity-driven drop -- see run_line_size.sh's "
                           "footprint multiplier, which is sized to leave this room")
     ap.add_argument("--min-rise-ticks", type=float, default=1.0,
                      help="minimum absolute rise from the first swept point to the "

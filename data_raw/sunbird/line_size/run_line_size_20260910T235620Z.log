@@ -1,0 +1,281 @@
+== run_line_size: machine=sunbird core=0 seed=12345 ==
+== timestamp=20260910T235620Z boundaries=32768,27262976,157286400 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=32768B -- Method A window=[4096,131072] bytes
+############################################################
+-- [L32768 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_8_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_8_random_summary.csv
+-- [L32768 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_8_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_8_sequential_summary.csv
+-- [L32768 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_16_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_16_random_summary.csv
+-- [L32768 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_16_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_16_sequential_summary.csv
+-- [L32768 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_32_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_32_random_summary.csv
+-- [L32768 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_32_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_32_sequential_summary.csv
+-- [L32768 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_64_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_64_random_summary.csv
+-- [L32768 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_64_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_64_sequential_summary.csv
+-- [L32768 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_128_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_128_random_summary.csv
+-- [L32768 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_128_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_128_sequential_summary.csv
+-- [L32768 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_256_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_256_random_summary.csv
+-- [L32768 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/family_256_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/family_256_sequential_summary.csv
+-- [L32768 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/sunbird/line_size/level_32768/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 92680, 16B: 41280, 32B: 41280, 64B: 32768, 128B: None, 256B: 32768}
+-- line-size estimate: smallest candidate stride whose elbow separates from the shared baseline (~92680 bytes) is 16B (shifted earlier/smaller footprint) -- see module docstring caveat on capacity- vs associativity-driven separation before citing this as a clean line-size number on its own
+Wrote data_processed/sunbird/line_size/level_32768/plots/line_size_family_boxplots.pdf and .png
+== [L32768 A step 4] candidate=16B ==
+== [L32768 A step 4] bracket=8,16,24,32,40B (8B granularity) offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L32768 A refine] stride=8B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_8_off0_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_8_off0_summary.csv
+-- [L32768 A refine] stride=16B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_16_off0_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_16_off0_summary.csv
+-- [L32768 A refine] stride=24B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_24_off0_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_24_off0_summary.csv
+-- [L32768 A refine] stride=32B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_32_off0_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_32_off0_summary.csv
+-- [L32768 A refine] stride=40B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_40_off0_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_40_off0_summary.csv
+-- [L32768 A refine] stride=8B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_8_off8_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_8_off8_summary.csv
+-- [L32768 A refine] stride=16B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_16_off8_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_16_off8_summary.csv
+-- [L32768 A refine] stride=24B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_24_off8_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_24_off8_summary.csv
+-- [L32768 A refine] stride=32B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_32_off8_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_32_off8_summary.csv
+-- [L32768 A refine] stride=40B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_40_off8_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_40_off8_summary.csv
+-- [L32768 A refine] stride=8B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_8_off16_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_8_off16_summary.csv
+-- [L32768 A refine] stride=16B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_16_off16_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_16_off16_summary.csv
+-- [L32768 A refine] stride=24B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_24_off16_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_24_off16_summary.csv
+-- [L32768 A refine] stride=32B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_32_off16_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_32_off16_summary.csv
+-- [L32768 A refine] stride=40B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_40_off16_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_40_off16_summary.csv
+-- [L32768 A refine] stride=8B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_8_off24_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_8_off24_summary.csv
+-- [L32768 A refine] stride=16B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_16_off24_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_16_off24_summary.csv
+-- [L32768 A refine] stride=24B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_24_off24_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_24_off24_summary.csv
+-- [L32768 A refine] stride=32B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_32_off24_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_32_off24_summary.csv
+-- [L32768 A refine] stride=40B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_40_off24_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_40_off24_summary.csv
+-- [L32768 A refine] stride=8B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_8_off32_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_8_off32_summary.csv
+-- [L32768 A refine] stride=16B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_16_off32_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_16_off32_summary.csv
+-- [L32768 A refine] stride=24B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_24_off32_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_24_off32_summary.csv
+-- [L32768 A refine] stride=32B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_32_off32_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_32_off32_summary.csv
+-- [L32768 A refine] stride=40B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_40_off32_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_40_off32_summary.csv
+-- [L32768 A refine] stride=8B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_8_off40_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_8_off40_summary.csv
+-- [L32768 A refine] stride=16B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_16_off40_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_16_off40_summary.csv
+-- [L32768 A refine] stride=24B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_24_off40_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_24_off40_summary.csv
+-- [L32768 A refine] stride=32B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_32_off40_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_32_off40_summary.csv
+-- [L32768 A refine] stride=40B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_40_off40_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_40_off40_summary.csv
+-- [L32768 A refine] stride=8B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_8_off48_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_8_off48_summary.csv
+-- [L32768 A refine] stride=16B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_16_off48_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_16_off48_summary.csv
+-- [L32768 A refine] stride=24B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_24_off48_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_24_off48_summary.csv
+-- [L32768 A refine] stride=32B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_32_off48_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_32_off48_summary.csv
+-- [L32768 A refine] stride=40B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_40_off48_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_40_off48_summary.csv
+-- [L32768 A refine] stride=8B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_8_off56_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_8_off56_summary.csv
+-- [L32768 A refine] stride=16B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_16_off56_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_16_off56_summary.csv
+-- [L32768 A refine] stride=24B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_24_off56_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_24_off56_summary.csv
+-- [L32768 A refine] stride=32B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_32_off56_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_32_off56_summary.csv
+-- [L32768 A refine] stride=40B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_32768/refine_40_off56_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_32768/refine_40_off56_summary.csv
+-- [L32768 A step 4] generating cross-alignment confirmation plots --
+Wrote data_processed/sunbird/line_size/level_32768/plots/line_size_offset_elbow.pdf and .png
+Wrote data_processed/sunbird/line_size/level_32768/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {24: 52008, 32: 46336}
+   offset=8B: {16: 52016, 24: 46320, 32: 46336}
+   offset=16B: {8: 65536, 24: 52008, 32: 52000, 40: 46320}
+   offset=24B: {8: 65536, 16: 52016, 24: 46320, 32: 92672, 40: 82560}
+   offset=32B: {8: 41280, 16: 73552, 24: 52008, 32: 46336, 40: 46320}
+   offset=40B: {8: 32768, 16: 41280, 24: 41280, 32: 46336, 40: 46320}
+   offset=48B: {16: 104032, 24: 46320}
+   offset=56B: {}
+-- candidate stride 16B: 3/8 offset(s) produced NO detectable elbow at all within this window's footprint range (0B, 16B, 56B) -- these are gaps in the plot, not agreement; the spread below is computed only over the 5/8 offsets that did report a value
+-- candidate stride 16B: elbow varies 2.52x across offsets (41280-104032 bytes) -- transition may be alignment-sensitive, do not cite this candidate as a clean line-size result without further investigation
+
+-- [L32768 B] single-curve method, footprint_bytes=65536 (2.0x boundary) --
+-- [L32768 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/sunbird/line_size/level_32768/singlecurve_coarse_random_20260910T235620Z.csv
+  wrote 128002 lines -> data_raw/sunbird/line_size/level_32768/singlecurve_coarse_sequential_20260910T235620Z.csv
+Wrote 128 summary rows to data_processed/sunbird/line_size/level_32768/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/sunbird/line_size/level_32768/singlecurve_coarse_sequential_summary.csv
+-- [L32768 B] detected line-size estimate (bytes): 64 --
+-- [L32768 B] dense sweep around estimate 64 bytes: 32-129 (step 1) --
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_32768/singlecurve_dense_random_20260910T235620Z.csv
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_32768/singlecurve_dense_sequential_20260910T235620Z.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_32768/singlecurve_dense_random_summary.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_32768/singlecurve_dense_sequential_summary.csv
+  -- [L32768 B] repeat 1/2 of the dense window --
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_32768/singlecurve_dense_rep1_random_20260910T235620Z.csv
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_32768/singlecurve_dense_rep1_sequential_20260910T235620Z.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_32768/singlecurve_dense_rep1_random_summary.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_32768/singlecurve_dense_rep1_sequential_summary.csv
+  -- [L32768 B] repeat 2/2 of the dense window --
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_32768/singlecurve_dense_rep2_random_20260910T235620Z.csv
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_32768/singlecurve_dense_rep2_sequential_20260910T235620Z.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_32768/singlecurve_dense_rep2_random_summary.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_32768/singlecurve_dense_rep2_sequential_summary.csv
+-- [L32768 B] generating single-curve plots --
+  note: 32B (random) has 4 overlapping summary rows with medians [16.6, 21.1, 20.1, 21.2] (spread 4.6 ticks, 23.1%) -- averaging, widening whiskers to the union
+  note: 126B (random) has 3 overlapping summary rows with medians [18.2, 14.2, 14.0] (spread 4.2 ticks, 27.3%) -- averaging, widening whiskers to the union
+  note: 127B (random) has 3 overlapping summary rows with medians [18.6, 14.5, 14.2] (spread 4.4 ticks, 27.8%) -- averaging, widening whiskers to the union
+  note: 129B (random) has 3 overlapping summary rows with medians [18.6, 13.8, 13.5] (spread 5.1 ticks, 33.0%) -- averaging, widening whiskers to the union
+  note: flagged 3 isolated spike stride(s) as probable page-aliasing artifacts: [256, 512, 1024]
+Wrote data_processed/sunbird/line_size/level_32768/plots/line_size_curve.pdf and .png
+Wrote data_processed/sunbird/line_size/level_32768/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## LEVEL boundary=27262976B -- Method A window=[3407872,109051904] bytes
+############################################################
+-- [L27262976 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_8_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_8_random_summary.csv
+-- [L27262976 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_8_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_8_sequential_summary.csv
+-- [L27262976 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_16_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_16_random_summary.csv
+-- [L27262976 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_16_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_16_sequential_summary.csv
+-- [L27262976 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_32_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_32_random_summary.csv
+-- [L27262976 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_32_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_32_sequential_summary.csv
+-- [L27262976 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_64_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_64_random_summary.csv
+-- [L27262976 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_64_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_64_sequential_summary.csv
+-- [L27262976 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_128_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_128_random_summary.csv
+-- [L27262976 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_128_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_128_sequential_summary.csv
+-- [L27262976 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_256_random_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_256_random_summary.csv
+-- [L27262976 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/sunbird/line_size/level_27262976/family_256_sequential_20260910T235620Z.csv
+Wrote 31 summary rows to data_processed/sunbird/line_size/level_27262976/family_256_sequential_summary.csv
+-- [L27262976 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/sunbird/line_size/level_27262976/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 21638632, 16B: 21638624, 32B: 17174592, 64B: 19277824, 128B: 24288512, 256B: 27262976}
+-- no candidate stride's elbow separated from the shared baseline within the swept footprint range -- either every tested stride is <= the true line size, or the footprint ceiling needs raising
+Wrote data_processed/sunbird/line_size/level_27262976/plots/line_size_family_boxplots.pdf and .png
+== [L27262976 A] no candidate stride separated from the shared baseline
+   within this level's window -- widen coarse_strides_csv or pass a
+   candidate override for this level. Skipping Method-A step 4.
+
+-- [L27262976 B] single-curve method, footprint_bytes=54525952 (2.0x boundary) --
+-- [L27262976 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/sunbird/line_size/level_27262976/singlecurve_coarse_random_20260910T235620Z.csv
+  wrote 128002 lines -> data_raw/sunbird/line_size/level_27262976/singlecurve_coarse_sequential_20260910T235620Z.csv
+Wrote 128 summary rows to data_processed/sunbird/line_size/level_27262976/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/sunbird/line_size/level_27262976/singlecurve_coarse_sequential_summary.csv
+-- [L27262976 B] detected line-size estimate (bytes): 64 --
+-- [L27262976 B] dense sweep around estimate 64 bytes: 32-129 (step 1) --
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_27262976/singlecurve_dense_random_20260910T235620Z.csv
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_27262976/singlecurve_dense_sequential_20260910T235620Z.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_27262976/singlecurve_dense_random_summary.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_27262976/singlecurve_dense_sequential_summary.csv
+  -- [L27262976 B] repeat 1/2 of the dense window --
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_27262976/singlecurve_dense_rep1_random_20260910T235620Z.csv
+  wrote 98002 lines -> data_raw/sunbird/line_size/level_27262976/singlecurve_dense_rep1_sequential_20260910T235620Z.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_27262976/singlecurve_dense_rep1_random_summary.csv
+Wrote 98 summary rows to data_processed/sunbird/line_size/level_27262976/singlecurve_dense_rep1_sequential_summary.csv
+  -- [L27262976 B] repeat 2/2 of the dense window --
