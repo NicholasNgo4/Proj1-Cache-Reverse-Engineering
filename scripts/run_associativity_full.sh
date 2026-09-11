@@ -10,9 +10,12 @@
 #
 # Mirrors run_capacity_full.sh / run_line_size_full.sh's philosophy:
 # deliberately NOT adaptive, every step is a fixed rule (a dense num_ways=
-# 2..64 sweep in one pass -- cheap because the whole range is only ~64
+# 2..32 sweep in one pass -- cheap because the whole range is only ~32
 # points, unlike capacity/line_size's byte-granularity search -- plus 2
 # reproducibility repeats), so it doesn't need per-machine judgment calls.
+# 32 is a deliberate ceiling, not a leftover default: real L1/L2/LLC
+# associativities on modern x86/ARM never reach the low 20s, so there is
+# no value in paying for the extra wall time out to 64.
 #
 # Cache-level capacities MUST be supplied deliberately, not blindly trusted
 # from auto-detection: detect_cache_hierarchy.py's coarse first-pass
@@ -52,7 +55,8 @@ CORE="$2"
 CACHE_BYTES_CSV="${3:-}"
 
 MIN_WAYS=2
-MAX_WAYS=64
+MAX_WAYS=32   # real L1/L2/LLC associativities on modern x86/ARM never reach the
+              # low 20s, let alone 32 -- no need to sweep past it
 WAY_STEP=1
 SAMPLES=1000000
 BATCH=1000

@@ -27,7 +27,9 @@
                                                    overrides this from a real capacity
                                                    boundary when one is available */
 #define DEFAULT_MIN_WAYS        2ULL
-#define DEFAULT_MAX_WAYS        64ULL
+#define DEFAULT_MAX_WAYS        32ULL   /* real L1/L2/LLC associativities on modern
+                                            x86/ARM never reach the low 20s, let alone
+                                            32 -- no need to sweep past it */
 #define DEFAULT_WAY_STEP        1ULL
 
 static void usage(const char *prog)

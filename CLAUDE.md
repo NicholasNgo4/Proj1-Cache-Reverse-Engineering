@@ -212,7 +212,12 @@ plot_associativity.py}` pipeline (mirrors capacity/line_size's shape: sweep
 node-to-node stride fixed at a cache level's own capacity forces every
 probed node into the same set with a distinct tag, so sweeping how many
 nodes are chased finds the hit->thrashing knee = associativity for that
-level).
+level). Default sweep range (`main.c`'s `DEFAULT_MAX_WAYS`,
+`run_associativity_full.sh`'s `MAX_WAYS`) was lowered from 64 to 32
+(2026-09-11, uncommitted as of this writing): real L1/L2/LLC
+associativities on modern x86/ARM never reach the low 20s, so sweeping
+past 32 was just extra wall time for no signal — unrelated to the DTLB
+question below, safe to keep regardless of how that gets resolved.
 
 - **L1 = 8-way, hand-confirmed.** Ran on Sunbird core 2 at cache_bytes=32768
   (hand-confirmed L1 capacity): flat through num_ways=8, sharp step at 9,
@@ -226,36 +231,95 @@ level).
   follow-up associativity attempts (256 KiB, then a slope-analysis-motivated
   128 KiB) both reproduced that same ~25-27 tick tier, but neither gave a
   clean single knee.
-- **Root cause found: `--cache-bytes`'s hard power-of-two requirement
-  (`main.c`) collides with this CPU's L1 DTLB structure for every candidate
-  above L1.** CPUID leaf 2 reports the DTLB as 4 KiB pages, 4-way, 64
-  entries -> 16 sets (checked directly on the machine — this is debugging
-  our own tool's confound, not consulting a cache-capacity table, so it's
-  fine pre-freeze). Whether a stride's touched pages collide into one DTLB
-  set depends on (cache_bytes/4096) mod 16: for 32,768 that's 8 (spreads
-  across 2 sets, so DTLB pressure never binds before L1's own 8-way limit
-  does — pure luck that the real L1 test came out clean); for **every power
-  of two >= 65,536 that's 0 (all pages collide into ONE DTLB set)**, so the
-  DTLB's own 4-way limit thrashes almost immediately and swamps whatever the
-  real cache would show. This one mechanism explains all 4 inconclusive
-  attempts so far (128 KiB, 256 KiB, 16 MiB, 32 MiB LLC candidates) — they
-  all broke around num_ways=4-7, matching the DTLB's 4-way limit, not any
-  cache's real associativity. There is no power of two between 32,768 and
-  65,536 to sidestep this with the tool as built.
-- **Fix identified, not yet applied:** the underlying math only requires a
-  stride that's a multiple of the target level's own (sets x line_size), not
-  a power of two specifically — `main.c`'s power-of-two check is stricter
-  than necessary. A stride like 98,304 (24x4096: still a multiple of L1's
-  4096-byte set-stride, but 24 mod 16 = 8, so it spreads across 2 DTLB sets
-  the same way 32,768 does) should sidestep the artifact. Relaxing that
-  validation and retesting with a non-power-of-two stride is the next step
-  for L2, whenever picked back up.
-- Full detail, all 4 raw datasets, and the CPUID verification are in
-  `data_raw/sunbird/README.md`'s L2-candidate/LLC subsections and
-  `CAPACITY_INFERENCE_STATUS.md`. **Still not attempted anywhere on the
-  other 7 machines** — same DTLB caveat likely applies to any x86 machine
-  with a similarly-sized (16-set-ish) L1 DTLB, worth checking per-machine
-  via CPUID before assuming a clean result there either.
+- **Leading hypothesis (timing-inferred, NOT hardware-confirmed — see the
+  Phase I caveat below before touching this again): a virtual-memory DTLB
+  confound, not the real cache, is what all 4 L2/LLC associativity attempts
+  actually broke on.** `--cache-bytes` must be a power of two (`main.c`'s
+  hard validation), and every power-of-two candidate tried above L1
+  (128 KiB, 256 KiB, 16 MiB, 32 MiB) produced a multi-step staircase
+  breaking around num_ways~4-7, instead of L1's one clean knee at 9. That
+  four different candidates — meant to be testing different cache levels
+  with presumably different real associativities — all broke at roughly
+  the *same* small num_ways is itself the Phase-I-safe evidence for a
+  shared confound: a genuine cache level's associativity doesn't change
+  because you guessed a different capacity for it, so something else with
+  its own small, fixed way-count is the more likely common cause. The DTLB
+  is the natural suspect because every "node" in this experiment lives on
+  its own page (`cache_bytes` is always a multiple of 4096), so this
+  experiment necessarily also exercises the DTLB, not just whichever data
+  cache level it's aimed at.
+- **Why this doesn't retroactively cast doubt on the clean L1 result — the
+  mechanism, in variables, no hardware lookup required.** Say the DTLB has
+  `S` sets and `W` ways per set (both unknown, deliberately). Node k's page
+  number is `k * (cache_bytes/4096)` past the base, so which DTLB set it
+  lands in cycles through `k * (cache_bytes/4096) mod S` as k increases.
+  If `(cache_bytes/4096) mod S` is nonzero, consecutive nodes spread across
+  more than one DTLB set, so the DTLB doesn't saturate until
+  `(sets actually touched) * W` pages are resident, not just `W` — for the
+  L1 stride (32,768 B = 8 pages/node) that spread evidently lines up with
+  8, i.e. exactly L1's own real associativity, so the DTLB's own breaking
+  point and L1's real breaking point coincide at the same num_ways. That's
+  a coincidence of the specific numbers involved, not proof the DTLB was
+  inactive during the L1 test — **the L1 result isn't DTLB-immune, its
+  DTLB artifact just happens to land on top of the right answer.** For
+  every power-of-two candidate >= 65,536 B, if `(cache_bytes/4096) mod S`
+  is 0 (stride is an exact multiple of the DTLB's own set count), every
+  node collides into the *same* one set with no spreading at all, so the
+  DTLB saturates as soon as just `W` pages are resident — a small number,
+  likely well below where a real L2/LLC's own (presumably larger)
+  associativity would ever show up. That pushes the spurious knee much
+  earlier than the real signal, matching the observed num_ways~4-7 breaks.
+- **Phase I discipline caveat — read before repeating this line of
+  investigation.** A prior pass on this hypothesis (2026-09-11) executed
+  `cpuid` directly (leaf 2, the legacy cache/TLB descriptor leaf) to read
+  this CPU's literal DTLB structure (it decoded to 4 KiB pages, 4-way,
+  64 entries -> 16 sets, which is exactly consistent with the mechanism
+  above) and wrote that up in `data_raw/sunbird/README.md` and this file
+  as a confirmed root cause. **That was reverted** after re-reading
+  `PROJECT 1.pdf`'s access section closely: Phase I restricts topology
+  identification to an explicit whitelist (`hostname`, `uname -a`,
+  `grep model name /proc/cpuinfo`, `lscpu -e=CPU,CORE,SOCKET,NODE`) and
+  says "do not request cache-size fields" — `cpuid` isn't on that list,
+  and leaf 2 is the exact mechanism `lscpu`'s cache columns pull from in
+  the first place (the reason that command's own field list is
+  restricted). The specific bytes decoded happened to be TLB-only this
+  time, not L1D/L2/LLC descriptors, but the instruction executed was
+  "ask the hardware to reveal its own cache/TLB descriptor table" either
+  way, which is the category Phase I is walling off — the fact that this
+  round only asked about the TLB doesn't make it safe. **Do not re-run a
+  CPUID/`/proc/cpuinfo`-cache-field/`lscpu`-full check for this — or
+  anything else cache-topology-shaped — before Phase I is frozen and
+  tagged.** The reusable probe script that did this
+  (`scripts/check_cpuid_tlb.c`) was deleted along with the write-ups
+  citing it; nothing currently in the repo relies on it.
+- **Two ways to actually resolve this, once picked back up — pick one, both
+  Phase-I-safe:**
+  1. *Re-derive S and W from timing alone.* Predict, from the mechanism
+     above, that the spurious knee's num_ways location should shift in a
+     specific way if `cache_bytes` is chosen at different residues mod
+     some candidate `S` (e.g. try non-power-of-two multiples of 4096 that
+     are still valid multiples of a target level's own set-stride, per the
+     fix below, at a few different residues) — if the knee moves exactly
+     where the arithmetic predicts, that's real timing evidence for the
+     confound's existence and its `S`/`W`, without ever reading hardware
+     state directly.
+  2. *Apply the stride fix and just retest.* The underlying associativity
+     math only needs a stride that's a multiple of the target level's own
+     (sets x line_size), not a power of two specifically —
+     `main.c`'s power-of-two check
+     (`(cache_bytes & (cache_bytes - 1)) != 0` validation) is stricter than
+     the method actually requires. Relaxing it and retrying with a
+     non-power-of-two stride (a value like 98,304 was floated as one
+     candidate, chosen only because 98,304/4096=24 isn't a multiple of 16 —
+     but 16 was the CPUID-sourced number now retracted above, so treat that
+     specific candidate as unverified too; option 1 is the way to pick a
+     stride without leaning on the retracted number) should sidestep
+     whatever the confound turns out to be.
+- Full detail and all 4 raw datasets (128 KiB, 256 KiB, 16 MiB, 32 MiB
+  candidates) are in `data_raw/sunbird/README.md`'s L2-candidate/LLC
+  subsections — that file's own text still (correctly, as of this writing)
+  calls the root cause "not yet identified." **Still not attempted anywhere
+  on the other 7 machines.**
 
 **Not yet started (data collection):** hit/miss latency, inclusion/
 exclusion experiments — not yet implemented in `cache_bench` at all.
