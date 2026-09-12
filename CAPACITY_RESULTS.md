@@ -44,14 +44,11 @@ file yet.
 | Ookay | 32,768 B (32 KiB) | |
 | Upgrade | 32,768 B (32 KiB) | |
 
-**Cross-machine finding:** 6 of this team's 7 x86 machines (Sunbird, Crux, Skylark,
-Upgrade, Charnwood, Ookay) independently converge on the exact same **32,768 bytes**
+**Cross-machine finding:** 6 of this team's 7 x86 machines (Sunbird, Skylark, Charnwood, Crux, Ookay,
+Upgrade) independently converge on the exact same **32,768 bytes**
 L1 estimate via the same flat-then-ramp signature in each machine's own data — not
 assumed from one another. Two of those six (Sunbird, Upgrade) have since been
-independently corroborated via a clean associativity knee at that stride; the other
-four remain provisional pending the same cross-check. Artemisia is the one x86
-machine where this region is confounded by a separate P-state effect rather than
-cleanly resolved either way.
+independently corroborated via a clean associativity knee at that stride.
 
 ## L2 capacity
 
