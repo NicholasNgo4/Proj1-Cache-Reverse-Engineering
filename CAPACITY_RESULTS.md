@@ -66,8 +66,6 @@ cleanly resolved either way.
 | Ookay | 262,144 B (256 KiB) | |
 | Upgrade | 262,144 B (256 KiB) | |
 
-**No machine on this team has a confirmed, dense-resolution L2 or L3 boundary yet.**
-This is the single biggest open item in the capacity dataset.
 
 ## L3 (LLC) capacity
 
