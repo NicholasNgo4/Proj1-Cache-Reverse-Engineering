@@ -30,10 +30,27 @@
 #define DEFAULT_CACHE_BYTES     (32ULL << 10)  /* 32 KiB fallback; run_associativity_full.sh
                                                    overrides this from a real capacity
                                                    boundary when one is available */
+#define ASSOC_CACHE_BYTES_ALIGN 4096ULL        /* --cache-bytes must be a multiple of this
+                                                   (the page size), not a power of two --
+                                                   see the validation below and
+                                                   associativity.h's docstring: the only
+                                                   real requirement is a whole number of
+                                                   page-granular "set periods", which a
+                                                   non-power-of-two multiple of 4096
+                                                   satisfies just as well and is needed to
+                                                   test residues that aren't multiples of
+                                                   a power-of-two page-indexed structure
+                                                   (see CLAUDE.md's residue-scan writeup) */
 #define DEFAULT_MIN_WAYS        2ULL
-#define DEFAULT_MAX_WAYS        32ULL   /* real L1/L2/LLC associativities on modern
-                                            x86/ARM never reach the low 20s, let alone
-                                            32 -- no need to sweep past it */
+#define DEFAULT_MAX_WAYS        40ULL   /* real L1/L2/LLC associativities on modern
+                                            x86/ARM never reach the low 20s, but the
+                                            unresolved L2/LLC DTLB/slice-hash confound
+                                            (see CLAUDE.md) means extra headroom above
+                                            an earlier 32 is worth the small added wall
+                                            time -- keeps run_associativity_full.sh's
+                                            own MAX_WAYS in sync for direct/manual
+                                            cache_bench invocations that skip the
+                                            wrapper's explicit --max-ways */
 #define DEFAULT_WAY_STEP        1ULL
 
 static void usage(const char *prog)
@@ -92,8 +109,10 @@ static void usage(const char *prog)
         "associativity options:\n"
         "  --cache-bytes N        stride between probed nodes, in bytes -- MUST be set\n"
         "                         to the target cache level's own capacity (default\n"
-        "                         %llu); see scripts/run_associativity_full.sh, which\n"
-        "                         derives this from a completed capacity run\n"
+        "                         %llu); must be a multiple of 4096 (the page size),\n"
+        "                         NOT required to be a power of two -- see\n"
+        "                         scripts/run_associativity_full.sh, which derives this\n"
+        "                         from a completed capacity run\n"
         "  --min-ways N           fewest same-set nodes probed (default %llu)\n"
         "  --max-ways N           most same-set nodes probed (default %llu)\n"
         "  --way-step N           linear increment in nodes probed (default %llu)\n"
@@ -288,11 +307,13 @@ int main(int argc, char **argv)
     }
 
     if (assoc_cfg.batch_size < 1 || assoc_cfg.samples < assoc_cfg.batch_size ||
-        assoc_cfg.warmup_passes < 0 || assoc_cfg.cache_bytes < 1 ||
-        (assoc_cfg.cache_bytes & (assoc_cfg.cache_bytes - 1)) != 0 ||
+        assoc_cfg.warmup_passes < 0 || assoc_cfg.cache_bytes < ASSOC_CACHE_BYTES_ALIGN ||
+        (assoc_cfg.cache_bytes % ASSOC_CACHE_BYTES_ALIGN) != 0 ||
         assoc_cfg.min_ways < 2 || assoc_cfg.max_ways < assoc_cfg.min_ways ||
         assoc_cfg.way_step < 1) {
-        fprintf(stderr, "Invalid associativity parameter values\n");
+        fprintf(stderr, "Invalid associativity parameter values "
+                        "(--cache-bytes must be a multiple of %llu)\n",
+                (unsigned long long)ASSOC_CACHE_BYTES_ALIGN);
         return 1;
     }
 

@@ -26,7 +26,22 @@ just after the per-machine list) are necessarily compressed.
   its README cites a `build/cache_bench.source.dis` disassembly-evidence
   file that was never actually generated (discovered while fixing a
   `.gitignore` rule that was silently swallowing it for every machine) —
-  still a TODO, flagged in the README rather than faked.
+  still a TODO, flagged in the README rather than faked. **2026-09-11:
+  256 KiB and ~30 MiB (31,457,280 B) re-verified and confirmed NOT to be
+  genuine capacity boundaries** — a fresh, high-resolution (300 ppo, both
+  patterns) targeted re-run of each on core 1 (core 2 was busy with
+  another student's process at the time) shows 256 KiB sitting on the
+  same continuous, boundary-free ramp already documented, and ~30 MiB
+  sitting partway up the already-documented ~26-27 MiB+ monotonic climb
+  toward DRAM, not at its own distinct knee; re-running
+  `detect_cache_hierarchy.py` on the ~30 MiB window in isolation
+  reproduces a spurious "boundary" by locking onto a 3-point interference
+  spike, direct evidence for why the two values shouldn't have been
+  trusted. These two byte values had been used (unresolved/provisional)
+  as this machine's L2/LLC-candidate `run_line_size.sh` boundaries — see
+  `data_raw/sunbird/README.md`'s line_size/ section, now updated to flag
+  those two footprints as "inside the transition region" rather than "at
+  a cache-level edge" (the 64B line-size result itself is unaffected).
 - **Crux** (`data_raw/crux/capacity/`): `scripts/run_capacity_full.sh crux
   7` detected 4 boundaries (262144 / 9147840 / 11863280 / 16777216 bytes).
   Topmost region was still climbing at the 256 MiB default ceiling; a
@@ -213,11 +228,61 @@ node-to-node stride fixed at a cache level's own capacity forces every
 probed node into the same set with a distinct tag, so sweeping how many
 nodes are chased finds the hit->thrashing knee = associativity for that
 level). Default sweep range (`main.c`'s `DEFAULT_MAX_WAYS`,
-`run_associativity_full.sh`'s `MAX_WAYS`) was lowered from 64 to 32
-(2026-09-11, uncommitted as of this writing): real L1/L2/LLC
-associativities on modern x86/ARM never reach the low 20s, so sweeping
-past 32 was just extra wall time for no signal — unrelated to the DTLB
-question below, safe to keep regardless of how that gets resolved.
+`run_associativity_full.sh`'s `MAX_WAYS`) was lowered from 64 to 32 on
+2026-09-11, then raised to **40** later the same day after external
+review of the pipeline (see the pipeline-hardening bullet just below):
+real L1/L2/LLC associativities on modern x86/ARM never reach the low
+20s, so 32 already had margin, but 40 buys a bit more headroom against
+the still-unresolved L2/LLC confound question below for cheap extra wall
+time (the whole sweep is still <40 points either way).
+
+**Pipeline hardening from external review (2026-09-11), applied to
+`run_associativity_full.sh`/`detect_associativity.py`/
+`associativity.h` — read before trusting a NEW associativity run's
+numbers; results collected before this date (Sunbird's L1/L2-candidate
+data) were not regenerated under these changes, but the L1 result was
+independently spot-checked against them and is unaffected (see below):**
+- Reproducibility repeats now use a distinct seed per repeat
+  (`base_seed + repeat_index`), not one fixed seed for every run. A fixed
+  seed for "independent" repeats only re-checks system-noise
+  reproducibility, not sensitivity to the dependent chase's access
+  *order* — real replacement policies are commonly pseudo-LRU trees, not
+  true LRU, and PLRU's eviction behavior (and thus where a knee lands) can
+  be order-dependent, not just working-set-size-dependent.
+- Repeats now always run, even when the base sweep finds no knee — a "no
+  knee" result needs its own reproducibility check (it could be a
+  borderline miss on one run, not genuinely "associativity >= max_ways" or
+  "wrong cache_bytes"). The script now also flags disagreement between the
+  base estimate and any repeat's estimate instead of silently reporting
+  just the base number.
+- `--cache-bytes` auto-detection (round-to-power-of-two from a capacity
+  boundary) is now gated behind an explicit `ASSOC_ALLOW_AUTO=1`
+  environment variable for exploratory runs only; a run without it and
+  without an explicit `cache_bytes_csv` now hard-fails rather than
+  silently falling back to an unconfirmed value. Final/reportable numbers
+  must come from a hand-confirmed `cache_bytes_csv` (as Sunbird's L1 run
+  already did).
+- Processed per-num_ways summary CSVs (`base_random_summary.csv`,
+  `rep1_random_summary.csv`, etc.) are now timestamped per run
+  (`..._summary_<ts>.csv`) instead of being silently overwritten by the
+  next run on the same machine/level — same rationale as Artemisia's
+  core20-vs-core23 archival: repeat history is itself evidence, not just
+  something to regenerate and discard.
+- `detect_associativity.py`'s conversion of a detected "first thrashing at
+  num_ways=A+1" knee into "reported associativity = A" was checked against
+  the math and against Sunbird's hand-confirmed L1 result (flat through 8,
+  step at 9 → reports 8) — it was already correct; a comment was added at
+  the point of computation (`associativity = points[knee_idx - 1][0]`)
+  making this explicit rather than leaving it implicit.
+- `associativity.h`'s docstring gained a second "known limitation"
+  paragraph: besides the existing physically-indexed-LLC-with-scattered-
+  pages caveat, a sliced LLC with a non-trivial hash-based slice-selection
+  function (common on modern x86) could also make a `cache_bytes` stride
+  land in a different slice than the naive same-set assumption expects —
+  a second, so-far-unruled-out candidate explanation for the same
+  multi-step/no-knee L2/LLC symptom the DTLB-aliasing hypothesis below was
+  written to explain. Both remain open; same Phase I discipline applies
+  (timing-inference only, no hardware hash/slice lookups).
 
 - **L1 = 8-way, hand-confirmed.** Ran on Sunbird core 2 at cache_bytes=32768
   (hand-confirmed L1 capacity): flat through num_ways=8, sharp step at 9,
@@ -292,35 +357,115 @@ question below, safe to keep regardless of how that gets resolved.
   tagged.** The reusable probe script that did this
   (`scripts/check_cpuid_tlb.c`) was deleted along with the write-ups
   citing it; nothing currently in the repo relies on it.
-- **Two ways to actually resolve this, once picked back up — pick one, both
-  Phase-I-safe:**
-  1. *Re-derive S and W from timing alone.* Predict, from the mechanism
-     above, that the spurious knee's num_ways location should shift in a
-     specific way if `cache_bytes` is chosen at different residues mod
-     some candidate `S` (e.g. try non-power-of-two multiples of 4096 that
-     are still valid multiples of a target level's own set-stride, per the
-     fix below, at a few different residues) — if the knee moves exactly
-     where the arithmetic predicts, that's real timing evidence for the
-     confound's existence and its `S`/`W`, without ever reading hardware
-     state directly.
-  2. *Apply the stride fix and just retest.* The underlying associativity
-     math only needs a stride that's a multiple of the target level's own
-     (sets x line_size), not a power of two specifically —
-     `main.c`'s power-of-two check
-     (`(cache_bytes & (cache_bytes - 1)) != 0` validation) is stricter than
-     the method actually requires. Relaxing it and retrying with a
-     non-power-of-two stride (a value like 98,304 was floated as one
-     candidate, chosen only because 98,304/4096=24 isn't a multiple of 16 —
-     but 16 was the CPUID-sourced number now retracted above, so treat that
-     specific candidate as unverified too; option 1 is the way to pick a
-     stride without leaning on the retracted number) should sidestep
-     whatever the confound turns out to be.
-- Full detail and all 4 raw datasets (128 KiB, 256 KiB, 16 MiB, 32 MiB
-  candidates) are in `data_raw/sunbird/README.md`'s L2-candidate/LLC
-  subsections — that file's own text still (correctly, as of this writing)
-  calls the root cause "not yet identified." **Still not attempted anywhere
-  on the other 7 machines.**
-
+- **New evidence (2026-09-11): order-sensitivity re-check, using the
+  hardened pipeline's per-repeat varied seeds, on the 256 KiB and 32 MiB
+  candidates (the latter substituted for a requested "~30 MiB" re-test,
+  since `--cache-bytes` must be an exact power of two and 31,457,280 isn't
+  one).** Two new findings, both in `data_raw/sunbird/README.md`'s new
+  "Order-sensitivity re-check" subsection: (1) a sharp anomaly recurs at
+  exactly **num_ways=9** across every stride and seed tried on this
+  machine so far (128 KiB, 256 KiB, and now 32 MiB candidates; 3 different
+  seeds each on the last two) — the same way-count where the real,
+  hand-confirmed L1 result breaks — which is new corroborating evidence
+  for *some* shared small-way-count structure common to every stride
+  (still consistent with, not proof of, the DTLB hypothesis below); (2)
+  the two candidates differ in whether they're order-sensitive at all —
+  256 KiB's staircase shape and detected knee genuinely shift across
+  different seeds (a real access-order effect, consistent with a
+  pseudo-LRU replacement policy), while 32 MiB's staircase reproduces
+  essentially exactly across all three seeds (order-*independent*,
+  more consistent with a page-placement/TLB-set-collision explanation
+  that only cares which pages are touched). That difference means the two
+  candidates most likely aren't being broken by the same confound in the
+  same way — worth narrowing further before assuming one uniform
+  explanation covers both.
+- **Residue scan (2026-09-12): initially read as pinning the confound's
+  implied set-count at S=256 — RETRACTED same day, see the falsification
+  bullet right below before trusting anything about "S=256."** Tested 6
+  more power-of-two `cache_bytes` candidates (512 KiB, 1/2/4/8/16 MiB =
+  128/256/512/1024/2048/4096 pages-per-node) bridging the two known anchors
+  (256 KiB = 64 pages/node, order-sensitive; 32 MiB = 8192 pages/node,
+  order-independent), each at 3 seeds. Found a sharp, binary transition
+  between 128 and 256 pages/node — clean/order-independent at 256
+  pages/node and up, scattered below it — and, **because every candidate
+  tested was a power of two**, initially (wrongly) read this as pinning
+  S=256 under a "collides into one set at multiples of S" model. That
+  reasoning was flawed: for power-of-two-only candidates, "is a multiple of
+  S=256" and "is just large" are the same condition, so the experiment
+  could not actually distinguish the two. See
+  `data_raw/sunbird/README.md`'s "Residue scan" subsection and
+  `data_processed/sunbird/associativity/residue_scan_summary/
+  residue_scan_transition.png` for the (still-useful, just
+  differently-interpreted) plot.
+- **Falsification test + real-capacity test (2026-09-12): the S=256 model
+  is wrong, AND testing at the real ~26-27 MiB LLC capacity does not
+  produce a trustworthy associativity number either — the whole
+  investigation is now bottlenecked on one bigger finding, below.**
+  1. *Falsification test* (`main_code/common/main.c`'s hard power-of-two
+     `--cache-bytes` check was relaxed to "must be a multiple of 4096,
+     the page size" specifically to enable this — see that file and
+     `associativity.h`): tested two NON-power-of-two candidates, 300
+     pages/node (1,228,800 B) and 4200 pages/node (17,203,200 B), neither
+     a multiple of 256. Result: 4200 pages/node came out completely clean
+     (0 spread across 3 seeds, wall at num_ways=10) — exactly as clean as
+     every multiple-of-256 candidate — directly falsifying "S=256" (a
+     non-multiple should have been scattered under that model, and
+     wasn't). 300 pages/node showed a genuine intermediate tier (not
+     predicted cleanly either way), so the real mechanism is not simple
+     linear/modular address indexing at all (real TLB/paging-structure
+     hashing is often bit-XOR across several address-bit ranges on real
+     hardware, which wouldn't behave like simple modular arithmetic when
+     stride is varied) — this is likely not resolvable further with
+     simple timing arithmetic alone.
+  2. *Real-capacity test*: retested directly at three non-power-of-two
+     candidates spanning the actual measured ~26-27 MiB LLC estimate
+     (27,262,976 / 27,787,264 / 28,311,552 B — i.e. no more rounding to
+     16/32 MiB), 3 seeds each. All three gave a clean, order-independent
+     wall — but at **exactly num_ways=10, identical to nearly every other
+     large-stride candidate tested this session** (10 of 13 candidates
+     across 512 KiB-27 MiB, spanning a 27x byte range, break at exactly
+     num_ways=10, usually preceded by the same "way=9" bump seen in 12 of
+     13). A genuine capacity-driven knee should not sit at the same
+     `num_ways` regardless of a 27x change in byte value — this is the
+     signature of a small, fixed, page-COUNT-limited structure (~9 slots),
+     not a byte-capacity cache level.
+  - **Conclusion: for any stride >~1 MiB on Sunbird, this method cannot
+    currently distinguish real L2/LLC associativity from this small
+    universal confound — no candidate byte value fixes it, because the
+    confound isn't about picking the wrong capacity, it's structural to
+    the method at this stride scale (something with ~9 slots saturates
+    long before any real, larger cache set would).** This is a genuine
+    dead end for the current method design, not a "try more candidates"
+    problem — see "What would actually need to change" below before
+    repeating stride-variation attempts on another machine.
+  - **This also casts new, concrete doubt on the previously-trusted L1 =
+    8-way result** (`cache_bytes=32768` = 8 pages/node): that stride is
+    far below the ~1 MiB threshold where this universal wall was
+    characterized, and the L1 result IS the one case that's fully
+    order-independent at a small page count — so it may well be a genuine,
+    independent cache signal — but given how consistently a small
+    fixed-entry structure has now shown up everywhere else, it is no
+    longer safe to treat L1=8-way as automatically confound-free just
+    because it looks clean. Flagged as unresolved, not retracted (no
+    evidence has directly contradicted the L1 result itself) — a candidate
+    Phase II PMU check, or a differently-designed timing test, would be
+    needed to actually settle it.
+  - **What would actually need to change, if this is picked back up (not
+    attempted this session):** the method's core assumption — one node per
+    page, stride = target capacity — seems to be what exposes every large
+    stride to this small page-indexed confound. A redesign that keeps
+    multiple same-set nodes on fewer distinct pages (rather than always
+    one node per page) would sidestep it, but no such design has been
+    worked out yet. Simply trying more candidate byte values (power-of-two
+    or not) is very unlikely to help further, per the finding above.
+  - Full detail: `data_raw/sunbird/README.md`'s associativity/ section, in
+    particular the "Residue scan", falsification, and real-capacity-test
+    subsections (search for "2026-09-12"). **Still not attempted anywhere
+    on the other 7 machines** — if picked up there, start from "What would
+    actually need to change" above rather than re-deriving stride
+    variations from scratch; the multi-seed / order-sensitivity check
+    added to `run_associativity_full.sh` this session is still worth using
+    regardless of how the method itself evolves.
 **Not yet started (data collection):** hit/miss latency, inclusion/
 exclusion experiments — not yet implemented in `cache_bench` at all.
 Line size: `--experiment line_size` exists (added by @krchen1, commit

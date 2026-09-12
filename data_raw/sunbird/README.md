@@ -110,6 +110,68 @@
   high-resolution sweeps above remain the precise source for the boundary location
   itself; this pass is corroborating evidence at standard resolution, not a
   replacement for them.
+- **Re-verified 256 KiB and ~30 MiB (2026-09-11): neither is a genuine capacity
+  boundary -- both are noise/grid artifacts of the coarse-resolution auto-detector,
+  not real cache-level transitions. This resolves the "provisional pending capacity
+  writeup" flag on the `262144,31457280` boundary pair cited in the line_size/
+  section below.** These two exact byte values (262,144 = 256 KiB; 31,457,280 =
+  30 MiB) came from an ad hoc "reprocessing" of combined random-pattern summary
+  data that was never committed or written up here -- run against
+  `scripts/detect_cache_hierarchy.py`'s naive first-jump-past-threshold heuristic,
+  which is already documented above (see the 256 KiB / hidden-L2-shelf bullet, and
+  the superseded-~20 MiB-boundary bullet) as prone to false positives on this
+  machine's noisy coarse grid. Re-ran two fresh, targeted, high-resolution
+  (300 points/octave, both patterns, `taskset -c 1` -- core 2 was busy with another
+  student's process at the time, confirmed via `/proc/stat` idle-time sampling
+  across 3 windows and a `ps --sort=-pcpu` check showing a `git` process at ~92%
+  CPU on that core's SMT sibling; core 1/25 sampled 95-99% idle across 3 separate
+  windows and used instead) dense sweeps bracketing each value directly:
+  `capacity_denseG_256kib_check_{random,sequential}_20260911T232724Z.csv.gz`
+  (64 KiB-1 MiB) and `capacity_denseG_30mib_check_{random,sequential}_
+  20260911T232756Z.csv.gz` (16-42 MiB).
+  - **256 KiB:** confirms the existing denseE warm-start conclusion above (no
+    shelf) rather than contradicting it. At 300 ppo the random-pattern median
+    right around 262,144 B bounces noisily between ~18.9-24.75 ticks with no
+    step, riding the same continuous ramp documented above; the sequential
+    control is dead flat at 10.12-10.124 ticks across the entire window.
+    `detect_cache_hierarchy.py` run against this fresh summary alone reports
+    zero internal boundaries (one "Memory (DRAM)" level spanning the whole
+    64 KiB-1 MiB range) -- there is nothing here for a non-noisy detector run
+    to have found.
+  - **~30 MiB:** sits partway up the already-documented ~26-27 MiB+ monotonic
+    climb, not at a separate knee. Random-pattern median is flat ~48.6-49.4
+    ticks from 16.78-26.1 MiB (matching the established L2/L3-plateau value),
+    then climbs continuously and smoothly through 31,452,392 B (the closest
+    grid point to the 30 MiB target, 60.55 ticks) out to 104.4 ticks by
+    43.9 MiB -- a continuation of the same trend already documented, not a
+    plateau-then-jump. Sequential control again stays flat at 10.12 ticks
+    (with only 3 single-point sub-1% blips) the entire way, confirming this
+    climb is real and cache-driven, not scheduling noise. One 3-point cluster
+    at 31.97-32.11 MiB (102.4 / 88.2 / 137.8 ticks, one point with
+    `n_outliers=0` -- i.e. its *entire* 1000-batch sample was elevated, this
+    machine's documented signature for a session-level interference event, not
+    a per-batch fluke) sits directly on top of the ~60-63 tick trend on both
+    sides of it. Running `detect_cache_hierarchy.py` on this window in
+    isolation **reproduces the artifact directly**: it reports a hard
+    boundary at 31,891,456 B -- locking onto that exact noise cluster, not a
+    real transition -- which is very likely the same failure mode (a different
+    noise realization on a different run/grid) that originally produced the
+    now-suspect 31,457,280 candidate. This is direct, reproduced evidence for
+    *why* these auto-detected values shouldn't have been trusted as capacity
+    boundaries in the first place, not just an unconfirmed suspicion.
+  - **Practical takeaway for the line_size/ results below:** the `262144` and
+    `31457280` footprints used there are not sitting at clean single-level
+    boundaries -- 30 MiB in particular is inside a region already partway
+    toward the deeper DRAM-like tier, not fully "resident in one cache level."
+    This doesn't by itself invalidate those line-size measurements (a
+    footprint just needs to be a stable, repeatable memory-access regime for
+    the stride-sweep method to find a real elbow in; it doesn't strictly need
+    to sit at an exact capacity edge), and all three tested levels converged
+    on the same 64B result regardless -- but the two footprints should be
+    described as "inside the L2/L3-to-DRAM transition region" rather than "at
+    a cache-level boundary" in any final writeup, and this is worth
+    remembering if a future session re-derives per-level line-size candidates
+    from this machine's capacity data.
 
 ### line_size/
 **Code layout note (post-session cleanup): every run command cited anywhere in this
@@ -138,10 +200,10 @@ per-method names cited below.
   - **This actually happened, immediately:** `./scripts/run_line_size_full.sh sunbird 20` was re-run (`source`d directly in a terminal -- see `run_line_size_full_20260909T205256Z.log`, and note it also got appended, garbled with shell-prompt text, into the older `..._20260909T202041Z.log` because `source`ing the script leaves its `exec > tee` redirect attached to the *interactive* shell instead of a subshell -- harmless here but worth invoking this script with `./scripts/...` or `bash scripts/...`, not `source`, going forward). That re-run auto-picked `footprint_bytes=571728` (558 KiB) exactly per the paragraph above, produced a noisy/non-monotonic curve, and correctly got `no line-size transition detected` from the fixed `detect_line_size.py` -- but it still overwrote `coarse_{random,sequential}_summary.csv` and the plots with that noisy, no-signal coarse-only data (dense/repeat stages were skipped, since detection had failed). Restored by re-summarizing from the still-good `line_size_coarse_{random,sequential}_20260909T202041Z.csv` raw files back onto `data_processed/sunbird/line_size/coarse_{random,sequential}_summary.csv`, then re-plotting against the (untouched) dense/dense_rep1/dense_rep2 summaries -- back to the 64B estimate and clean plot described above. `run_line_size_full.sh` now prints an explicit, actionable warning (naming this exact failure mode and suggesting the override) instead of silently completing when this happens again.
 
 - **Family-of-curves sub-experiment (PROJECT 1.pdf's Figure 3 / "Example B" requirement) -- superseded three times now, current architecture is per-cache-level with a MANUAL step-4 candidate (auto-detection removed, see Attempt 4).** History, most recent first (each bullet below is a full retelling of the fix that produced it, not just a result -- the earlier attempts are kept for the record, not because they're still trustworthy; see the code-layout note at the top of this line_size/ section for current script/source names):
-  - **Attempt 4 (current, authoritative): keeps attempt 3's per-cache-level architecture but removes Method-A's automatic step-4 candidate selection.** Two exploratory re-runs of attempt 3's own auto-detection (identical boundaries/strides/seed, only the pinned core changed) showed the coarse pass's candidate was NOT reproducible: core 1 (`run_line_size_20260911T182443Z.log`) picked 32B/16B/32B for the 32768/262144/31457280B levels respectively; core 0 (`run_line_size_20260911T185011Z.log`) picked 16B/64B/8B for the same three levels. Boundaries used for these and the final run below: `32768,262144,31457280` -- note the latter two differ from attempt 3's `20971520,157286400` because they're sourced from an in-progress reprocessing of this machine's random-pattern-only capacity data (`data_processed/sunbird/capacity/coarse_combined_random_summary.csv` and siblings) that is **not yet written up in this README's capacity/ section as of this writing** -- treat these two boundary values as provisional pending that writeup, cross-check before citing independently. Root cause of the instability: `infer_line_size()` (`scripts/plot_line_size_family.py`) anchors to the largest tested stride's elbow, which is the right design (see that function's docstring), but the underlying elbow values it's comparing come from a single, un-repeated, 6-points-per-octave coarse sweep -- noisy enough that which smaller stride's elbow happens to fall inside the 1.2x agreement ratio flips from run to run. Worse, a wrong (too-small) candidate's own step-4 offset check can still look clean: below the true line size, packing multiple nodes per line is roughly offset-insensitive too, so "N/8 offsets agree" doesn't by itself validate a candidate (confirmed directly -- core 0's spurious 16B pick for the L1 level passed its own step-4 check at "7/8 offsets, 1.00x spread", every bit as clean-looking as a correct candidate would be). **Fix: `scripts/run_line_size.sh` no longer auto-applies this estimate.** Steps 1-3 (coarse pass, `line_size_family_curve.png`) still run unconditionally for every level; the coarse pass's own diagnostic elbow/estimate is still computed and printed to the log (useful as a hint) but step 4 is now skipped for any level whose `candidate_overrides_csv` field is left blank, with an explicit message pointing at that level's plot and asking for a manual candidate on the next invocation -- see the script's header comment for the full rationale and usage. Final run: all three levels manually forced to **64B** (chosen by inspecting each level's `line_size_family_curve.png` -- all three show the same textbook split, {8,16,32B} clustering separately from {64,128,256B}), `taskset -c 1`, timestamp `20260911T200548Z`, log `run_line_size_20260911T200548Z.log` (this is the authoritative raw/plot data for the three `level_<boundary>/` directories cited below; the two exploratory auto-detect logs above are kept only as evidence for the instability finding, not as a source of trustworthy line-size numbers).
+  - **Attempt 4 (current, authoritative): keeps attempt 3's per-cache-level architecture but removes Method-A's automatic step-4 candidate selection.** Two exploratory re-runs of attempt 3's own auto-detection (identical boundaries/strides/seed, only the pinned core changed) showed the coarse pass's candidate was NOT reproducible: core 1 (`run_line_size_20260911T182443Z.log`) picked 32B/16B/32B for the 32768/262144/31457280B levels respectively; core 0 (`run_line_size_20260911T185011Z.log`) picked 16B/64B/8B for the same three levels. Boundaries used for these and the final run below: `32768,262144,31457280` -- note the latter two differ from attempt 3's `20971520,157286400` because they're sourced from an in-progress reprocessing of this machine's random-pattern-only capacity data (`data_processed/sunbird/capacity/coarse_combined_random_summary.csv` and siblings) that was **not written up in this README's capacity/ section at the time this bullet was written. Resolved 2026-09-11: see the "Re-verified 256 KiB and ~30 MiB" bullet in the capacity/ section above -- both values turned out to be noise/detector artifacts, not genuine capacity boundaries** (262144 rides a continuous, boundary-free ramp; 31457280 sits partway up the already-documented ~26-27 MiB+ climb, and a fresh high-resolution re-run of the same detector on that exact window reproduces a spurious boundary by locking onto a 3-point interference spike). This does not invalidate the 64B line-size results below on its own (see that bullet's practical-takeaway note), but these two footprints should be described as sitting inside the L2/L3-to-DRAM transition region, not at a cache-level edge. Root cause of the instability: `infer_line_size()` (`scripts/plot_line_size_family.py`) anchors to the largest tested stride's elbow, which is the right design (see that function's docstring), but the underlying elbow values it's comparing come from a single, un-repeated, 6-points-per-octave coarse sweep -- noisy enough that which smaller stride's elbow happens to fall inside the 1.2x agreement ratio flips from run to run. Worse, a wrong (too-small) candidate's own step-4 offset check can still look clean: below the true line size, packing multiple nodes per line is roughly offset-insensitive too, so "N/8 offsets agree" doesn't by itself validate a candidate (confirmed directly -- core 0's spurious 16B pick for the L1 level passed its own step-4 check at "7/8 offsets, 1.00x spread", every bit as clean-looking as a correct candidate would be). **Fix: `scripts/run_line_size.sh` no longer auto-applies this estimate.** Steps 1-3 (coarse pass, `line_size_family_curve.png`) still run unconditionally for every level; the coarse pass's own diagnostic elbow/estimate is still computed and printed to the log (useful as a hint) but step 4 is now skipped for any level whose `candidate_overrides_csv` field is left blank, with an explicit message pointing at that level's plot and asking for a manual candidate on the next invocation -- see the script's header comment for the full rationale and usage. Final run: all three levels manually forced to **64B** (chosen by inspecting each level's `line_size_family_curve.png` -- all three show the same textbook split, {8,16,32B} clustering separately from {64,128,256B}), `taskset -c 1`, timestamp `20260911T200548Z`, log `run_line_size_20260911T200548Z.log` (this is the authoritative raw/plot data for the three `level_<boundary>/` directories cited below; the two exploratory auto-detect logs above are kept only as evidence for the instability finding, not as a source of trustworthy line-size numbers).
     - **Level boundary=32768B (L1) -- RESULT: 64B, but this particular run's own step-4 check was noisy (3.56x spread, 1/8 offsets with no detectable elbow at all; see `plots/line_size_offset_elbow.png`) -- a spike at offset=0B/stride=64B and at offset=32B/stride=80B, several offsets only partially covered.** Don't over-read this one run in isolation: Method B independently reads 64B here (as it does in every run on this machine so far), and attempt 3's dedicated, earlier run of this exact level already produced a clean 64B confirmation (5/8 offsets, 36736 bytes, documented above) -- the noise here is sampling variance in one more coarse pass, not a contradiction of the established result.
-    - **Level boundary=262144B -- RESULT: 64B, clean.** `plots/line_size_offset_elbow.png` shows a tight V bottoming right at stride=64B with all 8 offsets visually overlapping (printed spread 1.41x, 8/8 offsets reporting -- the printed ratio undersells how clean this looks visually). Method B found no ramp-saturation signal in its own coarse sweep at this footprint (consistent with the "no separation at deeper levels" pattern already documented at the 20/150 MiB levels above -- not a contradiction).
-    - **Level boundary=31457280B (~30 MiB) -- RESULT: 64B, the cleanest of the three.** `plots/line_size_offset_elbow.png` shows a sharp, tight V at exactly stride=64B, 8/8 offsets essentially coincident (1.12x spread). Method B also independently reached 64B for this level in the core-0 exploratory run (`run_line_size_20260911T185011Z.log`) -- the first time Method B has produced any result this deep; it found none in the final (core-1) run's coarse sweep, consistent with Method B being less sensitive at this depth in general, not a disagreement.
+    - **Level boundary=262144B -- RESULT: 64B, clean (but see 2026-09-11 correction: this footprint is NOT a real capacity boundary, just a point on a continuous ramp -- see the capacity/ section's "Re-verified 256 KiB and ~30 MiB" bullet).** `plots/line_size_offset_elbow.png` shows a tight V bottoming right at stride=64B with all 8 offsets visually overlapping (printed spread 1.41x, 8/8 offsets reporting -- the printed ratio undersells how clean this looks visually). Method B found no ramp-saturation signal in its own coarse sweep at this footprint (consistent with the "no separation at deeper levels" pattern already documented at the 20/150 MiB levels above -- not a contradiction).
+    - **Level boundary=31457280B (~30 MiB) -- RESULT: 64B, the cleanest of the three (but see the same 2026-09-11 correction: this footprint sits partway up the ~26-27 MiB+ climb, not at a distinct level's edge).** `plots/line_size_offset_elbow.png` shows a sharp, tight V at exactly stride=64B, 8/8 offsets essentially coincident (1.12x spread). Method B also independently reached 64B for this level in the core-0 exploratory run (`run_line_size_20260911T185011Z.log`) -- the first time Method B has produced any result this deep; it found none in the final (core-1) run's coarse sweep, consistent with Method B being less sensitive at this depth in general, not a disagreement.
     - **Net Phase-I verdict: 64B is the best-supported line size on this machine across every level and both methods to date.** Raw data: `data_raw/sunbird/line_size/level_{32768,262144,31457280}/*.csv.gz` (gzipped after collection by hand -- unlike `run_capacity_full.sh`, `run_line_size.sh` does not gzip its own output yet; worth adding to that script later). Plots: `data_processed/sunbird/line_size/level_{32768,262144,31457280}/plots/`.
   - **Attempt 3 (superseded for candidate SELECTION only -- its per-level architecture and its L1 result both still stand, corroborated by Attempt 4 above): per-cache-level independent sweeps, auto-detected candidate.** The original single-sweep design (attempt 1 below) ran one footprint sweep spanning the WHOLE range (1 KiB to 64+ MiB) and let one elbow detector pick whichever transition crossed its threshold first. That's a real design flaw: a small, early bump near the L1 boundary can (and did, in attempt 2) get reported as "the line size" while a much more dramatic, later stride-dependent separation near a deeper cache level goes undetected because the detector already fired. Fixed by restructuring `scripts/run_line_size_family.sh` to take a list of this machine's OWN, already-established capacity-experiment boundaries (`32768,20971520,157286400` = the same ~32 KiB / ~20 MiB / ~150 MiB boundaries this README's capacity/ section cites, sourced from `--boundary` values already passed to `plot_capacity.py` there, not re-derived or guessed) and run all 5 Example-B steps completely independently within a narrow window around EACH boundary (`[boundary/8, min(boundary*4, 256 MiB)]`), each with its own coarse pass, its own auto-detected candidate, its own step-4 bracket+offset refine, and its own plots -- rather than one sweep and one number. Deliberately does NOT use sysfs/`lscpu` cache sizes to pick the windows (those come from Phase II documented specs, not Phase I timing); the boundaries are the machine's own timing-measured capacity transitions.
     - Run command: `./scripts/run_line_size_family.sh sunbird 0 32768,20971520,157286400` (default candidate strides 8/16/32/64/128/256B; 6 points/octave; both patterns for the coarse pass, random only for step-4 refine). `taskset -c 0`; core selected by sampling `/proc/stat` idle-time deltas across 3 separate ~3-4s windows (not a single `ps` snapshot -- see the Known constraints in the top-level `CLAUDE.md`) after `ps`/`/proc/stat` showed another student's own `cache_bench` pinned at ~99.5% CPU on core 2 (also inside this session's allowed cpuset, `0-2,24-26`) moments earlier; core 0 (and its SMT sibling, logical CPU 24) read ~95-100% idle on every sample and was used instead. Timestamp `20260910T220442Z`; full transcript `data_raw/sunbird/line_size/run_line_size_family_20260910T220442Z.log`.
@@ -297,6 +359,211 @@ Sunbird's LLC without either a non-power-of-two `--cache-bytes` (would
 need the hard validation in `main.c` relaxed, out of scope for this
 session) or a much more precise capacity estimate that happens to land on
 a power of two.**
+
+#### Order-sensitivity re-check on both candidates (2026-09-11, hardened pipeline)
+
+Following external review of `run_associativity_full.sh` (see CLAUDE.md's
+"Pipeline hardening" bullet), that script's reproducibility repeats now use a
+distinct seed per repeat (`base_seed + repeat_index`) instead of one fixed
+seed for every run, specifically to test whether the L2/LLC candidates'
+multi-step staircases (above) are sensitive to the dependent chase's access
+*order*, not just to plain measurement noise. Also re-tested "~30 MiB" from a
+fresh user request by substituting the nearest valid power of two, 32 MiB
+(`--cache-bytes` is hard-validated as an exact power of two; 31,457,280 itself
+is rejected) -- this is the same `LLC_32MiB` candidate already tested above,
+so this re-check reuses that directory rather than creating a new one.
+Re-ran both `L2_256KiB_candidate` (262144) and `LLC_32MiB` (33554432) directly
+via `cache_bench` (bypassing `run_associativity_full.sh`'s own per-index
+`L1`/`L2`/`L3_LLC` labeling, which would have collided with the real L1
+directory for either a 1- or 2-element override list -- same collision this
+README's L2/LLC subsections above already document working around by hand):
+base run at seed 12345 (same seed as every prior run on this machine, for
+comparability), then 2 repeats at seeds 12346 and 12347; `--max-ways 40`
+(this session's new default, see CLAUDE.md); `taskset -c 1` (core 2 was busy
+with another student's `git` process at ~92% CPU on its SMT sibling at the
+time, confirmed via `/proc/stat` idle-time sampling across 3 windows plus
+`ps --sort=-pcpu`; core 1/25 sampled 95-98.5% idle across 2 separate windows
+and used instead). Raw:
+`data_raw/sunbird/associativity/{L2_256KiB_candidate,LLC_32MiB}/associativity_{base,rep1,rep2}_{random,sequential}_20260911T23{4957,5003}Z.csv.gz`.
+Processed summaries are timestamped (`*_summary_<ts>.csv`) per the same
+hardening, sitting alongside (not overwriting) the original un-timestamped
+`base_random_summary.csv` etc. from the 2026-09-10 single-seed runs above.
+
+- **`L2_256KiB_candidate` is genuinely order-sensitive.** The naive
+  first-knee detector reports a different estimate at every seed --
+  base(12345)=3, rep1(12346)=4, rep2(12347)=4 -- and the underlying curves
+  differ in more than just which number the detector picks: the big jump
+  into the ~44-48 tick tier happens at num_ways=17 in base and rep2, but at
+  num_ways=11 in rep1, a real, substantial shift in *where* the curve breaks
+  depending only on which pseudo-random node order was chased. This is
+  exactly the kind of order-dependence a pseudo-LRU (tree-based, not true
+  LRU) replacement policy could produce, and is new evidence beyond what the
+  single fixed-seed run above could show.
+  - **One feature is NOT order-sensitive, though, and is worth flagging on
+    its own: all three seeds show a sharp single-point dip to ~12.07-12.13
+    ticks specifically at num_ways=9**, bracketed by ~17-19 ticks on both
+    sides. num_ways=9 is exactly where the real, hand-confirmed L1 result
+    (cache_bytes=32768) breaks from its flat plateau. Seeing an anomaly
+    recur at precisely that same way-count here -- at a completely different
+    `cache_bytes` stride, and now confirmed independent of chase order too
+    -- is new corroborating evidence for a shared, fixed, small-way-count
+    structure common to multiple strides (the DTLB-aliasing hypothesis in
+    CLAUDE.md), though it doesn't confirm the mechanism.
+  - **Candid caveat:** the new base run's raw values at small `num_ways`
+    (e.g. ~14.8/14.0/19.0 ticks at ways 2/3/4) don't closely match the
+    previously-committed same-seed base run's values at those same points
+    (~10.07/10.07/10.07) despite identical seed and `cache_bytes`. The most
+    likely explanation is ordinary run-to-run noise -- this machine's
+    documented interference pattern shows up most visibly at exactly these
+    small absolute tick values -- but `--max-ways` also differs between the
+    two runs (64 originally vs. 40 now, changing the probe buffer's total
+    allocation size, which could shift page placement). That wasn't
+    controlled for here and hasn't been ruled out as a contributing factor;
+    flagged as an open uncertainty, not resolved.
+- **`LLC_32MiB` is NOT order-sensitive -- it reproduces the same staircase
+  essentially exactly across all three seeds.** Base/rep1/rep2 all show: flat
+  ~10-15 ticks through num_ways 4-5, a ~17-18 tick tier at 6-8, a jump to
+  ~24 ticks at num_ways=9 in *every* seed, then a big jump to a ~53-59 tick
+  plateau from num_ways=10 onward in *every* seed -- matching the shape of
+  the original single-seed committed result closely. This is the opposite
+  finding from the 256 KiB candidate: whatever produces this candidate's
+  staircase does not depend on chase order, which argues against a
+  replacement-policy-order explanation for *this* stride specifically (more
+  consistent with a page-placement/TLB-set-collision mechanism that only
+  cares about which pages are touched, not the order they're chased in) --
+  meaning the two candidates are most likely not being broken by the exact
+  same confound, or at least not in the same way. num_ways=9 shows up here
+  too (this time as a genuine sustained step to ~24 ticks, not a dip) -- a
+  third recurrence of exactly "9" across two different `cache_bytes`
+  candidates and three different seeds, which is unlikely to be coincidence.
+- **Bottom line: still not a trustworthy per-level associativity number for
+  either candidate** (the pre-existing conclusion above stands), but this
+  re-check adds two concrete, reproducible facts worth carrying into a Phase
+  II follow-up: (a) num_ways=9 recurs as a transition point across every
+  stride and seed tried on this machine so far, and (b) the confound's
+  order-sensitivity differs between the two candidates tested, meaning at
+  least two distinct mechanisms (or one mechanism with stride-dependent
+  behavior) are in play, not one uniform explanation.
+
+#### Residue scan (2026-09-12): pins the confound's implied set-count at S=256, timing-only
+
+Direct follow-up to the order-sensitivity difference above, using CLAUDE.md's
+"Option 1" (vary `cache_bytes` at different residues mod a candidate set-count
+and see if the knee moves as predicted) -- chosen specifically because it
+needs no code change (still power-of-two `--cache-bytes` values, just more of
+them) and is Phase-I-safe (pure timing comparison, no hardware readout).
+Tested 6 more power-of-two candidates bridging the two known anchors --
+256 KiB (64 pages/node, order-*sensitive*) and 32 MiB (8192 pages/node,
+order-*independent*) -- at 512 KiB, 1, 2, 4, 8, and 16 MiB (128, 256, 512,
+1024, 2048, 4096 pages/node respectively), each with the same base+2-repeat,
+3-seed (12345/12346/12347) methodology, `taskset -c 1`, `--max-ways 40`. Raw:
+`data_raw/sunbird/associativity/{residue_scan_512KiB,residue_scan_1MiB,
+residue_scan_2MiB,residue_scan_4MiB,residue_scan_8MiB,LLC_16MiB}/`. Rather
+than eyeballing each curve, computed one objective metric per (candidate,
+seed): the smallest `num_ways_probed` at which the random-pattern median
+first exceeds 2x that run's own low-`num_ways` baseline -- then compared how
+much that location varies across the 3 seeds for each candidate.
+
+- **Result: a sharp transition between 128 and 256 pages/node, not a gradual
+  one.** At 64 and 128 pages/node the jump location scatters widely across
+  seeds (64: 17/11/13, spread 6; 128: 10/9/13, spread 4). At every candidate
+  from 256 pages/node upward, it clusters tightly at 9-11 regardless of seed
+  (256: 11/11/11; 512: 10/10/10; 1024: 10/10/9; 2048: 10/10/10; 4096:
+  10/10/11; 8192: 9/10/9) -- essentially the same 0-1-way noise level as the
+  already-confirmed-clean 32 MiB candidate, not the 4-6-way scatter seen
+  below the transition. See
+  `data_processed/sunbird/associativity/residue_scan_summary/
+  residue_scan_transition.png` for the plot (jump-location vs. stride, log
+  scale, all 3 seeds per candidate) -- the transition is visually obvious,
+  not a judgment call.
+- **Interpretation offered at the time (RETRACTED same day -- see the
+  "Falsification test" subsection immediately below before trusting this):**
+  under the simplest version of the page-indexed-structure model in
+  `associativity.h`'s docstring (a stride of P pages/node lands every probed
+  node in the same one set exactly when P is a multiple of the structure's
+  set-count S), the flip at exactly 128->256 pages/node was read as pinning
+  **S=256**. This reasoning had a real flaw: every candidate tested was a
+  power of two, so "is a multiple of S=256" and "is simply large" were the
+  same condition for this specific candidate set -- the experiment could not
+  actually tell those two explanations apart. See below for the follow-up
+  that exposed this and what actually happened instead.
+
+#### Falsification test + real-capacity test (2026-09-12): S=256 is wrong; testing at the real LLC capacity doesn't help either
+
+**Part 1 -- falsification test.** To distinguish "multiple of S=256" from
+"just large," `main_code/common/main.c`'s hard power-of-two `--cache-bytes`
+validation was relaxed to "must be a multiple of 4096 (the page size)" (see
+that file and `associativity.h`'s updated docstring) so non-power-of-two
+strides could be tested. Two candidates, neither a multiple of 256: 300
+pages/node (1,228,800 B) and 4200 pages/node (17,203,200 B), same 3-seed
+methodology, `taskset -c 2` (core 1 had picked up load from another
+process by this point; core 2 confirmed idle first). Raw:
+`data_raw/sunbird/associativity/{falsify_300pages_notmult256,
+falsify_4200pages_notmult256}/`.
+
+- **4200 pages/node came out completely clean** -- 0 spread across 3 seeds,
+  wall at num_ways=10, indistinguishable from every multiple-of-256
+  candidate. Under the S=256 model this should have been scattered (4200
+  mod 256 = 104, not 0). It wasn't. **This directly falsifies S=256 as
+  stated.**
+- **300 pages/node showed a genuine intermediate tier** (flat 10.08 through
+  way 8, the same "way=9" bump to 12.2 seen almost everywhere, then a
+  flat ~17.1 tier from way 10-18, THEN a big jump to ~44-48 at way 19) --
+  neither cleanly "scattered" nor cleanly "clean," and not what a simple
+  multiple-of-256 model predicts either. The most likely explanation: real
+  TLB/paging-structure indexing on modern hardware is often a bit-XOR hash
+  across several address-bit ranges, not simple `address mod S` -- which
+  would explain why a simple linear-residue model fits some strides and
+  not others. Not resolvable further with simple timing arithmetic alone.
+
+**Part 2 -- real-capacity test.** Independent of the falsification test,
+also retested directly at the ACTUAL measured ~26-27 MiB LLC capacity
+estimate from the capacity/ section, instead of rounding to 16 MiB or
+32 MiB: three non-power-of-two candidates, 27,262,976 B (26.0 MiB),
+27,787,264 B (26.5 MiB), and 28,311,552 B (27.0 MiB), same 3-seed
+methodology, `taskset -c 1` (confirmed idle first). Raw:
+`data_raw/sunbird/associativity/{LLC_real_26p0MiB,LLC_real_26p5MiB,
+LLC_real_27p0MiB}/`.
+
+- All three gave a clean, order-independent wall -- **but at exactly
+  num_ways=10 in every case, identical to nearly every other large-stride
+  candidate tested this session.** Tabulating the wall location across
+  every candidate tried from 512 KiB to 27 MiB (13 candidates total,
+  spanning a 27x byte range, power-of-two and non-power-of-two alike): 10
+  of 13 break at exactly num_ways=10, and 12 of 13 show the same "way=9"
+  bump immediately before it. Changing the candidate from 1 MiB to 27 MiB
+  -- a 27x change -- did not move the wall. **A genuine capacity-driven
+  associativity knee should not sit at the same num_ways regardless of a
+  27x change in the tested byte value; this is the signature of a small,
+  fixed, page-COUNT-limited structure (roughly 9 slots), not a real
+  cache's byte capacity.**
+
+**Conclusion: for any stride above roughly 1 MiB on Sunbird, this method
+cannot currently distinguish real L2/LLC associativity from this small,
+universal confound.** This is not a "wrong candidate value" problem --
+every candidate from 512 KiB to 27 MiB was tried, none escaped it -- it is
+structural to the method (one node per page, stride = target capacity) at
+this stride scale: something with ~9 slots saturates long before any real,
+larger cache set would. Trying more candidate byte values, power-of-two or
+not, is very unlikely to resolve this further.
+
+**This also casts new, concrete doubt on the previously-trusted L1 = 8-way
+result** (`cache_bytes=32768` = 8 pages/node, far below the ~1 MiB
+threshold characterized here). The L1 result remains the one case that's
+fully order-independent at a SMALL page count, so it may still be a
+genuine, independent signal -- but given how consistently a small
+fixed-entry structure has now turned up at every larger stride tried, it
+is no longer safe to treat L1=8-way as automatically confound-free just
+because its curve looks clean. Not retracted (nothing directly contradicts
+it), but flagged as unresolved pending a Phase II PMU check or a
+differently-designed timing test.
+
+**What would actually need to change, if this is picked back up:** the
+core assumption of one node per page (stride = target capacity) is what
+exposes every large stride to this confound. A redesign that keeps
+multiple same-set nodes on fewer distinct pages would sidestep it, but no
+such design has been worked out yet. This is a method-design problem, not
+a "test more candidates" problem.
 
 ### latency/
 - Source file(s): 

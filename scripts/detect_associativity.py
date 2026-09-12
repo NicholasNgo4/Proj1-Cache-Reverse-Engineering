@@ -115,6 +115,13 @@ def main():
               "real capacity.", file=sys.stderr)
         sys.exit(1)
 
+    # knee_idx indexes the FIRST thrashing point, i.e. num_ways_probed = A+1
+    # for true associativity A (see module docstring: a cyclic chase over
+    # N > A distinct same-set tags with an A-way set thrashes on every
+    # access starting at N = A+1, not at N = A). points[knee_idx - 1][0] is
+    # therefore the last num_ways_probed value still on the flat plateau,
+    # i.e. A itself -- verified against Sunbird's hand-confirmed L1 result
+    # (flat through num_ways=8, sharp step at num_ways=9 -> reported 8).
     associativity = points[knee_idx - 1][0]
     plateau_lat = statistics.median(lat for n, lat in points if n <= associativity)
     thrash_lat = points[knee_idx][1]

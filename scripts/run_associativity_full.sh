@@ -10,33 +10,50 @@
 #
 # Mirrors run_capacity_full.sh / run_line_size_full.sh's philosophy:
 # deliberately NOT adaptive, every step is a fixed rule (a dense num_ways=
-# 2..32 sweep in one pass -- cheap because the whole range is only ~32
-# points, unlike capacity/line_size's byte-granularity search -- plus 2
-# reproducibility repeats), so it doesn't need per-machine judgment calls.
-# 32 is a deliberate ceiling, not a leftover default: real L1/L2/LLC
-# associativities on modern x86/ARM never reach the low 20s, so there is
-# no value in paying for the extra wall time out to 64.
+# 2..max_ways sweep in one pass -- cheap because the whole range is only
+# ~40 points, unlike capacity/line_size's byte-granularity search -- plus 2
+# reproducibility repeats, now always run even when the base sweep finds
+# no knee, see below), so it doesn't need per-machine judgment calls.
+# MAX_WAYS=40 (bumped from an earlier 32, external-review feedback
+# 2026-09-11) is a deliberate ceiling with headroom, not a leftover
+# default: real L1/L2/LLC associativities on modern x86/ARM never reach
+# the low 20s, so 32 already had margin, but the unresolved L2/LLC DTLB-
+# confound investigation in CLAUDE.md means we don't yet have full
+# confidence the knee-finder can't be fooled into stopping early -- a few
+# extra points cost little wall time (the whole range is still <40
+# points) and rule out "the real knee was just past our ceiling". Bump to
+# 64 (override MAX_WAYS below) if that investigation turns up reason to
+# want even more headroom.
 #
 # Cache-level capacities MUST be supplied deliberately, not blindly trusted
 # from auto-detection: detect_cache_hierarchy.py's coarse first-pass
 # boundary is a known-unreliable heuristic for the L1 level specifically
 # (confirmed on Sunbird: it returns ~279 KiB against a manually-established
 # ~32 KiB L1 -- see data_raw/sunbird/README.md and the same caveat already
-# documented in run_line_size_full.sh). This script will auto-detect and
-# round to the nearest power of two if no override is given, but ALWAYS
-# prints a loud warning to cross-check against this machine's own
-# data_raw/<machine>/README.md hand-confirmed capacity boundaries first.
+# documented in run_line_size_full.sh). This script CAN auto-detect and
+# round to the nearest power of two if no override is given, but per
+# external-review feedback (2026-09-11) that path is now gated behind an
+# explicit ASSOC_ALLOW_AUTO=1 environment variable -- a "final" run (the
+# kind whose numbers go in a README/report) must pass a hand-confirmed
+# cache_bytes_csv explicitly; auto-detect is opt-in for quick/exploratory
+# runs only, and still prints the same loud warning when used.
 #
 # Usage:
-#   ./scripts/run_associativity_full.sh <machine> <core> [cache_bytes_csv]
+#   ASSOC_ALLOW_AUTO=1 ./scripts/run_associativity_full.sh <machine> <core>   # exploratory only
+#   ./scripts/run_associativity_full.sh <machine> <core> <cache_bytes_csv>   # required for final results
 #
 # Example:
-#   ./scripts/run_associativity_full.sh sunbird 20                       # auto-detect (see warning)
+#   ASSOC_ALLOW_AUTO=1 ./scripts/run_associativity_full.sh sunbird 20        # auto-detect (see warning)
 #   ./scripts/run_associativity_full.sh sunbird 20 32768,20971520,157286400  # explicit L1,L2,LLC override
 #
 # Output:
 #   data_raw/<machine>/associativity/<level>/*.csv            raw per-batch samples
-#   data_processed/<machine>/associativity/<level>/*.csv      per-num_ways distribution summaries
+#   data_processed/<machine>/associativity/<level>/*.csv      per-num_ways distribution summaries,
+#                                                              timestamped per run (not overwritten
+#                                                              by a later run, so repeat history for
+#                                                              e.g. a core-vs-core or seed-vs-seed
+#                                                              comparison survives -- see Artemisia's
+#                                                              core20-vs-core23 pattern in CLAUDE.md)
 #   data_processed/<machine>/associativity/<level>/plots/     associativity_curve + associativity_boxplots (png+pdf)
 #   data_raw/<machine>/associativity/run_associativity_full_<ts>.log  full transcript of this run
 #
@@ -46,7 +63,10 @@
 set -euo pipefail
 
 if [ $# -lt 2 ]; then
-  echo "Usage: $0 <machine> <core> [cache_bytes_csv]" >&2
+  echo "Usage: $0 <machine> <core> <cache_bytes_csv>" >&2
+  echo "       (cache_bytes_csv may be omitted only with ASSOC_ALLOW_AUTO=1 set," >&2
+  echo "        for an exploratory, not-hand-confirmed run -- see this script's" >&2
+  echo "        header comment)" >&2
   exit 1
 fi
 
@@ -54,15 +74,26 @@ MACHINE="$1"
 CORE="$2"
 CACHE_BYTES_CSV="${3:-}"
 
+if [ -z "$CACHE_BYTES_CSV" ] && [ "${ASSOC_ALLOW_AUTO:-0}" != "1" ]; then
+  echo "ERROR: no cache_bytes_csv given, and ASSOC_ALLOW_AUTO is not set to 1." >&2
+  echo "       Final/reportable associativity results require hand-confirmed" >&2
+  echo "       cache_bytes values (see data_raw/${MACHINE}/README.md's capacity" >&2
+  echo "       section), not auto-detected ones -- pass them explicitly:" >&2
+  echo "         $0 ${MACHINE} ${CORE} <L1_bytes>,<L2_bytes>,<LLC_bytes>" >&2
+  echo "       For a quick exploratory run only, opt in to auto-detect with:" >&2
+  echo "         ASSOC_ALLOW_AUTO=1 $0 ${MACHINE} ${CORE}" >&2
+  exit 1
+fi
+
 MIN_WAYS=2
-MAX_WAYS=32   # real L1/L2/LLC associativities on modern x86/ARM never reach the
-              # low 20s, let alone 32 -- no need to sweep past it
+MAX_WAYS="${ASSOC_MAX_WAYS:-40}"   # see header comment for why 40 (was 32)
 WAY_STEP=1
 SAMPLES=1000000
 BATCH=1000
 WARMUP=3
 SEED=12345
-REPEATS=2                     # extra independent repeats of the base window
+REPEATS=2                     # extra repeats of the base window, each at its own seed
+                               # (SEED + repeat index) -- see run_sweep() below for why
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
@@ -75,7 +106,7 @@ TS="$(date -u +%Y%m%dT%H%M%SZ)"
 LOG="${RAW_ROOT}/run_associativity_full_${TS}.log"
 exec > >(tee -a "$LOG") 2>&1
 
-echo "== run_associativity_full: machine=${MACHINE} core=${CORE} seed=${SEED} =="
+echo "== run_associativity_full: machine=${MACHINE} core=${CORE} base_seed=${SEED} max_ways=${MAX_WAYS} =="
 echo "== timestamp=${TS} =="
 
 make -s
@@ -145,13 +176,22 @@ else
 fi
 
 run_sweep() {
-  # run_sweep <pattern> <cache_bytes> <out_csv>
-  local pattern="$1" cache_bytes="$2" out="$3"
+  # run_sweep <pattern> <cache_bytes> <out_csv> [seed]
+  # seed defaults to $SEED (the base sweep). Repeats pass a distinct seed
+  # (SEED + repeat index): a fixed seed only re-checks that the SAME
+  # dependent-access order reproduces (measurement/system noise), but real
+  # hardware replacement policies are commonly pseudo-LRU trees, not true
+  # LRU, and PLRU's eviction decisions -- and therefore where a knee lands
+  # relative to true associativity -- can depend on the specific access
+  # *order*, not just the working-set size. Varying the seed across
+  # repeats also exercises that axis instead of only re-measuring the
+  # identical access sequence.
+  local pattern="$1" cache_bytes="$2" out="$3" seed="${4:-$SEED}"
   taskset -c "$CORE" ./cache_bench --experiment associativity --pattern "$pattern" \
     --samples "$SAMPLES" --batch-size "$BATCH" --cache-bytes "$cache_bytes" \
     --min-ways "$MIN_WAYS" --max-ways "$MAX_WAYS" --way-step "$WAY_STEP" \
-    --warmup-passes "$WARMUP" --seed "$SEED" > "$out"
-  echo "  wrote $(wc -l < "$out") lines -> $out"
+    --warmup-passes "$WARMUP" --seed "$seed" > "$out"
+  echo "  wrote $(wc -l < "$out") lines -> $out (seed=${seed})"
 }
 
 summarize() {
@@ -179,8 +219,8 @@ for i in "${!LEVEL_BYTES[@]}"; do
   BASE_S="${RAW_DIR}/associativity_base_sequential_${TS}.csv"
   run_sweep random "$CACHE_BYTES" "$BASE_R"
   run_sweep sequential "$CACHE_BYTES" "$BASE_S"
-  BASE_R_SUM="${PROC_DIR}/base_random_summary.csv"
-  BASE_S_SUM="${PROC_DIR}/base_sequential_summary.csv"
+  BASE_R_SUM="${PROC_DIR}/base_random_summary_${TS}.csv"
+  BASE_S_SUM="${PROC_DIR}/base_sequential_summary_${TS}.csv"
   summarize "$BASE_R" "$BASE_R_SUM"
   summarize "$BASE_S" "$BASE_S_SUM"
   ALL_SUMMARIES+=("$BASE_R_SUM" "$BASE_S_SUM")
@@ -189,24 +229,43 @@ for i in "${!LEVEL_BYTES[@]}"; do
   ESTIMATE="$(python3 scripts/detect_associativity.py "$BASE_R_SUM" --machine-readable 2>/dev/null || true)"
   echo "-- detected associativity estimate: ${ESTIMATE:-none} --"
 
-  # ---- reproducibility repeats of the same base window ----
-  if [ -n "$ESTIMATE" ]; then
-    for r in $(seq 1 "$REPEATS"); do
-      echo "  -- repeat ${r}/${REPEATS} --"
-      RR="${RAW_DIR}/associativity_rep${r}_random_${TS}.csv"
-      RS="${RAW_DIR}/associativity_rep${r}_sequential_${TS}.csv"
-      run_sweep random "$CACHE_BYTES" "$RR"
-      run_sweep sequential "$CACHE_BYTES" "$RS"
-      RR_SUM="${PROC_DIR}/rep${r}_random_summary.csv"
-      RS_SUM="${PROC_DIR}/rep${r}_sequential_summary.csv"
-      summarize "$RR" "$RR_SUM"; summarize "$RS" "$RS_SUM"
-      ALL_SUMMARIES+=("$RR_SUM" "$RS_SUM")
-    done
-  else
-    echo "-- no knee detected; skipping reproducibility repeats for this level --"
+  # ---- reproducibility repeats of the same base window, each at its own
+  # seed (see run_sweep()). Always run, even when the base sweep found no
+  # knee: a "no knee" result needs to be shown reproducible too, since it
+  # could be a borderline miss (a real knee just under detection
+  # thresholds on this particular run) rather than a genuine "associativity
+  # >= max_ways" or "wrong cache_bytes" case. ----
+  REP_ESTIMATES=()
+  for r in $(seq 1 "$REPEATS"); do
+    REP_SEED=$((SEED + r))
+    echo "  -- repeat ${r}/${REPEATS} (seed=${REP_SEED}) --"
+    RR="${RAW_DIR}/associativity_rep${r}_random_${TS}.csv"
+    RS="${RAW_DIR}/associativity_rep${r}_sequential_${TS}.csv"
+    run_sweep random "$CACHE_BYTES" "$RR" "$REP_SEED"
+    run_sweep sequential "$CACHE_BYTES" "$RS" "$REP_SEED"
+    RR_SUM="${PROC_DIR}/rep${r}_random_summary_${TS}.csv"
+    RS_SUM="${PROC_DIR}/rep${r}_sequential_summary_${TS}.csv"
+    summarize "$RR" "$RR_SUM"; summarize "$RS" "$RS_SUM"
+    ALL_SUMMARIES+=("$RR_SUM" "$RS_SUM")
+    REP_EST="$(python3 scripts/detect_associativity.py "$RR_SUM" --machine-readable 2>/dev/null || true)"
+    echo "     repeat ${r} detected estimate: ${REP_EST:-none}"
+    REP_ESTIMATES+=("${REP_EST:-none}")
+  done
+  if [ -z "$ESTIMATE" ]; then
+    echo "-- base sweep found no knee; the ${REPEATS} repeats above still ran to check" >&2
+    echo "   whether that's reproducible, not just a borderline miss on one run" >&2
     echo "   (either true associativity is >= max_ways=${MAX_WAYS}, or cache_bytes=${CACHE_BYTES}" >&2
     echo "    doesn't match this level's real capacity -- see the warning above if this" >&2
     echo "    came from auto-detection)" >&2
+  fi
+  DISAGREE=0
+  for e in "${REP_ESTIMATES[@]}"; do
+    [ "$e" != "${ESTIMATE:-none}" ] && DISAGREE=1
+  done
+  if [ "$DISAGREE" -eq 1 ]; then
+    echo "WARNING: repeat(s) disagree with the base estimate (base=${ESTIMATE:-none}," >&2
+    echo "         repeats=${REP_ESTIMATES[*]}) -- do NOT treat this level's" >&2
+    echo "         associativity as resolved; investigate before citing a number." >&2
   fi
 
   # ---- plots ----
@@ -222,7 +281,7 @@ for i in "${!LEVEL_BYTES[@]}"; do
   echo "-- compressing raw CSVs for ${LEVEL} --"
   gzip -f "${RAW_DIR}"/associativity_*.csv
 
-  RESULTS+=("${LEVEL}: cache_bytes=${CACHE_BYTES} -> associativity=${ESTIMATE:-none}")
+  RESULTS+=("${LEVEL}: cache_bytes=${CACHE_BYTES} -> associativity=${ESTIMATE:-none} (repeats: ${REP_ESTIMATES[*]})")
 done
 
 echo ""
@@ -230,5 +289,6 @@ echo "== done =="
 for r in "${RESULTS[@]}"; do
   echo "== ${r} =="
 done
-echo "== record in data_raw/${MACHINE}/README.md: core=${CORE}, seed=${SEED}, samples=${SAMPLES}, timestamp=${TS} =="
+echo "== record in data_raw/${MACHINE}/README.md: core=${CORE}, base_seed=${SEED} (repeats use base_seed+index)," \
+     "samples=${SAMPLES}, max_ways=${MAX_WAYS}, timestamp=${TS} =="
 echo "== full transcript saved to: ${LOG} =="

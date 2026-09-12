@@ -9,13 +9,20 @@ struct associativity_config {
     uint64_t samples;       /* total timed accesses per num_ways point (>= 1e6 required) */
     uint64_t batch_size;    /* dependent accesses per timed batch */
     uint64_t cache_bytes;   /* stride between probed nodes, in bytes -- MUST be the
-                              * target cache level's own capacity (a power of two), not
-                              * an arbitrary value: two addresses exactly cache_bytes
-                              * apart always share the same set-index bits regardless of
-                              * line size or associativity, because capacity = sets *
-                              * line_size * ways is by definition a whole number of
-                              * set-strides (see scripts/run_associativity_full.sh,
-                              * which derives this from a completed capacity run) */
+                              * target cache level's own capacity (or another whole
+                              * multiple of that level's set-stride), not an arbitrary
+                              * value: two addresses exactly cache_bytes apart always
+                              * share the same set-index bits regardless of line size or
+                              * associativity, because capacity = sets * line_size * ways
+                              * is by definition a whole number of set-strides (see
+                              * scripts/run_associativity_full.sh, which derives this
+                              * from a completed capacity run). Only required to be a
+                              * multiple of 4096 (the page size) -- NOT a power of two;
+                              * that stricter check was relaxed (2026-09-12) specifically
+                              * so a candidate can be tested at residues that don't align
+                              * with a power-of-two page-indexed structure (DTLB, or a
+                              * sliced/hashed cache -- see the two "known limitation"
+                              * paragraphs below and CLAUDE.md's residue-scan writeup) */
     uint64_t min_ways;       /* fewest same-set nodes probed (clamped up to >= 2, the
                                * minimum viable cycle length) */
     uint64_t max_ways;       /* most same-set nodes probed */
@@ -57,6 +64,25 @@ struct associativity_config {
  * LLC may not honor this from virtual addresses alone if the OS scatters
  * physical pages -- treat an LLC associativity result as provisional until
  * cross-checked (e.g. with huge pages) if it looks noisy.
+ *
+ * A second, distinct known limitation for L2/LLC: even on a machine where
+ * physical pages happen to stay contiguous (or huge pages are used), many
+ * modern LLCs are SLICED and use a HASH function over extra physical
+ * address bits (not just the low index bits capacity/sets/line_size would
+ * suggest) to pick which slice a given address lands in. A stride of
+ * exactly cache_bytes only guarantees "same set" under a plain linear
+ * index; under a non-trivial slice hash, two addresses cache_bytes apart
+ * can hash to DIFFERENT slices even though they'd share a set-index under
+ * the naive model, which would look like extra effective capacity (a
+ * higher apparent associativity, or no knee within max_ways at all) rather
+ * than a clean thrashing knee. This is a plausible alternative explanation
+ * for the same symptom the CLAUDE.md associativity section's leading
+ * DTLB-aliasing hypothesis was written to explain (multi-step/no-knee L2/
+ * LLC results) and has NOT been ruled out relative to that hypothesis --
+ * both remain open. Same Phase I caveat as the DTLB thread applies: do not
+ * try to confirm or rule this out by reading hardware hash/slice
+ * documentation or CPU-specific tables; only timing-based inference is
+ * permitted pre-freeze.
  */
 int run_associativity_experiment(const struct associativity_config *cfg);
 
