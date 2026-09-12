@@ -222,9 +222,11 @@ put a second tmux session on just polling for completion, since a
 background-task watcher tied to the driving Claude Code session dies with
 that session even though the benchmark's own tmux session doesn't.
 
-**Associativity experiment: L1 confirmed (8-way); L2/LLC blocked by a real
-tool limitation, not just unconfirmed capacity — read this before trying
-again.** `--experiment associativity` exists in `cache_bench`, with its own
+**Associativity experiment: L1 confirmed (8-way, x86; 4-way, ARM/Thunderbird);
+L2/LLC blocked by a real tool limitation, not just unconfirmed capacity —
+read this before trying again. Now reproduced on 3 machines (Sunbird,
+Upgrade, Thunderbird), across 2 architectures — see the Thunderbird bullet
+near the end of this section.** `--experiment associativity` exists in `cache_bench`, with its own
 `scripts/{run_associativity_full.sh,detect_associativity.py,
 plot_associativity.py}` pipeline (mirrors capacity/line_size's shape: sweep
 -> knee detection -> 2 repeats -> plots; see
@@ -535,6 +537,70 @@ confound signature repeating itself.
   derived-stride scan" subsection. **Not yet tried on any other
   machine** — if picked up elsewhere, this Upgrade writeup (not the
   original Sunbird dead-end analysis above) is the starting point.
+
+**Thunderbird (2026-09-12): the same universal large-stride wall now shows
+up on a THIRD machine and a different architecture (ARM, not just x86) —
+cross-architecture evidence this confound isn't x86/DTLB-microarchitecture-
+specific.** Ran `scripts/run_associativity_full.sh thunderbird 4
+65536,1048576,31457280` (fixed-full-capacity-stride method, not yet the
+derived-stride-scan technique above) using `CAPACITY_RESULTS.md`'s
+consolidated L1/L2/LLC values for this machine (64 KiB / 1 MiB / ~30 MiB —
+note this is a different, newer source file than the
+`CAPACITY_INFERENCE_STATUS.md` gate cited throughout the rest of this
+section; see the sourcing note below). Needed the same
+`--min-abs-ticks` rescaling already documented for Thunderbird's capacity
+detector (25 MHz `CNTVCT_EL0` keeps every level's ticks/access under ~1.1,
+below `detect_associativity.py`'s x86-calibrated default of 3.0) before
+any knee showed up at all.
+- **L1 = 4-way, reproducible across base + both repeat seeds** (`--min-abs-ticks 0.05`):
+  clean single knee, flat ~0.13 ticks through num_ways=4, jump to ~0.23 at 5.
+  Not suspicious on the same grounds the Sunbird/Upgrade L1 results
+  aren't (small stride, well below the "~1 MiB+" regime where the
+  universal wall was characterized) — though per the caveat already
+  written above for Sunbird's own L1 result, "clean and small-stride"
+  is evidence of *not being confound-poisoned*, not proof of a genuine
+  independent signal.
+- **L2 (1,048,576 B) and LLC (31,457,280 B) both hit the wall, not each
+  level's own associativity.** Both strides are exact multiples of L1's
+  own 65,536 B (16x and 480x), so even the SMALL first bump in their
+  curves is just L1's own thrashing re-triggering, not signal from the
+  level under test — the real second knee only appears after raising
+  `--min-abs-ticks` enough to skip that spurious bump (0.25 for L2, 0.2
+  for LLC). That second knee lands at effectively the **same num_ways for
+  both levels (L2: 11-way base / 12-way both repeats; LLC: 10-way, fully
+  reproducible)** despite a 30x difference in byte capacity between them —
+  the identical "two structurally different levels break at the same
+  num_ways" signature already used above (Sunbird/Upgrade) as the core
+  evidence for a shared confound rather than real associativity. **10-12
+  is also strikingly close to Sunbird/Upgrade's own ~9-10 wall** — worth
+  noting as a candidate shared-magnitude data point if this investigation
+  is ever resumed with the derived-stride-scan technique on this machine,
+  but not proof of exact equality (different CPU, different node size in
+  bytes, no PMU cross-check yet).
+- **Not yet attempted here:** the derived-stride-scan technique
+  (`scripts/run_associativity_stride_scan.sh`) that produced Upgrade's more
+  rigorous (if still unresolved) L2/LLC self-consistency result — this
+  Thunderbird run only used the plain fixed-full-capacity-stride method,
+  per the associativity graphs actually requested this session. Full
+  detail, exact thresholds, and the raw per-num_ways tables:
+  `data_raw/thunderbird/README.md`'s associativity/ section. Three plots:
+  `data_processed/thunderbird/associativity/{L1,L2,L3_LLC}/plots/
+  associativity_curve.{png,pdf}` (+ boxplots).
+- **Sourcing note (applies beyond just this bullet):** as of 2026-09-12,
+  `CAPACITY_RESULTS.md` (one concrete number per machine/level, no
+  caveat column filled in) and the older `CAPACITY_INFERENCE_STATUS.md`
+  (the PROVISIONAL/UNRESOLVED/CONTAMINATED confidence-tier gate this
+  whole associativity section otherwise assumes) disagree in places —
+  e.g. the gate file marks most machines' L2/LLC UNRESOLVED or
+  PROVISIONAL-WEAK, while `CAPACITY_RESULTS.md` just states a number.
+  This Thunderbird run used `CAPACITY_RESULTS.md`'s numbers on explicit
+  instruction that it supersedes the gate file for this purpose, but the
+  gate file's underlying per-machine warnings haven't been individually
+  re-litigated — a future session extending associativity to another
+  machine via `CAPACITY_RESULTS.md` should still sanity-check that row
+  against the machine's own `data_raw/<machine>/README.md` first, the way
+  this session's threshold-rescaling check did for Thunderbird.
+
 **Not yet started (data collection):** hit/miss latency, inclusion/
 exclusion experiments — not yet implemented in `cache_bench` at all.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
