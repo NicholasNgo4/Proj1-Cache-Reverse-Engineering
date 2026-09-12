@@ -538,6 +538,45 @@ confound signature repeating itself.
   machine** — if picked up elsewhere, this Upgrade writeup (not the
   original Sunbird dead-end analysis above) is the starting point.
 
+**2026-09-12, same day: a manually-curated `CAPACITY_RESULTS.md` (hand
+reconciling every machine's capacity README into one L1/L2/LLC table) was
+used to re-run `run_associativity_full.sh` for all 3 levels on Upgrade —
+L2/LLC reproduced the same confound, not new data.** This session's shell
+only had access to Upgrade (each lab machine is a separate, non-shared
+`/home` — see the top of this file), so only Upgrade was run; the other 7
+machines still need the same command (with their own CAPACITY_RESULTS.md
+row) run from a session on that machine. Command:
+`./scripts/run_associativity_full.sh upgrade 5 32768,262144,16777216`
+(LLC's ~12 MiB candidate rounded to the nearest power of two, 16 MiB —
+required by `--cache-bytes`'s hard power-of-two check — see the correction
+right below before repeating this rounding step elsewhere). Result: **L1
+reconfirmed at 8-way** (identical to the original run). **L2 (262,144 B)
+and LLC (16,777,216 B) both again hit the same universal small-way-count
+wall already documented above** — near-identical staircases 64x apart in
+byte size (steps at way~5, way~9, then a further gradual climb from
+way~20), LLC's repeats even disagreeing with each other (3 vs. 4) the way
+a genuinely unresolved confound would. **Do not cite "L2 = 4-way" or
+"LLC = 4-way" for Upgrade** — this is the same dead end, encountered from
+a new starting byte value, not an independent confirmation. The 3
+requested plots (L1/L2/L3_LLC) were generated regardless (per the
+assignment's ask for one graph per level), but the L2/LLC ones carry an
+explicit "CONFOUND SUSPECTED" caption instead of a false knee marker. Full
+detail: `data_raw/upgrade/README.md`'s associativity/ section, "CAPACITY_
+RESULTS.md run" subsection.
+
+**Correction to the note just above: `--cache-bytes` no longer requires a
+power of two.** That check was relaxed to "must be a multiple of 4096, the
+page size" earlier the same day (2026-09-12), specifically to enable the
+falsification test documented further up this section (see
+`main_code/common/main.c`'s `ASSOC_CACHE_BYTES_ALIGN` and `associativity.h`)
+— current `main.c` does not hard-require a power of two. The Upgrade run
+above rounding its ~12 MiB LLC candidate to 16 MiB wasn't necessary by the
+time it ran; harmless here (it's already deep in confound territory
+either way), but a future session shouldn't round a `CAPACITY_RESULTS.md`
+byte value to the nearest power of two before checking whether it's
+already a valid multiple of 4096 on its own (as Thunderbird's ~30 MiB
+LLC value, 31,457,280 B, was — see the Thunderbird bullet below).
+
 **Thunderbird (2026-09-12): the same universal large-stride wall now shows
 up on a THIRD machine and a different architecture (ARM, not just x86) —
 cross-architecture evidence this confound isn't x86/DTLB-microarchitecture-
