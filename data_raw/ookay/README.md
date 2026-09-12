@@ -174,10 +174,93 @@
 - Notes on alignment/candidate strides tested:
 
 ### associativity/
-- Source file(s):
+- Source file(s): `data_raw/ookay/associativity/{L1,L2,L3_LLC}/associativity_*.csv.gz`,
+  full transcript `data_raw/ookay/associativity/run_associativity_full_20260912T225532Z.log`.
 - Run command + arguments:
-- Conflict-set construction method:
-- Notes:
+  `./scripts/run_associativity_full.sh ookay 3 32768,262144,8388608`
+  (core 3 + SMT sibling CPU7, confirmed fully idle via `mpstat`/`ps -eo psr` both
+  immediately before and after the run; run completed in ~42s, 22:55:32Z-22:56:14Z,
+  so no other user's job had a realistic window to interfere). base_seed=12345
+  (repeats use base_seed+1, +2), samples=1,000,000/point, max_ways=40, both
+  random and sequential (control) patterns per level.
+- Conflict-set construction method: fixed node-to-node stride equal to each
+  level's own assumed capacity (see `main_code/common/associativity.h`), sweeping
+  same-set node count (num_ways 2-40) — forces all probed nodes into the same
+  cache set regardless of the (unknown) real line size.
+- **cache_bytes values used — explicit override from `CAPACITY_RESULTS.md`
+  (this team's own hand-curated capacity table), NOT auto-detected:**
+  - L1 = 32,768 B (32 KiB) — matches this file's own PROVISIONAL L1 estimate
+    above (flat-then-ramp signature, 6/7 x86 machines agree).
+  - L2 = 262,144 B (256 KiB) — **caveat:** `CAPACITY_INFERENCE_STATUS.md` and
+    this file's own correction note above (line ~127) flag Ookay's L2/LLC as
+    UNRESOLVED from the capacity sweep itself (32,768 B-~5.3 MiB is one
+    continuous ramp with no confirmed shelf at 256 KiB specifically); 256 KiB
+    was used here as a deliberate, explicitly-acknowledged choice (this chip
+    family's textbook L2 size) per instruction, not because the capacity data
+    independently pinned it. Treat the resulting way-count as conditional on
+    that choice being correct.
+  - L3/LLC = 8,388,608 B (8 MiB) — same caveat: the capacity sweep's own
+    5.3-11.9 MiB region was flagged as one over-segmented transition, not a
+    confirmed discrete boundary; 8 MiB was used as `CAPACITY_RESULTS.md`'s
+    rounded "~8 MiB" figure (conveniently an exact power of two already).
+- **Results — `detect_associativity.py`'s reported estimate, reproduced
+  identically across the base run and both seeded repeats at every level (no
+  disagreement warning fired). L1 is a genuine single clean knee; L2 and
+  L3/LLC are NOT — see the staircase caveat below before citing either as
+  resolved:**
+
+  | Level | cache_bytes | Reported estimate (ways) | Base | Repeat 1 | Repeat 2 |
+  |---|---|---|---|---|---|
+  | L1 | 32,768 | **8-way** (single clean knee) | 8 | 8 | 8 |
+  | L2 | 262,144 | **4-way** (first of two steps — see below) | 4 | 4 | 4 |
+  | L3/LLC | 8,388,608 | **4-way** (first of two steps — see below) | 4 | 4 | 4 |
+
+  Plots: `data_processed/ookay/associativity/{L1,L2,L3_LLC}/plots/associativity_{curve,boxplots}.{png,pdf}`.
+- **L2 and L3/LLC are two-step staircases, not single knees — `4-way` is only
+  the first step, and the reported estimate should NOT be treated as
+  resolved.** Both levels' random-pattern medians show the identical shape
+  (from `base_random_summary_20260912T225532Z.csv`, both L2 and L3):
+  ~7.2 ticks at num_ways 2-4, a first jump to ~15 ticks at num_ways 5-8,
+  then a second, larger jump to ~21 ticks at num_ways 9+ — the same two
+  latency tiers, at the same two num_ways breakpoints, for BOTH the
+  262,144 B and the 8,388,608 B stride. `detect_associativity.py` stops at
+  the *first* confirmed knee (`find_first_knee`, see the script), so it
+  reports "4-way" (the first step) for both levels and never evaluates the
+  second, sharper step at num_ways=9. That second step lands at exactly
+  L1's own independently-confirmed 8-way limit — for two strides 8x and
+  256x larger than L1's own capacity. This is the same undiagnosed
+  early-break confound `CAPACITY_INFERENCE_STATUS.md` already documents on
+  Sunbird ("why do strides larger than L1's own capacity ... consistently
+  break earlier than L1's confirmed 8-way limit, when both are still
+  multiples of L1's set-stride and by that reasoning should reproduce L1's
+  clean break at 9" — open question, not yet mechanistically explained
+  there either). Given L2 and L3/LLC produce numerically identical
+  staircases despite an 32x difference in stride, the more likely reading
+  is that neither sweep is actually resolving L2 or L3/LLC set structure at
+  all — both are probably re-measuring some shared L1/DTLB-scale effect
+  (e.g. an artifact of every probed node landing on a distinct 4 KiB page
+  once stride exceeds the page size), with the true L2/LLC signal (if
+  visible at all at these strides) buried past num_ways=9 in the
+  continuing climb through num_ways=40. **Net: per the cache_bytes caveat
+  above (256 KiB / 8 MiB were explicit, not capacity-sweep-confirmed,
+  choices), combined with this staircase shape, treat Ookay's L2 and
+  L3/LLC way-counts as UNRESOLVED, not confirmed 4-way** — flagging for
+  Phase II (PMU) or a follow-up Phase I investigation (e.g. a stride swept
+  across several power-of-two candidates to see whether the num_ways=9
+  break moves) rather than citing "4-way" in the report as-is.
+  - Post-knee (thrashing) ticks also show substantial run-to-run spread at
+    both L2 (up to ~63%, num_ways 18-40) and L3 (up to ~26%, scattered
+    num_ways 26-40) — consistent with the same scattered single-run
+    interference signature already documented elsewhere on this machine's
+    capacity data, and separate from the staircase-shape issue above.
+  - Sequential-pattern control: at L1, it tracks random almost exactly
+    across the whole sweep (no divergence at all) — the strongest form of
+    "not a prefetcher artifact" for that level. At L2 and L3/LLC, sequential
+    reproduces the SAME two-step staircase as random up through num_ways=9
+    (not flat — both patterns break together), then plateaus while random
+    keeps climbing further — i.e. the control does not rule out the
+    staircase being a real (if not yet understood) hardware effect, it only
+    shows the *post*-num_ways=9 continued climb is pattern-dependent.
 
 ### latency/
 - Source file(s):

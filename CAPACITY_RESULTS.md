@@ -41,7 +41,7 @@ file yet.
 | Artemisia | 49,152 B (48 KiB) | |
 | Charnwood | 32,768 B (32 KiB) | |
 | Crux | 32,768 B (32 KiB) | |
-| Ookay | 32,768 B (32 KiB) | |
+| Ookay | 32,768 B (32 KiB) | Cross-validated 2026-09-12: associativity sweep at this stride shows a single clean 8-way knee, reproduced across 2 repeats. See `data_raw/ookay/README.md` associativity/ section. |
 | Upgrade | 32,768 B (32 KiB) | |
 
 **Cross-machine finding:** 6 of this team's 7 x86 machines (Sunbird, Skylark, Charnwood, Crux, Ookay,
@@ -60,7 +60,7 @@ independently corroborated via a clean associativity knee at that stride.
 | Artemisia | 2,097,152 B (2 MiB) | |
 | Charnwood | 262,144 B (256 KiB) | |
 | Crux | 262,144 B (256 KiB) | |
-| Ookay | 262,144 B (256 KiB) | |
+| Ookay | 262,144 B (256 KiB) | Associativity sweep attempted at this stride 2026-09-12 (reported "4-way") but the curve is a two-step staircase, not a single knee — the detector only sees the first step; a second, sharper step coincides with L1's own 8-way limit. Not treated as cross-validated; see `data_raw/ookay/README.md` associativity/ section. |
 | Upgrade | 262,144 B (256 KiB) | |
 
 
@@ -74,7 +74,7 @@ independently corroborated via a clean associativity knee at that stride.
 | Artemisia | ~30 MiB | |
 | Charnwood | ~8 MiB | |
 | Crux | ~8 MiB | |
-| Ookay | ~8 MiB | |
+| Ookay | ~8 MiB | Associativity sweep attempted at 8,388,608 B 2026-09-12 (reported "4-way") — same two-step staircase issue as the L2 row above, numerically identical to the L2 curve despite a 32x larger stride. Not treated as cross-validated; see `data_raw/ookay/README.md` associativity/ section. |
 | Upgrade | ~12 MiB | |
 
 
