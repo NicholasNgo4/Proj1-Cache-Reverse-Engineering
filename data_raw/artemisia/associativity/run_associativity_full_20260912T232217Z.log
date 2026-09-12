@@ -1,0 +1,106 @@
+== run_associativity_full: machine=artemisia core=4 base_seed=12345 max_ways=40 ==
+== timestamp=20260912T232217Z ==
+-- using explicit cache_bytes override: 49152 2097152 31457280 --
+
+== level L1: cache_bytes=49152 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/artemisia/associativity/L1/associativity_base_random_20260912T232217Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/artemisia/associativity/L1/associativity_base_sequential_20260912T232217Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/artemisia/associativity/L1/base_random_summary_20260912T232217Z.csv
+Wrote 39 summary rows to data_processed/artemisia/associativity/L1/base_sequential_summary_20260912T232217Z.csv
+-- detected associativity estimate: 12 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/artemisia/associativity/L1/associativity_rep1_random_20260912T232217Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/artemisia/associativity/L1/associativity_rep1_sequential_20260912T232217Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/artemisia/associativity/L1/rep1_random_summary_20260912T232217Z.csv
+Wrote 39 summary rows to data_processed/artemisia/associativity/L1/rep1_sequential_summary_20260912T232217Z.csv
+     repeat 1 detected estimate: 12
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/artemisia/associativity/L1/associativity_rep2_random_20260912T232217Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/artemisia/associativity/L1/associativity_rep2_sequential_20260912T232217Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/artemisia/associativity/L1/rep2_random_summary_20260912T232217Z.csv
+Wrote 39 summary rows to data_processed/artemisia/associativity/L1/rep2_sequential_summary_20260912T232217Z.csv
+     repeat 2 detected estimate: 3
+WARNING: repeat(s) disagree with the base estimate (base=12,
+         repeats=12 3) -- do NOT treat this level's
+         associativity as resolved; investigate before citing a number.
+-- generating plots for L1 --
+  note: num_ways=4 (random) has 3 overlapping summary rows with medians [6.1, 6.1, 9.7] (spread 3.6 ticks, 49.5%) -- averaging, widening whiskers to the union
+  note: num_ways=5 (random) has 3 overlapping summary rows with medians [5.1, 6.3, 8.3] (spread 3.2 ticks, 48.9%) -- averaging, widening whiskers to the union
+  note: num_ways=8 (random) has 3 overlapping summary rows with medians [6.1, 9.6, 6.1] (spread 3.5 ticks, 47.9%) -- averaging, widening whiskers to the union
+  note: num_ways=10 (random) has 3 overlapping summary rows with medians [9.5, 5.5, 6.1] (spread 4.0 ticks, 57.1%) -- averaging, widening whiskers to the union
+  note: num_ways=11 (random) has 3 overlapping summary rows with medians [5.6, 6.3, 5.1] (spread 1.2 ticks, 20.6%) -- averaging, widening whiskers to the union
+  note: num_ways=2 (sequential) has 3 overlapping summary rows with medians [5.5, 5.8, 9.8] (spread 4.2 ticks, 60.2%) -- averaging, widening whiskers to the union
+  note: num_ways=5 (sequential) has 3 overlapping summary rows with medians [5.1, 5.8, 9.6] (spread 4.5 ticks, 66.2%) -- averaging, widening whiskers to the union
+  note: num_ways=7 (sequential) has 3 overlapping summary rows with medians [9.5, 5.5, 5.1] (spread 4.4 ticks, 65.5%) -- averaging, widening whiskers to the union
+  note: num_ways=9 (sequential) has 3 overlapping summary rows with medians [6.3, 5.8, 5.1] (spread 1.2 ticks, 20.6%) -- averaging, widening whiskers to the union
+  note: num_ways=10 (sequential) has 3 overlapping summary rows with medians [5.1, 9.5, 6.1] (spread 4.4 ticks, 64.1%) -- averaging, widening whiskers to the union
+Wrote data_processed/artemisia/associativity/L1/plots/associativity_curve.pdf and .png
+Wrote data_processed/artemisia/associativity/L1/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: cache_bytes=2097152 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/artemisia/associativity/L2/associativity_base_random_20260912T232217Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/artemisia/associativity/L2/associativity_base_sequential_20260912T232217Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/artemisia/associativity/L2/base_random_summary_20260912T232217Z.csv
+Wrote 39 summary rows to data_processed/artemisia/associativity/L2/base_sequential_summary_20260912T232217Z.csv
+-- detected associativity estimate: 6 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/artemisia/associativity/L2/associativity_rep1_random_20260912T232217Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/artemisia/associativity/L2/associativity_rep1_sequential_20260912T232217Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/artemisia/associativity/L2/rep1_random_summary_20260912T232217Z.csv
+Wrote 39 summary rows to data_processed/artemisia/associativity/L2/rep1_sequential_summary_20260912T232217Z.csv
+     repeat 1 detected estimate: 5
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/artemisia/associativity/L2/associativity_rep2_random_20260912T232217Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/artemisia/associativity/L2/associativity_rep2_sequential_20260912T232217Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/artemisia/associativity/L2/rep2_random_summary_20260912T232217Z.csv
+Wrote 39 summary rows to data_processed/artemisia/associativity/L2/rep2_sequential_summary_20260912T232217Z.csv
+     repeat 2 detected estimate: 6
+WARNING: repeat(s) disagree with the base estimate (base=6,
+         repeats=5 6) -- do NOT treat this level's
+         associativity as resolved; investigate before citing a number.
+-- generating plots for L2 --
+  note: num_ways=5 (random) has 3 overlapping summary rows with medians [5.9, 5.1, 6.7] (spread 1.6 ticks, 27.2%) -- averaging, widening whiskers to the union
+  note: num_ways=6 (random) has 3 overlapping summary rows with medians [5.1, 8.5, 5.9] (spread 3.4 ticks, 52.5%) -- averaging, widening whiskers to the union
+  note: num_ways=7 (random) has 3 overlapping summary rows with medians [12.1, 9.3, 12.1] (spread 2.8 ticks, 25.1%) -- averaging, widening whiskers to the union
+  note: num_ways=8 (random) has 3 overlapping summary rows with medians [12.1, 9.5, 12.1] (spread 2.6 ticks, 22.8%) -- averaging, widening whiskers to the union
+  note: num_ways=4 (sequential) has 3 overlapping summary rows with medians [9.7, 5.7, 5.1] (spread 4.6 ticks, 66.7%) -- averaging, widening whiskers to the union
+  note: num_ways=6 (sequential) has 3 overlapping summary rows with medians [5.8, 5.1, 9.6] (spread 4.5 ticks, 66.1%) -- averaging, widening whiskers to the union
+Wrote data_processed/artemisia/associativity/L2/plots/associativity_curve.pdf and .png
+Wrote data_processed/artemisia/associativity/L2/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level L3_LLC: cache_bytes=31457280 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/artemisia/associativity/L3_LLC/associativity_base_random_20260912T232217Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/artemisia/associativity/L3_LLC/associativity_base_sequential_20260912T232217Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/artemisia/associativity/L3_LLC/base_random_summary_20260912T232217Z.csv
+Wrote 39 summary rows to data_processed/artemisia/associativity/L3_LLC/base_sequential_summary_20260912T232217Z.csv
+-- detected associativity estimate: 6 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/artemisia/associativity/L3_LLC/associativity_rep1_random_20260912T232217Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/artemisia/associativity/L3_LLC/associativity_rep1_sequential_20260912T232217Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/artemisia/associativity/L3_LLC/rep1_random_summary_20260912T232217Z.csv
+Wrote 39 summary rows to data_processed/artemisia/associativity/L3_LLC/rep1_sequential_summary_20260912T232217Z.csv
+     repeat 1 detected estimate: 6
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/artemisia/associativity/L3_LLC/associativity_rep2_random_20260912T232217Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/artemisia/associativity/L3_LLC/associativity_rep2_sequential_20260912T232217Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/artemisia/associativity/L3_LLC/rep2_random_summary_20260912T232217Z.csv
+Wrote 39 summary rows to data_processed/artemisia/associativity/L3_LLC/rep2_sequential_summary_20260912T232217Z.csv
+     repeat 2 detected estimate: 6
+-- generating plots for L3_LLC --
+  note: num_ways=4 (sequential) has 3 overlapping summary rows with medians [5.5, 5.1, 6.3] (spread 1.2 ticks, 21.1%) -- averaging, widening whiskers to the union
+  note: num_ways=5 (sequential) has 3 overlapping summary rows with medians [5.9, 5.1, 6.3] (spread 1.2 ticks, 20.4%) -- averaging, widening whiskers to the union
+Wrote data_processed/artemisia/associativity/L3_LLC/plots/associativity_curve.pdf and .png
+Wrote data_processed/artemisia/associativity/L3_LLC/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L3_LLC --
+
+== done ==
+== L1: cache_bytes=49152 -> associativity=12 (repeats: 12 3) ==
+== L2: cache_bytes=2097152 -> associativity=6 (repeats: 5 6) ==
+== L3_LLC: cache_bytes=31457280 -> associativity=6 (repeats: 6 6) ==
+== record in data_raw/artemisia/README.md: core=4, base_seed=12345 (repeats use base_seed+index), samples=1000000, max_ways=40, timestamp=20260912T232217Z ==
+== full transcript saved to: data_raw/artemisia/associativity/run_associativity_full_20260912T232217Z.log ==

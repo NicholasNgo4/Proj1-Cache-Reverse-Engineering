@@ -535,6 +535,52 @@ confound signature repeating itself.
   derived-stride scan" subsection. **Not yet tried on any other
   machine** — if picked up elsewhere, this Upgrade writeup (not the
   original Sunbird dead-end analysis above) is the starting point.
+
+**Artemisia (2026-09-12): confound reproduced on a THIRD, architecturally
+distant machine (Sapphire Rapids) — cleanest demonstration yet that L2/LLC
+associativity isn't resolvable with the current method, independent of
+which capacity value is picked.** Ran
+`./scripts/run_associativity_full.sh artemisia 4 49152,2097152,31457280`
+using this session's user-supplied `CAPACITY_RESULTS.md` values (L1=48 KiB,
+L2=2 MiB, LLC=~30 MiB) — note L2's value (2,097,152 B) is the exact byte
+value Artemisia's own capacity README already flags as NOT a real boundary
+(a waypoint inside one continuous ~48 KiB-90 MiB ramp with no discrete L2/L3
+shelf found on two independent runs); ran anyway per explicit instruction,
+documented honestly rather than blocked on it.
+- **L1: not cleanly confirmed** (unlike Sunbird/Upgrade's L1=8-way). Base +
+  repeat 1 both detect knee=12; repeat 2's detector reports 3, but that's a
+  false positive from the same per-invocation P-state/turbo bimodal noise
+  already documented for this machine's small-buffer capacity data (Anomaly
+  1) — all three runs, including repeat 2, actually transition cleanly to a
+  low-spread ~16.2 ticks/access shelf at exactly num_ways=13. Plausibly
+  associativity=12 (physically ordinary for a 48 KiB L1D) but not
+  machine-confirmed, especially given a second, unexplained jump from
+  ~16.2 to ~23 ticks/access around num_ways~25-29 that no existing
+  hypothesis here accounts for yet.
+- **L2 and LLC: nearly IDENTICAL curves despite a 15x stride difference
+  (2 MiB vs 30 MiB)** — noisy through num_ways~6, a clean plateau at
+  ~11.2-12.1 ticks through num_ways=7-12, then a jump to the SAME ~23-tick
+  ceiling seen in L1's final plateau, for both levels, at every point.
+  Detected knee: L2 base=6/rep1=5/rep2=6 (disagreement flagged); LLC
+  base=rep1=rep2=6 (3/3 agreement, but meaningless given the identical-
+  curves finding). A genuine L2 and genuine LLC cannot share both the same
+  associativity and the same absolute hit/miss latencies — this is the
+  same "universal small-structure wall" signature as Sunbird's (~9-10-way)
+  and Upgrade's large-stride attempts, now reproduced on a third CPU
+  generation. **Do not cite an L2 or LLC associativity number from this
+  run.** Three graphs were generated as requested
+  (`data_processed/artemisia/associativity/{L1,L2,L3_LLC}/plots/
+  associativity_curve.png`) but the L2/LLC ones depict this confound, not
+  a resolved cache-level associativity.
+- **New, not-yet-tried lead surfaced by this run**: `--huge-pages` already
+  exists in `cache_bench`/`associativity.c` (collapses the whole probe
+  buffer onto a single 2 MiB huge page / one TLB entry, added at some
+  point after the DTLB hypothesis was first written up below, apparently
+  never exercised) — directly tests the DTLB-aliasing hypothesis by
+  construction, but is not wired into `run_associativity_full.sh` yet.
+  Natural next step before trying more candidate byte values on any
+  machine. Full detail: `data_raw/artemisia/README.md`'s associativity/
+  section.
 **Not yet started (data collection):** hit/miss latency, inclusion/
 exclusion experiments — not yet implemented in `cache_bench` at all.
 Line size: `--experiment line_size` exists (added by @krchen1, commit

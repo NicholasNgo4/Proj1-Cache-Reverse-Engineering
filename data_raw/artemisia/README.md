@@ -238,10 +238,89 @@ as "one continuous ramp, not discrete steps" regardless of this residual noise.
 - Notes on alignment/candidate strides tested:
 
 ### associativity/
-- Source file(s):
-- Run command + arguments:
-- Conflict-set construction method:
-- Notes:
+- Source file(s): `main_code/common/associativity.c`, `associativity.h`
+- Run command + arguments: `./scripts/run_associativity_full.sh artemisia 4 49152,2097152,31457280`
+  (core 4; confirmed idle via two `/proc/stat` idle-delta samples ~4-9s apart,
+  both <1% busy on CPU 4 and its SMT sibling CPU 60, plus a `ps` check for
+  competing processes on those CPUs — see "Known constraints" in `CLAUDE.md`
+  for why a single snapshot isn't trusted on this machine)
+- Conflict-set construction method: node-to-node stride fixed at each level's
+  own capacity (see `associativity.h`'s docstring), sweeping num_ways=2-40,
+  both patterns, base run + 2 reproducibility repeats (distinct seed per
+  repeat) — standard `run_associativity_full.sh` pipeline, unmodified.
+- `cache_bytes` values: taken directly from `CAPACITY_RESULTS.md` (this
+  session's hand-curated capacity table), **not** auto-detected: L1 =
+  49,152 B (48 KiB), L2 = 2,097,152 B (2 MiB), LLC = 31,457,280 B (30 MiB,
+  the exact-multiple-of-4096 reading of that file's "~30 MiB" entry).
+  base_seed=12345 (repeats 12346/12347), samples=1,000,000/point,
+  max_ways=40, timestamp=20260912T232217Z.
+- **Caveat carried over from this file's own capacity section, above: this
+  machine's own capacity data explicitly flags 2,097,152 B as NOT a real
+  boundary** — it's one of the auto-detected "waypoints" the
+  "Detected boundaries and plateau status" table calls out by that exact
+  byte value as falling inside the single continuous ~48 KiB-90 MiB ramp,
+  with no discrete L2/L3 shelf found anywhere in that span on two
+  independent runs (core 20 idle, core 23 contended). The LLC value is a
+  rounded reading of a "~30 MiB" *manual* estimate, not a value this
+  machine's own dense capacity sweep resolved as a clean knee either. Ran
+  anyway per explicit instruction to proceed and document honestly, not to
+  block on this conflict.
+- **Results:**
+  - **L1 (cache_bytes=49,152 B): not cleanly confirmed, unlike Sunbird/
+    Upgrade's L1=8-way.** Base sweep's automatic knee detector reports 12
+    (flat through num_ways=12, jump to a clean, low-spread ~16.2 ticks/
+    access shelf at 13-24, then a **second, unexplained jump** to ~23
+    ticks/access at ~25-29, flat through 40). Repeat 1 also reports 12;
+    repeat 2's detector instead reports 3 — flagged as a disagreement by
+    the pipeline itself. Inspecting repeat 2's raw per-point medians shows
+    this "3" is a false positive: num_ways=2-12 there is highly
+    non-monotonic (medians bounce 5.1/5.1/9.7/8.3/5.1/5.6/6.1/5.9/6.1/5.1/
+    6.1 ticks), matching the same per-invocation P-state/turbo bimodality
+    already documented in this file's "Anomaly 1" for small-buffer L1-scale
+    capacity data on this machine — the detector locked onto one noisy
+    spike (way 4) rather than a real knee, and repeat 2's own data still
+    transitions cleanly to the ~16.2 shelf at exactly num_ways=13, same as
+    base. So the clean, reproducible transition point is num_ways=13 in
+    every run — plausibly consistent with associativity=12 (Sapphire
+    Rapids' real L1D is a 48 KiB structure, and 12-way would be a
+    physically ordinary width for that size) — but this run cannot call it
+    machine-confirmed the way Sunbird/Upgrade's L1=8 was, both because of
+    the noisy substrate and because of the second, unexplained ~16.2->23
+    tick jump past it, which no existing hypothesis in `CLAUDE.md` accounts
+    for yet (possibly the same confound found in L2/LLC below, showing up
+    here as a secondary structure past the real L1 knee).
+  - **L2 (cache_bytes=2,097,152 B) and LLC (cache_bytes=31,457,280 B):
+    produced nearly IDENTICAL curves despite a 15x stride difference —
+    clean, Phase-I-safe evidence this method cannot resolve either level's
+    real associativity here, same conclusion as Sunbird/Upgrade, now on a
+    third, architecturally distant machine.** Both: noisy num_ways=2-6
+    (~5.5-7 ticks), a clean flat plateau at ~11.2-12.1 ticks through
+    7-12, then a jump to the same ~23-tick ceiling seen in L1's final
+    plateau, flat through num_ways=40. Automatic detector: L2 base=6,
+    rep1=5, rep2=6 (disagreement flagged by the pipeline); LLC
+    base=rep1=rep2=6 (only level with 3/3 repeat agreement — but see next
+    sentence before trusting that as confirmation). A genuine L2 and a
+    genuine LLC cannot share the same associativity number *and* the same
+    absolute hit/miss latency at every probed width — this is the same
+    "universal small-structure wall" signature `CLAUDE.md` documents from
+    Sunbird's and Upgrade's large-stride attempts (there: ~9-10 way;
+    here: ~6, then a shared ~23-tick ceiling regardless of level), most
+    likely the same DTLB/page-structure aliasing hypothesis, now
+    reproduced on a third CPU generation. **Do not cite "L2=6-way" or
+    "LLC=6-way" (or any number from this run) as this machine's real L2/
+    LLC associativity — flag as confounded/unresolved, matching Sunbird's
+    and Upgrade's writeups in `CLAUDE.md`.** `--huge-pages` exists in
+    `cache_bench`/`associativity.c` specifically to test the DTLB
+    hypothesis directly (collapses the whole probe buffer onto one TLB
+    entry via a 2 MiB huge page) but is not yet wired into
+    `run_associativity_full.sh` and has not been exercised on any
+    machine, including this run — natural next step before trying more
+    candidate byte values here.
+- Underlying data/plots: `data_raw/artemisia/associativity/{L1,L2,L3_LLC}/`
+  (gzipped raw CSVs + full transcript
+  `run_associativity_full_20260912T232217Z.log`),
+  `data_processed/artemisia/associativity/{L1,L2,L3_LLC}/plots/
+  {associativity_curve,associativity_boxplots}.{png,pdf}`.
 
 ### latency/
 - Source file(s):
