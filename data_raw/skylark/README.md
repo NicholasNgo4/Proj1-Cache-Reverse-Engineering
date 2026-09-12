@@ -83,10 +83,20 @@
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Source file(s): `main_code/common/associativity.c`, `main_code/common/associativity.h`, `main_code/common/main.c`
+- Build command: `make` (from repo root)
+- Run command + arguments: `./scripts/run_associativity_full.sh skylark 10 32768,524288,8388608` (explicit hand-supplied `cache_bytes_csv`, NOT auto-detected — see below for where these three values came from)
+- `cache_bytes` used per level (node-to-node stride, forces every probed node into the same cache set): L1=32,768 B, L2=524,288 B (512 KiB), L3/LLC=8,388,608 B (8 MiB) — taken from `CAPACITY_RESULTS.md`'s per-machine capacity table as manually curated there (2026-09-12), **not** from this machine's own `data_processed/skylark/capacity/` analysis above, which only established a *region* (candidate L2/L3 shelf ~4-16.8 MiB, one dominant ramp) rather than a single confirmed capacity value for L2 or L3 — see the discrepancy note below.
+- Conflict-set construction method: cyclic dependent pointer chase over `num_ways` nodes spaced exactly `cache_bytes` apart (same set-index bits by construction regardless of unknown line size/way count — see `associativity.h`), num_ways swept 2-40 (way_step=1), both random and sequential-control patterns, 1,000,000 timed samples/point, batch_size=1000, 3 warmup passes, base seed=12345 + 2 reproducibility repeats (seeds 12346, 12347)
+- Core/timestamp: core=10, timestamp=20260912T224538Z, full transcript in `data_raw/skylark/associativity/run_associativity_full_20260912T224538Z.log`
+- Raw output: `data_raw/skylark/associativity/{L1,L2,L3_LLC}/associativity_{base,rep1,rep2}_{random,sequential}_20260912T224538Z.csv.gz`
+- Processed summaries + plots: `data_processed/skylark/associativity/{L1,L2,L3_LLC}/*.csv`, `data_processed/skylark/associativity/{L1,L2,L3_LLC}/plots/associativity_{curve,boxplots}.{png,pdf}`
+
+**Results and trustworthiness (read before citing any of these numbers):**
+- **L1 (32,768 B): associativity = 8-way — TRUSTWORTHY.** Single sharp knee at num_ways=9, identical across base and both repeats (9, 9, 9), flat plateau before (~6.1 ticks) and after (~9.7 ticks), random and sequential curves overlap. Matches Sunbird's independently hand-confirmed 8-way L1 via the same clean-single-knee signature.
+- **L2 (524,288 B): auto-detected "9-way" — NOT TRUSTWORTHY, likely an L1-aliasing artifact.** The curve is a multi-step staircase (jump at num_ways=9, partial drop, second jump at 13, a third rise starting ~37), not a single knee — see `associativity_curve.png`. The detector locked onto the *first* jump, which lands at exactly the same num_ways as L1's own knee. This is suspicious rather than confirmatory: 524,288 B is an exact 16x multiple of L1's own 32,768 B stride, so every node probed here also aliases into the same L1 set as every other probed node — this measurement is plausibly just re-detecting L1's 8-way limit, not L2's real associativity. This is the same unresolved stride-vs-true-structure confound already documented in `CAPACITY_INFERENCE_STATUS.md` for Sunbird's own L2 candidates (multi-step staircases at both 131,072 B and 262,144 B, "not a clean knee," open mechanistic question). Do not cite "L2 = 8-way" for skylark from this run.
+- **L3/LLC (8,388,608 B): auto-detected "8-way" — NOT TRUSTWORTHY, and not even internally reproducible.** Also a multi-step staircase (small step at num_ways=8, another at 12, the dominant transition actually starts around num_ways=25-34 up to ~270 ticks/access) rather than one clean knee. Worse, the pipeline's own built-in reproducibility check disagreed across seeds: base=8, repeat1=8, repeat2=7 — printed as an explicit `WARNING: ... do NOT treat this level's associativity as resolved` by `run_associativity_full.sh` itself. Do not cite "L3 = 8-way" for skylark from this run.
+- **Known discrepancy with this machine's own capacity data (flag for report writing):** `CAPACITY_RESULTS.md`'s L2=512 KiB / L3=~8 MiB values used as the stride here do not match what skylark's own capacity sweep above independently found — that data shows one candidate shelf spanning ~4-16.8 MiB (PROVISIONAL-WEAK, not resolved to a single boundary) rather than two separate levels at 512 KiB and 8 MiB. Per team decision (2026-09-12), the associativity experiment was still run at the manually-selected 512 KiB / 8 MiB values despite this open disagreement; the multi-step/non-reproducible results above are consistent with (though not conclusive proof of) `cache_bytes` not matching either level's true capacity, exactly as `associativity.h`'s own design notes predict for a wrong-by-construction stride.
 
 ### latency/
 - Source file(s): 

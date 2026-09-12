@@ -1,0 +1,233 @@
+== run_line_size: machine=thunderbird core=3 seed=12345 ==
+== timestamp=20260912T145452Z boundaries=65536,33554432,268435456 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=65536B -- Method A window=[8192,262144] bytes
+############################################################
+-- [L65536 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_8_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_8_random_summary.csv
+-- [L65536 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_8_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_8_sequential_summary.csv
+-- [L65536 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_16_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_16_random_summary.csv
+-- [L65536 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_16_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_16_sequential_summary.csv
+-- [L65536 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_32_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_32_random_summary.csv
+-- [L65536 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_32_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_32_sequential_summary.csv
+-- [L65536 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_64_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_64_random_summary.csv
+-- [L65536 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_64_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_64_sequential_summary.csv
+-- [L65536 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_128_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_128_random_summary.csv
+-- [L65536 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_128_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_128_sequential_summary.csv
+-- [L65536 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_256_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_256_random_summary.csv
+-- [L65536 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_65536/family_256_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_65536/family_256_sequential_summary.csv
+-- [L65536 A steps 1-3] generating coarse family-of-curves plots --
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:163: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/thunderbird/line_size/level_65536/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 147120, 16B: 131072, 32B: 116768, 64B: 82560, 128B: 82560, 256B: 82432}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~82432 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:277: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/thunderbird/line_size/level_65536/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/thunderbird/line_size/level_65536/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L65536 A] no candidate given for this level -- inspect
+   data_processed/thunderbird/line_size/level_65536/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L65536 B] single-curve method, footprint_bytes=131072 (2.0x boundary) --
+-- [L65536 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/thunderbird/line_size/level_65536/singlecurve_coarse_random_20260912T145452Z.csv
+  wrote 128002 lines -> data_raw/thunderbird/line_size/level_65536/singlecurve_coarse_sequential_20260912T145452Z.csv
+Wrote 128 summary rows to data_processed/thunderbird/line_size/level_65536/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/thunderbird/line_size/level_65536/singlecurve_coarse_sequential_summary.csv
+-- [L65536 B] detected line-size estimate (bytes): none --
+-- [L65536 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L65536 B] generating single-curve plots --
+  note: flagged 7 isolated spike stride(s) as probable page-aliasing artifacts: [128, 184, 256, 400, 512, 712, 1024]
+Wrote data_processed/thunderbird/line_size/level_65536/plots/line_size_curve.pdf and .png
+Wrote data_processed/thunderbird/line_size/level_65536/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## LEVEL boundary=33554432B -- Method A window=[4194304,134217728] bytes
+############################################################
+-- [L33554432 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_8_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_8_random_summary.csv
+-- [L33554432 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_8_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_8_sequential_summary.csv
+-- [L33554432 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_16_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_16_random_summary.csv
+-- [L33554432 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_16_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_16_sequential_summary.csv
+-- [L33554432 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_32_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_32_random_summary.csv
+-- [L33554432 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_32_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_32_sequential_summary.csv
+-- [L33554432 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_64_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_64_random_summary.csv
+-- [L33554432 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_64_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_64_sequential_summary.csv
+-- [L33554432 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_128_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_128_random_summary.csv
+-- [L33554432 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_128_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_128_sequential_summary.csv
+-- [L33554432 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_256_random_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_256_random_summary.csv
+-- [L33554432 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/thunderbird/line_size/level_33554432/family_256_sequential_20260912T145452Z.csv
+Wrote 31 summary rows to data_processed/thunderbird/line_size/level_33554432/family_256_sequential_summary.csv
+-- [L33554432 A steps 1-3] generating coarse family-of-curves plots --
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:163: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/thunderbird/line_size/level_33554432/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 59787200, 16B: 59787200, 32B: 75327136, 64B: 59787200, 128B: 53264256, 256B: 67108864}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~67108864 bytes) is 8B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:277: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/thunderbird/line_size/level_33554432/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/thunderbird/line_size/level_33554432/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L33554432 A] no candidate given for this level -- inspect
+   data_processed/thunderbird/line_size/level_33554432/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L33554432 B] single-curve method, footprint_bytes=67108864 (2.0x boundary) --
+-- [L33554432 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/thunderbird/line_size/level_33554432/singlecurve_coarse_random_20260912T145452Z.csv
+  wrote 128002 lines -> data_raw/thunderbird/line_size/level_33554432/singlecurve_coarse_sequential_20260912T145452Z.csv
+Wrote 128 summary rows to data_processed/thunderbird/line_size/level_33554432/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/thunderbird/line_size/level_33554432/singlecurve_coarse_sequential_summary.csv
+-- [L33554432 B] detected line-size estimate (bytes): none --
+-- [L33554432 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L33554432 B] generating single-curve plots --
+  note: flagged 6 isolated spike stride(s) as probable page-aliasing artifacts: [128, 248, 256, 264, 512, 1024]
+Wrote data_processed/thunderbird/line_size/level_33554432/plots/line_size_curve.pdf and .png
+Wrote data_processed/thunderbird/line_size/level_33554432/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## LEVEL boundary=268435456B -- Method A window=[33554432,268435456] bytes
+############################################################
+-- [L268435456 A coarse] stride=8B pattern=random offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_8_random_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_8_random_summary.csv
+-- [L268435456 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_8_sequential_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_8_sequential_summary.csv
+-- [L268435456 A coarse] stride=16B pattern=random offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_16_random_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_16_random_summary.csv
+-- [L268435456 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_16_sequential_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_16_sequential_summary.csv
+-- [L268435456 A coarse] stride=32B pattern=random offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_32_random_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_32_random_summary.csv
+-- [L268435456 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_32_sequential_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_32_sequential_summary.csv
+-- [L268435456 A coarse] stride=64B pattern=random offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_64_random_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_64_random_summary.csv
+-- [L268435456 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_64_sequential_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_64_sequential_summary.csv
+-- [L268435456 A coarse] stride=128B pattern=random offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_128_random_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_128_random_summary.csv
+-- [L268435456 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_128_sequential_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_128_sequential_summary.csv
+-- [L268435456 A coarse] stride=256B pattern=random offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_256_random_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_256_random_summary.csv
+-- [L268435456 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 19002 lines -> data_raw/thunderbird/line_size/level_268435456/family_256_sequential_20260912T145452Z.csv
+Wrote 19 summary rows to data_processed/thunderbird/line_size/level_268435456/family_256_sequential_summary.csv
+-- [L268435456 A steps 1-3] generating coarse family-of-curves plots --
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:163: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/thunderbird/line_size/level_268435456/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 94906264, 16B: 84551856, 32B: 94906240, 64B: 67108864, 128B: 59787136, 256B: 53264128}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~53264128 bytes) is 128B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:277: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/thunderbird/line_size/level_268435456/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/thunderbird/line_size/level_268435456/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L268435456 A] no candidate given for this level -- inspect
+   data_processed/thunderbird/line_size/level_268435456/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L268435456 B] single-curve method, footprint_bytes=536870912 (2.0x boundary) --
+-- [L268435456 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/thunderbird/line_size/level_268435456/singlecurve_coarse_random_20260912T145452Z.csv
+  wrote 128002 lines -> data_raw/thunderbird/line_size/level_268435456/singlecurve_coarse_sequential_20260912T145452Z.csv
+Wrote 128 summary rows to data_processed/thunderbird/line_size/level_268435456/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/thunderbird/line_size/level_268435456/singlecurve_coarse_sequential_summary.csv
+-- [L268435456 B] detected line-size estimate (bytes): none --
+-- [L268435456 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L268435456 B] generating single-curve plots --
+  note: flagged 3 isolated spike stride(s) as probable page-aliasing artifacts: [264, 896, 1024]
+Wrote data_processed/thunderbird/line_size/level_268435456/plots/line_size_curve.pdf and .png
+Wrote data_processed/thunderbird/line_size/level_268435456/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## step 5: cross-level, cross-method agreement summary
+############################################################
+   level boundary=65536B -> method A (family of curves) = noneB, method B (single curve) = noneB
+   level boundary=33554432B -> method A (family of curves) = noneB, method B (single curve) = noneB
+   level boundary=268435456B -> method A (family of curves) = noneB, method B (single curve) = noneB
+== no level/method produced a usable estimate -- widen windows or strides before citing anything
+== done: all levels, both methods, complete ==
+== this is a FROZEN PHASE-I TIMING-ONLY result -- compare against PMU counters
+   and the documented/system-reported line size in Phase II before treating it as
+   confirmed (see README.md's Phase I/II/III discipline).
+== plots per level: data_processed/thunderbird/line_size/level_<boundary>/plots/line_size_family_{curve,boxplots}.{png,pdf} (A, steps 1-3),
+          .../line_size_offset_{elbow,boxplots}.{png,pdf} (A, step 4), .../line_size_{curve,boxplots}.{png,pdf} (B) ==
+== record in data_raw/thunderbird/README.md: boundaries=65536,33554432,268435456, core=3,
+   seed=12345, samples=1000000, coarse_strides=8,16,32,64,128,256, per-level/per-method estimates as above,
+   timestamp=20260912T145452Z ==
+== full transcript saved to: data_raw/thunderbird/line_size/run_line_size_20260912T145452Z.log ==
