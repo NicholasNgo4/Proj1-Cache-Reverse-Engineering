@@ -535,6 +535,46 @@ confound signature repeating itself.
   derived-stride scan" subsection. **Not yet tried on any other
   machine** — if picked up elsewhere, this Upgrade writeup (not the
   original Sunbird dead-end analysis above) is the starting point.
+
+**Charnwood associativity (2026-09-12): L1 confirmed 8-way (3rd machine to
+agree); L2/LLC run produced a new, unusually direct A/B confirmation of the
+shared-confound hypothesis, not a resolved number.** Ran
+`./scripts/run_associativity_full.sh charnwood 3 32768,262144,8388608`
+(core 3, verified quiet first — the contending `associativity` process from
+the capacity run had since exited) using L1/L2/LLC bytes taken directly from
+`CAPACITY_RESULTS.md`'s cross-machine table (per explicit instruction to use
+that consolidated, hand-picked table rather than re-deriving from
+Charnwood's own capacity data, which independently flags the ~1.83-11.31 MiB
+L2/LLC region as contaminated/unresolved — see `data_raw/charnwood/README.md`
+capacity/ section). Full detail and results table:
+`data_raw/charnwood/README.md`'s associativity/ section.
+- **L1 = 8-way**, clean single knee, 0 disagreement across base + 2 repeats
+  — same shape and number as Sunbird's and Upgrade's hand-confirmed results.
+  Third machine, third result, still 8.
+- **L2 (256 KiB) and LLC (8 MiB) both report "4"** from a multi-step
+  staircase (jump at num_ways=4, sharper jump at num_ways=9 — the same
+  anomalous "9" already documented recurring on Sunbird — then a noisy climb
+  from ~num_ways=24 on), not a single knee; `detect_associativity.py` only
+  ever surfaces the first step.
+- **New evidence, cleaner than anything the Sunbird/Upgrade investigations
+  produced so far: the L2 and LLC median-latency curves are numerically
+  indistinguishable (agree to within ~0.05 ticks/access) at every num_ways
+  from 2 through 23**, despite a 32x difference in the candidate byte
+  capacity (262,144 vs. 8,388,608). Two real, distinct cache levels probed
+  at their own real capacities have no mechanism to produce identical
+  curves — this is on-this-machine, same-run, A/B-comparable proof that
+  both runs are dominated by one small, capacity-independent structure
+  (leading suspect unchanged: the DTLB, since `cache_bytes` here is always
+  a multiple of 4096 regardless of which data-cache level it nominally
+  targets), not the real L2 or LLC. Treat "L2 assoc = 4" and "LLC assoc = 4"
+  for Charnwood as reproducible-but-not-resolved, same status as every
+  other machine's L2/LLC associativity attempt so far — do not cite either
+  number as this machine's real associativity.
+- Does not change the open-questions list from the Sunbird/Upgrade
+  writeups above: the derived-stride-scan technique in
+  `scripts/run_associativity_stride_scan.sh` remains the only proposed way
+  forward and has not been tried on Charnwood.
+
 **Not yet started (data collection):** hit/miss latency, inclusion/
 exclusion experiments — not yet implemented in `cache_bench` at all.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
