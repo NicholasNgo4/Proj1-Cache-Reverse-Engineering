@@ -55,10 +55,42 @@
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Source file(s): `data_raw/crux/associativity/{L1,L2,L3_LLC}/*.csv.gz` (raw),
+  `data_processed/crux/associativity/{L1,L2,L3_LLC}/*summary*.csv` (processed),
+  full transcript `data_raw/crux/associativity/run_associativity_full_20260912T225213Z.log`
+- Run command + arguments: `./scripts/run_associativity_full.sh crux 7 32768,262144,8388608`
+  (`cache_bytes` per level taken directly from this machine's rows in
+  `CAPACITY_RESULTS.md` — L1=32,768 B, L2=262,144 B, LLC=8,388,608 B/8 MiB —
+  per the user's own finalized capacity analysis, superseding the more
+  hedged/unresolved L2/LLC status previously logged in
+  `CAPACITY_INFERENCE_STATUS.md`)
+- Core/seed/samples: core=7, base_seed=12345 (2 repeats at seed+1, seed+2),
+  samples=1,000,000, batch=1000, warmup=3, num_ways swept 2-40, timestamp=20260912T225213Z
+- Conflict-set construction method: node-to-node stride fixed at each level's
+  own capacity in bytes (forces every probed node into the same cache set
+  regardless of unknown line size/way count — see `main_code/common/associativity.h`),
+  sweeping same-set node count (num_ways_probed) 2-40 with both a randomized
+  dependent-chain pattern and a sequential control (prefetcher check).
+- Results (auto knee-detected, base + both repeats in exact agreement, no
+  reproducibility warnings for any level):
+  - L1 (stride=32 KiB): **8-way** (repeats: 8, 8)
+  - L2 (stride=256 KiB): **4-way** (repeats: 4, 4)
+  - L3/LLC (stride=8 MiB): **4-way** (repeats: 4, 4)
+- Notes: All three levels show a single sharp knee (not a multi-step
+  staircase), and random/sequential curves track closely up to the knee
+  before diverging afterward (prefetcher effect on the sequential control,
+  not part of the associativity signal itself). Plots:
+  `data_processed/crux/associativity/{L1,L2,L3_LLC}/plots/associativity_curve.png`
+  and `associativity_boxplots.png`. **Caveat:** the LLC `cache_bytes=8,388,608`
+  (8 MiB) value comes from `CAPACITY_RESULTS.md`'s "~8 MiB" entry, which
+  conflicts with this same machine's own more granular capacity findings
+  elsewhere in this README/`CAPACITY_INFERENCE_STATUS.md` (steep transition
+  region spanning ~4-64 MiB with large run-to-run spread, no single
+  confirmed discrete boundary) and with `lscpu`'s reported real hardware
+  L3 of 12 MiB. The clean single-knee result above does not by itself
+  resolve that conflict — it confirms 8,388,608 B produces a well-behaved
+  associativity signal, not that 8 MiB is independently the true LLC
+  capacity.
 
 ### latency/
 - Source file(s): 
