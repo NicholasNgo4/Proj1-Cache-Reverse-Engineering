@@ -535,6 +535,32 @@ confound signature repeating itself.
   derived-stride scan" subsection. **Not yet tried on any other
   machine** — if picked up elsewhere, this Upgrade writeup (not the
   original Sunbird dead-end analysis above) is the starting point.
+
+**2026-09-12, same day: a manually-curated `CAPACITY_RESULTS.md` (hand
+reconciling every machine's capacity README into one L1/L2/LLC table) was
+used to re-run `run_associativity_full.sh` for all 3 levels on Upgrade —
+L2/LLC reproduced the same confound, not new data.** This session's shell
+only had access to Upgrade (each lab machine is a separate, non-shared
+`/home` — see the top of this file), so only Upgrade was run; the other 7
+machines still need the same command (with their own CAPACITY_RESULTS.md
+row) run from a session on that machine. Command:
+`./scripts/run_associativity_full.sh upgrade 5 32768,262144,16777216`
+(LLC's ~12 MiB candidate rounded to the nearest power of two, 16 MiB —
+required by `--cache-bytes`'s hard power-of-two check). Result: **L1
+reconfirmed at 8-way** (identical to the original run). **L2 (262,144 B)
+and LLC (16,777,216 B) both again hit the same universal small-way-count
+wall already documented above** — near-identical staircases 64x apart in
+byte size (steps at way~5, way~9, then a further gradual climb from
+way~20), LLC's repeats even disagreeing with each other (3 vs. 4) the way
+a genuinely unresolved confound would. **Do not cite "L2 = 4-way" or
+"LLC = 4-way" for Upgrade** — this is the same dead end, encountered from
+a new starting byte value, not an independent confirmation. The 3
+requested plots (L1/L2/L3_LLC) were generated regardless (per the
+assignment's ask for one graph per level), but the L2/LLC ones carry an
+explicit "CONFOUND SUSPECTED" caption instead of a false knee marker. Full
+detail: `data_raw/upgrade/README.md`'s associativity/ section, "CAPACITY_
+RESULTS.md run" subsection.
+
 **Not yet started (data collection):** hit/miss latency, inclusion/
 exclusion experiments — not yet implemented in `cache_bench` at all.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
