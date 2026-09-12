@@ -32,7 +32,7 @@ file yet.
 
 ## L1 capacity
 
-| Machine | L1 estimate | Status |
+| Machine | L1 estimate | Notes |
 |---|---|---|
 | Sunbird | 32,768 B (32 KiB) | **CONFIRMED** — corroborated by a clean 8-way associativity knee at this exact stride |
 | Upgrade | 32,768 B (32 KiB) | **CONFIRMED** — corroborated 2026-09-12 by a clean 8-way associativity knee at this exact stride |
@@ -52,11 +52,11 @@ four remain provisional pending the same cross-check. Artemisia is the one x86
 machine where this region is confounded by a separate P-state effect rather than
 cleanly resolved either way.
 
-## L2 / L3 (mid-region, between L1 and the LLC→DRAM transition)
+## L2 Capacity
 
-| Machine | Status | Notes |
+| Machine | Capacity | Notes |
 |---|---|---|
-| Sunbird | No confirmed shelf | ~32 KiB–~8 MiB is one continuous ramp per the dense data |
+| Sunbird | 262144 B (256 KiB) | ~32 KiB–~8 MiB is one continuous ramp per the dense data |
 | Crux | No confirmed shelf | ~64 KiB–~4 MiB is a shallow continuous ramp, not a hard plateau |
 | Skylark | Candidate, ~4–16.8 MiB | Coarse data (8 pts/octave) looks flat (26.3–33.2 ticks, no monotonic trend) but not yet confirmed at dense resolution — needs a 48-pts/octave sweep across ~1–16 MiB |
 | Upgrade | Candidate, ~1.5–4.5 MiB | Only a ~7% rise over 3 octaves at coarse resolution — shallower than the ramp around it, but not confirmed flat; a "derived-stride associativity scan" attempt (2026-09-12) found a reproducible but unresolved two-tier signal here, not yet a citable number (see `data_raw/upgrade/README.md`) |
