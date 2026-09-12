@@ -63,7 +63,7 @@ cleanly resolved either way.
 | Artemisia | 2,097,152 B (2 MiB) | ~48–55 KiB through ~90 MiB is one continuous ramp on both tested cores; Sapphire Rapids has no cache level beyond the shared L3, so any boundary here would be an L2/L3 split, not a further level |
 | Charnwood | 262,144 B (256 KiB) | Team judgment call, overriding the raw-data reading — the ~180–370 KiB window itself is a smooth, low-noise monotonic ramp with no plateau at 256 KiB; supersedes this table's prior "Unresolved / contaminated" call, which was about the separate ~1.83–11.31 MiB region (12–157% run-to-run spread from a confirmed concurrent process), not this one |
 | Crux | 262,144 B (256 KiB) | ~64 KiB–~4 MiB is a shallow continuous ramp, not a hard plateau |
-| Ookay | Core i7-7700 | Entire 32,768 B–~5.3 MiB span is one continuous ramp, no confirmed shelf |
+| Ookay | 262,144 B (256 KiB) | Entire 32,768 B–~5.3 MiB span is one continuous ramp, no confirmed shelf |
 | Upgrade | 262,144 B (256 KiB) | Only a ~7% rise over 3 octaves at coarse resolution — shallower than the surrounding ramp, but not confirmed flat; a "derived-stride associativity scan" (2026-09-12) found a reproducible but unresolved two-tier signal here, not yet a citable number (see `data_raw/upgrade/README.md`) |
 
 **No machine on this team has a confirmed, dense-resolution L2 or L3 boundary yet.**
