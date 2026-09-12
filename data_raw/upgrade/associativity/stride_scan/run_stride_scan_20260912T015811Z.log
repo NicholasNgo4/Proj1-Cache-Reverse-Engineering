@@ -1,0 +1,47 @@
+== run_associativity_stride_scan (EXPLORATORY, not a final result): machine=upgrade core=5 ==
+== capacity_bytes=32768 A_guess candidates=1,2,4,8,16 ==
+== timestamp=20260912T015811Z ==
+== samples=200000 (reduced), max_ways=24 (reduced), random pattern only, no repeats ==
+
+-- A_guess=1 --
+   stride=32768 bytes (capacity/1), arena spans ~200 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015811Z/stride_scan_a1_20260912T015811Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a1_summary.csv
+   detected knee: 8
+
+-- A_guess=2 --
+   stride=16384 bytes (capacity/2), arena spans ~100 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015811Z/stride_scan_a2_20260912T015811Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a2_summary.csv
+   detected knee: 8
+
+-- A_guess=4 --
+   stride=8192 bytes (capacity/4), arena spans ~50 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015811Z/stride_scan_a4_20260912T015811Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a4_summary.csv
+   detected knee: 8
+
+-- A_guess=8 --
+   stride=4096 bytes (capacity/8), arena spans ~25 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015811Z/stride_scan_a8_20260912T015811Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a8_summary.csv
+   detected knee: 8
+
+-- A_guess=16 --
+   skip: derived stride 2048 is not a positive multiple of 4096 (page size) -- cache_bench would reject it
+
+== comparison table (data_processed/upgrade/associativity/stride_scan/20260912T015811Z/comparison.csv) ==
+a_guess  stride_bytes  pages_in_arena  detected_ways  summary_csv
+1        32768         200             8              data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a1_summary.csv
+2        16384         100             8              data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a2_summary.csv
+4        8192          50              8              data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a4_summary.csv
+8        4096          25              8              data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a8_summary.csv
+
+== self-consistency check ==
+knee=8: recurs across A_guess=['1', '2', '4', '8'] (pages_in_arena=['100', '200', '25', '50']) -- DIFFERENT page counts -- self-consistency evidence for a real signal
+
+-- compressing raw CSVs --
+
+== done (EXPLORATORY SCAN -- not a final result) ==
+== full transcript: data_raw/upgrade/associativity/stride_scan/run_stride_scan_20260912T015811Z.log ==
+== comparison table: data_processed/upgrade/associativity/stride_scan/20260912T015811Z/comparison.csv ==

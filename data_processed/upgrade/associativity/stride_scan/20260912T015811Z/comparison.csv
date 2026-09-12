@@ -1,0 +1,5 @@
+a_guess,stride_bytes,pages_in_arena,detected_ways,summary_csv
+1,32768,200,8,data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a1_summary.csv
+2,16384,100,8,data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a2_summary.csv
+4,8192,50,8,data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a4_summary.csv
+8,4096,25,8,data_processed/upgrade/associativity/stride_scan/20260912T015811Z/a8_summary.csv

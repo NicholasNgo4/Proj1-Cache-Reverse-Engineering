@@ -63,16 +63,21 @@ just after the per-machine list) are necessarily compressed.
   machine (`matplotlib` missing); data generation completed fine and
   plots were regenerated standalone afterward. See
   `data_raw/skylark/README.md`.
-- **Upgrade** (`data_raw/upgrade/capacity/`): raw/processed data and plots
-  were committed, but **`data_raw/upgrade/README.md` is still the blank
-  template** — hostname/CPU/environment fields were never filled in.
-  From the run transcript log only: `run_capacity_full.sh upgrade 5`
-  (default 64 MiB coarse ceiling), detected 6 boundaries (185360 / 311744
-  / 9975792 / 11863280 / 18295680 / 21757352 bytes); no tail-extension
-  follow-up past the default 256 MiB ceiling appears to have been done, so
-  its topmost-region plateau status is **unverified**. Needs both the
-  README backfilled and a plateau check, by whoever has access to that
-  machine to confirm the identification fields firsthand.
+- **Upgrade** (`data_raw/upgrade/capacity/`): `run_capacity_full.sh upgrade 5`
+  (default 64 MiB coarse ceiling) plus a 4x tail extension (64-256 MiB).
+  **README backfilled 2026-09-10/12** (first the boundary analysis, done
+  remotely from already-committed CSVs without machine access; then the
+  Machine Identification fields, filled in later from a session actually
+  logged into `upgrade`). One clean boundary: **L1 = 32,768 B**
+  (PROVISIONAL from capacity data alone, but now corroborated by a clean
+  associativity knee — see the associativity section below). No confirmed
+  L2/LLC boundary yet — a ~1.5-4.5 MiB region is a candidate shelf, and
+  ~5-22 MiB is a noisy transition with a systematic (not scattered)
+  session-level elevation in one of two repeats, both needing a dedicated
+  dense sweep to resolve. Topmost region (64-256 MiB) is **NOT flat at the
+  256 MiB ceiling** (+11.9% first-to-last-quarter) — needs the same
+  256 MiB-1 GiB manual follow-up every other machine required. See
+  `data_raw/upgrade/README.md` for full detail.
 - **Charnwood** (`data_raw/charnwood/capacity/`): **unresolved, not just
   noisy — treat with caution before citing any boundary number.** Run
   concurrently with another student's `associativity` benchmark pinned on
@@ -288,6 +293,19 @@ independently spot-checked against them and is unaffected (see below):**
   (hand-confirmed L1 capacity): flat through num_ways=8, sharp step at 9,
   0% run-to-run spread across 3 runs. See `data_raw/sunbird/associativity/L1/`,
   documented in `data_raw/sunbird/README.md`.
+- **Upgrade corroborates: L1 = 8-way there too (2026-09-12).** Ran
+  `./scripts/run_associativity_full.sh upgrade 5 32768` (core 5, the same
+  core as Upgrade's capacity run) using Upgrade's own PROVISIONAL 32,768 B
+  L1 candidate as an explicit override (L2/LLC skipped — not yet confirmed
+  on this machine, see the capacity bullet above). Same sharp-knee shape as
+  Sunbird: flat ~6.0-6.2 ticks/access through num_ways=8, jump to ~15-19 at
+  9+, identical estimate (8) from the base sweep and both reproducibility
+  repeats. Second machine, second CPU vendor generation (Coffee Lake vs.
+  Sunbird's), same clean 8-way result — and this associativity knee is
+  itself the corroboration that promotes Upgrade's capacity-only L1
+  boundary from provisional to confirmed (same logic Sunbird's own writeup
+  used). See `data_raw/upgrade/README.md`'s associativity/ section and
+  `data_processed/upgrade/associativity/L1/plots/`.
 - **Evidence for a real L2 exists (~25-27 ticks/access hit latency,
   corroborated 3 independent ways), but its capacity/associativity is NOT
   resolved.** The original L1 test's own post-thrashing latency (num_ways
@@ -460,12 +478,63 @@ independently spot-checked against them and is unaffected (see below):**
     or not) is very unlikely to help further, per the finding above.
   - Full detail: `data_raw/sunbird/README.md`'s associativity/ section, in
     particular the "Residue scan", falsification, and real-capacity-test
-    subsections (search for "2026-09-12"). **Still not attempted anywhere
-    on the other 7 machines** — if picked up there, start from "What would
-    actually need to change" above rather than re-deriving stride
-    variations from scratch; the multi-seed / order-sensitivity check
-    added to `run_associativity_full.sh` this session is still worth using
-    regardless of how the method itself evolves.
+    subsections (search for "2026-09-12").
+
+**New lead from Upgrade (2026-09-12): a "derived-stride scan" technique
+that DOES pass the self-consistency test Sunbird's large strides all
+failed — but still bottoms out on a second, not-yet-isolated structure.**
+New script `scripts/run_associativity_stride_scan.sh` implements exactly
+the redesign floated above ("keep multiple same-set nodes on fewer
+distinct pages"): instead of `run_associativity_full.sh`'s fixed
+stride = full target capacity, it tries `stride = capacity_candidate /
+A_guess` for a list of candidate divisors. Any `A_guess` that evenly
+divides the true associativity still yields a mathematically valid
+same-set stride (same modular-arithmetic argument as
+`associativity.h`'s docstring), just a smaller one — so if the *same*
+knee recurs across several different `A_guess` (hence different page
+counts touched), that's evidence of a real signal rather than a
+page-count artifact, whereas a knee that shifts with `A_guess` is the
+confound signature repeating itself.
+- **Validated against known-good data first**: run at Upgrade's confirmed
+  L1 stride (32,768 B) with `A_guess=1,2,4,8` all correctly recover
+  knee=8 across a 200-to-25-page range — the technique and its
+  self-consistency check work as designed.
+- **L2 candidate (2,097,152 B, itself unconfirmed) and an LLC-region
+  candidate (16,777,216 B, also unconfirmed)**: strikingly, `A_guess=1`
+  through `256` (strides from the full candidate down to 65,536 B,
+  400-to-102,400 pages — up to a 256x range) all report the SAME first
+  knee, **4**. `A_guess=512` on the 16 MiB candidate (stride=32,768 B,
+  coincidentally identical to the L1 stride) correctly falls back to
+  detecting **8** instead — the scan self-detects that it has shrunk into
+  L1's own set, a second unplanned validation.
+- **But a full-rigor confirm run (1,000,000 samples, both patterns, 2
+  repeats) at that 65,536 B stride reveals this "4" is only the first
+  step of a TWO-STEP staircase, not a clean knee**: flat through ways 2-3,
+  a marginal/noisy partial rise at way 4 (47% spread across the 3 runs;
+  base/rep1 called it thrashing, rep2 didn't — base=4, rep1=4, rep2=3),
+  a mid-plateau ways 5-8, then a second, much sharper jump at **way 9** —
+  landing suspiciously close to the exact confound signature (~9-10)
+  documented above from Sunbird's large-stride attempts.
+  `detect_associativity.py` only ever reports the FIRST knee it finds, so
+  every self-consistency result above only ever saw this marginal first
+  step — none of it speaks to whether the second (~9) step is itself
+  self-consistent (real, larger structure) or tracks stride/page-count
+  (the same old confound, just pushed later). **Not a citable L2/LLC
+  number yet, but real forward progress**: a technique that demonstrably
+  works on known-good data and produces a *reproducible, non-degenerate*
+  structure on unknown data, rather than immediately hitting the old
+  universal ~9-10 wall the way every large fixed-capacity stride did.
+- **Two concrete next steps, neither attempted yet**: (1) teach
+  `detect_associativity.py` (or a sibling script) to also locate a SECOND
+  knee, then re-run the stride-scan's self-consistency check specifically
+  on that second knee's location across several `A_guess` values; (2) the
+  marginal way=4 step needs a tighter, higher-sample re-check right at
+  the ways=3-5 boundary before trusting even the first tier.
+- Full detail, including the exact comparison tables:
+  `data_raw/upgrade/README.md`'s associativity/ section, "L2/LLC:
+  derived-stride scan" subsection. **Not yet tried on any other
+  machine** — if picked up elsewhere, this Upgrade writeup (not the
+  original Sunbird dead-end analysis above) is the starting point.
 **Not yet started (data collection):** hit/miss latency, inclusion/
 exclusion experiments — not yet implemented in `cache_bench` at all.
 Line size: `--experiment line_size` exists (added by @krchen1, commit

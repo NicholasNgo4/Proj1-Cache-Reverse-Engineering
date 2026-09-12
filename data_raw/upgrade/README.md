@@ -4,39 +4,48 @@
 > this folder to the exact command that generated the data without guessing.
 
 ## Machine Identification
-- Hostname: **TODO — not captured by any committed file; needs a session actually
-  logged into `upgrade` to run `hostname`.** (This repo checkout is on `sunbird`;
-  analysis below was done entirely from already-committed `data_raw`/`data_processed`
-  CSVs, which don't carry the hostname.)
-- CPU model (from `lscpu`/`/proc/cpuinfo`): TODO — same caveat; `MACHINE_RESEARCH.md`
-  lists "Core i7-8700 / Coffee Lake" but that table is the team's separate ISA/
-  microarch/year research (explicitly allowed pre-freeze), not a live `lscpu` capture
-  on this specific machine — don't cite it here as if it were one without confirming.
-- ISA / architecture: x86-64 (inferred from `main_code/x86_64/timer_x86.h` being the
-  timer header used — see Environment below — but not independently confirmed via
-  `uname -m` on the machine itself)
-- Vendor / microarchitecture / codename (researched, NOT from cache tables): TODO
-- Introduction year (per the team's stated year convention): TODO
-- Process node (if reliably documented): TODO
-- Kernel version: TODO — no `build/kernel_version.txt` was captured for this machine
-  (unlike Sunbird's `build/` dir); needs `uname -r` on `upgrade` itself.
-- Page size: TODO — no `build/page_size.txt` captured either.
-- SMT siblings idle during runs? TODO — core=5 was used (confirmed from the run
-  transcript, see capacity/ below) but no `who`/`ps`/`lscpu -e` snapshot was saved,
-  so idle-sibling status at run time is unverified.
+- Hostname: **upgrade.ece.ncsu.edu** (confirmed 2026-09-11/12 via `hostname` in a
+  session actually logged into `upgrade`; the capacity backfill below predates this
+  and was done without machine access, hence the surrounding TODOs it left).
+- CPU model (from `/proc/cpuinfo`): **Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz**
+  (confirmed via `grep "model name" /proc/cpuinfo`; matches `MACHINE_RESEARCH.md`'s
+  "Core i7-8700 / Coffee Lake" row exactly — that table's entry is now confirmed
+  live on this specific machine, not just pre-freeze research).
+- ISA / architecture: x86-64 (confirmed via `uname -a`: `x86_64 x86_64 x86_64
+  GNU/Linux`; consistent with `main_code/x86_64/timer_x86.h` being the timer header
+  used — see Environment below)
+- Vendor / microarchitecture / codename (researched, NOT from cache tables): Intel,
+  Coffee Lake (per `MACHINE_RESEARCH.md`, cross-checked against the confirmed CPU
+  model above)
+- Introduction year (per the team's stated year convention): 2017 (per
+  `MACHINE_RESEARCH.md`)
+- Process node (if reliably documented): 14 nm (per `MACHINE_RESEARCH.md`)
+- Kernel version: `6.8.0-138-generic` (confirmed via `uname -r`)
+- Page size: 4096 bytes (confirmed via `getconf PAGESIZE`)
+- SMT siblings idle during runs? Confirmed idle for the associativity/ run below
+  (2026-09-12, core 5 = CPUs {5,11} per `lscpu -e=CPU,CORE,SOCKET,NODE`; `who`/`ps`
+  showed only light, unrelated background load, no other student process pinned to
+  either sibling). Unverified for the original capacity/ run (see that section's own
+  caveat) — no snapshot was saved at that time.
 
 ## Environment
-- Compiler + version: TODO
+- Compiler + version: `gcc (Ubuntu 12.3.0-1ubuntu1~22.04.3) 12.3.0` (confirmed via
+  `gcc --version`; applies to the associativity/ run below — not independently
+  reconfirmed for the original capacity/ run, though `make` uses the same toolchain
+  by default on this machine either way)
 - Compiler flags: `-O0 -g -std=c11 -Wall -Wextra -fno-omit-frame-pointer`
 - Timer method used (RDTSC/RDTSCP+LFENCE, CNTVCT_EL0, etc.): x86 RDTSC/RDTSCP path
   (inferred from `main_code/x86_64/timer_x86.h` per the build layout; not
   independently confirmed with a disassembly excerpt the way Sunbird's is — TODO if
   needed for the report)
 - Affinity/binding command used: `taskset -c 5 ./cache_bench ...` (core=5, confirmed
-  from `run_capacity_full_20260908T231109Z.log`'s own header line)
-- NUMA/locality method: TODO
-- Git commit hash of the code used for these results: TODO — no
-  `build/git_commit_at_run.txt` was captured for this machine.
+  from `run_capacity_full_20260908T231109Z.log`'s own header line, and reused for the
+  associativity/ run below)
+- NUMA/locality method: single-socket machine (`lscpu -e` shows SOCKET=0/NODE=0 for
+  all 12 CPUs) — no NUMA placement concern on this host
+- Git commit hash of the code used for these results: `06beab16fa7ece5a8f0f48c227efc852b854c2d3`
+  for the associativity/ run below (confirmed via `git rev-parse HEAD` in this
+  session); not captured for the original capacity/ run.
 
 ## Per-Experiment Reproduction
 
@@ -123,10 +132,27 @@
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Source file(s): `main_code/common/{main.c,associativity.c,associativity.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Build command: `make` (from repo root)
+- Run command + arguments: `./scripts/run_associativity_full.sh upgrade 5 32768` — explicit hand-confirmed `cache_bytes` override, **L1 only**: the capacity section above only confirmed one clean boundary on this machine (L1 = 32,768 B, itself still flagged PROVISIONAL there); L2/L3 have no discrete confirmed value yet, so no candidate value was fabricated for them (per this script's own guidance, an explicit override is required for a "final" result — see `scripts/README.md`). All stages pinned `taskset -c 5`, `--samples 1000000 --batch-size 1000 --warmup-passes 3 --min-ways 2 --max-ways 40 --way-step 1`, base seed 12345 (repeats: 12346, 12347), both `--pattern random` and `--pattern sequential`. Timestamp: `20260912T013715Z`. Full transcript: `data_raw/upgrade/associativity/run_associativity_full_20260912T013715Z.log`.
+- Sample count: 1,000,000 timed accesses per (num_ways, pattern) point; 39 points per sweep (num_ways=2..40), 3 sweeps (base + 2 repeats) per pattern
+- Conflict-set construction method: node-to-node stride fixed at the level's own capacity (32,768 B for L1) so every probed node lands in the same cache set regardless of line size/way count (see `main_code/common/associativity.h`); `num_ways_probed` nodes chased in a dependent pointer chain, `random` = xorshift32-shuffled chain order, `sequential` = in-address-order control (prefetcher-sanity check, same convention as the capacity experiment)
+- Result: **L1 = 8-way**, sharp/unambiguous knee — flat ~6.0-6.2 ticks/access for num_ways=2-8, jumping to ~15-19 ticks/access at num_ways=9 and climbing gently through 40 (both patterns behave the same, as expected for a capacity-thrashing effect rather than a prefetcher effect — see `data_processed/upgrade/associativity/L1/plots/associativity_curve.png`). Identical estimate (8) from the base sweep and both reproducibility repeats — no disagreement warning raised. This also cross-checks the capacity section's PROVISIONAL 32,768 B L1 boundary (a clean associativity knee at that stride is the same corroboration method used on Sunbird — see that machine's README).
+- Notes: L2/L3 associativity via the standard full-capacity-stride method **not run** — blocked on the capacity section's open TODO (no discrete L2/LLC boundary identified yet on this machine). Instead, a new exploratory technique was tried for L2/LLC — see below.
+
+#### L2/LLC: derived-stride scan (2026-09-12, EXPLORATORY — new technique, not a confirmed result)
+
+**Motivation.** CLAUDE.md documents that on Sunbird, every associativity attempt above ~1 MiB stride broke at nearly the same `num_ways` (~9-10) regardless of the actual capacity candidate tested — strong evidence of a page-count-limited confound (DTLB or similar), since `run_associativity_full.sh`'s method always uses the *full* target capacity as the node-to-node stride, putting one probed node on its own distinct page for any capacity above 4 KiB. New script `scripts/run_associativity_stride_scan.sh` (added this session) instead tests `stride = capacity_candidate / A_guess` for a list of candidate divisors: any `A_guess` that evenly divides the true associativity still yields a mathematically valid same-set stride (see the script's own header comment for the modular-arithmetic argument, mirrored in `associativity.h`), but a much smaller one — touching far fewer distinct pages for the same `num_ways` swept. If the *same* knee value recurs across multiple different `A_guess` (hence different page counts), that's evidence of a real signal rather than a page-count artifact.
+
+**Validation against known-good L1 data.** Ran the scan at `capacity_bytes=32768` (Upgrade's confirmed L1 stride) with `A_guess=1,2,4,8`: all four report knee=8 (matching the confirmed L1 result above) across arena sizes from 200 pages down to 25 pages — strong sanity check that the technique and its self-consistency logic work correctly.
+
+**L2 candidate (2,097,152 B = 2 MiB, itself unconfirmed — picked as a round value inside this README's own "~1.5-4.5 MiB candidate shelf, not confirmed" note above).** Scan with `A_guess=1..64`: `A_guess=1` through `32` (strides 2,097,152 down to 65,536 B, 12,800 down to 400 pages) all report a first knee of **4**; `A_guess=64` (stride=32,768 B — exactly the L1 stride) correctly recovers **8** instead, i.e. the scan correctly detects it has shrunk the stride down into L1's own set rather than testing something new — an unplanned second validation of the technique.
+
+**LLC-region candidate (16,777,216 B = 16 MiB, inside this README's noisy/unresolved ~5-22 MiB transition).** Scan with `A_guess=1..512`: **every** value from 1 through 256 (strides 16 MiB down to 65,536 B, 102,400 down to 400 pages — a 256x range) reports the same first knee of **4**; `A_guess=512` (stride=32,768 B, again the L1 stride) again correctly recovers **8**. Note several of these strides numerically coincide with strides already tested in the 2 MiB scan above (e.g. `A_guess=8` here = 2,097,152 B = the entire 2 MiB scan's `A_guess=1`), so this is not fully independent evidence, but it is a second capacity-candidate starting point converging on the same stride-indexed answer.
+
+**Full-rigor confirm run at stride=65,536 B (1,000,000 samples, both patterns, 2 repeats, `--max-ways 24`) — this is the finding that keeps "L2=4-way" from being citable yet:** the plot (`data_processed/upgrade/associativity/L2/plots/associativity_curve.png`) shows a **two-step staircase**, not one clean knee — flat ~6.1 ticks/access through ways 2-3, a marginal/noisy partial rise at way 4 (this exact point has 47% spread across the base run and its 2 repeats: medians 6.1/6.0/9.4 ticks — base and repeat 1 called it thrashing, repeat 2 didn't, giving base=4, rep1=4, rep2=3), a plateau around ~12 ticks for ways 5-8, then a **second, much sharper jump at way 9** up to ~17-19 ticks. `scripts/detect_associativity.py` only ever reports the *first* knee it finds, so every scan result above only ever "saw" the first (marginal, ~4) step — none of them can speak to whether the second (~9) step is itself self-consistent across strides, and its location matches the exact confound signature from the Sunbird investigation closely enough to be a real concern, not a coincidence.
+
+**Bottom line: a genuinely new, validated-on-L1 technique, and a reproducible two-tier structure was found for L2/LLC-scale strides — but it is NOT yet a citable L2 or LLC associativity number.** Two concrete follow-ups, neither attempted yet: (1) modify (or add a variant of) `detect_associativity.py` to locate a *second* knee, then re-run the stride-scan's self-consistency check on that second knee's location across the same `A_guess` range, to see whether *it* tracks page count (confound) or stays fixed (real, larger structure); (2) the marginal way=4 step itself needs a tighter, higher-sample-count re-check right at the ways=3-5 boundary before trusting even the "first tier" number. Raw/processed data: `data_raw/upgrade/associativity/stride_scan/`, `data_processed/upgrade/associativity/stride_scan/` (scan comparison tables) and `data_raw/upgrade/associativity/L2/`, `data_processed/upgrade/associativity/L2/` (the full-rigor confirm run, labeled `L2_derived_stride` in its plot title since the underlying capacity candidate is unconfirmed).
 
 ### latency/
 - Source file(s): 

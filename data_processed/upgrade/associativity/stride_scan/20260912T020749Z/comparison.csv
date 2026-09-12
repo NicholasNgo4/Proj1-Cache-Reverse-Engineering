@@ -1,0 +1,11 @@
+a_guess,stride_bytes,pages_in_arena,detected_ways,summary_csv
+1,16777216,102400,4,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a1_summary.csv
+2,8388608,51200,4,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a2_summary.csv
+4,4194304,25600,4,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a4_summary.csv
+8,2097152,12800,4,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a8_summary.csv
+16,1048576,6400,4,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a16_summary.csv
+32,524288,3200,4,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a32_summary.csv
+64,262144,1600,4,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a64_summary.csv
+128,131072,800,4,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a128_summary.csv
+256,65536,400,4,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a256_summary.csv
+512,32768,200,8,data_processed/upgrade/associativity/stride_scan/20260912T020749Z/a512_summary.csv

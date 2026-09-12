@@ -33,6 +33,21 @@ struct associativity_config {
     int warmup_passes;       /* untimed full cycle passes before timing */
     uint32_t seed;           /* xorshift32 seed for the random cycle */
     enum access_pattern pattern; /* random (default) or sequential control */
+    int huge_pages;           /* if nonzero, allocate the probe buffer 2 MiB-aligned and
+                                * madvise(MADV_HUGEPAGE) it, then fault in every 4 KiB page
+                                * before warmup -- lets a buffer that fits within one 2 MiB
+                                * huge page collapse onto a SINGLE TLB entry regardless of
+                                * num_ways, directly testing whether an observed knee is a
+                                * TLB/page-boundary artifact (see CLAUDE.md's associativity
+                                * section, "derived-stride scan" / DTLB-confound writeups):
+                                * if the same knee survives unchanged under this allocation,
+                                * it cannot be explained by DTLB pressure, since the whole
+                                * probed range shares one translation. Falls back silently to
+                                * a normal allocation if madvise is unavailable/fails -- the
+                                * actual backing achieved is reported via a stderr diagnostic
+                                * read from /proc/self/smaps, not assumed from the madvise
+                                * call succeeding (a successful call is only a hint to the
+                                * kernel, not a guarantee of huge-page-backed memory). */
 };
 
 /*

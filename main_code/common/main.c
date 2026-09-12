@@ -116,6 +116,13 @@ static void usage(const char *prog)
         "  --min-ways N           fewest same-set nodes probed (default %llu)\n"
         "  --max-ways N           most same-set nodes probed (default %llu)\n"
         "  --way-step N           linear increment in nodes probed (default %llu)\n"
+        "  --huge-pages           allocate the probe buffer 2 MiB-aligned and\n"
+        "                         madvise(MADV_HUGEPAGE); if the buffer fits within one\n"
+        "                         2 MiB page, this collapses every probed node onto a\n"
+        "                         single TLB entry regardless of num_ways -- a knee that\n"
+        "                         survives unchanged cannot be a TLB/page artifact.\n"
+        "                         Actual backing achieved is reported to stderr from\n"
+        "                         /proc/self/smaps, not assumed from madvise succeeding.\n"
         "\n"
         "  -h, --help             show this help\n",
         prog,
@@ -198,6 +205,7 @@ int main(int argc, char **argv)
         .warmup_passes = DEFAULT_WARMUP_PASSES,
         .seed = DEFAULT_SEED,
         .pattern = ACCESS_PATTERN_RANDOM,
+        .huge_pages = 0,
     };
 
     for (int i = 1; i < argc; i++) {
@@ -245,6 +253,8 @@ int main(int argc, char **argv)
             if (parse_u64(argv[++i], &assoc_cfg.max_ways) != 0) { usage(argv[0]); return 1; }
         } else if (strcmp(argv[i], "--way-step") == 0 && i + 1 < argc) {
             if (parse_u64(argv[++i], &assoc_cfg.way_step) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--huge-pages") == 0) {
+            assoc_cfg.huge_pages = 1;
         } else if (strcmp(argv[i], "--warmup-passes") == 0 && i + 1 < argc) {
             cap_cfg.warmup_passes = atoi(argv[++i]);
             ls_cfg.warmup_passes = cap_cfg.warmup_passes;

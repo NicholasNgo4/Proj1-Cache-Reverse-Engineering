@@ -1,0 +1,65 @@
+== run_associativity_stride_scan (EXPLORATORY, not a final result): machine=upgrade core=5 ==
+== capacity_bytes=2097152 A_guess candidates=1,2,4,8,16,32,64 ==
+== timestamp=20260912T015831Z ==
+== samples=200000 (reduced), max_ways=24 (reduced), random pattern only, no repeats ==
+
+-- A_guess=1 --
+   stride=2097152 bytes (capacity/1), arena spans ~12800 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015831Z/stride_scan_a1_20260912T015831Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a1_summary.csv
+   detected knee: 4
+
+-- A_guess=2 --
+   stride=1048576 bytes (capacity/2), arena spans ~6400 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015831Z/stride_scan_a2_20260912T015831Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a2_summary.csv
+   detected knee: 4
+
+-- A_guess=4 --
+   stride=524288 bytes (capacity/4), arena spans ~3200 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015831Z/stride_scan_a4_20260912T015831Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a4_summary.csv
+   detected knee: 4
+
+-- A_guess=8 --
+   stride=262144 bytes (capacity/8), arena spans ~1600 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015831Z/stride_scan_a8_20260912T015831Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a8_summary.csv
+   detected knee: 4
+
+-- A_guess=16 --
+   stride=131072 bytes (capacity/16), arena spans ~800 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015831Z/stride_scan_a16_20260912T015831Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a16_summary.csv
+   detected knee: 4
+
+-- A_guess=32 --
+   stride=65536 bytes (capacity/32), arena spans ~400 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015831Z/stride_scan_a32_20260912T015831Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a32_summary.csv
+   detected knee: 4
+
+-- A_guess=64 --
+   stride=32768 bytes (capacity/64), arena spans ~200 pages
+   wrote 4602 lines -> data_raw/upgrade/associativity/stride_scan/20260912T015831Z/stride_scan_a64_20260912T015831Z.csv
+Wrote 23 summary rows to data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a64_summary.csv
+   detected knee: 8
+
+== comparison table (data_processed/upgrade/associativity/stride_scan/20260912T015831Z/comparison.csv) ==
+a_guess  stride_bytes  pages_in_arena  detected_ways  summary_csv
+1        2097152       12800           4              data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a1_summary.csv
+2        1048576       6400            4              data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a2_summary.csv
+4        524288        3200            4              data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a4_summary.csv
+8        262144        1600            4              data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a8_summary.csv
+16       131072        800             4              data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a16_summary.csv
+32       65536         400             4              data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a32_summary.csv
+64       32768         200             8              data_processed/upgrade/associativity/stride_scan/20260912T015831Z/a64_summary.csv
+
+== self-consistency check ==
+knee=4: recurs across A_guess=['1', '16', '2', '32', '4', '8'] (pages_in_arena=['12800', '1600', '3200', '400', '6400', '800']) -- DIFFERENT page counts -- self-consistency evidence for a real signal
+
+-- compressing raw CSVs --
+
+== done (EXPLORATORY SCAN -- not a final result) ==
+== full transcript: data_raw/upgrade/associativity/stride_scan/run_stride_scan_20260912T015831Z.log ==
+== comparison table: data_processed/upgrade/associativity/stride_scan/20260912T015831Z/comparison.csv ==
