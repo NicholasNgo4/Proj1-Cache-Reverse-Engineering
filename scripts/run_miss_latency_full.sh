@@ -167,11 +167,16 @@ for spec in "${TRANSITION_SPECS[@]}"; do
   echo "-- generating plots for ${TRANSITION} --"
   PLOT_ARGS=()
   [ "${#HIT_SUM_ARGS[@]}" -gt 0 ] && PLOT_ARGS=(--hit-latency-summary "${HIT_SUM_ARGS[@]}")
-  python3 scripts/plot_miss_latency.py \
+  if ! python3 scripts/plot_miss_latency.py \
     "${ALL_SUMMARIES[@]}" \
     -o "$PLOT_DIR" --machine "$MACHINE" --transition "$TRANSITION" \
     --title-suffix "(Phase I timing-only, auto pipeline)" \
-    "${PLOT_ARGS[@]}"
+    "${PLOT_ARGS[@]}"; then
+    echo "WARNING: plotting failed for ${TRANSITION} (matplotlib missing? see CLAUDE.md's" >&2
+    echo "  known matplotlib gap on Skylark/Thunderbird/Ookay) -- data above is still valid;" >&2
+    echo "  continuing to the next transition and re-run plot_miss_latency.py by hand once" >&2
+    echo "  matplotlib is available." >&2
+  fi
 
   echo "-- compressing raw CSVs for ${TRANSITION} --"
   gzip -f "${RAW_DIR}"/miss_latency_*.csv
