@@ -808,6 +808,38 @@ own per-machine capacity prose to pick them.
   transitions showing substantial (26-60%) unexplained repeat-to-repeat
   spread not yet traced to a specific cause. **Not yet run on any other
   machine.**
+- **Charnwood** (`data_raw/charnwood/latency/`): hit latency at L1/L2/LLC/DRAM
+  (32,768 / 262,144 / 8,388,608 / 536,870,912 B, LLC per `CAPACITY_RESULTS.md`'s
+  ~8 MiB row) gives a clean, monotonic 4-tier ladder — L1≈7.98, L2≈17.27,
+  LLC≈107-109, DRAM≈394.6-394.8 ticks (dependent, random, ticks/access) — with
+  the required independent-load control measuring faster than dependent at
+  every level for the random pattern, and at L1/L2/DRAM for sequential too.
+  One UNEXPECTED flag (LLC/sequential: independent slightly slower than
+  dependent, 8.28 vs 8.10, reproduced consistently across all 3 runs but only
+  a 2-3% gap) was investigated, not just noted: at the `sequential` pattern
+  every level's latency clusters in the same narrow ~7.4-8.7 tick band
+  regardless of footprint (prefetching hides the real hierarchy difference
+  entirely, unlike `random`'s clean 10x-40x per-level separation), so a small
+  sign-flippable gap there is expected noise, not a violation of the control's
+  actual claim. Separately (not something Sunbird's writeup needed): this
+  machine's L1/L2 **base** runs measured persistently ~20% higher than their
+  own rep1/rep2 for the run's entire 1000-batch duration (not a brief
+  startup transient) while LLC/DRAM (run later, after the core had already
+  processed 6 prior runs) showed no such gap — read as a P-state/cold-start
+  effect on the very first workload of the whole pipeline, the same category
+  of finding as Artemisia's P-state bimodality; L1/L2 headline numbers above
+  use the rep1+rep2 average, not the base run. Miss/next-level latency at
+  L1→L2/L2→LLC/LLC→DRAM gives an increasing ≈107/≈644/≈852-tick sequence
+  (random, base/rep1/rep2 average) — this machine's own single-shot-overhead
+  control test found essentially the same ~62-tick fixed overhead Sunbird
+  found (median=70 vs. this machine's own ~7.98-tick batched L1 hit latency),
+  so the same "real reload latency + fixed overhead" caveat applies. 3 of 6
+  (transition, pattern) combinations exceeded the pipeline's 20%-spread
+  warning threshold (L1_to_L2/sequential 40.0%; LLC_to_DRAM random and
+  sequential both 22.8%) — not re-run, per task instruction; same established
+  pattern of shared-machine noise as every other multi-run experiment on this
+  team's machines, not independently traced to a specific process here. Full
+  write-up: `data_raw/charnwood/README.md`'s latency/ section.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
