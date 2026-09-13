@@ -99,10 +99,47 @@
 - **Known discrepancy with this machine's own capacity data (flag for report writing):** `CAPACITY_RESULTS.md`'s L2=512 KiB / L3=~8 MiB values used as the stride here do not match what skylark's own capacity sweep above independently found — that data shows one candidate shelf spanning ~4-16.8 MiB (PROVISIONAL-WEAK, not resolved to a single boundary) rather than two separate levels at 512 KiB and 8 MiB. Per team decision (2026-09-12), the associativity experiment was still run at the manually-selected 512 KiB / 8 MiB values despite this open disagreement; the multi-step/non-reproducible results above are consistent with (though not conclusive proof of) `cache_bytes` not matching either level's true capacity, exactly as `associativity.h`'s own design notes predict for a wrong-by-construction stride.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+Two sub-experiments, `hit_latency` and `miss_latency`, run 2026-09-13
+(unattended session; user not present). Footprint/target/evict byte values
+taken **only from `CAPACITY_RESULTS.md`** (L1 = 32,768 B, L2 = 524,288 B,
+LLC ≈ 8 MiB = 8,388,608 B, using N * 1,048,576 for "~N MiB" per project-wide
+direction) — the associativity section above already flags a discrepancy
+between this machine's own capacity data (one candidate ~4-16.8 MiB shelf,
+not two separate L2/L3 boundaries) and `CAPACITY_RESULTS.md`'s picked
+values; per the same project-wide direction that applies to this run,
+`CAPACITY_RESULTS.md` is used anyway and this discrepancy is repeated here
+rather than re-litigated.
+- Idle-core check before running: `who`/`ps` showed no other logged-in
+  users, but `ps aux` found another student's process (`msabap`,
+  `cache_bench_x86 --exp nextlevel`) pinned via `psr=3` to core 3 at ~99.8%
+  CPU the entire session — avoided. Two `/proc/stat` snapshots taken 3s
+  apart confirmed core 6 idle (0 busy ticks out of ~724 total in the
+  window, i.e. <1% busy); core 6 used for both runs below.
+- Build command: `git pull && make clean && make` (from repo root); `python3 -c "import matplotlib"` confirmed working (3.9.4) before running.
+- Git commit hash of the code used: `e343732c0b57beece621da8e7c3a9bd8be236d25`
+
+**hit_latency (dependent chain + independent-load diagnostic control):**
+- Source file(s): `main_code/common/{main.c,latency.c,latency.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Run command + arguments: `./scripts/run_hit_latency_full.sh skylark 6 L1:32768,L2:524288,LLC:8388608,DRAM:536870912` (pinned via `taskset -c 6`). DRAM's 536,870,912 B (512 MiB) footprint is not a `CAPACITY_RESULTS.md` boundary — it's a "deep in the DRAM plateau" pick, matching the same convention every other machine's hit_latency run used.
+- Per level: base run + 2 reproducibility repeats (seed = 12345, 12346, 12347), each run at `--load-mode {dependent,independent}` × `--pattern {random,sequential}` (4 combinations), 1,000,000 timed accesses per combination (batch size 1000, `DEFAULT_BATCH_SIZE`), 3 untimed warm-up passes.
+- Regular vs. randomized control included: yes, both `--pattern random` and `--pattern sequential` run at every (level, load_mode) combination.
+- Raw output filename(s): `data_raw/skylark/latency/hit/<LEVEL>/hit_latency_{base,rep1,rep2}_{dependent,independent}_{random,sequential}_20260913T061014Z.csv.gz`
+- Processing: `scripts/summarize_raw.py` per raw file → `data_processed/skylark/latency/hit/<LEVEL>/*_summary_20260913T061014Z.csv` → `scripts/plot_hit_latency.py` → `data_processed/skylark/latency/hit/<LEVEL>/plots/hit_latency_boxplots.{png,pdf}`.
+- **Result (dependent, random pattern, base run median, n=1000 each): a clean, monotonically increasing 4-tier ladder — L1 ≈ 6.24 ticks, L2 ≈ 16.15 ticks, LLC ≈ 27.22 ticks, DRAM ≈ 274.87 ticks.** At every level and both patterns, `--load-mode independent` measured faster than `dependent` (e.g. LLC random: 7.48 vs 27.22; DRAM random: 46.49 vs 274.87), confirming the independent-load control correctly exposes memory-level parallelism at every level — the expected signature, not itself the reported latency. Sequential-pattern dependent latency stayed essentially flat (~6.1-6.2 ticks) at every level including DRAM, consistent with hardware prefetching hiding the miss cost entirely for a fully predictable stride — this is expected behavior, not a bug.
+- No `[UNEXPECTED -- investigate]` flags fired at any level/pattern (checked all 8 combinations' printouts from `plot_hit_latency.py`'s required MLP-exposing check).
+
+**miss_latency (forced eviction + single-shot reload):**
+- Source file(s): same list as hit_latency above.
+- Eviction-set calibration done before picking final parameters (core 6, random pattern, 100 trials, `target-bytes 8388608`): a candidate `evict-bytes` of 16,777,216 (2x the ~8 MiB LLC capacity) measured ~67.7 ms/trial (6.77s/100). Extrapolated to the full base+2reps × 2-pattern run (1,200 trials total across all three transitions, LLC_to_DRAM dominating) ≈ 81s — comfortably under the ~15 min budget, so no need to shrink; used 16,777,216 B as-is (did not jump to a much larger value, per the explicit caution against repeating Sunbird's original 512 MiB-evict-set mistake).
+- Run command + arguments: `./scripts/run_miss_latency_full.sh skylark 6 L1_to_L2:32768:524288,L2_to_LLC:524288:8388608,LLC_to_DRAM:8388608:16777216` (core 6, same idleness check as hit_latency above; `--batch-size 1` passed automatically by the script only to satisfy `main.c`'s cross-experiment `--samples`/`--batch-size` validation, has no effect on miss_latency's own single-shot-per-trial logic).
+- Per transition: base run + 2 reproducibility repeats (seed = 12345, 12346, 12347), each at `--pattern {random,sequential}`. 200 trials per (transition, pattern, run), 3 untimed warmup passes before the first timed trial and again before every subsequent trial.
+- Raw output filename(s): `data_raw/skylark/latency/miss/<TRANSITION>/miss_latency_{base,rep1,rep2}_{random,sequential}_20260913T061426Z.csv.gz`
+- Processing: `scripts/summarize_raw.py` → `data_processed/skylark/latency/miss/<TRANSITION>/*_summary_20260913T061426Z.csv` → `scripts/plot_miss_latency.py --hit-latency-summary <matching hit_latency dependent/random summaries>` → `data_processed/skylark/latency/miss/<TRANSITION>/plots/miss_latency_boxplots.{png,pdf}`.
+- **Result (random pattern, base run median, n=200 each): L1→L2 ≈ 96.0 ticks, L2→LLC ≈ 120.0 ticks, LLC→DRAM ≈ 360.0 ticks** — monotonically increasing, consistent with genuinely deeper eviction at each transition.
+- Run-to-run spread: `plot_miss_latency.py`'s >20%-spread stderr warning fired on two of the three transitions' random pattern — **L1_to_L2** (medians 96.0/120.0/120.0 across base/rep1/rep2, 21.4% spread) and **L2_to_LLC** (medians 120.0/96.0/144.0, 40.0% spread); **LLC_to_DRAM did not trigger the warning** (medians 360.0/360.0/384.0, ~6.4% spread). Per instructions, these two flagged transitions were NOT re-run to make the warning disappear — recorded as-is, consistent with this project's established pattern of real shared-machine interference showing up as scattered single-run spikes (see Sunbird/Crux/Charnwood/Thunderbird/Ookay's capacity/associativity write-ups) rather than necessarily a methodological flaw; not independently traced to a specific interfering process for this run.
+- **Single-shot measurement overhead, isolated via a dedicated control (2026-09-13):** `taskset -c 6 ./cache_bench --experiment miss_latency --target-bytes 32768 --evict-bytes 512 --pattern random --samples 2000 --batch-size 1 --seed 12345`, then `tail -n +3 | awk -F, '{a[NR]=$5;...} END{asort(a); print a[int(n/2)]}'` → **median = 72 ticks**. `evict-bytes=512` is only ~8 cache lines spread across L1's sets — overwhelmingly unlikely to actually evict the target's own line — so this is a control, not a real L1 miss. Compared to this machine's own batched L1 hit_latency dependent/random median (6.24 ticks, above), the gap is **~65.8 ticks of fixed single-shot measurement overhead** (unamortized `lfence`/`rdtsc`/`rdtscp` + post-function-call pipeline state — see `main_code/common/latency.h`'s `run_miss_latency_experiment` "KNOWN LIMITATION" docstring), not real miss cost. This means every raw miss_latency median above is "true reload latency + ~66 ticks," not a clean number.
+- **Approximate overhead-corrected incremental penalty** (raw miss median minus source-level's own batched hit_latency dependent/random median, then minus the ~65.8-tick overhead measured above — presented as approximate, not precise, per the caveat just above): L1→L2 ≈ 96.0 − 6.24 − 65.8 ≈ **24 ticks**; L2→LLC ≈ 120.0 − 16.15 − 65.8 ≈ **38 ticks**; LLC→DRAM ≈ 360.0 − 27.22 − 65.8 ≈ **267 ticks**. Still monotonically increasing after correction, consistent with genuinely deeper eviction at each transition — but treat the absolute values as approximate, same caution as every other machine's uncorrected miss_latency numbers.
+- Not yet done: the L1_to_L2 and L2_to_LLC repeat-spread hasn't been traced to a specific interfering process (no `mpstat`/`ps` check was run again mid-sweep, only before the whole run started); the single-shot overhead above was only measured once, at the L1 footprint, not independently re-measured at L2/LLC/DRAM footprints.
 
 ### inclusion_policy/
 - Source file(s): 

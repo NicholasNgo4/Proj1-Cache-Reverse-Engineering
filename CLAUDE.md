@@ -808,6 +808,24 @@ own per-machine capacity prose to pick them.
   transitions showing substantial (26-60%) unexplained repeat-to-repeat
   spread not yet traced to a specific cause. **Not yet run on any other
   machine.**
+- **Skylark** (`data_raw/skylark/latency/`, run 2026-09-13, unattended):
+  hit latency at L1/L2/LLC/DRAM (32,768 / 524,288 / 8,388,608 / 536,870,912
+  B) gives a clean, monotonic 4-tier ladder — L1≈6.2, L2≈16.2, LLC≈27.2,
+  DRAM≈274.9 ticks (dependent, random, median) — independent-load control
+  measured faster than dependent at every level/pattern, no
+  `[UNEXPECTED]` flags. Miss/next-level latency at L1→L2/L2→LLC/LLC→DRAM
+  (evict-bytes 524,288 / 8,388,608 / 16,777,216 — the last one picked after
+  a timing calibration showed ~67.7ms/trial at 2x LLC capacity, well under
+  budget) gives an increasing 96/120/360-tick sequence (random, median);
+  L1→L2 and L2→LLC showed >20% repeat-to-repeat spread (21.4%/40.0%,
+  flagged by the plot script, not re-run to chase away) while LLC→DRAM did
+  not (~6.4%). Same single-shot fixed-overhead issue as Sunbird, isolated
+  here too via the same tiny-eviction-set control: ~72-tick median vs.
+  Skylark's own ~6.2-tick batched L1 hit latency → **~65.8 ticks fixed
+  overhead**, consistent with Sunbird's ~64-85 tick range on different
+  hardware. See `data_raw/skylark/README.md`'s latency/ section for the
+  overhead-corrected approximate incremental penalties (~24/38/267 ticks)
+  and full run detail.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
