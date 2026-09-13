@@ -986,6 +986,45 @@ LLC's confirmed 128B line size). `data_processed/skylark/FINAL_CACHE_TABLE.md`
 written in the same 9-column format as Sunbird's, every cell leading with a
 concrete best-guess value.
 
+**Charnwood (2026-09-13): inclusion_policy run completed, Phase I closed out
+for this machine — FINAL_CACHE_TABLE.md now exists alongside Sunbird's and
+Skylark's.** Ran all three pairings in one invocation at `ASSUMED_LINE_SIZE_
+BYTES` left at its default (64) — a checked, not blind, choice: this
+machine's own line_size/ section confirms 64B at L1, finds 64B as the
+leading (75%-agreement, not fully settled) candidate at LLC, and has no
+competing value at all for L2 (a settled null result), so one constant is
+the best-supported call here, unlike Skylark's genuine per-level 64B/128B
+split. L1_vs_L2 came back the cleanest of the three (86.0% survived-like,
+control 100% clean) — **EXCLUSIVE/NON-INCLUSIVE**, matching Sunbird's own
+L1_vs_L2 read. Both LLC-scale pairings (L2_vs_LLC, L1_vs_LLC) triggered the
+classifier's own confound warning — **control itself showed 54.0% and 40.0%
+invalidated-like trials respectively, despite never being touched by the
+eviction walk** — the clearest on-team evidence yet that the DTLB/large-
+footprint confound (`inclusion_policy.h`'s caveat 2) can contaminate the
+control channel, not just target (Sunbird's own 3 pairings kept clean
+controls throughout). Per task instruction not to leave a confounded
+pairing as a bare non-answer, both were given a directional best guess
+using the target-vs-control gap on top of the shared noise floor rather
+than the classifier's absolute threshold: **L2_vs_LLC leans invalidated/
+inclusive-like, low confidence** (54-tick gap, both the DTLB and the
+index-doesn't-fit-one-page caveats apply); **L1_vs_LLC leans invalidated/
+inclusive-like, moderate confidence** (124-tick gap, more than double
+L2_vs_LLC's, and L1's index is confirmed to fit in one page). Associativity
+above L1 hit the same universal confound as 5 of the other 7 machines, with
+an unusually clean same-run demonstration: L2's (262,144 B) and LLC's
+(8,388,608 B) median-latency curves agree to within ~0.05 ticks/access at
+every num_ways from 2-23 despite a 32x capacity difference — direct
+same-machine evidence both auto-detected "4" readings are the shared DTLB
+confound, not real signal. Best-guessed as **8-way for both L2 and LLC**
+(matching L1, reasoning from the staircase's second jump at num_ways=9 the
+way Skylark's own LLC best-guess did) — the S=C/(A×B) cross-check comes out
+unusually clean here (both L1→L2 and L2→LLC set-count ratios exactly match
+their capacity ratios, 8x and 32x), a stronger internal-consistency result
+than Sunbird's own table got. Full detail: `data_raw/charnwood/README.md`'s
+inclusion_policy/ section. `data_processed/charnwood/FINAL_CACHE_TABLE.md`
+written in the same 9-column format as Sunbird's/Skylark's, every cell
+leading with a concrete best-guess value.
+
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
