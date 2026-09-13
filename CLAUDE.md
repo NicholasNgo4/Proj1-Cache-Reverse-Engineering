@@ -808,6 +808,32 @@ own per-machine capacity prose to pick them.
   transitions showing substantial (26-60%) unexplained repeat-to-repeat
   spread not yet traced to a specific cause. **Not yet run on any other
   machine.**
+- **Ookay** (`data_raw/ookay/latency/`, 2026-09-13, unattended run): hit
+  latency at L1/L2/LLC/DRAM (32,768 / 262,144 / 8,388,608 / 536,870,912 B,
+  LLC converted from `CAPACITY_RESULTS.md`'s "~8 MiB" as `8*1,048,576`)
+  gives a clean, monotonic 4-tier ladder — L1≈7.49, L2≈18.53, LLC≈74.78,
+  DRAM≈284.45 ticks (dependent, random, median). The pipeline's own
+  independent-vs-dependent check flagged 2 of 8 cells UNEXPECTED (LLC and
+  DRAM, sequential pattern only) — investigated rather than ignored: root
+  cause is the hardware prefetcher fully hiding the sequential (stride-1)
+  pattern at every footprint tested, collapsing both load modes to the
+  same ~L1-speed floor (~7.7-7.9 ticks) regardless of level, so the
+  "inversion" is sub-tick noise around a shared floor, not a broken
+  measurement — LLC/DRAM sequential-pattern numbers should not be cited as
+  real LLC/DRAM latency, only the random-pattern numbers should. Miss/
+  next-level latency at L1→L2/L2→LLC/LLC→DRAM gives 96/723/693 ticks
+  (random, median) — not monotonic (LLC→DRAM ≈ L2→LLC despite evicting one
+  level further) and 4 of 6 (transition, pattern) cells showed >20%
+  run-to-run spread, not resolved this session (core re-verified idle
+  before/after but not monitored continuously during the run; leading
+  candidate is `L2_to_LLC`'s evict_bytes sitting at exactly the LLC
+  capacity estimate rather than past it with margin, not confirmed
+  further). Same fixed single-shot overhead caveat as Sunbird applies,
+  independently measured on this machine at ~58.5 ticks (control median 66
+  vs. L1 hit-latency median 7.49) — even after subtracting it, L2→LLC and
+  LLC→DRAM remain far above their own hit-latency plateaus, so real
+  reload cost is elevated beyond fixed overhead alone, unresolved. See
+  `data_raw/ookay/README.md`'s latency/ section for full detail.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;

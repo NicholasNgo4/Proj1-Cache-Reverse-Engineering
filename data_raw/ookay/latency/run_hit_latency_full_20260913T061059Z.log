@@ -1,0 +1,146 @@
+== run_hit_latency_full: machine=ookay core=2 base_seed=12345 ==
+== timestamp=20260913T061059Z ==
+
+== level L1: footprint_bytes=32768 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_base_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/base_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_base_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/base_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_base_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/base_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_base_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/base_independent_sequential_summary_20260913T061059Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_rep1_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/rep1_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_rep1_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/rep1_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_rep1_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/rep1_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_rep1_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/rep1_independent_sequential_summary_20260913T061059Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_rep2_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/rep2_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_rep2_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/rep2_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_rep2_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/rep2_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L1/hit_latency_rep2_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L1/rep2_independent_sequential_summary_20260913T061059Z.csv
+-- generating plots for L1 --
+random: independent < dependent (7.23 vs 7.51 ticks) [expected]
+sequential: independent < dependent (7.07 vs 7.34 ticks) [expected]
+Wrote data_processed/ookay/latency/hit/L1/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: footprint_bytes=262144 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_base_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/base_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_base_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/base_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_base_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/base_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_base_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/base_independent_sequential_summary_20260913T061059Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_rep1_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/rep1_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_rep1_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/rep1_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_rep1_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/rep1_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_rep1_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/rep1_independent_sequential_summary_20260913T061059Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_rep2_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/rep2_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_rep2_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/rep2_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_rep2_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/rep2_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/L2/hit_latency_rep2_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/L2/rep2_independent_sequential_summary_20260913T061059Z.csv
+-- generating plots for L2 --
+random: independent < dependent (8.95 vs 17.55 ticks) [expected]
+sequential: independent < dependent (7.45 vs 8.10 ticks) [expected]
+Wrote data_processed/ookay/latency/hit/L2/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level LLC: footprint_bytes=8388608 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_base_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/base_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_base_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/base_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_base_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/base_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_base_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/base_independent_sequential_summary_20260913T061059Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_rep1_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/rep1_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_rep1_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/rep1_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_rep1_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/rep1_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_rep1_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/rep1_independent_sequential_summary_20260913T061059Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_rep2_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/rep2_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_rep2_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/rep2_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_rep2_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/rep2_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/LLC/hit_latency_rep2_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/LLC/rep2_independent_sequential_summary_20260913T061059Z.csv
+-- generating plots for LLC --
+random: independent < dependent (29.86 vs 75.65 ticks) [expected]
+sequential: independent >= dependent (7.79 vs 7.73 ticks) [UNEXPECTED -- investigate]
+Wrote data_processed/ookay/latency/hit/LLC/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC --
+
+== level DRAM: footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_base_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/base_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_base_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/base_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_base_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/base_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_base_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/base_independent_sequential_summary_20260913T061059Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_rep1_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/rep1_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_rep1_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/rep1_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_rep1_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/rep1_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_rep1_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/rep1_independent_sequential_summary_20260913T061059Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_rep2_dependent_random_20260913T061059Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/rep2_dependent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_rep2_dependent_sequential_20260913T061059Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/rep2_dependent_sequential_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_rep2_independent_random_20260913T061059Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/rep2_independent_random_summary_20260913T061059Z.csv
+  wrote 1002 lines -> data_raw/ookay/latency/hit/DRAM/hit_latency_rep2_independent_sequential_20260913T061059Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/ookay/latency/hit/DRAM/rep2_independent_sequential_summary_20260913T061059Z.csv
+-- generating plots for DRAM --
+random: independent < dependent (51.69 vs 284.60 ticks) [expected]
+sequential: independent >= dependent (7.85 vs 7.77 ticks) [UNEXPECTED -- investigate]
+Wrote data_processed/ookay/latency/hit/DRAM/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for DRAM --
+
+== done ==
+== L1: footprint_bytes=32768 ==
+== L2: footprint_bytes=262144 ==
+== LLC: footprint_bytes=8388608 ==
+== DRAM: footprint_bytes=536870912 ==
+== record in data_raw/ookay/README.md: core=2, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260913T061059Z ==
+== full transcript saved to: data_raw/ookay/latency/run_hit_latency_full_20260913T061059Z.log ==
