@@ -1,0 +1,43 @@
+== rerun L3 family-of-curves: machine=ookay core=2 boundary=8388608 window=[1048576,33554432] seed=12345 ts=20260913T135140Z ==
+-- stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_8_random_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_8_random_summary.csv
+-- stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_8_sequential_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_8_sequential_summary.csv
+-- stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_16_random_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_16_random_summary.csv
+-- stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_16_sequential_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_16_sequential_summary.csv
+-- stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_32_random_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_32_random_summary.csv
+-- stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_32_sequential_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_32_sequential_summary.csv
+-- stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_64_random_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_64_random_summary.csv
+-- stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_64_sequential_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_64_sequential_summary.csv
+-- stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_128_random_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_128_random_summary.csv
+-- stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_128_sequential_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_128_sequential_summary.csv
+-- stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_256_random_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_256_random_summary.csv
+-- stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/family_256_sequential_20260913T135140Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/family_256_sequential_summary.csv
+-- generating family-of-curves plots --
+Wrote data_processed/ookay/line_size/level_8388608/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 21137968, 16B: 18831776, 32B: 18831776, 64B: 14946752, 128B: 18831744, 256B: 16777216}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~16777216 bytes) is 16B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/ookay/line_size/level_8388608/plots/line_size_family_boxplots.pdf and .png
+== done, log: data_raw/ookay/line_size/level_8388608/rerun_family_20260913T135140Z.log ==

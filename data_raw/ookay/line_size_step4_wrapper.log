@@ -1,0 +1,561 @@
+== step4 all levels: machine=ookay core=2 candidate=64B seed=12345 ts=20260913T135449Z ==
+
+############################################################
+## LEVEL boundary=32768B -- step 4, candidate=64B, window=[4096,131072]
+############################################################
+== bracket=40,48,56,64,72,80,88B offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L32768 refine] stride=40B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_40_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_40_off0_summary.csv
+-- [L32768 refine] stride=48B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_48_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_48_off0_summary.csv
+-- [L32768 refine] stride=56B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_56_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_56_off0_summary.csv
+-- [L32768 refine] stride=64B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_64_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_64_off0_summary.csv
+-- [L32768 refine] stride=72B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_72_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_72_off0_summary.csv
+-- [L32768 refine] stride=80B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_80_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_80_off0_summary.csv
+-- [L32768 refine] stride=88B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_88_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_88_off0_summary.csv
+-- [L32768 refine] stride=40B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_40_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_40_off8_summary.csv
+-- [L32768 refine] stride=48B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_48_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_48_off8_summary.csv
+-- [L32768 refine] stride=56B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_56_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_56_off8_summary.csv
+-- [L32768 refine] stride=64B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_64_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_64_off8_summary.csv
+-- [L32768 refine] stride=72B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_72_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_72_off8_summary.csv
+-- [L32768 refine] stride=80B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_80_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_80_off8_summary.csv
+-- [L32768 refine] stride=88B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_88_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_88_off8_summary.csv
+-- [L32768 refine] stride=40B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_40_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_40_off16_summary.csv
+-- [L32768 refine] stride=48B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_48_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_48_off16_summary.csv
+-- [L32768 refine] stride=56B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_56_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_56_off16_summary.csv
+-- [L32768 refine] stride=64B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_64_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_64_off16_summary.csv
+-- [L32768 refine] stride=72B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_72_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_72_off16_summary.csv
+-- [L32768 refine] stride=80B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_80_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_80_off16_summary.csv
+-- [L32768 refine] stride=88B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_88_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_88_off16_summary.csv
+-- [L32768 refine] stride=40B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_40_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_40_off24_summary.csv
+-- [L32768 refine] stride=48B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_48_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_48_off24_summary.csv
+-- [L32768 refine] stride=56B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_56_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_56_off24_summary.csv
+-- [L32768 refine] stride=64B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_64_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_64_off24_summary.csv
+-- [L32768 refine] stride=72B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_72_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_72_off24_summary.csv
+-- [L32768 refine] stride=80B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_80_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_80_off24_summary.csv
+-- [L32768 refine] stride=88B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_88_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_88_off24_summary.csv
+-- [L32768 refine] stride=40B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_40_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_40_off32_summary.csv
+-- [L32768 refine] stride=48B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_48_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_48_off32_summary.csv
+-- [L32768 refine] stride=56B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_56_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_56_off32_summary.csv
+-- [L32768 refine] stride=64B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_64_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_64_off32_summary.csv
+-- [L32768 refine] stride=72B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_72_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_72_off32_summary.csv
+-- [L32768 refine] stride=80B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_80_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_80_off32_summary.csv
+-- [L32768 refine] stride=88B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_88_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_88_off32_summary.csv
+-- [L32768 refine] stride=40B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_40_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_40_off40_summary.csv
+-- [L32768 refine] stride=48B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_48_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_48_off40_summary.csv
+-- [L32768 refine] stride=56B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_56_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_56_off40_summary.csv
+-- [L32768 refine] stride=64B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_64_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_64_off40_summary.csv
+-- [L32768 refine] stride=72B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_72_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_72_off40_summary.csv
+-- [L32768 refine] stride=80B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_80_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_80_off40_summary.csv
+-- [L32768 refine] stride=88B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_88_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_88_off40_summary.csv
+-- [L32768 refine] stride=40B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_40_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_40_off48_summary.csv
+-- [L32768 refine] stride=48B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_48_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_48_off48_summary.csv
+-- [L32768 refine] stride=56B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_56_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_56_off48_summary.csv
+-- [L32768 refine] stride=64B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_64_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_64_off48_summary.csv
+-- [L32768 refine] stride=72B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_72_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_72_off48_summary.csv
+-- [L32768 refine] stride=80B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_80_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_80_off48_summary.csv
+-- [L32768 refine] stride=88B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_88_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_88_off48_summary.csv
+-- [L32768 refine] stride=40B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_40_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_40_off56_summary.csv
+-- [L32768 refine] stride=48B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_48_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_48_off56_summary.csv
+-- [L32768 refine] stride=56B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_56_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_56_off56_summary.csv
+-- [L32768 refine] stride=64B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_64_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_64_off56_summary.csv
+-- [L32768 refine] stride=72B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_72_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_72_off56_summary.csv
+-- [L32768 refine] stride=80B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_80_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_80_off56_summary.csv
+-- [L32768 refine] stride=88B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_32768/refine_88_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_32768/refine_88_off56_summary.csv
+-- [L32768 step 4] generating cross-alignment confirmation plots --
+Wrote data_processed/ookay/line_size/level_32768/plots/line_size_offset_elbow.pdf and .png
+Wrote data_processed/ookay/line_size/level_32768/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {40: 52000, 48: 51984, 56: 41272, 64: 36736, 72: 41256, 88: 52008}
+   offset=8B: {40: 52000, 48: 46320, 56: 51968, 64: 36736, 72: 41256, 80: 52000, 88: 52008}
+   offset=16B: {40: 58360, 48: 46320, 56: 51968, 64: 36736, 72: 41256, 80: 46320, 88: 52008}
+   offset=24B: {40: 73560, 48: 46320, 56: 41272, 64: 36736, 72: 41256, 80: 46320, 88: 52008}
+   offset=32B: {40: 52000, 48: 46320, 56: 92680, 64: 36736, 72: 82512, 80: 46320, 88: 52008}
+   offset=40B: {40: 52000, 48: 46320, 56: 58352, 64: 36736, 72: 41256, 80: 46320, 88: 52008}
+   offset=48B: {40: 52000, 48: 46320, 56: 41272, 64: 41280, 80: 46320, 88: 52008}
+   offset=56B: {40: 52000, 48: 46320, 56: 41272, 64: 36736, 72: 41256, 88: 52008}
+-- candidate stride 64B: elbow stable across the 8/8 offsets with a detectable elbow (36736-41280 bytes, 1.12x spread) -- consistent with a genuine, alignment-independent transition, but see the gap warning above before treating this as full 8/8 agreement
+
+############################################################
+## LEVEL boundary=262144B -- step 4, candidate=64B, window=[32768,1048576]
+############################################################
+== bracket=40,48,56,64,72,80,88B offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L262144 refine] stride=40B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_40_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_40_off0_summary.csv
+-- [L262144 refine] stride=48B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_48_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_48_off0_summary.csv
+-- [L262144 refine] stride=56B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_56_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_56_off0_summary.csv
+-- [L262144 refine] stride=64B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_64_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_64_off0_summary.csv
+-- [L262144 refine] stride=72B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_72_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_72_off0_summary.csv
+-- [L262144 refine] stride=80B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_80_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_80_off0_summary.csv
+-- [L262144 refine] stride=88B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_88_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_88_off0_summary.csv
+-- [L262144 refine] stride=40B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_40_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_40_off8_summary.csv
+-- [L262144 refine] stride=48B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_48_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_48_off8_summary.csv
+-- [L262144 refine] stride=56B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_56_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_56_off8_summary.csv
+-- [L262144 refine] stride=64B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_64_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_64_off8_summary.csv
+-- [L262144 refine] stride=72B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_72_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_72_off8_summary.csv
+-- [L262144 refine] stride=80B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_80_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_80_off8_summary.csv
+-- [L262144 refine] stride=88B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_88_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_88_off8_summary.csv
+-- [L262144 refine] stride=40B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_40_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_40_off16_summary.csv
+-- [L262144 refine] stride=48B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_48_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_48_off16_summary.csv
+-- [L262144 refine] stride=56B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_56_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_56_off16_summary.csv
+-- [L262144 refine] stride=64B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_64_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_64_off16_summary.csv
+-- [L262144 refine] stride=72B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_72_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_72_off16_summary.csv
+-- [L262144 refine] stride=80B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_80_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_80_off16_summary.csv
+-- [L262144 refine] stride=88B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_88_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_88_off16_summary.csv
+-- [L262144 refine] stride=40B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_40_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_40_off24_summary.csv
+-- [L262144 refine] stride=48B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_48_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_48_off24_summary.csv
+-- [L262144 refine] stride=56B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_56_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_56_off24_summary.csv
+-- [L262144 refine] stride=64B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_64_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_64_off24_summary.csv
+-- [L262144 refine] stride=72B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_72_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_72_off24_summary.csv
+-- [L262144 refine] stride=80B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_80_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_80_off24_summary.csv
+-- [L262144 refine] stride=88B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_88_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_88_off24_summary.csv
+-- [L262144 refine] stride=40B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_40_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_40_off32_summary.csv
+-- [L262144 refine] stride=48B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_48_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_48_off32_summary.csv
+-- [L262144 refine] stride=56B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_56_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_56_off32_summary.csv
+-- [L262144 refine] stride=64B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_64_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_64_off32_summary.csv
+-- [L262144 refine] stride=72B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_72_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_72_off32_summary.csv
+-- [L262144 refine] stride=80B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_80_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_80_off32_summary.csv
+-- [L262144 refine] stride=88B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_88_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_88_off32_summary.csv
+-- [L262144 refine] stride=40B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_40_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_40_off40_summary.csv
+-- [L262144 refine] stride=48B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_48_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_48_off40_summary.csv
+-- [L262144 refine] stride=56B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_56_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_56_off40_summary.csv
+-- [L262144 refine] stride=64B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_64_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_64_off40_summary.csv
+-- [L262144 refine] stride=72B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_72_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_72_off40_summary.csv
+-- [L262144 refine] stride=80B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_80_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_80_off40_summary.csv
+-- [L262144 refine] stride=88B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_88_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_88_off40_summary.csv
+-- [L262144 refine] stride=40B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_40_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_40_off48_summary.csv
+-- [L262144 refine] stride=48B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_48_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_48_off48_summary.csv
+-- [L262144 refine] stride=56B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_56_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_56_off48_summary.csv
+-- [L262144 refine] stride=64B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_64_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_64_off48_summary.csv
+-- [L262144 refine] stride=72B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_72_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_72_off48_summary.csv
+-- [L262144 refine] stride=80B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_80_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_80_off48_summary.csv
+-- [L262144 refine] stride=88B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_88_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_88_off48_summary.csv
+-- [L262144 refine] stride=40B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_40_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_40_off56_summary.csv
+-- [L262144 refine] stride=48B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_48_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_48_off56_summary.csv
+-- [L262144 refine] stride=56B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_56_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_56_off56_summary.csv
+-- [L262144 refine] stride=64B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_64_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_64_off56_summary.csv
+-- [L262144 refine] stride=72B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_72_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_72_off56_summary.csv
+-- [L262144 refine] stride=80B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_80_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_80_off56_summary.csv
+-- [L262144 refine] stride=88B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_262144/refine_88_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_262144/refine_88_off56_summary.csv
+-- [L262144 step 4] generating cross-alignment confirmation plots --
+Wrote data_processed/ookay/line_size/level_262144/plots/line_size_offset_elbow.pdf and .png
+Wrote data_processed/ookay/line_size/level_262144/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {40: 588480, 48: 588480, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=8B: {40: 588480, 48: 524256, 56: 524272, 64: 467072, 72: 524232, 80: 524240, 88: 524216}
+   offset=16B: {40: 588480, 48: 524256, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=24B: {40: 524280, 48: 524256, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=32B: {40: 588480, 48: 524256, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=40B: {40: 588480, 48: 524256, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=48B: {40: 588480, 48: 524256, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=56B: {40: 588480, 48: 524256, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+-- candidate stride 64B: elbow stable across the 8/8 offsets with a detectable elbow (467072-524288 bytes, 1.12x spread) -- consistent with a genuine, alignment-independent transition, but see the gap warning above before treating this as full 8/8 agreement
+
+############################################################
+## LEVEL boundary=8388608B -- step 4, candidate=64B, window=[1048576,33554432]
+############################################################
+== bracket=40,48,56,64,72,80,88B offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L8388608 refine] stride=40B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_40_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_40_off0_summary.csv
+-- [L8388608 refine] stride=48B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_48_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_48_off0_summary.csv
+-- [L8388608 refine] stride=56B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_56_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_56_off0_summary.csv
+-- [L8388608 refine] stride=64B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_64_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_64_off0_summary.csv
+-- [L8388608 refine] stride=72B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_72_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_72_off0_summary.csv
+-- [L8388608 refine] stride=80B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_80_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_80_off0_summary.csv
+-- [L8388608 refine] stride=88B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_88_off0_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_88_off0_summary.csv
+-- [L8388608 refine] stride=40B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_40_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_40_off8_summary.csv
+-- [L8388608 refine] stride=48B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_48_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_48_off8_summary.csv
+-- [L8388608 refine] stride=56B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_56_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_56_off8_summary.csv
+-- [L8388608 refine] stride=64B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_64_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_64_off8_summary.csv
+-- [L8388608 refine] stride=72B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_72_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_72_off8_summary.csv
+-- [L8388608 refine] stride=80B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_80_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_80_off8_summary.csv
+-- [L8388608 refine] stride=88B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_88_off8_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_88_off8_summary.csv
+-- [L8388608 refine] stride=40B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_40_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_40_off16_summary.csv
+-- [L8388608 refine] stride=48B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_48_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_48_off16_summary.csv
+-- [L8388608 refine] stride=56B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_56_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_56_off16_summary.csv
+-- [L8388608 refine] stride=64B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_64_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_64_off16_summary.csv
+-- [L8388608 refine] stride=72B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_72_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_72_off16_summary.csv
+-- [L8388608 refine] stride=80B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_80_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_80_off16_summary.csv
+-- [L8388608 refine] stride=88B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_88_off16_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_88_off16_summary.csv
+-- [L8388608 refine] stride=40B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_40_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_40_off24_summary.csv
+-- [L8388608 refine] stride=48B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_48_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_48_off24_summary.csv
+-- [L8388608 refine] stride=56B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_56_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_56_off24_summary.csv
+-- [L8388608 refine] stride=64B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_64_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_64_off24_summary.csv
+-- [L8388608 refine] stride=72B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_72_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_72_off24_summary.csv
+-- [L8388608 refine] stride=80B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_80_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_80_off24_summary.csv
+-- [L8388608 refine] stride=88B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_88_off24_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_88_off24_summary.csv
+-- [L8388608 refine] stride=40B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_40_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_40_off32_summary.csv
+-- [L8388608 refine] stride=48B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_48_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_48_off32_summary.csv
+-- [L8388608 refine] stride=56B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_56_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_56_off32_summary.csv
+-- [L8388608 refine] stride=64B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_64_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_64_off32_summary.csv
+-- [L8388608 refine] stride=72B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_72_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_72_off32_summary.csv
+-- [L8388608 refine] stride=80B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_80_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_80_off32_summary.csv
+-- [L8388608 refine] stride=88B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_88_off32_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_88_off32_summary.csv
+-- [L8388608 refine] stride=40B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_40_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_40_off40_summary.csv
+-- [L8388608 refine] stride=48B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_48_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_48_off40_summary.csv
+-- [L8388608 refine] stride=56B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_56_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_56_off40_summary.csv
+-- [L8388608 refine] stride=64B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_64_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_64_off40_summary.csv
+-- [L8388608 refine] stride=72B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_72_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_72_off40_summary.csv
+-- [L8388608 refine] stride=80B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_80_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_80_off40_summary.csv
+-- [L8388608 refine] stride=88B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_88_off40_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_88_off40_summary.csv
+-- [L8388608 refine] stride=40B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_40_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_40_off48_summary.csv
+-- [L8388608 refine] stride=48B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_48_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_48_off48_summary.csv
+-- [L8388608 refine] stride=56B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_56_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_56_off48_summary.csv
+-- [L8388608 refine] stride=64B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_64_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_64_off48_summary.csv
+-- [L8388608 refine] stride=72B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_72_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_72_off48_summary.csv
+-- [L8388608 refine] stride=80B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_80_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_80_off48_summary.csv
+-- [L8388608 refine] stride=88B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_88_off48_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_88_off48_summary.csv
+-- [L8388608 refine] stride=40B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_40_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_40_off56_summary.csv
+-- [L8388608 refine] stride=48B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_48_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_48_off56_summary.csv
+-- [L8388608 refine] stride=56B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_56_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_56_off56_summary.csv
+-- [L8388608 refine] stride=64B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_64_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_64_off56_summary.csv
+-- [L8388608 refine] stride=72B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_72_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_72_off56_summary.csv
+-- [L8388608 refine] stride=80B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_80_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_80_off56_summary.csv
+-- [L8388608 refine] stride=88B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/ookay/line_size/level_8388608/refine_88_off56_20260913T135449Z.csv
+Wrote 31 summary rows to data_processed/ookay/line_size/level_8388608/refine_88_off56_summary.csv
+-- [L8388608 step 4] generating cross-alignment confirmation plots --
+Wrote data_processed/ookay/line_size/level_8388608/plots/line_size_offset_elbow.pdf and .png
+Wrote data_processed/ookay/line_size/level_8388608/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {40: 18831760, 48: 16777200, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=8B: {40: 18831760, 48: 16777200, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=16B: {40: 18831760, 48: 16777200, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=24B: {40: 18831760, 48: 18831744, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=32B: {40: 18831760, 48: 16777200, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=40B: {40: 18831760, 48: 18831744, 56: 14946792, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=48B: {40: 18831760, 48: 16777200, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=56B: {40: 18831760, 48: 16777200, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+-- candidate stride 64B: elbow stable across the 8/8 offsets with a detectable elbow (14946752-14946752 bytes, 1.00x spread) -- consistent with a genuine, alignment-independent transition, but see the gap warning above before treating this as full 8/8 agreement
+
+== step4 all levels DONE (ts=20260913T135449Z) ==

@@ -38,7 +38,6 @@ import sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 
 from plot_line_size_family import detect_elbow, human_bytes, style_axes
 
@@ -74,7 +73,7 @@ def load(paths, pattern="random"):
 
 def plot_elbow_comparison(by_offset, machine, out_prefix, title_suffix, candidate_stride):
     offsets = sorted(by_offset.keys())
-    cmap = cm.get_cmap("plasma", max(len(offsets), 2))
+    cmap = matplotlib.colormaps["plasma"].resampled(max(len(offsets), 2))
 
     # Union of every stride tested at ANY offset -- used as a common x-axis so a
     # stride where THIS offset's curve never produced a detectable elbow shows
@@ -140,7 +139,7 @@ def plot_boxplots(by_offset, machine, out_prefix, title_suffix, candidate_stride
         else all_fps[len(all_fps) // 2]
 
     box_data, labels, colors = [], [], []
-    cmap = cm.get_cmap("plasma", max(len(offsets), 2))
+    cmap = matplotlib.colormaps["plasma"].resampled(max(len(offsets), 2))
     for i, offset in enumerate(offsets):
         row = by_offset[offset].get(candidate_stride, {}).get(target_fp)
         if row is None:
