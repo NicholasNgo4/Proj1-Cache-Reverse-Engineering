@@ -663,20 +663,235 @@ as "one continuous ramp, not discrete steps" regardless of this residual noise.
   {associativity_curve,associativity_boxplots}.{png,pdf}`.
 
 ### latency/
-- Source file(s):
-- Run command + arguments:
-- Dependent-chain batch size N used:
-- Regular vs. randomized control included?
+Both sub-experiments (`hit_latency`, `miss_latency`) run 2026-09-13, unattended,
+core/idleness-checked but with no user present to interpret anomalies live —
+see the LLC hit_latency investigation below for how one was handled. Footprint/
+target/evict byte values taken **only from `CAPACITY_RESULTS.md`** (L1 =
+49,152 B, L2 = 2,097,152 B, LLC ≈ 30 MiB = 31,457,280 B, using 1,048,576
+B/MiB, not 1,000,000) per that file's own directive — this supersedes the
+per-machine capacity prose earlier in this README/CLAUDE.md where the two
+disagree (note in particular: `CAPACITY_RESULTS.md` flags L2=2,097,152 B as
+sitting inside this machine's own continuous ~48 KiB–90 MiB capacity ramp,
+not a real boundary, and LLC's ~30 MiB as not cross-validated by
+associativity — both used anyway per this file's rule, caveats noted here).
+
+**Idle-core check (before both runs):** `who`/`ps` showed no student processes
+pinned to a specific core (top non-idle entries were background daemons —
+`CrashPlanService`, an Elastic Agent fleet-server, `mongod`, `locate` —
+none `taskset`-bound); two `/proc/stat` snapshots 3s apart showed every
+logical CPU (including core 4 and its SMT sibling, logical CPU 60) at 0%
+busy over that window. Ran both experiments on **core 4** (same physical
+core used for this machine's 2026-09-12 associativity run, so cross-run
+core comparisons stay apples-to-apples).
+
+**hit_latency (dependent chain + independent-load diagnostic control):**
+- Source file(s): `main_code/common/{main.c,latency.c,latency.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Run command + arguments: `./scripts/run_hit_latency_full.sh artemisia 4 L1:49152,L2:2097152,LLC:31457280,DRAM:536870912` (pinned via `taskset -c 4`; DRAM's 536,870,912 B footprint is not a `CAPACITY_RESULTS.md` value — a "deep in the DRAM plateau" pick well past LLC, same convention Sunbird's writeup used).
+- Per level: base run + 2 reproducibility repeats (seed = 12345, 12346, 12347), each at `--load-mode {dependent,independent}` × `--pattern {random,sequential}`, 1,000,000 timed accesses per combination (`--batch-size 1000`), 3 untimed warm-up passes.
+- Regular vs. randomized control included: yes, both `--pattern random` and `--pattern sequential` at every (level, load_mode).
+- Raw output: `data_raw/artemisia/latency/hit/<LEVEL>/hit_latency_{base,rep1,rep2}_{dependent,independent}_{random,sequential}_20260913T060959Z.csv.gz`; full transcript `data_raw/artemisia/latency/run_hit_latency_full_20260913T060959Z.log`.
+- Processing: `scripts/summarize_raw.py` → `data_processed/artemisia/latency/hit/<LEVEL>/*_summary_20260913T060959Z.csv` → `scripts/plot_hit_latency.py` → `data_processed/artemisia/latency/hit/<LEVEL>/plots/hit_latency_boxplots.{png,pdf}`.
+- **Result (dependent, random pattern, base-run median, n=1000 each): L1 ≈ 9.87 ticks, L2 ≈ 28.05 ticks, LLC ≈ 94.38 ticks, DRAM ≈ 305.58 ticks** — a clean, monotonically increasing 4-tier ladder, reproduced across both repeats at L2/LLC/DRAM (28.05/30.02/27.18; 94.38/92.91/89.04; 305.58/300.78/299.64 — all within a few percent). L1's own three medians (9.866 / 9.921 / 5.986) show one low-side outlier (rep2) consistent with this machine's already-documented per-invocation P-state/turbo bimodality at small buffer sizes (same phenomenon flagged for this machine's capacity and L1-associativity data elsewhere in this file) — not treated as a boundary problem, just noted.
+- At every level and both patterns, `--load-mode independent` measured faster than `dependent` **except one flagged case** (see below) — e.g. random pattern: L1 7.31 vs 8.59 (mean of medians), L2 8.49 vs 28.42, LLC 22.19 vs 92.11, DRAM 29.26 vs 302.00 — confirming the independent-load control correctly exposes memory-level parallelism at the random pattern, as required (must not be reported as the latency number itself, per `latency.h`).
+- **Flagged anomaly, investigated per the run instructions (do not treat as a boundary/data problem): LLC, sequential pattern, base pipeline run reported `independent >= dependent` (24.42 vs 15.52 ticks) — the one "UNEXPECTED" the script's own printout raised.** Per-run breakdown: dependent-sequential medians [14.628, 13.463, 18.472] (base/rep1/rep2) vs. independent-sequential [17.677, 16.552, 39.031] — rep2's independent run (39.031) is a clear outlier vs. its own base/rep1 (16.6–17.7), but even excluding it, independent (~17.1 avg of base+rep1) still ran slower than dependent (~14.0 avg of base+rep1) at this one (level, pattern) combination. Investigated with 3 fresh, unpipelined seeds (111/222/333) directly at the same footprint: dependent-sequential medians came back **32.08 / 15.76 / 32.63** — a ~2x spread across just 3 back-to-back invocations — while independent-sequential stayed comparatively tight (21.43 / 23.50 / 23.26). This points to the *dependent*-sequential number being the noisy one, not independent being genuinely slower: because the hardware prefetcher hides almost all of the dependent-sequential chase's real latency at this footprint (it's a fully predictable, in-order chain), its small absolute tick count is disproportionately sensitive to this machine's already-documented per-invocation P-state/turbo variability, occasionally landing in a "slow" invocation that reads higher than independent's comparatively stable, prefetcher-hidden-but-slightly-larger baseline (independent mode issues one extra sequential/prefetchable load per access, from the `order[]` index array alongside the target array — see `benchmark.c`'s `measure_independent_loads_batched()` — which may also add a small, consistent floor at this footprint scale). Not resolved further (Phase I: timing-only, no PMU/perf) — flagged here as investigated-and-attributed-to-known-machine-noise rather than blocked on. Does not affect the primary/reportable random-pattern signal, which was clean and monotonic at every level including LLC.
+- Bug found and fixed on Sunbird before this session (see `data_raw/sunbird/README.md`): independent-load addressing now correctly follows `--pattern` rather than always shuffling; this build already includes that fix.
+
+**miss_latency (forced eviction + single-shot reload):**
+- Source file(s): same list as hit_latency above.
+- Wall-time calibration (core 4, random pattern, 100 trials, before picking final `evict_bytes`): the LLC_to_DRAM candidate must exceed the ~30 MiB LLC capacity; a first candidate at ~2x LLC (62,914,560 B / 60 MiB) measured **~1.036 s/trial**, which would have put the full base+2reps × 2-pattern run at ~21 minutes — over the ~15-minute guideline, so shrunk to 39,321,600 B (37.5 MiB, ~1.25x LLC, still comfortably past the 31,457,280 B boundary): **~0.49 s/trial**, extrapolating to ~9.8 minutes for that transition. L2_to_LLC (evict=31,457,280 B) calibrated separately at ~0.138 s/trial (~2.8 min total); L1_to_L2 (evict=2,097,152 B) at ~0.00237 s/trial (negligible). Total estimated wall time ~12.7 min, run without further shrinking.
+- Run command + arguments: `./scripts/run_miss_latency_full.sh artemisia 4 L1_to_L2:49152:2097152,L2_to_LLC:2097152:31457280,LLC_to_DRAM:31457280:39321600` (core 4, same idleness check as hit_latency).
+- Per transition: base run + 2 reproducibility repeats (seed = 12345, 12346, 12347), each at `--pattern {random,sequential}`. 200 trials per (transition, pattern, run), `--batch-size 1` (satisfies `main.c`'s cross-experiment validation only, no effect on miss_latency's logic). 3 untimed warm-up passes before every trial (re-touch target, re-walk eviction set).
+- Raw output: `data_raw/artemisia/latency/miss/<TRANSITION>/miss_latency_{base,rep1,rep2}_{random,sequential}_20260913T061940Z.csv.gz`; full transcript `data_raw/artemisia/latency/run_miss_latency_full_20260913T061940Z.log`.
+- Processing: `scripts/summarize_raw.py` → `data_processed/artemisia/latency/miss/<TRANSITION>/*_summary_20260913T061940Z.csv` → `scripts/plot_miss_latency.py` → `data_processed/artemisia/latency/miss/<TRANSITION>/plots/miss_latency_boxplots.{png,pdf}` (annotated against the matching hit_latency dependent/random summaries above).
+- **Result (random pattern, base-run median, n=200 each): L1→L2 ≈ 188 ticks, L2→LLC ≈ 381 ticks, LLC→DRAM ≈ 582 ticks** — monotonically increasing, consistent with genuinely deeper eviction at each transition.
+- **Run-to-run spread >20% flagged by `plot_miss_latency.py` at 3 of 6 (transition, pattern) combinations** (not re-run, per instructions — noted instead): L1_to_L2 sequential — medians 92/134/135 (base/rep1/rep2), 35.7% spread; L2_to_LLC random — medians 381/608/522, 45.1% spread; LLC_to_DRAM sequential — medians 386/208/220, 65.6% spread. (L1_to_L2 random 17.8%, L2_to_LLC sequential 10.6%, and LLC_to_DRAM random 3.1% all stayed under the threshold.) Consistent with this project's established pattern of real shared-machine interference/P-state noise producing scattered single-run spikes on this and other machines (see the hit_latency LLC anomaly above and this file's own Anomaly 1/2 write-ups) rather than a flaw in the method — not independently traced to a specific process per repeat.
+- **Single-shot measurement overhead, measured directly per `latency.h`'s KNOWN LIMITATION and the run instructions:** `--target-bytes 49152 --evict-bytes 512 --pattern random --samples 2000 --batch-size 1` (a deliberately tiny, mostly-non-colliding eviction set — 8 cache lines, overwhelmingly unlikely to evict the target's own line) measured a **median of 70 ticks** (mean 69.97, n=2000), vs. hit_latency's batched L1 dependent-random median of ~9.87–9.92 ticks (base/rep1) at the identical 49,152 B footprint. **Gap ≈ 60 ticks of fixed single-shot overhead** (`timer_start()`/`timer_stop()` serializing-instruction cost and post-chase()-call pipeline state, unamortized — same mechanism documented on Sunbird, same order of magnitude: Sunbird measured ~64–85 ticks vs. its own ~10-tick batched L1 number). Every miss_latency number above should be read as "true reload latency + ~60 ticks of fixed overhead," not a clean number — the monotonic L1→L2→LLC→DRAM increase is still meaningful evidence of deeper eviction, but absolute values and any direct incremental-penalty subtraction against the hit_latency medians above are approximate until this overhead is subtracted, which the pipeline does not do automatically.
+- Not yet done: no per-transition-specific overhead measurement (only measured once, at the L1/49,152 B footprint); the 3 flagged spread anomalies weren't traced to a specific interfering process via `mpstat`/`ps` at the time they occurred (only the pre-run idleness check was done).
 
 ### inclusion_policy/
-- Source file(s):
-- Run command + arguments:
-- Eviction/reload construction:
+`--experiment inclusion_policy` run 2026-09-13, first data collection for this
+machine. Boundary values from `CAPACITY_RESULTS.md` only (L1 = 49,152 B,
+L2 = 2,097,152 B, LLC = 31,457,280 B ≈ 30 MiB) per project-wide direction —
+note L2's value is the same one this machine's own capacity/ and associativity/
+sections above already flag as NOT a confirmed boundary (a waypoint inside a
+single continuous ~48 KiB–90 MiB ramp); run anyway per that direction, caveats
+below.
+
+- Source file(s): `main_code/common/{main.c,inclusion_policy.c,inclusion_policy.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Build command: `make` (from repo root)
+- Idle-core check: `who`/`ps -eLo pid,psr,pcpu,user,comm` immediately before the run
+  found another student's (`hbsu`) own `cache_bench`-style process pinned to
+  logical CPUs 32/33/37 (100% each — the same cross-course-project contention
+  pattern already documented in this file's capacity/ Machine Identification
+  notes), not overlapping core 4. A single `/proc/stat` snapshot had
+  transiently shown core 4's SMT sibling (CPU 60) at 99% busy, but this
+  machine's own established practice (see Machine Identification above) is to
+  not trust one snapshot — a 3-window `/proc/stat` sample (6s windows) showed
+  core 4/60 at a maximum of 14.4%/11.2% across the three windows, and a final
+  5s check immediately before launch read 1.4%/2.2% with no competing
+  benchmark process on either logical CPU. Ran on **core 4**, the same
+  physical core used for this machine's hit_latency/miss_latency/associativity
+  runs (cross-run comparability).
+- Run command + arguments (`taskset -c 4`, timestamp `20260913T181516Z`, single
+  invocation covering all three pairings):
+  `./scripts/run_inclusion_policy_full.sh artemisia 4 L1_vs_L2:49152:2097152:L2_to_LLC,L2_vs_LLC:2097152:31457280:LLC_to_DRAM,L1_vs_LLC:49152:31457280:LLC_to_DRAM`
+- `ASSUMED_LINE_SIZE_BYTES` left at the script's default (64), not overridden:
+  this machine's own line_size/ section above confirms 64 B at L1 (two
+  methods, three reproductions, step-4 offset-invariance-confirmed) and reads
+  64 B as the best-supported (if less airtight) candidate at L2 too; no
+  line-size signal exists at all at the ~30 MiB LLC candidate (line_size/
+  section's extensive 11-attempt investigation), so 64 B — the only
+  measured value anywhere on this machine — is the only defensible choice
+  there as well, not a blind carry-over of Sunbird's confirmed value.
+- Eviction/reload construction: identical method to Sunbird's (see
+  `main_code/common/inclusion_policy.h`'s docstring and Sunbird's README for
+  the full argument) — one eviction node per page (`--evict-stride-bytes
+  4096`) at a fixed sub-page offset (`--evict-offset-bytes 2048`), target and
+  control freshly page-aligned at offset 0. Per trial: untimed re-touch of
+  target/control, untimed eviction walk, one timed dependent reload of each.
+  200 single-shot trials per (pairing, pattern, run), base + 2 reproducibility
+  repeats (seed 12345/12346/12347), both eviction-walk traversal patterns, 3
+  untimed warm-up passes. A dedicated 500-trial calibration run
+  (`--evict-bytes` = `--target-bytes`, nothing evicted) establishes each
+  pairing's own fresh "survived" baseline; the "invalidated" baseline is read
+  from this machine's own already-collected `miss_latency` summaries
+  (`L2_to_LLC` for `L1_vs_L2`; `LLC_to_DRAM` for both LLC-scale pairings).
+- **Same three load-bearing caveats as Sunbird's writeup, plus one specific to
+  this machine (caveat 4):**
+  1. Assumed line size (see `ASSUMED_LINE_SIZE_BYTES` note above) — 64 B is
+     this machine's only measured value, at any confidence level, so it's used
+     everywhere rather than an unverified constant, but L2's own 64 B reading
+     is visually-supported/not-offset-invariance-clean per line_size/'s own
+     wording, and LLC has no measurement backing it at all.
+  2. DTLB pressure at large eviction scale. `L2_vs_LLC` and `L1_vs_LLC` scale
+     to `31,457,280 * 4096/64 = 2,013,265,920` B (~1.875 GiB, 491,520 pages —
+     identical footprint to Sunbird's same-scale pairings, since both machines
+     share the same ~30 MiB LLC candidate). **`L1_vs_L2` is a bigger DTLB-risk
+     outlier here than on Sunbird**: because this machine's L2 candidate
+     (2,097,152 B) is 8x Sunbird's confirmed 262,144 B, the scaled eviction
+     footprint is `2,097,152 * 4096/64 = 134,217,728` B (128 MiB, 32,768
+     pages) — 8x Sunbird's L1_vs_L2 footprint (16 MiB/4,096 pages), pushing
+     this pairing much closer to the DTLB-risk regime Sunbird's writeup
+     reserved only for its LLC-scale pairings. See caveat 4 below for direct
+     evidence this actually shows up in the data.
+  3. Avoidance guarantee only holds for a target whose full index fits in one
+     page. Using this machine's associativity best-guess of 12-way (see the
+     Final Cache Table reasoning), L1's index+offset works out to exactly one
+     page here too (49,152 B / (12-way × 64 B line) = 64 sets = 6 index bits,
+     +6 offset bits = 12 bits = 4,096 B) — the same lucky fit Sunbird's L1 had,
+     so both `L1_vs_L2` and `L1_vs_LLC` get the structural guarantee. L2
+     (2,097,152 B) almost certainly does not fit in one page by the same
+     argument Sunbird's writeup made, so `L2_vs_LLC` is the least
+     structurally-trustworthy of the three here too, independent of the
+     capacity-value caveat above.
+  4. **New, machine-specific: `L1_vs_L2`'s CONTROL channel came back a clean
+     100% survived-like, but its TARGET channel landed mostly in the
+     ambiguous zone rather than cleanly on either reference line** (see
+     Results below) — consistent with caveat 2's prediction that this
+     pairing's oversized (for an L1_vs_L2 test) 32,768-page eviction walk is
+     doing more than cleanly evicting past L2; some genuine partial signal
+     may be present (the paired-comparison check, which is independent of the
+     classification thresholds, reads target-slower-than-control 100% of the
+     time), but it cannot be read as a clean inclusion/exclusion verdict the
+     way Sunbird's smaller-footprint `L1_vs_L2` result could.
+
+**Results, one per pairing (n=200 target/control trials each, base/random run
+unless noted):**
+
+- **L1_vs_L2** (survived-class 70.08 ticks, invalidated-class 381.00 ticks
+  from `L2_to_LLC`; classification boundary 163.40 ticks): target median 160
+  ticks (22.0% survived-like, 0.5% invalidated-like, **77.5% ambiguous**),
+  control median 110 ticks (100.0% survived-like). Paired check (target
+  slower than its own trial's control): 100.0%. **Verdict: UNCERTAIN** — per
+  caveat 4 above, read this as a muddied result from an oversized eviction
+  footprint rather than either a clean "survives L2 eviction" or "gets
+  invalidated by it" finding: the target sits well below the invalidated
+  reference (381) but also well above its own clean survived baseline (70)
+  and above the fully-clean control (110), and the 100% paired-slower result
+  shows *something* about the eviction walk is consistently affecting the
+  target beyond what it does to the control — just not enough to cross either
+  classification threshold. Needs a re-run with a corrected, non-inflated L2
+  eviction footprint (i.e., once this machine has an actual confirmed L2
+  capacity) before this pairing can support any inclusion/exclusion claim.
+- **L2_vs_LLC** (survived-class 88.77 ticks, invalidated-class 582.00 ticks
+  from `LLC_to_DRAM`; classification boundary 227.30 ticks): target median
+  476 ticks (**100.0% invalidated-like, 0% survived-like, 0% ambiguous**),
+  control median 234 ticks (0.5% survived-like, 92.0% ambiguous, 7.5%
+  invalidated-like). Paired check: 100.0%. **Verdict: INCLUSIVE** — this is a
+  far cleaner split than Sunbird's own L2_vs_LLC result (which came back
+  85% ambiguous there). Read with caveat 3's structural caution in mind (an
+  L2-sized target has no guaranteed avoidance of its own set during the
+  eviction walk, so this could in principle reflect ordinary incidental L2
+  eviction rather than a specific LLC inclusion policy) — but a 100%/0%/0%
+  split is a much stronger directional signal than an ambiguous one
+  regardless of that caveat, and the control channel's own small 7.5%
+  invalidated-like fraction is itself a useful, separate, and roughly
+  consistent (with `L1_vs_LLC`'s own control, see below) direct measurement
+  of how much of this pairing's signal DTLB pressure alone could plausibly
+  explain — small relative to the 100% seen on target.
+- **L1_vs_LLC** (survived-class 70.22 ticks, invalidated-class 582.00 ticks
+  from `LLC_to_DRAM`; classification boundary 202.15 ticks): target median
+  523 ticks (**100.0% invalidated-like, 0% survived-like, 0% ambiguous**),
+  control median 208 ticks (0% survived-like, 88.5% ambiguous, 11.5%
+  invalidated-like). Paired check: 98.0%. **Verdict: INCLUSIVE** — as clean a
+  split as `L2_vs_LLC`'s, and this pairing gets the full benefit of caveat
+  3's structural guarantee (L1's index does fit in one page here, see caveat
+  3 above), so it's the more structurally trustworthy of the two
+  LLC-involving pairings, mirroring which of Sunbird's two LLC pairings was
+  more trustworthy there. Control's invalidated-like fraction (11.5%) is
+  somewhat higher than `L2_vs_LLC`'s own control (7.5%) despite an identical
+  1.875 GiB eviction footprint — plausibly just run-to-run noise (see the
+  repeat-spread note below) rather than a systematic difference, since both
+  pairings share the exact same eviction construction at this scale.
+- **Repeat spread flagged by `plot_inclusion_policy.py` on both LLC-scale
+  pairings' TARGET channel, not seen on `L1_vs_L2` or on either pairing's
+  CONTROL channel at the same magnitude:** `L2_vs_LLC` target/random medians
+  476/394/282 (50.5% spread), target/sequential 458/356/277 (49.8% spread);
+  `L1_vs_LLC` target/random 523/502/292 (52.6% spread), target/sequential
+  442/292/290 (44.5% spread) — `L1_vs_LLC` control also showed elevated
+  spread (random 59.7%, sequential 20.4%). All three repeats' target medians
+  stayed decisively above the classification boundary in every case (no
+  repeat's median crossed back toward survived), so this spread doesn't
+  change either LLC-scale verdict, but it's consistent with this project's
+  established shared-machine-noise/session-level-drift signature already
+  documented elsewhere in this file (Anomaly 2, the hit_latency LLC anomaly,
+  3 of 6 flagged miss_latency combinations) rather than a new phenomenon —
+  not traced to a specific interfering process for this run specifically.
+- Raw output: `data_raw/artemisia/inclusion_policy/<pairing>/inclusion_policy_{calibration,base,rep1,rep2}_{random,sequential}_20260913T181516Z.csv.gz`;
+  full transcript `data_raw/artemisia/inclusion_policy/run_inclusion_policy_full_20260913T181516Z.log`.
+- Processing: `scripts/summarize_raw.py` → `data_processed/artemisia/inclusion_policy/<pairing>/*_summary_20260913T181516Z.csv` → `scripts/classify_inclusion_policy.py` → `scripts/plot_inclusion_policy.py` → `data_processed/artemisia/inclusion_policy/<pairing>/plots/inclusion_policy_boxplots.{png,pdf}`.
+
+**Best-guess synthesis:** the two LLC-involving pairings both come back
+decisively (100% invalidated-like on target, near-clean on control) —
+noticeably cleaner evidence than Sunbird's own LLC pairings produced, and in
+the same direction (inclusive). `L1_vs_L2` cannot support a verdict on this
+run, most likely because its scaled eviction footprint inherited this
+machine's oversized/unconfirmed L2 capacity candidate rather than reflecting
+a genuinely ambiguous L1-L2 relationship. **Best-guess overall reading:**
+this machine's LLC is confidently read as inclusive of both L1 and (with the
+caveat-3 structural caveat) L2's resident lines — consistent with an
+inclusive, cross-core snoop-filter-style LLC design, the same story Sunbird's
+data pointed toward but reached with much higher confidence here on the
+LLC-involving pairings specifically. L2's own relationship to L1 remains
+genuinely open on this machine and would need a re-run at a corrected L2
+eviction footprint (once a real L2 capacity is established) to resolve.
 
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename:
 - Events collected + exact semantics on this CPU:
 - Run command + arguments:
+
+## Final Inferred Cache Table (Artemisia, Phase I best guess, 2026-09-13)
+
+Lives at `data_processed/artemisia/FINAL_CACHE_TABLE.md`, alongside this
+machine's other processed benchmark outputs (same convention Sunbird's
+writeup established), next to `capacity/`, `line_size/`, `associativity/`,
+`latency/`, `inclusion_policy/`. The full per-pairing reasoning and caveats
+behind it live here, in this file's `associativity/` and `inclusion_policy/`
+sections above (the latter's "Best-guess synthesis" subsection) and the
+`capacity/`, `line_size/`, and `latency/` sections before that — the
+processed-directory copy is the consolidated table only, not a replacement
+for that narrative.
 
 ## Reservation Log (if applicable)
 - Reserved core/package (primary, core-20 redo): core 20 (logical CPUs 20, 76),

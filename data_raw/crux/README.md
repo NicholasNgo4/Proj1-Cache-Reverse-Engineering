@@ -123,20 +123,248 @@
   capacity.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+Two sub-experiments, `hit_latency` and `miss_latency`, run 2026-09-13. Footprint/
+target/evict byte values taken **only from `CAPACITY_RESULTS.md`** (L1 =
+32,768 B, L2 = 262,144 B, LLC ≈ 8 MiB = 8,388,608 B — same values already used
+for this machine's `associativity/` section above) — per project-wide direction,
+`CAPACITY_RESULTS.md` is the single source of truth for these boundaries; this
+file's own more-detailed capacity write-up above (steep, not-fully-resolved
+~4-64 MiB transition) is not used to pick these numbers.
+- Core: 2 (not the 7 used for capacity/associativity earlier — re-checked idle
+  for this session: `who`/`ps` showed no other students' processes pinned to any
+  core, and two independent `/proc/stat` idle-time-delta samples ~3s apart,
+  taken both immediately before the hit_latency run and again immediately after
+  the miss_latency run finished, showed every core 0-7 under ~1.5% busy both
+  times).
+- Build: `git pull && make clean && make` (fast-forwarded `cb1f482..e343732`);
+  `python3 -c "import matplotlib"` confirmed working (3.6.3) before running.
+
+**hit_latency (dependent chain + independent-load diagnostic control):**
+- Source file(s): `main_code/common/{main.c,latency.c,latency.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Run command + arguments: `./scripts/run_hit_latency_full.sh crux 2 L1:32768,L2:262144,LLC:8388608,DRAM:536870912` (DRAM's 512 MiB footprint is not a `CAPACITY_RESULTS.md` value — a "deep in the DRAM plateau" pick, same convention Sunbird's README used).
+- Per level: base run + 2 reproducibility repeats (seed 12345/12346/12347), each at `--load-mode {dependent,independent}` x `--pattern {random,sequential}`, 1,000,000 timed accesses per combination (batch size 1000), 3 untimed warm-up passes.
+- Raw output: `data_raw/crux/latency/hit/<LEVEL>/hit_latency_{base,rep1,rep2}_{dependent,independent}_{random,sequential}_20260913T061111Z.csv.gz`; processed summaries + plots under `data_processed/crux/latency/hit/<LEVEL>/{*.csv,plots/hit_latency_boxplots.{png,pdf}}`. Full transcript: `data_raw/crux/latency/run_hit_latency_full_20260913T061111Z.log`.
+- **Result (dependent, random pattern, base run median): a clean, monotonically increasing 4-tier ladder — L1 ≈ 7.42 ticks, L2 ≈ 14.30 ticks, LLC ≈ 43.23 ticks, DRAM ≈ 236.80 ticks.** Confirms the `CAPACITY_RESULTS.md` byte values correspond to 4 genuinely distinct levels on this machine.
+- **Independent-vs-dependent check: 6 of 8 (level, pattern) combinations show the expected `independent < dependent`; the random pattern is expected-faster at all 4 levels (L1: 5.42 vs 7.42; L2: 7.06 vs 14.30; LLC: 16.70/19.53(mean) vs 43.23; DRAM: 46.91 vs 236.80). Both LLC and DRAM flagged `[UNEXPECTED -- investigate]` for the SEQUENTIAL pattern** (LLC: 5.96 vs 5.63 aggregate; DRAM: 5.95 vs 5.81 aggregate) — investigated per the task's directive before trusting this data, root-caused from source rather than dismissed or re-run blind:
+  - Per-run breakdown (not just the aggregated median) confirms this is reproducible, not a one-off fluke: LLC sequential dependent medians are tight across all 3 runs (5.61/5.65/5.64), while independent's are consistently at or above them (5.70/5.81/6.38) — same direction every time.
+  - Root cause, found in `main_code/common/latency.c` (`run_hit_latency_experiment`) and `benchmark.c` (`measure_independent_loads_batched`): `struct node` is a single 8-byte pointer (`pointer_chase.h`), the same size as a `size_t`. For `LOAD_MODE_INDEPENDENT` + sequential pattern, `latency.c` allocates a full `order[num_nodes]` array (`order[i] = i`) the SAME SIZE in bytes as the `nodes[]` array itself — so independent mode's true touched working set at any footprint is ~2x `footprint_bytes`, not `footprint_bytes`. At L1/L2 (32,768/262,144 B -> 65,536/524,288 B combined) this doesn't matter enough to flip the result. At LLC (8,388,608 B -> ~16.78 MiB combined, roughly 2x this machine's own ~8 MiB LLC estimate) and at DRAM (already far past any cache), the extra `order[]` stream adds real memory traffic/cache pressure that dependent mode never pays (it only ever touches `nodes[]`). For the SEQUENTIAL pattern specifically, the dependent baseline is already riding the hardware next-line prefetcher down to near-L1 speed (~5.6-5.8 ticks, essentially flat from L1 all the way to a 512 MiB footprint — see below) — there is no latency headroom left for independent mode's MLP-exposure benefit to recover, so the extra `order[]` array cost shows up as a small but consistent net slowdown instead. This is a real, source-grounded methodology artifact of the independent-load control (auxiliary index array doubling its footprint), not corruption, not core contention, and not a reason to distrust the RANDOM-pattern numbers (which is where the real headline latency ladder above comes from).
+  - Notable side finding from the same data: sequential-pattern latency (both modes) stays within ~5.4-6.4 ticks across the ENTIRE 32,768 B-536,870,912 B range (L1 through DRAM) — the hardware prefetcher fully hides main-memory latency for sequential access even at 512 MiB, matching this machine's own capacity/ finding above ("Sequential-pattern latency stayed flat ... across the entire 1 KiB-1 GiB range").
+  - Not fixed / not re-run: this is a property of the independent-load control's construction (present since the bug-fix documented in `CLAUDE.md`/Sunbird's README), not something this session's task scope (hit_latency/miss_latency data collection only) authorized changing in `benchmark.c`/`latency.c`.
+
+**miss_latency (forced eviction + single-shot reload):**
+- Source file(s): same list as hit_latency above.
+- Eviction-set calibration (done before committing to full parameters, core 2, random pattern, target=8,388,608, 100 trials): 16,777,216 B (16 MiB, 2x the LLC estimate) evict_bytes measured ~94 ms/trial (9.411s/100) — extrapolated to 3 runs x 2 patterns x 200 trials = 1200 trials, ~2 min for the LLC_to_DRAM transition alone; well under the ~15 min budget, so no need to shrink further (did not try evict_bytes anywhere near the 512 MiB DRAM hit_latency footprint, per the task's explicit warning against jumping straight to a huge value).
+- Run command + arguments: `./scripts/run_miss_latency_full.sh crux 2 L1_to_L2:32768:262144,L2_to_LLC:262144:8388608,LLC_to_DRAM:8388608:16777216`.
+- Per transition: base run + 2 reproducibility repeats (seed 12345/12346/12347), each at `--pattern {random,sequential}`, 200 single-shot trials each (`--batch-size 1`, meaningless to this experiment but required by `main.c`'s cross-experiment validation), 3 untimed warm-up passes per trial.
+- Raw output: `data_raw/crux/latency/miss/<TRANSITION>/miss_latency_{base,rep1,rep2}_{random,sequential}_20260913T061432Z.csv.gz`; processed summaries + plots under `data_processed/crux/latency/miss/<TRANSITION>/{*.csv,plots/miss_latency_boxplots.{png,pdf}}` (annotated with the incremental-penalty delta against this machine's own hit_latency dependent/random summaries, found automatically by the script for all 3 transitions). Full transcript: `data_raw/crux/latency/run_miss_latency_full_20260913T061432Z.log`.
+- **Result (random pattern, base run median, n=200 each): L1→L2 ≈ 77 ticks, L2→LLC ≈ 260 ticks, LLC→DRAM ≈ 437 ticks** — monotonically increasing, consistent with genuinely deeper eviction at each transition (same qualitative ladder shape as Sunbird's 124/284/622).
+- **Run-to-run spread: L1→L2 is tight (base/rep1/rep2 medians 77/78/74 random, 79/78/78 sequential, <7% spread, no warning) but L2→LLC and LLC→DRAM both triggered `plot_miss_latency.py`'s >20%-spread warning, per the task's instruction NOT to re-run until it disappears — reported as-is:**
+  - L2→LLC random: medians [260.0, 105.5, 270.5], spread 165.0 ticks = 77.8%.
+  - LLC→DRAM random: medians [437.0, 512.0, 407.0], spread 105.0 ticks = 23.2%.
+  - LLC→DRAM sequential: medians [260.5, 396.5, 301.5], spread 136.0 ticks = 42.6%.
+  - Not traced to a specific interfering process this session (machine was re-confirmed idle via `who`/`/proc/stat` immediately before hit_latency and immediately after miss_latency, but not polled mid-run) — consistent with the same transient-interference signature documented throughout this team's capacity/associativity work on shared machines (scattered single-run spikes, not a systematic bias), but not independently confirmed as such here.
+- **Single-shot measurement overhead, measured per this machine (task step 7):** `--target-bytes 32768 --evict-bytes 512 --pattern random --samples 2000` (an 8-line eviction set overwhelmingly unlikely to evict the target) gives a median of **50 ticks**, versus this machine's own batched L1 hit_latency dependent/random median of **7.42 ticks** at the identical 32,768 B footprint — a ~42-tick fixed single-shot overhead (serializing timer cost + post-call pipeline state, unamortized across a batch, per `latency.h`'s documented KNOWN LIMITATION). Every miss_latency number above is "true reload latency + ~42 ticks of fixed overhead," not a clean number; the 77→260→437 increasing trend is still meaningful evidence of deeper eviction, but do not subtract/compare these directly against hit_latency plateaus without accounting for this overhead.
+- Not yet done: overhead was only measured once at the L1 footprint (not per-transition); the L2→LLC/LLC→DRAM spread was not traced to a specific process.
 
 ### inclusion_policy/
-- Source file(s): 
-- Run command + arguments: 
-- Eviction/reload construction: 
+Boundary values from `CAPACITY_RESULTS.md` only (L1 = 32,768 B, L2 = 262,144 B,
+LLC ≈ 8 MiB = 8,388,608 B — same values already used for `associativity/` and
+`latency/` above). **All three adjacent-and-skip-level pairings implied by
+CAPACITY_RESULTS.md's three levels were run** (L1 vs L2, L2 vs LLC, and L1 vs
+LLC directly) — each has its own confidence level, see per-pairing Results
+below; do not read one pairing as covering the others.
+
+- Source file(s): `main_code/common/{main.c,inclusion_policy.c,inclusion_policy.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Build command: `make` (from repo root)
+- Core: 3 (same as `line_size/` above, re-verified idle immediately before this
+  run: `who` showed only `dchen27`'s and `djgreen`'s idle login sessions, no
+  pinned processes on any core; two `mpstat -P ALL 1 1` samples ~3s apart both
+  showed every core 0-7 at ≥93% idle, core 3 specifically at 100%/99% idle in
+  the two samples).
+- **Line size caveat already resolved before this ran, unlike Sunbird's initial
+  pass.** `run_inclusion_policy_full.sh`'s `ASSUMED_LINE_SIZE_BYTES` defaults to
+  64 — this machine's own `line_size/` section above independently confirmed
+  **64 B at all three levels** (L1/L2/L3, 2026-09-12/13, alignment-independent
+  step-4 elbow, L2 reproduced 5 times) before this experiment was ever run, so
+  no override was needed and the eviction-footprint scaling below was correct
+  from the start (no separate "resolved after the fact" note required, unlike
+  Sunbird).
+- **Calibration before committing to a large `--evict-bytes` (per the task's
+  explicit warning that this timing is non-linear in eviction-set size on
+  Sunbird — checked directly on this machine rather than assumed to transfer):**
+  ran the largest scaled footprint needed (536,870,912 B / 512 MiB, for the
+  L2_vs_LLC and L1_vs_LLC pairings) directly via `cache_bench` first: 20 trials
+  took 0.398s wall, 200 trials (the pipeline's real per-run trial count) took
+  2.327s wall (~11.6 ms/trial). This is far cheaper than Sunbird's reported
+  74-604 ms/trial range for the same general kind of eviction-scale timing —
+  plausible given `inclusion_policy`'s eviction buffer touches only one line
+  per page (sparse walk, one page-table entry stressed per 4096 B) rather than
+  densely filling the footprint the way `miss_latency`'s eviction buffer does.
+  At ~11.6 ms/trial, the full 6-runs-of-200-trials-per-pairing pipeline
+  (base+2 repeats × 2 patterns) completes in well under a minute per pairing —
+  no `tmux` needed on this machine for this experiment.
+- Run command + arguments (all three pairings in one invocation):
+  `./scripts/run_inclusion_policy_full.sh crux 3 L1_vs_L2:32768:262144:L2_to_LLC,L2_vs_LLC:262144:8388608:LLC_to_DRAM,L1_vs_LLC:32768:8388608:LLC_to_DRAM`
+  (timestamp `20260913T182037Z`). The 4th field on each spec names the
+  already-collected `miss_latency` transition (see `latency/` section above)
+  that pairing sources its "invalidated" calibration class from: L1_vs_L2
+  evicts at L2 scale → "invalidated" = the `L2_to_LLC` transition; L2_vs_LLC
+  and L1_vs_LLC both evict at LLC scale → "invalidated" = `LLC_to_DRAM`.
+- Eviction/reload construction (see `main_code/common/inclusion_policy.h`'s
+  module doc comment for the full argument): target (the UPPER level's
+  capacity) and an untouched control buffer are both freshly page-aligned
+  (offset 0). The eviction buffer places one node every 4096 B
+  (`--evict-stride-bytes`, one page), all at a FIXED sub-page offset of 2048 B
+  (`--evict-offset-bytes`) — different from target/control's own offset 0 — so
+  every eviction node varies the higher-order (lower-level-relevant) address
+  bits while structurally never landing on target's own line, PROVIDED the
+  target's entire index fits within one page. `--evict-bytes` is
+  `lower_level_bytes * evict_stride_bytes / ASSUMED_LINE_SIZE_BYTES` (64):
+  16,777,216 B (16 MiB) for L1_vs_L2; 536,870,912 B (512 MiB) for both
+  L2_vs_LLC and L1_vs_LLC (LLC is the lower level in both). Per trial: untimed
+  re-touch of target and control, untimed eviction walk, then one timed
+  dependent reload of each — exactly like `miss_latency`'s mechanism, but
+  potentially skipping a level.
+- **Same three load-bearing caveats as documented on Sunbird (`inclusion_policy.h`'s
+  KNOWN LIMITATION paragraphs) apply here too, unresolved:**
+  1. Line size scaling — resolved favorably for this machine (see above), not
+     an open caveat.
+  2. **DTLB pressure at large eviction scale** (L2_vs_LLC and L1_vs_LLC, both
+     ~131,072-page/512 MiB eviction footprints; L1_vs_L2's ~4,096-page/16 MiB
+     footprint is far smaller and less suspect). The `control` channel is the
+     live per-run check for this — see Results below; both large-footprint
+     pairings' control channels show elevated run-to-run spread (24-40%,
+     flagged by `plot_inclusion_policy.py`) that L1_vs_L2's control does not,
+     consistent with this caveat being a real factor here, not just
+     theoretical.
+  3. **Avoidance guarantee only holds for a target whose full index fits in
+     one page** (affects L2_vs_LLC specifically — L2's 262,144 B target almost
+     certainly needs more index bits than fit in the remaining 12 bits after
+     line-offset, the same math-backed argument Sunbird's README makes with
+     its own confirmed 64 B line size: 64 B lines (6 offset bits) + L1's own
+     8-way/64-set index (6 bits) = exactly 12 bits/one page, which is *why*
+     the method works cleanly for an L1 target and is not expected to for an
+     L2 target). Treat L2_vs_LLC's result with more skepticism than L1_vs_L2's
+     for this structural reason, independent of caveat 2.
+- Per trial: 200 single-shot trials (`--samples 200 --batch-size 1`), base + 2
+  reproducibility repeats (seed 12345/12346/12347), both eviction-walk
+  traversal patterns, 3 untimed warm-up passes. A separate calibration run
+  (500 trials, `--evict-bytes` = `--target-bytes`, i.e. nothing evicted)
+  establishes each pairing's own single-shot "survived" baseline fresh — this
+  doubles as this machine's single-shot-overhead sanity check for
+  `inclusion_policy` specifically (see below), the same kind of trivially-small
+  eviction-set control the task asked to verify.
+- Raw output filename(s): `data_raw/crux/inclusion_policy/<pairing>/inclusion_policy_{calibration,base,rep1,rep2}_{random,sequential}_20260913T182037Z.csv.gz`
+- Processing: `scripts/summarize_raw.py` per raw file → `data_processed/crux/inclusion_policy/<pairing>/*_summary_20260913T182037Z.csv` → `scripts/classify_inclusion_policy.py` (reads the raw base/random data directly) → `scripts/plot_inclusion_policy.py`. `matplotlib` confirmed working (3.6.3) — no plotting failures this run.
+
+**Single-shot overhead check, this experiment specifically:** the "survived"
+calibration (trivially-small `--evict-bytes`, nothing evicted) reads 56.28 and
+57.98 ticks at the L1/L2 target footprints and 42.31 ticks at the smaller
+L1-only footprint in the L1_vs_LLC pairing — all close to, and consistent
+with, the ~42-tick single-shot fixed overhead already isolated in this
+machine's `latency/` `miss_latency` section above (measured there via an
+identical trivially-small-eviction-set control at the L1 footprint). Every
+number below is "true reload behavior + this fixed overhead," not a clean
+latency number — the overhead mostly washes out of the classification itself
+since both calibration classes (survived/invalidated) carry the same additive
+term, but it means the *absolute* tick values quoted below should not be
+compared directly against `hit_latency`'s batched numbers.
+
+**Results, one per pairing (n=200 target/control trials each, base/random run
+unless noted):**
+
+- **L1_vs_L2** (survived-class 56.28 ticks, invalidated-class 260.00 ticks
+  from `L2_to_LLC`, boundary=120.97 ticks): target median 87.0 ticks (97.5%
+  survived-like, 0.5% invalidated-like), control median 65.0 ticks (99.5%
+  survived-like). Paired check (target slower than its own control): 100.0%.
+  **Verdict: EXCLUSIVE / NON-INCLUSIVE** — the cleanest, most confident result
+  of the three (smallest eviction footprint, L1-sized target, least exposed to
+  caveats 2-3). One plot-script note: `(target, random)` had 3 overlapping
+  summary rows (medians 87/71/70, 22.4% spread) — averaged per
+  `plot_capacity.py`'s established convention, not re-run to chase away (well
+  within the same noisy-shared-machine pattern documented throughout this
+  team's work).
+- **L2_vs_LLC** (survived-class 57.98 ticks, invalidated-class 437.00 ticks
+  from `LLC_to_DRAM`, boundary=159.18 ticks): target median 131.0 ticks (90.5%
+  survived-like, 2.5% invalidated-like, 7.0% ambiguous), control median 106.0
+  ticks (100.0% survived-like). Paired check: 98.0%. **Verdict: EXCLUSIVE /
+  NON-INCLUSIVE**, but read with more caution than L1_vs_L2's per caveat 3
+  above (an L2 target does not get the same structural "avoids the upper
+  level" guarantee L1 does) — **best guess, directionally: leans
+  non-inclusive**, since 90.5% clears the classifier's threshold cleanly and
+  the control channel itself stayed clean (100% survived-like, no sign the
+  512 MiB eviction footprint's DTLB pressure corrupted the *control* reading),
+  which argues caveat 2 is a smaller factor here than caveat 3 is. This is a
+  more confident directional result than Sunbird's own L2_vs_LLC pairing
+  (which came back UNCERTAIN, 85% ambiguous) — worth noting as a genuine
+  cross-machine difference, not assumed to generalize. Two plot-script notes:
+  `(target, sequential)` 3 overlapping rows (medians 111/145/113, 27.6%
+  spread), `(control, sequential)` 3 overlapping rows (medians 101/82/123,
+  40.2% spread) — the control spread here is the first sign of caveat 2 (DTLB
+  pressure) showing up at all on this machine, though it didn't flip the
+  overall verdict.
+- **L1_vs_LLC** (survived-class 42.31 ticks, invalidated-class 437.00 ticks
+  from `LLC_to_DRAM`, boundary=135.97 ticks): target median 132.0 ticks (0.0%
+  survived-like, 2.0% invalidated-like, **98.0% ambiguous**), control median
+  103.0 ticks (98.0% survived-like, 2.0% invalidated-like). Paired check:
+  99.5%. **Verdict: UNCERTAIN** by the classifier, and the least resolved of
+  the three pairings on this machine — nearly every trial falls inside the
+  classification fence rather than confidently on either side. **Best guess,
+  directionally: leans NON-INCLUSIVE (barely)** — target's raw median (132.0)
+  sits just below the geometric-mean boundary (135.97), i.e. on the
+  "survived" side of the midpoint even though not by enough margin for any
+  individual trial to clear the classifier's confidence band, and the target
+  still reads reliably slower than its own control in 99.5% of trials (so
+  *something* about the LLC-scale walk is costing extra latency — this is not
+  simply noise). Read this as weak evidence, not a firm call: the dominant
+  98% ambiguous rate is consistent with caveat 2 (512 MiB / 131,072-page
+  eviction footprint, same scale as L2_vs_LLC) smearing the timing distribution
+  into the middle band rather than cleanly toward either calibration class.
+  **Notably, this pairing's directional lean (non-inclusive) is the OPPOSITE
+  of Sunbird's own L1_vs_LLC skip-level result (leaning inclusive, 75%
+  invalidated-like)** — a genuine cross-machine disagreement on the one
+  pairing both machines could measure with some signal, not just a difference
+  in confidence. Two plot-script notes: `(control, random)` 3 overlapping rows
+  (medians 103/83/107, 24.6% spread), `(control, sequential)` 3 overlapping
+  rows (medians 75.5/83/97, 25.2% spread) — both control-channel spreads,
+  reinforcing that caveat 2's DTLB pressure is a real, measurable factor for
+  both LLC-scale pairings on this machine (control spread was clean/tight for
+  L1_vs_L2's 16 MiB footprint by comparison).
+- Not yet done, any pairing: multiple different target addresses/sets
+  (PROJECT 1.pdf asks to "repeat with controls and multiple target
+  sets/addresses" — every run above tested exactly one target buffer per
+  repeat, just re-seeded); the huge-pages TLB mitigation for caveat 2, noted
+  as future work on Sunbird and not attempted here either.
+
+**Best-guess synthesis:** L1 is confidently non-inclusive w.r.t. L2 (97.5%
+survived, cleanest result). L2 vs LLC leans non-inclusive with moderate
+confidence (90.5%, though caveat 3 limits how much weight this deserves for
+an L2-sized target). The skip-level L1 vs LLC test is the weakest of the
+three but leans non-inclusive too, for what little the mostly-ambiguous
+classification is worth. **Put together, this machine's best-supported single
+story is a non-inclusive hierarchy at every level tested** — unlike Sunbird's
+own mixed reading (non-inclusive L2, leaning-inclusive LLC-as-snoop-filter for
+L1), Crux shows no positive evidence anywhere of an inclusive relationship;
+the one pairing that could in principle show it (L1_vs_LLC) leans the same
+direction as the other two, just far more weakly. This is this team's best
+reasoned inference from the timing data collected here, not a certainty —
+both LLC-involving pairings are undermined by the same DTLB-pressure caveat
+(2) at this eviction scale, and L2_vs_LLC additionally by caveat 3.
 
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename: 
 - Events collected + exact semantics on this CPU: 
 - Run command + arguments: 
+
+## Final Inferred Cache Table (Crux, Phase I best guess, 2026-09-13)
+
+Lives at `data_processed/crux/FINAL_CACHE_TABLE.md`, alongside this machine's
+other processed benchmark outputs (`capacity/`, `line_size/`, `associativity/`,
+`latency/`, `inclusion_policy/`), matching Sunbird's convention. The full
+per-pairing reasoning and caveats behind it remain here, in this file's
+`associativity/` and `inclusion_policy/` sections above — the processed-
+directory copy is the consolidated table only, not a replacement for that
+narrative.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: 
