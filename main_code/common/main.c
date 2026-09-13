@@ -5,6 +5,7 @@
 
 #include "associativity.h"
 #include "capacity.h"
+#include "inclusion_policy.h"
 #include "latency.h"
 #include "line_size.h"
 
@@ -65,6 +66,12 @@
                                                         while staying inside the next level's,
                                                         see latency.h's docstring */
 
+#define DEFAULT_EVICT_STRIDE_BYTES 4096ULL  /* exactly one page per eviction node -- see
+                                                inclusion_policy.h's module doc comment */
+#define DEFAULT_EVICT_OFFSET_BYTES 2048ULL  /* half a page, far past any realistic real
+                                                line size, deliberately different from
+                                                target/control's own offset (always 0) */
+
 static void usage(const char *prog)
 {
     fprintf(stderr,
@@ -84,8 +91,13 @@ static void usage(const char *prog)
         "                    working-set footprint, dependent vs. independent load mode\n"
         "  miss_latency      force a target line out of a source cache level via a\n"
         "                    sized eviction-set walk, then time exactly one dependent\n"
-        "                    reload (the miss/next-level-latency measurement; inclusion:\n"
-        "                    not yet implemented)\n"
+        "                    reload (the miss/next-level-latency measurement)\n"
+        "  inclusion_policy  evict a target line from a bigger lower-level cache while\n"
+        "                    structurally avoiding the target's own upper-level set,\n"
+        "                    then reload target AND an untouched control line -- the\n"
+        "                    inclusion/exclusion measurement; classification against\n"
+        "                    calibrated hit-latency classes happens downstream, see\n"
+        "                    scripts/classify_inclusion_policy.py\n"
         "\n"
         "Common options:\n"
         "  --samples N            total timed accesses per point (default %llu)\n"
@@ -158,6 +170,15 @@ static void usage(const char *prog)
         "                         next level's (default %llu); --pattern controls this\n"
         "                         walk's traversal order only\n"
         "\n"
+        "inclusion_policy options (--target-bytes/--evict-bytes shared with miss_latency\n"
+        "above, but here target-bytes is the UPPER level and evict-bytes must exceed a\n"
+        "bigger LOWER level, deliberately skipping the level(s) between them):\n"
+        "  --evict-stride-bytes N byte stride between eviction nodes -- MUST be a\n"
+        "                         multiple of 4096 (default %llu); see\n"
+        "                         inclusion_policy.h for why\n"
+        "  --evict-offset-bytes N fixed sub-page byte offset shared by every eviction\n"
+        "                         node (default %llu); must be < --evict-stride-bytes\n"
+        "\n"
         "  -h, --help             show this help\n",
         prog,
         (unsigned long long)DEFAULT_SAMPLES,
@@ -180,7 +201,9 @@ static void usage(const char *prog)
         (unsigned long long)DEFAULT_WAY_STEP,
         (unsigned long long)DEFAULT_FOOTPRINT_BYTES,
         (unsigned long long)DEFAULT_TARGET_BYTES,
-        (unsigned long long)DEFAULT_EVICT_BYTES);
+        (unsigned long long)DEFAULT_EVICT_BYTES,
+        (unsigned long long)DEFAULT_EVICT_STRIDE_BYTES,
+        (unsigned long long)DEFAULT_EVICT_OFFSET_BYTES);
 }
 
 static int parse_u64(const char *s, uint64_t *out)
@@ -261,6 +284,16 @@ int main(int argc, char **argv)
         .seed = DEFAULT_SEED,
         .pattern = ACCESS_PATTERN_RANDOM,
     };
+    struct inclusion_policy_config incl_cfg = {
+        .samples = DEFAULT_SAMPLES,
+        .target_bytes = DEFAULT_TARGET_BYTES,
+        .evict_bytes = DEFAULT_EVICT_BYTES,
+        .evict_stride_bytes = DEFAULT_EVICT_STRIDE_BYTES,
+        .evict_offset_bytes = DEFAULT_EVICT_OFFSET_BYTES,
+        .warmup_passes = DEFAULT_WARMUP_PASSES,
+        .seed = DEFAULT_SEED,
+        .pattern = ACCESS_PATTERN_RANDOM,
+    };
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--experiment") == 0 && i + 1 < argc) {
@@ -272,6 +305,7 @@ int main(int argc, char **argv)
             assoc_cfg.samples = cap_cfg.samples;
             hl_cfg.samples = cap_cfg.samples;
             ml_cfg.samples = cap_cfg.samples;
+            incl_cfg.samples = cap_cfg.samples;
         } else if (strcmp(argv[i], "--batch-size") == 0 && i + 1 < argc) {
             if (parse_u64(argv[++i], &cap_cfg.batch_size) != 0) { usage(argv[0]); return 1; }
             ls_cfg.batch_size = cap_cfg.batch_size;
@@ -326,8 +360,14 @@ int main(int argc, char **argv)
             }
         } else if (strcmp(argv[i], "--target-bytes") == 0 && i + 1 < argc) {
             if (parse_u64(argv[++i], &ml_cfg.target_bytes) != 0) { usage(argv[0]); return 1; }
+            incl_cfg.target_bytes = ml_cfg.target_bytes;
         } else if (strcmp(argv[i], "--evict-bytes") == 0 && i + 1 < argc) {
             if (parse_u64(argv[++i], &ml_cfg.evict_bytes) != 0) { usage(argv[0]); return 1; }
+            incl_cfg.evict_bytes = ml_cfg.evict_bytes;
+        } else if (strcmp(argv[i], "--evict-stride-bytes") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &incl_cfg.evict_stride_bytes) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--evict-offset-bytes") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &incl_cfg.evict_offset_bytes) != 0) { usage(argv[0]); return 1; }
         } else if (strcmp(argv[i], "--warmup-passes") == 0 && i + 1 < argc) {
             cap_cfg.warmup_passes = atoi(argv[++i]);
             ls_cfg.warmup_passes = cap_cfg.warmup_passes;
@@ -335,6 +375,7 @@ int main(int argc, char **argv)
             assoc_cfg.warmup_passes = cap_cfg.warmup_passes;
             hl_cfg.warmup_passes = cap_cfg.warmup_passes;
             ml_cfg.warmup_passes = cap_cfg.warmup_passes;
+            incl_cfg.warmup_passes = cap_cfg.warmup_passes;
         } else if (strcmp(argv[i], "--seed") == 0 && i + 1 < argc) {
             uint64_t s;
             if (parse_u64(argv[++i], &s) != 0) { usage(argv[0]); return 1; }
@@ -344,6 +385,7 @@ int main(int argc, char **argv)
             assoc_cfg.seed = cap_cfg.seed;
             hl_cfg.seed = cap_cfg.seed;
             ml_cfg.seed = cap_cfg.seed;
+            incl_cfg.seed = cap_cfg.seed;
         } else if (strcmp(argv[i], "--pattern") == 0 && i + 1 < argc) {
             const char *p = argv[++i];
             if (strcmp(p, "random") == 0) {
@@ -360,6 +402,7 @@ int main(int argc, char **argv)
             assoc_cfg.pattern = cap_cfg.pattern;
             hl_cfg.pattern = cap_cfg.pattern;
             ml_cfg.pattern = cap_cfg.pattern;
+            incl_cfg.pattern = cap_cfg.pattern;
         } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             usage(argv[0]);
             return 0;
@@ -418,6 +461,17 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    if (incl_cfg.samples < 1 || incl_cfg.warmup_passes < 0 ||
+        incl_cfg.target_bytes < 1 || incl_cfg.evict_bytes < 1 ||
+        incl_cfg.evict_stride_bytes < 4096 ||
+        (incl_cfg.evict_stride_bytes % 4096) != 0 ||
+        incl_cfg.evict_offset_bytes >= incl_cfg.evict_stride_bytes) {
+        fprintf(stderr, "Invalid inclusion_policy parameter values "
+                        "(--evict-stride-bytes must be a multiple of 4096, "
+                        "--evict-offset-bytes must be < --evict-stride-bytes)\n");
+        return 1;
+    }
+
     if (strcmp(experiment, "capacity") == 0) {
         return run_capacity_experiment(&cap_cfg);
     }
@@ -436,11 +490,14 @@ int main(int argc, char **argv)
     if (strcmp(experiment, "miss_latency") == 0) {
         return run_miss_latency_experiment(&ml_cfg);
     }
+    if (strcmp(experiment, "inclusion_policy") == 0) {
+        return run_inclusion_policy_experiment(&incl_cfg);
+    }
 
     fprintf(stderr,
             "Unsupported --experiment '%s' (only 'capacity', 'line_size', "
-            "'line_size_family', 'associativity', 'hit_latency', and "
-            "'miss_latency' are implemented so far)\n",
+            "'line_size_family', 'associativity', 'hit_latency', "
+            "'miss_latency', and 'inclusion_policy' are implemented so far)\n",
             experiment);
     return 1;
 }
