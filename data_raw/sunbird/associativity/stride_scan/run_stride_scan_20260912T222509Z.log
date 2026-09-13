@@ -1,0 +1,44 @@
+== run_associativity_stride_scan (EXPLORATORY, not a final result): machine=sunbird core=6 ==
+== capacity_bytes=32768 A_guess candidates=1,2,4,8 ==
+== timestamp=20260912T222509Z ==
+== samples=200000 (reduced), max_ways=24 (reduced), random pattern only, no repeats ==
+
+-- A_guess=1 --
+   stride=32768 bytes (capacity/1), arena spans ~200 pages
+   wrote 4602 lines -> data_raw/sunbird/associativity/stride_scan/20260912T222509Z/stride_scan_a1_20260912T222509Z.csv
+Wrote 23 summary rows to data_processed/sunbird/associativity/stride_scan/20260912T222509Z/a1_summary.csv
+   detected knee: 8
+
+-- A_guess=2 --
+   stride=16384 bytes (capacity/2), arena spans ~100 pages
+   wrote 4602 lines -> data_raw/sunbird/associativity/stride_scan/20260912T222509Z/stride_scan_a2_20260912T222509Z.csv
+Wrote 23 summary rows to data_processed/sunbird/associativity/stride_scan/20260912T222509Z/a2_summary.csv
+   detected knee: 6
+
+-- A_guess=4 --
+   stride=8192 bytes (capacity/4), arena spans ~50 pages
+   wrote 4602 lines -> data_raw/sunbird/associativity/stride_scan/20260912T222509Z/stride_scan_a4_20260912T222509Z.csv
+Wrote 23 summary rows to data_processed/sunbird/associativity/stride_scan/20260912T222509Z/a4_summary.csv
+   detected knee: 9
+
+-- A_guess=8 --
+   stride=4096 bytes (capacity/8), arena spans ~25 pages
+   wrote 4602 lines -> data_raw/sunbird/associativity/stride_scan/20260912T222509Z/stride_scan_a8_20260912T222509Z.csv
+Wrote 23 summary rows to data_processed/sunbird/associativity/stride_scan/20260912T222509Z/a8_summary.csv
+   detected knee: 2
+
+== comparison table (data_processed/sunbird/associativity/stride_scan/20260912T222509Z/comparison.csv) ==
+a_guess  stride_bytes  pages_in_arena  detected_ways  summary_csv
+1        32768         200             8              data_processed/sunbird/associativity/stride_scan/20260912T222509Z/a1_summary.csv
+2        16384         100             6              data_processed/sunbird/associativity/stride_scan/20260912T222509Z/a2_summary.csv
+4        8192          50              9              data_processed/sunbird/associativity/stride_scan/20260912T222509Z/a4_summary.csv
+8        4096          25              2              data_processed/sunbird/associativity/stride_scan/20260912T222509Z/a8_summary.csv
+
+== self-consistency check ==
+Every detected knee is unique to its own A_guess/stride -- looks like the confound (knee tracks stride/page-count choice), or too few candidates produced a knee at all to compare. Not self-consistent; do not cite a number from this scan.
+
+-- compressing raw CSVs --
+
+== done (EXPLORATORY SCAN -- not a final result) ==
+== full transcript: data_raw/sunbird/associativity/stride_scan/run_stride_scan_20260912T222509Z.log ==
+== comparison table: data_processed/sunbird/associativity/stride_scan/20260912T222509Z/comparison.csv ==
