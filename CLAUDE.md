@@ -1375,29 +1375,25 @@ two divergent tag objects of the same name that need reconciling, not
 just one.** Per `README.md`'s Phase Discipline, this is the first point at
 which `perf`, PMU, and cache-topology commands became allowed.
 
-**Important, unresolved cross-session divergence — read before starting
-Phase II on a 3rd machine:** Sunbird and Thunderbird were done by two
-concurrent sessions that never saw each other's work, and they invented
-two different, incompatible Phase II conventions:
-- Sunbird's session built a **reusable pipeline**:
-  `scripts/run_pmu_verification.sh <machine> <core> <level>:<footprint_bytes>[,...]`
-  + `scripts/summarize_pmu.py`, writing one `data_processed/<machine>/
-  PHASE2_VALIDATION_TABLE.md` per machine (mirroring the existing
-  per-machine `FINAL_CACHE_TABLE.md` convention).
-- Thunderbird's session wrote an **ad hoc per-machine script**
-  (`data_raw/thunderbird/pmu/run_pmu_sweep.sh`) reusing the Phase-I
-  `cache_bench --experiment capacity` binary directly under `perf stat`,
-  and a single **consolidated** `PHASE2_VALIDATION.md` at repo root
-  (mirroring `CAPACITY_RESULTS.md`'s one-file-many-machines convention)
-  instead of a per-machine file.
-- Neither session's approach is wrong, but a 3rd machine run under either
-  convention will fragment the deliverable further. **Pick one before the
-  next machine** — the reusable-pipeline approach is more consistent with
-  every other experiment type in this repo (`run_capacity_full.sh`,
-  `run_associativity_full.sh`, etc. are all shared scripts, not per-machine
-  ad hoc ones), so it's the more likely candidate to standardize on, but
-  this hasn't been decided by the team yet — don't unilaterally migrate
-  Thunderbird's results into the other format without checking first.
+**Cross-session divergence (resolved 2026-09-13): standardized on Sunbird's
+reusable pipeline.** Sunbird and Thunderbird were originally done by two
+concurrent sessions that never saw each other's work, and invented two
+different, incompatible Phase II conventions (a reusable
+`scripts/run_pmu_verification.sh` pipeline + per-machine
+`PHASE2_VALIDATION_TABLE.md` from Sunbird's session, vs. an ad hoc
+per-machine script + a consolidated root-level `PHASE2_VALIDATION.md` from
+Thunderbird's session). **Thunderbird has since been migrated**: re-run
+under `scripts/run_pmu_verification.sh` (canonical now), its own
+`data_processed/thunderbird/PHASE2_VALIDATION_TABLE.md` written, and the old
+root `PHASE2_VALIDATION.md` deleted (superseded, not just orphaned). The
+original ad hoc sweep's raw findings weren't discarded, though — they swept
+a full range of working-set sizes the 3-point pipeline doesn't, and are kept
+as an explicit "Supplementary PMU evidence" section inside Thunderbird's
+`PHASE2_VALIDATION_TABLE.md` (see `data_raw/thunderbird/pmu/run_pmu_sweep.sh`
+and its outputs, still present). **Every future machine should use
+`scripts/run_pmu_verification.sh` + a per-machine
+`data_processed/<machine>/PHASE2_VALIDATION_TABLE.md` — this is no longer an
+open decision.**
 
 - **New pipeline**: `scripts/run_pmu_verification.sh <machine> <core>
   <level>:<footprint_bytes>[,...]` (mirrors `run_hit_latency_full.sh`'s
@@ -1420,7 +1416,12 @@ two different, incompatible Phase II conventions:
   every other experiment); parsed summaries (miss rates, cycles/access,
   perf's own wall-clock ns/access) in
   `data_processed/<machine>/pmu/<level>/pmu_summary_<ts>.csv`.
-  **Not the pipeline Thunderbird used** — see the divergence note above.
+  **Now also the pipeline Thunderbird uses** — see the divergence note above.
+  On an ARM machine, expect `LLC-loads`/`LLC-load-misses` to come back
+  `<not supported>` (not just `<not counted>`) — confirmed on Thunderbird's
+  `armv8_pmuv3_0` PMU, which has no LLC-scoped event perf can alias to that
+  name; the script and `summarize_pmu.py` already tolerate this gracefully
+  (recorded via the `notes` column), nothing to fix.
 - **System-reported cache info**: now-allowed, no new code — `lscpu --caches`
   and full `lscpu`, plus per-instance `/sys/devices/system/cpu/cpu0/cache/
   index*/{level,type,size,ways_of_associativity,coherency_line_size,
@@ -1446,10 +1447,13 @@ two different, incompatible Phase II conventions:
   section/page or URL (per explicit project direction, not assumed).
   **Thunderbird now done**: Ampere Altra Datasheet Rev A1 v1.30 (SKU-specific)
   + Arm Neoverse N1 Core TRM r3p1 (architectural), both cited by
-  section/page in `PHASE2_VALIDATION.md` — no WikiChip/Chips and Cheese
-  fallback was needed, both primary sources had what was required except
-  load-use latency in cycles, which neither publishes.
-- **Deliverable**: the plan was a single `data_processed/<machine>/
+  section/page in `data_processed/thunderbird/PHASE2_VALIDATION_TABLE.md` —
+  no WikiChip/Chips and Cheese fallback was needed, both primary sources had
+  what was required except load-use latency in cycles, which neither
+  publishes, and the TRM doesn't cover the SLC at all (outside a per-core
+  manual's scope) — Thunderbird's LLC row rests on the Ampere datasheet
+  alone, one source, unlike its L1D/L2 rows.
+- **Deliverable**: a single `data_processed/<machine>/
   PHASE2_VALIDATION_TABLE.md` per machine (separate file from
   `FINAL_CACHE_TABLE.md`, never edits it) — `PROJECT 1.pdf`'s Table 2
   columns (Level | Measured size | Measured ways | Derived sets | Line |
@@ -1457,9 +1461,7 @@ two different, incompatible Phase II conventions:
   L1D/L2/LLC, with every cell distinguishing Phase-I-timing vs.
   Phase-II-PMU vs. Phase-II-system-reported vs. literature before landing
   on an Agreement verdict. Disagreements get stated plainly, not smoothed
-  over. **Thunderbird's session didn't see this plan and used a
-  consolidated `PHASE2_VALIDATION.md` instead** — see the divergence note
-  above; both files currently coexist.
+  over. Now the convention for both machines done so far.
 - **Sunbird results (full detail:
   `data_processed/sunbird/PHASE2_VALIDATION_TABLE.md`)**:
   - **Size/ways/sets/line/sharing-scope: exact match across Phase I timing,
@@ -1503,38 +1505,47 @@ two different, incompatible Phase II conventions:
   - This machine's PMU only reliably schedules 2 generic hardware counters
     at once (see pipeline note above) — a real, machine-specific
     limitation worth re-checking (not assuming) on each of the other 7.
-- **Thunderbird results (full detail: `PHASE2_VALIDATION.md`, Thunderbird
-  section)**: PMU miss-rate sweep (`armv8_pmuv3_0` raw
-  `l{1,2,3}d_cache[_refill]` events via `perf stat`, same access pattern as
-  Phase I's capacity sweep — see `data_raw/thunderbird/pmu/`) gives an
-  exact L1D miss-rate knee at 64 KiB, matching Phase I's timing edge AND
-  the literature value 3 ways; L2's miss-rate curve is a smooth knee-free
-  ramp with no elbow near the 1 MiB reference size, corroborating (not
-  resolving) Phase I's own "no flat L2 shelf" finding; the `l3d_cache` PMU
-  events show NO capacity-dependent signature anywhere in a 4 KiB-512 MiB
-  sweep (flat/noisy ~50-65% even at trivially-L1-resident sizes) and this
-  SoC's SLC doesn't appear in `lscpu`/sysfs cache topology at all — so
-  Phase II could NOT independently corroborate the Phase-I ~30 MiB
-  LLC-candidate number via counters, only via literature (Ampere's
-  datasheet: 32 MiB SLC, 16-way, **shared across all 80 cores** — a real
-  correction to how Phase-I's single-core `taskset` pinning should be read
-  for this level specifically, since every other level on this machine is
-  private-per-core and the SLC structurally isn't); literature (Ampere
-  Altra Datasheet Rev A1 v1.30 + Arm Neoverse N1 Core TRM r3p1, two
-  independent sources agreeing) gives L2 = 8-way, directly disagreeing with
-  Phase I's associativity-experiment number of 11-12-way at that stride —
-  read as literature-side confirmation that the already-documented
-  DTLB/page-count confound (see the associativity section above) is the
-  likely explanation, NOT a correction to apply to the Phase-I number.
-  Do not edit any frozen Phase-I timing value in light of this — the
-  disagreement itself is the reportable Phase-II finding, kept in a
-  separate column/section per the assignment's own instruction.
+- **Thunderbird results (full detail:
+  `data_processed/thunderbird/PHASE2_VALIDATION_TABLE.md`)**: run via
+  `scripts/run_pmu_verification.sh thunderbird 3
+  L1:65536,L2:1048576,LLC:31457280`, core 3, timestamp `20260913T203354Z`.
+  **L1D: exact match, all 3 sources** (size/ways/sets/line), the cleanest
+  row on this table, same pattern as Sunbird's L1D. **L2 associativity
+  disagreement resolved the same way Sunbird's LLC was**: Phase I's
+  confound-suspected 12-way vs. system-reported 8-way AND literature's
+  independently-agreeing 8-way — a 3-way convergence against one
+  confound-blocked guess. **LLC is this machine's weakest row, and
+  structurally different from Sunbird's**: `lscpu`/sysfs has NO L3/SLC entry
+  at all for this core (only L1D/L1I/L2 are enumerated) — so unlike Sunbird,
+  where system-report resolved the LLC associativity disagreement outright,
+  Thunderbird's LLC row has no system-reported evidence to arbitrate with at
+  all, only Phase I timing and one literature source (the Arm core TRM
+  doesn't cover the SLC, only Ampere's own datasheet does). Two real
+  ARM-PMU limitations showed up that Sunbird's x86 run never hit: (1)
+  `LLC-loads`/`LLC-load-misses` come back `<not supported>` at every level
+  (no LLC-scoped PMU event on this SoC that perf can alias to that name);
+  (2) the generic `cache-references`/`cache-misses` group IS counted but
+  tracks `L1-dcache-loads` almost exactly at every footprint (not a distinct
+  LLC-scope signal the way it was on Sunbird) — so this machine's LLC-row
+  miss rate reads *lower* than L2's, the wrong direction for real
+  capacity-scoped evidence; documented as a real limitation, not used as
+  if it were corroboration. Phase II literature does newly confirm the SLC
+  is **shared across all 80 cores**, sharpening Phase I's architectural
+  guess. The earlier ad hoc full-sweep pass (23 sizes, 4 KiB-512 MiB, raw
+  `armv8_pmuv3_0` events) was kept as supplementary evidence inside the same
+  file rather than discarded — it independently corroborates the L1D 64 KiB
+  knee and the "no flat L2 shelf" finding, and its own L3 miss-rate result
+  (no capacity-dependent signal anywhere, even at a 4 KiB footprint) is a
+  third independent piece of evidence for "this SoC's SLC is invisible to
+  per-core PMU/OS reporting," alongside sysfs's missing L3 entry and finding
+  (2) above.
 - **Not yet done on the other 6 machines (Skylark, Artemisia, Charnwood,
-  Crux, Ookay, Upgrade).** Whoever picks up the next one should first (1)
-  resolve the pipeline-convention divergence above rather than silently
-  picking a 3rd approach, then (2) read both the Sunbird and Thunderbird
-  writeups + their respective output files before choosing a literature
-  source for that machine's own CPU.
+  Crux, Ookay, Upgrade).** Whoever picks up the next one should use
+  `scripts/run_pmu_verification.sh` (now the settled convention, see above)
+  and read both the Sunbird and Thunderbird writeups + their respective
+  output files before choosing a literature source for that machine's own
+  CPU — an ARM machine should also expect (and not be alarmed by) the
+  `LLC-loads` `<not supported>` limitation documented above.
 
 ## Known constraints from prior sessions
 

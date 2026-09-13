@@ -168,30 +168,77 @@ LLC directly).
 **Best-guess synthesis:** L1 vs L2 is confidently non-inclusive (matches Sunbird's own L1_vs_L2 finding, and is the pairing least exposed to every caveat above). The two LLC-involving pairings each lean in a specific direction (L2_vs_LLC leans inclusive at 76.5%, though formally UNCERTAIN; L1_vs_LLC leans non-inclusive at 80.5%) but, taken together, do NOT tell as clean or as internally consistent a story as Sunbird's own three-pairing result did — an LLC that is simultaneously non-inclusive of L1 directly (L1_vs_LLC) but leans toward invalidating an L2-resident line (L2_vs_LLC) is an unusual combination for a real hierarchy (typically inclusion, if present, holds more uniformly of everything below the inclusive level, not selectively by which level a line is currently resident in) — this is more likely explained by this machine's caveat-3 weaker avoidance guarantee and caveat-4 coarse timer resolution both degrading precision at exactly the two pairings that would otherwise seem to disagree, rather than as evidence of a genuinely selective inclusion policy. Treat Thunderbird's overall read as: **L1 vs L2 non-inclusive (confident); L2 vs LLC and L1 vs LLC both genuinely unresolved on this machine's data**, not a settled hierarchy-wide inclusion/exclusion story the way Sunbird's synthesis could reasonably claim.
 
 ### pmu/ (Phase II — started 2026-09-13, after tagging `phase1-timing-only` at commit `7be6dac`)
-- `perf list` output filename: `data_raw/thunderbird/pmu/perf_list_20260913.txt` (also
-  the full `armv8_pmuv3_0` raw event list from
-  `/sys/bus/event_source/devices/armv8_pmuv3_0/events/`); system-reported cache
-  topology (`lscpu -C`, sysfs) saved separately at
-  `data_raw/thunderbird/pmu/sysfs_cache_topology_20260913.txt`.
-- Events collected + exact semantics on this CPU: raw `armv8_pmuv3_0` architected
-  ARMv8 PMUv3 cache events — `l1d_cache`/`l1d_cache_refill`,
-  `l2d_cache`/`l2d_cache_refill`, `l3d_cache`/`l3d_cache_refill` (the `_cache` event
-  counts attributable accesses at that level, `_refill` counts linefills i.e.
-  misses), plus `mem_access`/`bus_access` and generic `cache-references`/
-  `cache-misses` as a cross-check. Full per-level miss-rate results, PMU-vs-Phase-I
-  comparison, and the required Table 2 are in `PHASE2_VALIDATION.md` (Thunderbird
-  section) — not duplicated here to avoid the two documents drifting apart.
-- Run command + arguments: `data_raw/thunderbird/pmu/run_pmu_sweep.sh 3
-  data_raw/thunderbird/pmu/pmu_sweep_raw.csv` — reuses the Phase-I `cache_bench
-  --experiment capacity` binary at one working-set size per invocation
-  (`--samples 1000000 --pattern random --seed 12345`, same as Phase I), swept across
-  23 sizes (4 KiB–512 MiB) under `perf stat`, core 3 (idle-checked via `/proc/stat`
-  first, 96.5% idle). Raw: `data_raw/thunderbird/pmu/pmu_sweep_raw.csv`; processed:
+Phase I frozen/tagged before anything below was run, per `README.md`'s Phase
+Discipline. See `CLAUDE.md`'s "Phase II" subsection and
+`data_processed/thunderbird/PHASE2_VALIDATION_TABLE.md` for the full
+methodology/results write-up and literature citations — this section is the
+raw-data/reproduction-detail record. **Uses the same reusable pipeline as
+Sunbird** (`scripts/run_pmu_verification.sh` + `scripts/summarize_pmu.py`) —
+an earlier pass used a different, ad hoc script; that pass is kept as
+supplementary evidence (see below and the validation table's own
+supplementary section) rather than discarded, but this run is the canonical
+one.
+
+- Source file(s): `scripts/run_pmu_verification.sh`, `scripts/summarize_pmu.py`
+  (no `cache_bench` source changes — reuses the existing `--experiment
+  hit_latency` binary, wrapped in `perf stat`).
+- Machine-specific PMU check done before running (this CPU's raw event list
+  differs from Sunbird's x86 PMU, not just its scheduling behavior): a
+  standalone `perf stat -e LLC-loads,LLC-load-misses` check came back
+  `<not supported>` (not just `<not counted>`) — this `armv8_pmuv3_0` PMU has
+  no LLC-scoped event, generic or raw, that perf's `LLC-loads` alias maps to.
+  `cache-references`/`cache-misses` and `L1-dcache-loads`/`L1-dcache-load-misses`
+  and `cycles`/`instructions` all schedule and count fine. The script's
+  existing 4-separate-group design (built for Sunbird's counter-scheduling
+  limitation) tolerates this gracefully — `summarize_pmu.py` records the
+  `<not supported>` LLC group via its `notes` column exactly as it does a
+  `<not counted>` one.
+- Run command: `./scripts/run_pmu_verification.sh thunderbird 3
+  L1:65536,L2:1048576,LLC:31457280` (core 3 — same core as every other
+  Thunderbird experiment; idle-checked via `/proc/stat` idle-time deltas
+  across a 2s window immediately before running: 98.5% idle).
+  base_seed=12345 (repeats use base_seed+index), samples=1,000,000/run,
+  batch_size=1000, warmup_passes=3, dependent load mode, random pattern,
+  timestamp `20260913T203354Z`.
+- Raw output: `data_raw/thunderbird/pmu/{L1,L2,LLC}/*_perfstat_*.csv.gz` (perf
+  stat's own `-x,` CSV output, one file per group×run_tag) and
+  `*_bench_*.csv.gz` (cache_bench's own CSV from the same invocation).
+  Transcript: `data_raw/thunderbird/pmu/run_pmu_verification_20260913T203354Z.log`.
+- Processed: `data_processed/thunderbird/pmu/{L1,L2,LLC}/pmu_summary_20260913T203354Z.csv`
+  (one row per run_tag + a median-of-3 row).
+- System-reported cache info (also Phase II, same run):
+  `data_raw/thunderbird/pmu/system_reported_cache_info.txt` — `lscpu --caches`,
+  full `lscpu`, and per-instance `/sys/devices/system/cpu/cpu3/cache/index*/`
+  fields (only `index0`/`index1`/`index2` = L1D/L1I/L2 exist on this core —
+  no L3/SLC entry appears anywhere in the OS-reported cache topology, a real
+  finding in itself, see the validation table's LLC row).
+- Literature references: Ampere Altra Datasheet Rev A1 v1.30 (2022-07-28)
+  §2.3–2.5 p. 9; Arm Neoverse N1 Core TRM r3p1 (100616_0301_01_en)
+  §A2.1.2/A6.4/A7.1 — full citations and the per-level Agreement analysis are
+  in `data_processed/thunderbird/PHASE2_VALIDATION_TABLE.md`.
+- Headline results (full detail and caveats in the validation table): L1D
+  matches exactly across Phase I timing, system-report, and literature
+  (size/ways/sets/line all agree); L2's associativity disagreement (Phase I's
+  confound-suspected 12-way vs. system-reported AND literature's converging
+  8-way) is resolved the same way Sunbird's was — in favor of system-report;
+  LLC is this machine's weakest row (no system-reported entry exists at all
+  for the SLC, unlike Sunbird's L3, so only literature — one source, not
+  cross-checked — can speak to it), but Phase II literature does newly
+  confirm the SLC is shared across all 80 cores rather than private-per-core,
+  sharpening what Phase I could only guess at.
+- **Supplementary (earlier ad hoc pass, kept not discarded):**
+  `data_raw/thunderbird/pmu/run_pmu_sweep.sh` — a from-scratch raw-event sweep
+  across 23 working-set sizes (4 KiB–512 MiB) using raw `armv8_pmuv3_0`
+  `l{1,2,3}d_cache[_refill]` events, predating the switch to the shared
+  pipeline. Raw: `data_raw/thunderbird/pmu/pmu_sweep_raw.csv.gz`; processed:
   `data_processed/thunderbird/pmu/pmu_sweep_summary.csv`; plot:
-  `data_processed/thunderbird/pmu/plots/pmu_miss_rate_sweep.{png,pdf}`.
-- Literature references used: Ampere Altra Datasheet Rev A1 v1.30 (2022-07-28)
-  §2.3–2.5 pp.9; Arm Neoverse N1 Core TRM r3p1 (100616_0301_01_en) §A2.1.2/A6.4/A7.1
-  — full citations and the per-level Agreement analysis are in `PHASE2_VALIDATION.md`.
+  `data_processed/thunderbird/pmu/plots/pmu_miss_rate_sweep.{png,pdf}`; also
+  `data_raw/thunderbird/pmu/perf_list_20260913.txt` (full `armv8_pmuv3_0` raw
+  event list). This sweep independently corroborates the L1D boundary at an
+  exact 64 KiB knee and the "no flat L2 shelf" finding, and its own
+  capacity-independent L3 miss-rate signal is additional evidence for the
+  "SLC is invisible to this core's PMU/OS reporting" finding above — see the
+  validation table's supplementary section for the full writeup.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: core 3 (of `Cpus_allowed_list: 0-4` granted to this session)
