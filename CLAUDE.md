@@ -982,6 +982,43 @@ LLC's confirmed 128B line size). `data_processed/skylark/FINAL_CACHE_TABLE.md`
 written in the same 9-column format as Sunbird's, every cell leading with a
 concrete best-guess value.
 
+**Crux (2026-09-13): inclusion_policy run completed, Phase I closed out for
+this machine — FINAL_CACHE_TABLE.md now exists alongside Sunbird's and
+Skylark's.** Ran all 3 pairings in one invocation
+(`./scripts/run_inclusion_policy_full.sh crux 3 L1_vs_L2:32768:262144:L2_to_LLC,
+L2_vs_LLC:262144:8388608:LLC_to_DRAM,L1_vs_LLC:32768:8388608:LLC_to_DRAM`) —
+line size was already confirmed 64B at all 3 levels before this ran, so no
+`ASSUMED_LINE_SIZE_BYTES` override was needed. Calibrated the largest scaled
+eviction footprint (512 MiB, for the two LLC-scale pairings) before
+committing: only ~11.6 ms/trial on this machine (vs. Sunbird's reported
+74-604 ms/trial range for miss_latency-style eviction), so the full pipeline
+ran in well under a minute per pairing with no `tmux` needed. Results: **L1
+vs L2 confidently non-inclusive (97.5% survived-like)**; **L2 vs LLC leans
+non-inclusive with moderate confidence (90.5%)** — notably a firmer call than
+Sunbird's own L2_vs_LLC pairing, which came back mostly ambiguous; **L1 vs
+LLC (skip-level) is this machine's weakest result, 98% ambiguous, leaning
+non-inclusive only barely** — the opposite directional lean from Sunbird's
+own skip-level result (which leaned inclusive). Both LLC-scale pairings'
+control channels showed elevated run-to-run spread (24-40%), read as evidence
+of real DTLB pressure at the 512 MiB eviction scale (the same caveat
+Sunbird's own README flags but did not observe as directly). Associativity
+above L1: raw detector reports 4-way for both L2 and LLC with full 3/3
+reproducibility each — but this is treated as the same confound already
+documented elsewhere, not a real result, specifically because Crux's "4" at
+both 262,144 B and 8,388,608 B (a 32x capacity spread) is an exact match to
+Charnwood's own confound-driven "4" at those identical candidate byte values
+(see Charnwood's bullet above) — best-guessed as **8-way for both L2 and
+LLC** (anchored to L1's confirmed 8-way; also the only choice that makes
+S=C/(A×B) come out to a clean integer at all three levels: 64/512/16,384,
+each ratio exactly matching the corresponding capacity ratio). Best-guess
+overall read: a uniformly non-inclusive hierarchy at every tested boundary —
+a genuine contrast with Sunbird's own mixed (non-inclusive L2,
+inclusive-leaning LLC-as-snoop-filter) reading. Full detail:
+`data_raw/crux/README.md`'s `inclusion_policy/` section;
+`data_processed/crux/FINAL_CACHE_TABLE.md` written in the same 9-column
+format as Sunbird's/Skylark's, every cell leading with a concrete best-guess
+value.
+
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
