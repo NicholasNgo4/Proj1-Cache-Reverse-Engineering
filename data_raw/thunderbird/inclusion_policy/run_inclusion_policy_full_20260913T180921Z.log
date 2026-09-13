@@ -1,0 +1,41 @@
+== run_inclusion_policy_full: machine=thunderbird core=4 base_seed=12345 ==
+== assumed_line_size_bytes=64 (confirmed for Sunbird 2026-09-11; verify for other machines) ==
+== timestamp=20260913T180921Z ==
+
+== L1_vs_L2: target_bytes=65536 lower_level_bytes=1048576 -> evict_bytes=67108864 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 1.376 ticks
+  invalidated-class (from data_processed/thunderbird/latency/miss/L2_to_LLC/base_random_summary_20260913T061738Z.csv): 2.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/thunderbird/inclusion_policy/L1_vs_L2/inclusion_policy_base_random_20260913T180921Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/thunderbird/inclusion_policy/L1_vs_L2/base_random_summary_20260913T180921Z.csv
+  wrote 402 lines -> data_raw/thunderbird/inclusion_policy/L1_vs_L2/inclusion_policy_base_sequential_20260913T180921Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/thunderbird/inclusion_policy/L1_vs_L2/base_sequential_summary_20260913T180921Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/thunderbird/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_random_20260913T180921Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/thunderbird/inclusion_policy/L1_vs_L2/rep1_random_summary_20260913T180921Z.csv
+  wrote 402 lines -> data_raw/thunderbird/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_sequential_20260913T180921Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/thunderbird/inclusion_policy/L1_vs_L2/rep1_sequential_summary_20260913T180921Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/thunderbird/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_random_20260913T180921Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/thunderbird/inclusion_policy/L1_vs_L2/rep2_random_summary_20260913T180921Z.csv
+  wrote 402 lines -> data_raw/thunderbird/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_sequential_20260913T180921Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/thunderbird/inclusion_policy/L1_vs_L2/rep2_sequential_summary_20260913T180921Z.csv
+Survived-class (upper-level hit) median:       1.38 ticks
+Invalidated-class (beyond-lower-level) median: 2.00 ticks
+Classification boundary (geometric mean):      1.66 ticks
+
+TARGET channel  (n=200): median=1.0 mean=1.2 ticks -- 169 survived-like (84.5%), 0 ambiguous, 31 invalidated-like (15.5%)
+CONTROL channel (n=200): median=1.0 mean=1.0 ticks -- 199 survived-like (99.5%), 0 ambiguous, 1 invalidated-like (0.5%)
+Paired check: target read slower than its own trial's control in 20.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L1_vs_L2 --
+  note: ('target', 'sequential') has 3 overlapping summary rows with medians [1.0, 2.0, 1.0] (spread 1.0 ticks, 75.0%) -- averaging, widening whiskers to the union
+Wrote data_processed/thunderbird/inclusion_policy/L1_vs_L2/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_L2 --
+
+== done ==
+== L1_vs_L2: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== record in data_raw/thunderbird/README.md: core=4, base_seed=12345 (repeats use base_seed+index), trials=200, assumed_line_size_bytes=64, timestamp=20260913T180921Z ==
+== full transcript saved to: data_raw/thunderbird/inclusion_policy/run_inclusion_policy_full_20260913T180921Z.log ==
