@@ -33,6 +33,7 @@ Usage:
 """
 import argparse
 import csv
+import math
 import sys
 
 import matplotlib
@@ -40,6 +41,38 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from plot_line_size_family import detect_elbow, human_bytes, style_axes
+
+
+def label_log_yaxis_from_data(ax, values, n_ticks=6):
+    """Force readable y-tick labels on a log2 axis regardless of how narrow
+    the data range is.
+
+    matplotlib's default log-scale locator only labels exact powers of the
+    base -- fine when the plotted range spans a decade/octave, but this
+    plot's y-values are raw detected-elbow byte counts that routinely sit
+    entirely WITHIN one octave (e.g. every offset's elbow landing between
+    23.7 and 26.6 MiB, both comfortably inside [2**24, 2**25)). When that
+    happens, no power-of-two tick falls inside the visible range and the
+    axis renders with a title but no numbers at all (see
+    data_raw/skylark/README.md's line_size/ section, step-4 L3 plots,
+    2026-09-13). Fix: place ticks at values spaced evenly in log2 space
+    across the ACTUAL plotted data (not matplotlib's padded axis limits),
+    and label them with human_bytes instead of relying on the default
+    power-of-two formatter.
+    """
+    finite = sorted(v for v in values if v is not None and math.isfinite(v) and v > 0)
+    if not finite:
+        return
+    lo, hi = finite[0], finite[-1]
+    if lo == hi:
+        # Degenerate single-value case (e.g. a perfectly offset-independent
+        # elbow): still show a labeled tick at that value plus neighbors.
+        lo, hi = lo * 0.98, hi * 1.02
+    log_lo, log_hi = math.log2(lo), math.log2(hi)
+    ticks = [2 ** (log_lo + i * (log_hi - log_lo) / (n_ticks - 1)) for i in range(n_ticks)]
+    ax.set_yticks(ticks)
+    ax.set_yticklabels([human_bytes(int(round(t))) for t in ticks])
+    ax.tick_params(axis="y", which="minor", left=False, labelleft=False)
 
 REQUIRED_COLS = {"footprint_bytes", "stride_bytes", "offset_bytes", "pattern",
                   "median", "q1", "q3", "p5", "p95"}
@@ -109,6 +142,7 @@ def plot_elbow_comparison(by_offset, machine, out_prefix, title_suffix, candidat
     ax.set_xlabel("Candidate stride (bytes)")
     ax.set_ylabel("Detected elbow footprint (bytes)")
     ax.set_yscale("log", base=2)
+    label_log_yaxis_from_data(ax, [v for present in elbow_table.values() for v in present.values()])
     title = f"{machine}: line-size elbow vs. stride, by node-0 offset"
     if title_suffix:
         title += f"\n{title_suffix}"
