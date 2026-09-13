@@ -808,6 +808,29 @@ own per-machine capacity prose to pick them.
   transitions showing substantial (26-60%) unexplained repeat-to-repeat
   spread not yet traced to a specific cause. **Not yet run on any other
   machine.**
+- **Artemisia** (`data_raw/artemisia/latency/`, 2026-09-13, unattended, core
+  4): hit latency at L1/L2/LLC/DRAM (49,152 / 2,097,152 / 31,457,280 /
+  536,870,912 B) gives a clean, monotonic 4-tier ladder — L1≈9.9, L2≈28.1,
+  LLC≈94.4, DRAM≈305.6 ticks (dependent, random, median) — independent-load
+  control faster than dependent at every level/pattern except one flagged
+  case: LLC+sequential briefly read `independent >= dependent`, investigated
+  with 3 extra ad hoc seeds and attributed to this machine's already-
+  documented per-invocation P-state/turbo bimodality disproportionately
+  affecting the small, prefetcher-hidden dependent-sequential number (not a
+  real independent-slower-than-dependent effect, and doesn't affect the
+  primary random-pattern signal) — see `data_raw/artemisia/README.md`
+  latency/ section for the full investigation. Miss/next-level latency at
+  L1→L2/L2→LLC/LLC→DRAM gives an increasing 188/381/582-tick sequence
+  (random, median); evict_bytes for LLC→DRAM was calibrated down from a
+  ~2xLLC candidate (~1.04 s/trial, ~21 min projected) to 1.25xLLC (~0.49
+  s/trial, ~9.8 min projected) to stay under the ~15-minute guideline. Same
+  single-shot fixed-overhead caveat as Sunbird, independently confirmed here
+  too: ~60 ticks (median 70 vs ~9.9-tick batched L1 hit latency at the same
+  footprint) — same order of magnitude as Sunbird's ~64-85 ticks. 3 of 6
+  (transition, pattern) combinations flagged >20% repeat spread (36-66%),
+  not traced to a specific process, consistent with this project's
+  established shared-machine-noise signature elsewhere. See
+  `data_raw/artemisia/README.md`'s latency/ section for full detail.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;

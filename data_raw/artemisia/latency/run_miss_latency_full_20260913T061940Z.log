@@ -1,0 +1,75 @@
+== run_miss_latency_full: machine=artemisia core=4 base_seed=12345 ==
+== timestamp=20260913T061940Z ==
+
+== transition L1_to_L2: target_bytes=49152 evict_bytes=2097152 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L1_to_L2/miss_latency_base_random_20260913T061940Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L1_to_L2/base_random_summary_20260913T061940Z.csv
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L1_to_L2/miss_latency_base_sequential_20260913T061940Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L1_to_L2/base_sequential_summary_20260913T061940Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L1_to_L2/miss_latency_rep1_random_20260913T061940Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L1_to_L2/rep1_random_summary_20260913T061940Z.csv
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L1_to_L2/miss_latency_rep1_sequential_20260913T061940Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L1_to_L2/rep1_sequential_summary_20260913T061940Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L1_to_L2/miss_latency_rep2_random_20260913T061940Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L1_to_L2/rep2_random_summary_20260913T061940Z.csv
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L1_to_L2/miss_latency_rep2_sequential_20260913T061940Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L1_to_L2/rep2_sequential_summary_20260913T061940Z.csv
+-- found source-level (L1) hit_latency data for penalty annotation: data_processed/artemisia/latency/hit/L1/base_dependent_random_summary_20260913T060959Z.csv data_processed/artemisia/latency/hit/L1/rep1_dependent_random_summary_20260913T060959Z.csv data_processed/artemisia/latency/hit/L1/rep2_dependent_random_summary_20260913T060959Z.csv --
+-- generating plots for L1_to_L2 --
+  note: pattern=sequential has 3 overlapping summary rows with medians [92.0, 134.0, 135.0] (spread 43.0 ticks, 35.7%) -- averaging, widening whiskers to the union
+Wrote data_processed/artemisia/latency/miss/L1_to_L2/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1_to_L2 --
+
+== transition L2_to_LLC: target_bytes=2097152 evict_bytes=31457280 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L2_to_LLC/miss_latency_base_random_20260913T061940Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L2_to_LLC/base_random_summary_20260913T061940Z.csv
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L2_to_LLC/miss_latency_base_sequential_20260913T061940Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L2_to_LLC/base_sequential_summary_20260913T061940Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L2_to_LLC/miss_latency_rep1_random_20260913T061940Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L2_to_LLC/rep1_random_summary_20260913T061940Z.csv
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L2_to_LLC/miss_latency_rep1_sequential_20260913T061940Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L2_to_LLC/rep1_sequential_summary_20260913T061940Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L2_to_LLC/miss_latency_rep2_random_20260913T061940Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L2_to_LLC/rep2_random_summary_20260913T061940Z.csv
+  wrote 202 lines -> data_raw/artemisia/latency/miss/L2_to_LLC/miss_latency_rep2_sequential_20260913T061940Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/L2_to_LLC/rep2_sequential_summary_20260913T061940Z.csv
+-- found source-level (L2) hit_latency data for penalty annotation: data_processed/artemisia/latency/hit/L2/base_dependent_random_summary_20260913T060959Z.csv data_processed/artemisia/latency/hit/L2/rep1_dependent_random_summary_20260913T060959Z.csv data_processed/artemisia/latency/hit/L2/rep2_dependent_random_summary_20260913T060959Z.csv --
+-- generating plots for L2_to_LLC --
+  note: pattern=random has 3 overlapping summary rows with medians [381.0, 608.0, 522.0] (spread 227.0 ticks, 45.1%) -- averaging, widening whiskers to the union
+Wrote data_processed/artemisia/latency/miss/L2_to_LLC/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2_to_LLC --
+
+== transition LLC_to_DRAM: target_bytes=31457280 evict_bytes=39321600 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/artemisia/latency/miss/LLC_to_DRAM/miss_latency_base_random_20260913T061940Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/LLC_to_DRAM/base_random_summary_20260913T061940Z.csv
+  wrote 202 lines -> data_raw/artemisia/latency/miss/LLC_to_DRAM/miss_latency_base_sequential_20260913T061940Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/LLC_to_DRAM/base_sequential_summary_20260913T061940Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/artemisia/latency/miss/LLC_to_DRAM/miss_latency_rep1_random_20260913T061940Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/LLC_to_DRAM/rep1_random_summary_20260913T061940Z.csv
+  wrote 202 lines -> data_raw/artemisia/latency/miss/LLC_to_DRAM/miss_latency_rep1_sequential_20260913T061940Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/LLC_to_DRAM/rep1_sequential_summary_20260913T061940Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/artemisia/latency/miss/LLC_to_DRAM/miss_latency_rep2_random_20260913T061940Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/LLC_to_DRAM/rep2_random_summary_20260913T061940Z.csv
+  wrote 202 lines -> data_raw/artemisia/latency/miss/LLC_to_DRAM/miss_latency_rep2_sequential_20260913T061940Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/artemisia/latency/miss/LLC_to_DRAM/rep2_sequential_summary_20260913T061940Z.csv
+-- found source-level (LLC) hit_latency data for penalty annotation: data_processed/artemisia/latency/hit/LLC/base_dependent_random_summary_20260913T060959Z.csv data_processed/artemisia/latency/hit/LLC/rep1_dependent_random_summary_20260913T060959Z.csv data_processed/artemisia/latency/hit/LLC/rep2_dependent_random_summary_20260913T060959Z.csv --
+-- generating plots for LLC_to_DRAM --
+  note: pattern=sequential has 3 overlapping summary rows with medians [386.0, 208.0, 220.0] (spread 178.0 ticks, 65.6%) -- averaging, widening whiskers to the union
+Wrote data_processed/artemisia/latency/miss/LLC_to_DRAM/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC_to_DRAM --
+
+== done ==
+== L1_to_L2: target_bytes=49152 evict_bytes=2097152 ==
+== L2_to_LLC: target_bytes=2097152 evict_bytes=31457280 ==
+== LLC_to_DRAM: target_bytes=31457280 evict_bytes=39321600 ==
+== record in data_raw/artemisia/README.md: core=4, base_seed=12345 (repeats use base_seed+index), trials=200, timestamp=20260913T061940Z ==
+== full transcript saved to: data_raw/artemisia/latency/run_miss_latency_full_20260913T061940Z.log ==
