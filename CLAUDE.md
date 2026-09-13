@@ -808,6 +808,30 @@ own per-machine capacity prose to pick them.
   transitions showing substantial (26-60%) unexplained repeat-to-repeat
   spread not yet traced to a specific cause. **Not yet run on any other
   machine.**
+- **Upgrade** (`data_raw/upgrade/README.md`'s latency/ section): hit latency
+  at L1/L2/LLC/DRAM (32,768 / 262,144 / 12,582,912 / 536,870,912 B) gives a
+  clean, monotonic 4-tier ladder — L1≈6.17, L2≈16.12, LLC≈155.05, DRAM≈251.56
+  ticks (dependent, random, base-run median) — with independent reading
+  faster than dependent at every level for the random pattern. The
+  `--pattern`-aware independent-addressing fix from Sunbird's run was already
+  present in the pulled code, so nothing new to fix here. One flag DID fire
+  (`LLC sequential: independent >= dependent`, 6.99 vs 6.67) — investigated,
+  not re-run: reproducible across all 3 seeded runs, explained by the
+  hardware prefetcher hiding nearly all real latency for the sequential
+  pattern at both LLC and DRAM footprints (both modes converge to within
+  ~5% of the L1 floor), leaving only a small, consistent secondary effect
+  (independent mode's extra `order[idx]` array read per iteration) visible
+  once there's no real memory-level parallelism left to expose. Miss/next-
+  level latency at L1→L2/L2→LLC/LLC→DRAM gives an increasing 67/510/605-tick
+  sequence (random, base-run median) with >20% repeat-to-repeat spread at
+  **all six** (transition, pattern) combinations (27.8-60.8%) — noted per
+  this run's own instructions rather than re-run until clean. This
+  machine's own single-shot fixed overhead was directly measured (control
+  run, tiny non-evicting eviction set): median 55 ticks vs. this machine's
+  ~6.17-6.35 tick L1 hit-latency median, i.e. a ~48-49 tick floor, similar
+  order of magnitude to but somewhat lower than Sunbird's ~64-85 ticks (not
+  identical, as expected across CPU generations). See
+  `data_raw/upgrade/README.md`'s latency/ section for the full write-up.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;

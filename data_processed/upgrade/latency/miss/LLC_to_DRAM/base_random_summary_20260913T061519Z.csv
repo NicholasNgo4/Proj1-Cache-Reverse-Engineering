@@ -1,0 +1,2 @@
+target_bytes,evict_bytes,pattern,n,mean,median,stddev,min,q1,q3,p5,p95,max,n_outliers
+12582912,25165824,random,200,570.695,605.0,153.33496021822822,292.0,458.0,630.75,406.05000000000007,757.0,1783.0,3

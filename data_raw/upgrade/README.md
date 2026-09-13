@@ -26,7 +26,10 @@
   (2026-09-12, core 5 = CPUs {5,11} per `lscpu -e=CPU,CORE,SOCKET,NODE`; `who`/`ps`
   showed only light, unrelated background load, no other student process pinned to
   either sibling). Unverified for the original capacity/ run (see that section's own
-  caveat) — no snapshot was saved at that time.
+  caveat) — no snapshot was saved at that time. Also confirmed idle for the
+  latency/ run below (2026-09-13, unattended session): two `/proc/stat` deltas 3s
+  apart showed cpu5/cpu11 at 0% busy; a `pmu_pilot` process (another student's,
+  unrelated) was pinned at ~100% on core 2 the whole session but never on core 5.
 
 ## Environment
 - Compiler + version: `gcc (Ubuntu 12.3.0-1ubuntu1~22.04.3) 12.3.0` (confirmed via
@@ -164,10 +167,47 @@
 - **Conclusion: this run does not produce new, citable L2 or LLC associativity numbers — it reproduces the existing dead-end.** Consistent with the derived-stride finding above (which the automatic pipeline's first-knee detector also could not see past), any single-fixed-stride sweep at these byte values lands on the same universal small-way-count wall before it ever reaches a real L2 or LLC set's actual associativity. Do not report "L2 = 4-way" or "LLC = 4-way" for Upgrade from this data. The three required plots (L1, L2, L3_LLC) were still generated per the assignment ask, but the L2 and L3_LLC ones carry an explicit "CONFOUND SUSPECTED" caption instead of a false confidence marker; the L2/LLC associativity question on this machine remains exactly as open as the entry above states, pending the two follow-ups already listed (second-knee detection + stride-scan self-consistency check on it).
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+Two sub-experiments, `hit_latency` and `miss_latency`, run 2026-09-13 (unattended
+session, machine confirmed idle beforehand — see below). Footprint/target/evict
+byte values taken **only from `CAPACITY_RESULTS.md`** (L1 = 32,768 B, L2 = 262,144
+B, LLC ≈ 12 MiB = 12,582,912 B, per that file's directive that it is the single
+source of truth for capacity boundaries — the per-machine capacity prose earlier
+in this file, and any earlier CLAUDE.md capacity narrative, was NOT used to pick
+these values, even where the two agree).
+
+**Pre-run machine check:** `who` showed one other logged-in user (`dchen27`, an
+idle tmux session since 2026-09-09, no active shell). `ps -eo pid,pcpu,psr,comm`
+showed a `pmu_pilot` process pinned at ~100% CPU on PSR 2 (i.e. physical core 2,
+CPUs {2,8}) — another student's Phase II PMU work, unrelated to this run. Two
+`/proc/stat` snapshots 3s apart (delta, not point-in-time) confirmed cpu2=100%
+busy (matching `pmu_pilot`) and **cpu5/cpu11 (physical core 5) at 0% busy**, all
+other cores ≤0.3% — core 5 chosen, matching every prior Upgrade run
+(capacity/associativity), and re-checked as still idle (only `pmu_pilot` on core 2)
+immediately before the miss_latency run.
+
+**hit_latency (dependent chain + independent-load diagnostic control):**
+- Source file(s): `main_code/common/{main.c,latency.c,latency.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Build command: `make clean && make` (from repo root, after `git pull`; commit `e343732c0b57beece621da8e7c3a9bd8be236d25`)
+- Run command + arguments: `./scripts/run_hit_latency_full.sh upgrade 5 L1:32768,L2:262144,LLC:12582912,DRAM:536870912` (pinned via `taskset -c 5`). DRAM's 536,870,912 B (512 MiB) footprint is not itself a `CAPACITY_RESULTS.md` boundary — it's a "deep in the DRAM plateau" pick per the task instructions, comfortably past the ~12 MiB LLC estimate.
+- Per level: base run + 2 reproducibility repeats (seed = 12345, 12346, 12347), each at `--load-mode {dependent,independent}` × `--pattern {random,sequential}` (4 combinations), 1,000,000 timed accesses per combination (batch size 1000), 3 untimed warm-up passes.
+- Dependent-chain batch size: 1000 (`--batch-size 1000`, `DEFAULT_BATCH_SIZE`).
+- Regular vs. randomized control included: yes, both `--pattern random` and `--pattern sequential` run at every (level, load_mode) combination.
+- Raw output filename(s): `data_raw/upgrade/latency/hit/<LEVEL>/hit_latency_{base,rep1,rep2}_{dependent,independent}_{random,sequential}_20260913T061042Z.csv.gz`
+- Processing: `scripts/summarize_raw.py` per raw file → `data_processed/upgrade/latency/hit/<LEVEL>/*_summary_20260913T061042Z.csv` → `scripts/plot_hit_latency.py` → `data_processed/upgrade/latency/hit/<LEVEL>/plots/hit_latency_boxplots.{png,pdf}`.
+- **Result (dependent, random pattern, base run median, n=1000 each): L1 ≈ 6.17 ticks, L2 ≈ 16.12 ticks, LLC ≈ 155.05 ticks, DRAM ≈ 251.56 ticks** — monotonically increasing 4-tier ladder. `--load-mode independent` measured faster than `dependent` at every level for the random pattern (e.g. LLC random: 38.80 vs 155.05; DRAM random: 45.60 vs 251.56 base-run; combined-across-repeats: 38.35 vs 155.44 and 46.08 vs 251.85), confirming the independent-load control correctly exposes memory-level parallelism as required.
+- **UNEXPECTED flag investigated, not re-run — explained by prefetcher saturation, not a broken control:** `plot_hit_latency.py`'s required independent-vs-dependent check flagged `LLC sequential: independent >= dependent (6.99 vs 6.67 ticks) [UNEXPECTED -- investigate]` (combined across base+2 repeats). Checked all 3 individual runs before trusting this: base 6.996 vs 6.670, rep1 6.977 vs 6.650, rep2 6.983 vs 6.687 — the ordering is small (~0.3 ticks, ~5%) but *consistent* across all 3 independently-seeded runs, so it's a real, reproducible effect, not a noise flip. Root cause: at both LLC and DRAM footprints, the `sequential` pattern lets the hardware prefetcher hide essentially all of the real cache/DRAM latency for BOTH load modes — dependent-sequential and independent-sequential converge to within ~5% of the L1 floor (LLC seq: 6.67/6.99 vs L1 seq: 6.20/6.09; DRAM seq: 6.33/6.44), unlike the random pattern where the gap stays huge (LLC random: 155 vs 39). Once the prefetcher has already hidden nearly all real latency there is essentially no memory-level parallelism left for the independent mode to expose, so the comparison bottoms out on a smaller, secondary effect: `measure_independent_loads_batched()` (`main_code/common/benchmark.c`) does `nodes[order[idx]].next` — one extra load (reading `order[idx]`) per iteration versus the dependent chain's plain `last = last->next` — and that extra, otherwise-negligible load becomes visible as a small, consistent overhead once both modes are already running at the prefetch-bound floor. DRAM sequential shows the same near-tie (independent slightly faster there, 6.44 vs 6.46 combined, well inside the same noise band), consistent with this being one shared saturation effect at both deep levels rather than a level-specific bug. Not treated as invalidating the LLC/DRAM sequential numbers — both are genuinely reporting "prefetcher hides it," which is itself the correct physical finding for a sequential pattern at these footprints — but flagged here per this run's explicit instruction to investigate rather than silently trust it.
+- Bug note: none found this run — the `--pattern`-aware independent-load addressing fix documented in Sunbird's README (2026-09-13) was already present in the pulled code (commit above), so this run did not need to rediscover or refix it.
+
+**miss_latency (forced eviction + single-shot reload):**
+- Source file(s): same list as hit_latency above.
+- Wall-time calibration done before picking final parameters (core 5, random pattern, 100 trials each): ~223 ms/trial at evict_bytes=25,165,824 (2× LLC, the LLC→DRAM candidate) and ~83 ms/trial at evict_bytes=12,582,912 (the L2→LLC candidate). Extrapolated to the full base+2reps × 2-patterns × 200-trials workload: ≈4.5 min for LLC_to_DRAM, ≈1.7 min for L2_to_LLC, L1_to_L2's evict_bytes (262,144 B) is smaller than both so bounded above by the L2_to_LLC figure — total well under the ~15 min shrink threshold, so no evict_bytes reduction was needed and the full pipeline was run directly (not inside tmux; total wall time a few minutes).
+- Run command + arguments: `./scripts/run_miss_latency_full.sh upgrade 5 L1_to_L2:32768:262144,L2_to_LLC:262144:12582912,LLC_to_DRAM:12582912:25165824` (core 5, same idleness check as hit_latency above, re-verified immediately before this run). `LLC_to_DRAM`'s evict_bytes (25,165,824 B = 2× the ~12 MiB LLC estimate) is not itself a `CAPACITY_RESULTS.md` value — it only needs to comfortably exceed LLC capacity to guarantee eviction into DRAM, and was picked directly from the calibration above (no oversized-evict-set mistake made or needed to revert on this machine).
+- Per transition: base run + 2 reproducibility repeats (seed = 12345, 12346, 12347), each at `--pattern {random,sequential}`. 200 trials per (transition, pattern, run), `--batch-size 1` (meaningless to miss_latency's own logic, passed only to satisfy `main.c`'s cross-experiment `--samples`/`--batch-size` validation). 3 untimed warm-up passes before the first timed trial and again before every subsequent trial.
+- Raw output filename(s): `data_raw/upgrade/latency/miss/<TRANSITION>/miss_latency_{base,rep1,rep2}_{random,sequential}_20260913T061519Z.csv.gz`
+- Processing: `scripts/summarize_raw.py` → `data_processed/upgrade/latency/miss/<TRANSITION>/*_summary_20260913T061519Z.csv` → `scripts/plot_miss_latency.py --hit-latency-summary <matching hit_latency dependent/random summaries>` → `data_processed/upgrade/latency/miss/<TRANSITION>/plots/miss_latency_boxplots.{png,pdf}`.
+- **Result (random pattern, base run median, n=200 each): L1→L2 ≈ 67 ticks, L2→LLC ≈ 510 ticks, LLC→DRAM ≈ 605 ticks** — monotonically increasing, consistent with genuinely deeper eviction at each transition. Run-to-run spread across the 3 repeats exceeded `plot_miss_latency.py`'s 20% stderr-warning threshold at **every one of the 6 (transition, pattern) combinations** (random: L1→L2 medians 67/123/116 = 54.9%, L2→LLC 510/424/636 = 40.5%, LLC→DRAM 605/461/617 = 27.8%; sequential: L1→L2 97.5/79/121 = 42.4%, L2→LLC 170.5/290/327.5 = 59.8%, LLC→DRAM 304/288/153 = 60.8%). Per this run's instructions, these warnings are noted rather than re-run-until-clean; consistent with this project's established pattern of real shared-machine interference showing up as scattered single-run spikes (see Sunbird/Crux/Charnwood/Thunderbird/Ookay's write-ups) rather than a flaw in the method — not independently traced to a specific interfering process for this run (only the pre-run and pre-miss_latency idleness checks above were done; no `mpstat`/`ps` snapshot was taken immediately after each individual repeat).
+- **Single-shot measurement overhead, measured directly on this machine (2026-09-13):** control run `--target-bytes 32768 --evict-bytes 512 --pattern random --samples 2000 --batch-size 1 --seed 12345` (evict_bytes=512 B is ~8 cache lines, overwhelmingly unlikely to evict the L1-resident target most trials) gave **median = 55 ticks, mean = 56.0 ticks (n=2000)**. Compared against this machine's own L1 hit_latency dependent/random median (6.17-6.35 ticks across runs), the gap is **~48-49 ticks of fixed per-trial overhead** (timer serialization + post-function-call pipeline state, unamortized — see `main_code/common/latency.h`'s `run_miss_latency_experiment` docstring, "KNOWN LIMITATION" paragraph). Every miss_latency number above should be read as "true reload latency + ~48-49 ticks of fixed overhead," not a clean number; the increasing trend (67→510→605) is still meaningful evidence of deeper eviction, but absolute values and any direct incremental-penalty subtraction against a hit_latency plateau (`plot_miss_latency.py`'s annotation) are approximate, consistent with the same caveat Sunbird's README documents (though Sunbird's own control measured a higher ~64-85 tick floor — the two machines' fixed overheads are not identical, as expected for different CPU generations).
+- Not yet done: the per-transition/per-pattern spread wasn't traced to a specific interfering process; the single-shot overhead above was only measured once, at the L1 footprint (not per-transition); and it hasn't been subtracted from the headline numbers (pipeline does not do this automatically).
 
 ### inclusion_policy/
 - Source file(s): 
