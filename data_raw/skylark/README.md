@@ -518,14 +518,162 @@ rather than re-litigated.
 - Not yet done: the L1_to_L2 and L2_to_LLC repeat-spread hasn't been traced to a specific interfering process (no `mpstat`/`ps` check was run again mid-sweep, only before the whole run started); the single-shot overhead above was only measured once, at the L1 footprint, not independently re-measured at L2/LLC/DRAM footprints.
 
 ### inclusion_policy/
-- Source file(s): 
-- Run command + arguments: 
-- Eviction/reload construction: 
+Run 2026-09-13, same session as this file's other backfills. Boundary values
+from `CAPACITY_RESULTS.md` only (L1 = 32,768 B, L2 = 524,288 B, LLC =
+8,388,608 B) — per project-wide direction, taken as given rather than
+re-derived from this machine's own capacity/ region above (which never
+resolved a single L2/LLC boundary, only a broad ~4-16.8 MiB candidate
+shelf — see capacity/ section).
+- Idle-core check before running: `who` showed 2 other logged-in users
+  (`rrsood`, `dananth`), neither with a process pinned to a specific core
+  per `ps aux --sort=-%cpu` (top CPU consumers were this session's own
+  vscode-server/claude processes and an unrelated `CrashPlanService`, none
+  core-pinned); `mpstat -P ALL 1 2` showed every core at ~0% utilization
+  machine-wide at the time. Reused core 6 (idle-verified via two
+  `/proc/stat` cpu6 snapshots 3s apart: 301/302 ticks idle, ~99.7%) — same
+  core as this machine's own hit_latency/miss_latency runs above.
+- Build command: `git pull && make clean && make` (from repo root). Git
+  commit hash of the code used: `9ded3a929d5ac354a2bcdfb19e18c297e0ecb3c5`
+  (post-merge of Sunbird's hardened `run_inclusion_policy_full.sh`/
+  `ASSUMED_LINE_SIZE_BYTES` env-var override, commit a6c0368, with this
+  machine's own hit_latency/miss_latency commit).
+- Source file(s): `main_code/common/{main.c,inclusion_policy.c,inclusion_policy.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- **Line size used per pairing — NOT a single constant for this machine,
+  per this machine's own line_size/ section's headline finding (64B at the
+  confirmed L1 boundary, but 128B at the confirmed deep LLC->DRAM
+  transition — a genuine, unresolved 2x disagreement, not averaged
+  together).** Ran as two separate invocations so each pairing's
+  `--evict-bytes` scaling uses the line size confirmed nearest its own
+  lower-level target, via `run_inclusion_policy_full.sh`'s
+  `ASSUMED_LINE_SIZE_BYTES` env-var override (added for exactly this
+  cross-machine situation, see that script's header comment and
+  `CLAUDE.md`'s associativity section):
+  - `ASSUMED_LINE_SIZE_BYTES=64 ./scripts/run_inclusion_policy_full.sh skylark 6 L1_vs_L2:32768:524288:L2_to_LLC` (ts `20260913T180514Z`) — 64B matches this machine's doubly-confirmed L1 line size, and there is no evidence of a different line size at the L2 candidate footprint (line_size/ found no elbow there at all — a null result, not counter-evidence for 64B).
+  - `ASSUMED_LINE_SIZE_BYTES=128 ./scripts/run_inclusion_policy_full.sh skylark 6 L2_vs_LLC:524288:8388608:LLC_to_DRAM,L1_vs_LLC:32768:8388608:LLC_to_DRAM` (ts `20260913T180533Z`) — 128B matches this machine's confirmed line size at the real, deep LLC->DRAM transition (both pairings evict past LLC, so both use the LLC-region line size).
+- Wall-time calibration done before committing to a full run (20 trials
+  each, core 6, random pattern): 32 MiB evict_bytes (L1_vs_L2 scale) ran in
+  0.027s (~1.4 ms/trial); 256 MiB evict_bytes (L2_vs_LLC/L1_vs_LLC scale)
+  ran in 0.226s (~11.3 ms/trial). Both far faster than Sunbird's dense-buffer
+  miss_latency calibration (~74-604 ms/trial) — this experiment's eviction
+  buffer only touches one line per 4096 B page (`--evict-stride-bytes
+  4096`), so even a 256 MiB footprint is only 65,536 page touches per lap,
+  not a dense walk. No `tmux` needed; full 3-pairing run (calibration +
+  base + 2 repeats x 2 patterns each) completed in well under a minute.
+- Eviction/reload construction: identical mechanism to Sunbird's (see
+  `main_code/common/inclusion_policy.h`'s module doc comment) —
+  target/control freshly page-aligned at offset 0, eviction buffer one node
+  per page at fixed offset 2048 B, `--evict-bytes` computed as
+  `lower_level_bytes * 4096 / ASSUMED_LINE_SIZE_BYTES` (so L1_vs_L2:
+  524,288 * 4096/64 = 33,554,432 B (32 MiB); L2_vs_LLC and L1_vs_LLC:
+  8,388,608 * 4096/128 = 268,435,456 B (256 MiB) each).
+- Per pairing: calibration (500 single-shot trials, evict_bytes=target_bytes,
+  nothing evicted) + base + 2 reproducibility repeats (seed 12345/12346/12347),
+  both eviction-walk traversal patterns, 200 single-shot trials each
+  (`--batch-size 1`, same cross-experiment-validation-only caveat as
+  `miss_latency`), 3 untimed warm-up passes.
+- Raw output filename(s): `data_raw/skylark/inclusion_policy/<pairing>/inclusion_policy_{calibration,base,rep1,rep2}_{random,sequential}_<ts>.csv.gz`
+- Processing: `scripts/summarize_raw.py` per raw file → `data_processed/skylark/inclusion_policy/<pairing>/*_summary_<ts>.csv` → `scripts/classify_inclusion_policy.py` (reads raw base/random data directly) → `scripts/plot_inclusion_policy.py` (matplotlib confirmed working this session, no plotting failure).
+
+**Same three caveats as Sunbird's writeup apply here (assumed line
+size — resolved per-pairing above, not a blanket assumption; DTLB pressure
+at large eviction footprint; L2 target's index not fitting in one page) —
+see `data_raw/sunbird/README.md`'s inclusion_policy/ section for the full
+argument. One ADDITIONAL caveat specific to this machine, more load-bearing
+than usual: `CAPACITY_RESULTS.md`'s LLC value for Skylark (8,388,608 B =
+8 MiB) is very likely an UNDERESTIMATE of this machine's real LLC
+capacity** — this machine's own capacity/ section never confirmed a clean
+LLC boundary at 8 MiB; the closest thing it found was a genuine knee
+starting around 16.8-21.8 MiB (three auto-detected boundary candidates in
+that range), with 8 MiB sitting inside the earlier, unresolved ~4-16.8 MiB
+candidate shelf rather than at a confirmed edge. If the real LLC capacity
+is closer to ~20 MiB than 8 MiB, then L2_vs_LLC/L1_vs_LLC's 256 MiB
+eviction footprint (32x the ASSUMED 8 MiB, per the scaling formula) is
+only ~12-13x the more-plausible ~20 MiB real capacity — comfortably
+enough to blow way past a boundary that size in absolute byte terms, so
+this doesn't necessarily invalidate the results, but it does mean the
+"32x" safety margin baked into the scaling constant is smaller than
+intended for this machine specifically. Noted as a reason to read the
+LLC-involving verdicts below with slightly reduced confidence, not as
+grounds to discard them.
+
+**Results, one per pairing (n=200 target/control trials each, base/random
+run unless noted):**
+
+- **L1_vs_L2** (survived-class 73.104 ticks, invalidated-class 120.0 ticks
+  from `L2_to_LLC`, classification boundary 93.66 ticks): target median
+  72.0 ticks (68.0% survived-like, 31.5% ambiguous, 0.5% invalidated-like),
+  control median 72.0 ticks (72.0% survived-like, 27.5% ambiguous, 0.5%
+  invalidated-like). Paired check (target slower than its own trial's
+  control): only 11.0%. **Verdict: UNCERTAIN per the classifier** (mixed
+  result), and notably weaker than Sunbird's clean 90%-survived L1_vs_L2
+  result — target and control came back nearly indistinguishable here
+  (72.0 ticks median, both), unlike Sunbird's own 84-vs-68 split. Read as:
+  a WEAK lean toward non-inclusive (majority survived-like, negligible
+  invalidated-like, same qualitative direction as Sunbird's clean result)
+  rather than a clean classification — the near-identical target/control
+  medians suggest this specific 32 MiB eviction footprint isn't cleanly
+  differentiating "L1 survived" from "baseline single-shot overhead" the
+  way Sunbird's run did, not that the underlying policy differs from
+  Sunbird's.
+- **L2_vs_LLC** (survived-class 83.808 ticks, invalidated-class 360.0 ticks
+  from `LLC_to_DRAM`, boundary 173.70 ticks): target median 120.0 ticks
+  (99.5% survived-like, 0.5% ambiguous, 0% invalidated-like), control
+  median 96.0 ticks (100.0% survived-like). Paired check: 74.0% (target
+  slower than its own control most of the time, even though neither
+  channel crosses into the invalidated zone). **Verdict: EXCLUSIVE /
+  NON-INCLUSIVE** by the classifier — but per the LLC-underestimate caveat
+  above and caveat 3 (L2's index almost certainly doesn't fit in one page),
+  read this as the least trustworthy of the three, same as Sunbird's own
+  L2_vs_LLC pairing was its weakest link.
+- **L1_vs_LLC** (survived-class 83.328 ticks, invalidated-class 360.0 ticks
+  from `LLC_to_DRAM`, boundary 173.20 ticks): target median 96.0 ticks
+  (100.0% survived-like), control median 72.0 ticks (100.0% survived-like).
+  Paired check: 51.0%. **Verdict: EXCLUSIVE / NON-INCLUSIVE.** Notably
+  DIFFERENT from Sunbird's own L1_vs_LLC result, which leaned inclusive
+  (75% invalidated-like) — on Skylark, the skip-level L1 copy survived
+  LLC-scale eviction pressure essentially every trial. Given the
+  LLC-capacity-underestimate caveat above, this could mean either (a)
+  Skylark's LLC genuinely does not maintain inclusion of L1 lines
+  (unlike Sunbird's Haswell-era Xeon, a very different microarchitecture —
+  AMD Zen 2 chiplet designs are not known to use an inclusive LLC the way
+  older Intel monolithic ring-bus designs did), or (b) the eviction
+  footprint, while 32x the assumed LLC capacity, undershoots the real one
+  enough that genuine LLC-scale eviction never actually happened. (a) is
+  the more likely explanation given AMD's publicly known non-inclusive L3
+  design on this generation (Zen 2 "Rome") — noted here only as a
+  post-hoc plausibility check, not consulted while forming the reading
+  above, same discipline as Sunbird's own aside.
+- Not yet done, any pairing: multiple different target addresses/sets
+  (same open item as Sunbird's writeup); a dedicated re-check of whether
+  256 MiB eviction genuinely saturates this machine's real (likely
+  ~16-22 MiB) LLC given the capacity-underestimate caveat above; the
+  huge-pages TLB mitigation noted in Sunbird's caveat 2.
+
+**Best-guess synthesis:** all three pairings lean the SAME direction on
+Skylark (non-inclusive/exclusive-like), unlike Sunbird's mixed
+non-inclusive-L2/leaning-inclusive-LLC pattern. Combined with AMD Zen 2's
+publicly documented non-inclusive L3 design (post-hoc plausibility check
+only, per the aside above) and the L2_vs_LLC/L1_vs_LLC caveat about a
+likely-underestimated LLC capacity value, the best-supported single story
+for this machine is a cache hierarchy where **no level tested here is
+inclusive of the level(s) below it** — L1 vs L2 leans this way weakly, and
+L2 vs LLC / L1 vs LLC lean this way strongly (though the LLC-involving
+pairings carry the added capacity-estimate caveat above, so "strongly"
+here means "the classifier's numbers are clean," not "high confidence in
+the absolute claim").
 
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename: 
 - Events collected + exact semantics on this CPU: 
 - Run command + arguments: 
+
+## Final Inferred Cache Table (Skylark, Phase I best guess, 2026-09-13)
+
+Lives at `data_processed/skylark/FINAL_CACHE_TABLE.md`, alongside this
+machine's other processed benchmark outputs (`capacity/`, `line_size/`,
+`associativity/`, `latency/`, `inclusion_policy/`), same convention as
+Sunbird's. The full per-pairing reasoning and caveats behind it remain in
+this file's `associativity/` and `inclusion_policy/` sections above.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: 
