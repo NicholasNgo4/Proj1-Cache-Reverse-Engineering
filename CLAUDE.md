@@ -8,8 +8,29 @@ pick up current progress without re-deriving it. Note: a Claude session's
 conversation history and memory do NOT transfer between machines (each
 lab machine has its own local `/home`, confirmed not NFS-shared) — this
 file, the repo's data/READMEs, and git history are the only things that do.
+**For capacity boundary values specifically, `CAPACITY_RESULTS.md` is
+authoritative — see the note at the top of "Current status" below.**
 
 ## Current status (update this section as work progresses)
+
+**`CAPACITY_RESULTS.md` is the single source of truth for every machine's
+capacity boundaries (L1/L2/LLC) — read it, not the narrative below, before
+picking a boundary value for ANY downstream experiment (line size,
+associativity, hit/miss latency, inclusion/exclusion).** The per-machine
+capacity write-ups further down in this section (and the associativity
+section's boundary discussion) predate a correction: this file's own
+documented numbers/retractions turned out not to be accurate, and the user
+directly transcribed the real per-machine boundary values from the actual
+plotted graphs into `CAPACITY_RESULTS.md` (2026-09-13) to fix that. Where
+this file's prose below disagrees with `CAPACITY_RESULTS.md` (e.g. a
+boundary this file calls "retracted"/"not a genuine boundary" that
+`CAPACITY_RESULTS.md` lists as a real per-machine value, or a byte value
+that differs), **`CAPACITY_RESULTS.md` wins, unconditionally** — do not
+resurrect a value this file argued for over what's in that table, and do
+not re-litigate a `CAPACITY_RESULTS.md` value against this file's older
+reasoning. Treat everything below as historical investigation narrative
+(the reasoning/anomalies/methodology are still useful context) but always
+resolve the actual boundary number from `CAPACITY_RESULTS.md`.
 
 **Capacity experiment: done (with caveats, see below) on all 8 machines —
 Sunbird, Crux, Skylark, Upgrade, Charnwood, Thunderbird, Ookay, and
@@ -752,8 +773,41 @@ than assuming this paragraph is current) should expect the same outcome
 absent a method change — worth reading this whole section before spending
 a full session re-discovering it per machine.
 
-**Not yet started (data collection):** hit/miss latency, inclusion/
-exclusion experiments — not yet implemented in `cache_bench` at all.
+**Hit latency and miss/next-level latency: implemented 2026-09-13
+(`--experiment hit_latency` / `--experiment miss_latency` in
+`main_code/common/latency.c`/`.h`), first data collected on Sunbird only —
+inclusion/exclusion is still not started and still blocked on this.**
+Pipeline: `scripts/run_hit_latency_full.sh` / `scripts/run_miss_latency_full.sh`
++ `scripts/plot_{hit,miss}_latency.py` (no `detect_*.py` for either — there's
+no knee to find, just direct numbers per level/transition). Both footprint/
+target/evict byte values MUST come from `CAPACITY_RESULTS.md` only (see the
+note at the top of this "Current status" section) — do not use this file's
+own per-machine capacity prose to pick them.
+- **Sunbird** (`data_raw/sunbird/latency/`): hit latency at L1/L2/LLC/DRAM
+  (32,768 / 262,144 / 31,457,280 / 536,870,912 B) gives a clean, monotonic
+  4-tier ladder — L1≈10.4, L2≈26.8, LLC≈58.4, DRAM≈207 ticks (dependent,
+  random, median) — with the required independent-load control measuring
+  faster than dependent at every level and both patterns (confirms MLP is
+  correctly exposed, not hidden). A real bug was caught and fixed here:
+  the independent-load timer initially ignored `--pattern` entirely
+  (always used a random address permutation), making a `sequential`+
+  `independent` run measure slower than `sequential`+`dependent` — fixed
+  so independent-mode addressing follows `--pattern` too, exactly like
+  every other experiment's chase construction; see
+  `main_code/common/benchmark.c`'s `measure_independent_loads_batched()`.
+  Miss/next-level latency at L1→L2/L2→LLC/LLC→DRAM gives an increasing
+  124/284/622-tick sequence (random, median) — but a dedicated control
+  test found this experiment's single-shot (non-batched) timing carries a
+  ~64-85 tick FIXED measurement overhead on this machine (confirmed via an
+  eviction set too small to actually evict the target most of the time,
+  which still measured far above the true ~10-tick L1 hit latency) — so
+  these numbers are "real reload latency + fixed overhead", not clean
+  numbers; see `main_code/common/latency.h`'s `run_miss_latency_experiment`
+  docstring ("KNOWN LIMITATION") and `data_raw/sunbird/README.md`'s
+  latency/ section for the full write-up, including two of three
+  transitions showing substantial (26-60%) unexplained repeat-to-repeat
+  spread not yet traced to a specific cause. **Not yet run on any other
+  machine.**
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;

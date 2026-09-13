@@ -1,0 +1,149 @@
+== run_hit_latency_full: machine=sunbird core=2 base_seed=12345 ==
+== timestamp=20260913T053708Z ==
+
+== level L1: footprint_bytes=32768 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_base_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/base_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_base_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/base_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_base_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/base_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_base_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/base_independent_sequential_summary_20260913T053708Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_rep1_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/rep1_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_rep1_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/rep1_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_rep1_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/rep1_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_rep1_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/rep1_independent_sequential_summary_20260913T053708Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_rep2_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/rep2_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_rep2_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/rep2_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_rep2_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/rep2_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L1/hit_latency_rep2_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L1/rep2_independent_sequential_summary_20260913T053708Z.csv
+-- generating plots for L1 --
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [13.4, 10.2, 10.2] (spread 3.2 ticks, 28.8%) -- averaging, widening whiskers to the union
+random: independent < dependent (8.49 vs 10.35 ticks) [expected]
+sequential: independent < dependent (8.38 vs 11.28 ticks) [expected]
+Wrote data_processed/sunbird/latency/hit/L1/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: footprint_bytes=262144 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_base_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/base_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_base_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/base_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_base_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/base_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_base_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/base_independent_sequential_summary_20260913T053708Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_rep1_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/rep1_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_rep1_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/rep1_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_rep1_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/rep1_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_rep1_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/rep1_independent_sequential_summary_20260913T053708Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_rep2_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/rep2_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_rep2_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/rep2_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_rep2_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/rep2_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/L2/hit_latency_rep2_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/L2/rep2_independent_sequential_summary_20260913T053708Z.csv
+-- generating plots for L2 --
+  note: ('dependent', 'random') has 3 overlapping summary rows with medians [26.8, 21.0, 20.9] (spread 5.9 ticks, 25.8%) -- averaging, widening whiskers to the union
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [10.1, 14.9, 14.9] (spread 4.7 ticks, 35.7%) -- averaging, widening whiskers to the union
+random: independent < dependent (11.03 vs 22.91 ticks) [expected]
+sequential: independent < dependent (8.39 vs 13.28 ticks) [expected]
+Wrote data_processed/sunbird/latency/hit/L2/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level LLC: footprint_bytes=31457280 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_base_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/base_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_base_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/base_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_base_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/base_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_base_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/base_independent_sequential_summary_20260913T053708Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_rep1_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/rep1_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_rep1_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/rep1_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_rep1_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/rep1_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_rep1_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/rep1_independent_sequential_summary_20260913T053708Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_rep2_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/rep2_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_rep2_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/rep2_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_rep2_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/rep2_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/LLC/hit_latency_rep2_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/LLC/rep2_independent_sequential_summary_20260913T053708Z.csv
+-- generating plots for LLC --
+random: independent < dependent (32.29 vs 60.03 ticks) [expected]
+sequential: independent < dependent (8.41 vs 10.12 ticks) [expected]
+Wrote data_processed/sunbird/latency/hit/LLC/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC --
+
+== level DRAM: footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_base_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/base_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_base_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/base_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_base_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/base_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_base_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/base_independent_sequential_summary_20260913T053708Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_rep1_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/rep1_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_rep1_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/rep1_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_rep1_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/rep1_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_rep1_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/rep1_independent_sequential_summary_20260913T053708Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_rep2_dependent_random_20260913T053708Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/rep2_dependent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_rep2_dependent_sequential_20260913T053708Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/rep2_dependent_sequential_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_rep2_independent_random_20260913T053708Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/rep2_independent_random_summary_20260913T053708Z.csv
+  wrote 1002 lines -> data_raw/sunbird/latency/hit/DRAM/hit_latency_rep2_independent_sequential_20260913T053708Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/sunbird/latency/hit/DRAM/rep2_independent_sequential_summary_20260913T053708Z.csv
+-- generating plots for DRAM --
+random: independent < dependent (37.56 vs 206.74 ticks) [expected]
+sequential: independent < dependent (8.42 vs 10.13 ticks) [expected]
+Wrote data_processed/sunbird/latency/hit/DRAM/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for DRAM --
+
+== done ==
+== L1: footprint_bytes=32768 ==
+== L2: footprint_bytes=262144 ==
+== LLC: footprint_bytes=31457280 ==
+== DRAM: footprint_bytes=536870912 ==
+== record in data_raw/sunbird/README.md: core=2, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260913T053708Z ==
+== full transcript saved to: data_raw/sunbird/latency/run_hit_latency_full_20260913T053708Z.log ==

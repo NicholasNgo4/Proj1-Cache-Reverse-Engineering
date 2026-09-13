@@ -50,4 +50,16 @@ void make_sequential_cycle_strided(
     size_t stride
 );
 
+/*
+ * Fisher-Yates shuffle of [0, n) into a freshly malloc()'d array the caller
+ * owns (and must free()). Same PRNG and shuffle as make_random_cycle_strided()'s
+ * internal order array, exposed here for callers that need an independent
+ * address permutation rather than a dependent-chase cycle -- e.g. the
+ * hit_latency experiment's independent-load diagnostic control (see
+ * latency.h / measure_independent_loads_batched() in benchmark.h), which must
+ * read addresses in an order that does NOT depend on any previously loaded
+ * value, unlike every other experiment's chase().
+ */
+size_t *make_shuffled_indices(size_t n, uint32_t seed);
+
 #endif

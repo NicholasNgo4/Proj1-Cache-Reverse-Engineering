@@ -46,3 +46,18 @@ void make_random_cycle(struct node *nodes, size_t n, uint32_t seed) {
 void make_sequential_cycle(struct node *nodes, size_t n) {
     make_sequential_cycle_strided(nodes, n, sizeof(struct node));
 }
+
+size_t *make_shuffled_indices(size_t n, uint32_t seed) {
+    size_t *order = malloc(n * sizeof(*order));
+    if (!order || n < 1) exit(1);
+    for (size_t i = 0; i < n; i++) order[i] = i;
+
+    uint32_t state = seed ? seed : 1u;
+    for (size_t i = n - 1; i > 0; i--) {
+        size_t j = (size_t)(xorshift32(&state) % (uint32_t)(i + 1));
+        size_t tmp = order[i];
+        order[i] = order[j];
+        order[j] = tmp;
+    }
+    return order;
+}
