@@ -775,8 +775,7 @@ a full session re-discovering it per machine.
 
 **Hit latency and miss/next-level latency: implemented 2026-09-13
 (`--experiment hit_latency` / `--experiment miss_latency` in
-`main_code/common/latency.c`/`.h`), first data collected on Sunbird only —
-inclusion/exclusion is still not started and still blocked on this.**
+`main_code/common/latency.c`/`.h`), first data collected on Sunbird only.**
 Pipeline: `scripts/run_hit_latency_full.sh` / `scripts/run_miss_latency_full.sh`
 + `scripts/plot_{hit,miss}_latency.py` (no `detect_*.py` for either — there's
 no knee to find, just direct numbers per level/transition). Both footprint/
@@ -808,6 +807,77 @@ own per-machine capacity prose to pick them.
   transitions showing substantial (26-60%) unexplained repeat-to-repeat
   spread not yet traced to a specific cause. **Not yet run on any other
   machine.**
+
+**Inclusion/exclusion: implemented 2026-09-13 (`--experiment
+inclusion_policy` in `main_code/common/inclusion_policy.c`/`.h`), first
+(preliminary, uncertain-verdict) data collected on Sunbird only.** Pipeline:
+`scripts/run_inclusion_policy_full.sh` + `scripts/classify_inclusion_policy.py`
++ `scripts/plot_inclusion_policy.py`. Method (see `inclusion_policy.h`'s
+module doc comment for the full argument): target + an untouched control
+line are freshly page-aligned; the eviction buffer places one node per
+page, all at one FIXED sub-page offset different from target/control's own
+(offset 0) — spans many pages (hence many lower-level sets) while
+structurally never landing on target's own upper-level line, PROVIDED the
+upper level's index fits within one page (true for a typical L1; NOT
+reliable for an L2-or-bigger target). Classification compares the raw
+per-trial reload latency against two SINGLE-SHOT calibration numbers (not
+batched hit_latency medians, which would be systematically biased low by
+missing the single-shot overhead documented in `latency.h`): a "survived"
+class calibrated fresh each run (trivially-small eviction, nothing actually
+evicted) and an "invalidated" class read from this machine's own
+already-collected `miss_latency` data for the matching transition.
+- **Three load-bearing caveats, deliberately left unresolved this pass (see
+  `data_raw/sunbird/README.md`'s inclusion_policy/ section for the full
+  writeup):** (1) the eviction buffer touches only one cache line per page,
+  so exerting genuinely comparable pressure to a dense buffer requires
+  scaling the lower level's byte capacity up by `page_size/line_size` —
+  line_size data isn't available yet, so `run_inclusion_policy_full.sh`
+  uses a **documented, unverified assumption of 64 B**; (2) touching enough
+  distinct pages to do that scaling (Sunbird's L2-vs-LLC and L1-vs-LLC
+  pairings: ~491,520 pages, ~1.9 GiB eviction footprint each; the L1-vs-L2
+  pairing is far smaller, ~4,096 pages/16 MiB, and less exposed to this)
+  risks blowing the DTLB regardless of any real cache eviction — the
+  `control` channel is a live per-run check for this; (3) the "avoids the
+  upper level's own set" guarantee only holds when the target's full index
+  fits within one page — plausible for an L1 target, essentially never true
+  for an L2 target, so any pairing testing an L2 target (L2_vs_LLC) should
+  be read with the LEAST confidence of the three. A proper DTLB mitigation
+  (huge-pages backing for the eviction buffer, mirroring `associativity.c`'s
+  existing `--huge-pages` diagnostic) was identified as a next step and NOT
+  implemented here — flagged, not solved.
+- **Sunbird** (`data_raw/sunbird/inclusion_policy/{L1_vs_L2,L2_vs_LLC,L1_vs_LLC}/`):
+  all three level pairings CAPACITY_RESULTS.md's L1/L2/LLC boundaries imply
+  were run, each with its own single-shot calibration and its own confidence
+  level:
+  - **L1_vs_L2** (target=L1 32,768 B, eviction past L2 262,144 B): target
+    90.0% survived-like (median 84 ticks), control 92.0% survived-like
+    (median 68), paired-slower 96.5%. **Verdict: EXCLUSIVE / NON-INCLUSIVE**
+    — the cleanest, most confident result of the three, and the least
+    exposed to caveats 2-3 above (small eviction footprint, L1-sized target).
+  - **L1_vs_LLC** (target=L1, eviction past LLC ≈30 MiB): target 75.0%
+    invalidated-like (median 236, vs. 60-tick survived/622-tick invalidated
+    calibration), control 97.5% survived-like (median 136), paired-slower
+    98.5%. **Verdict: UNCERTAIN** — target's fraction falls just short of
+    the 80% threshold for a firm call; read as strong evidence leaning
+    inclusive, not a clean classification. Control stayed clean here, so
+    caveat 2 looks like a minor factor for this specific pairing.
+  - **L2_vs_LLC** (target=L2 262,144 B, eviction past LLC): target only
+    13.5% survived-like / 1.5% invalidated-like (85.0% ambiguous, median
+    212 vs. 76-tick survived/622-tick invalidated calibration), control
+    96.5% survived-like (median 144), paired-slower 92.0%. **Verdict:
+    UNCERTAIN**, and the least trustworthy of the three per caveat 3 — an
+    L2 target gets no structural avoidance guarantee, so this pairing's
+    numbers may just reflect ordinary incidental L2 eviction from the walk,
+    not evidence about LLC's actual policy. Also: its target/sequential box
+    showed 80% run-to-run spread, the widest disagreement of any
+    inclusion_policy run so far, not yet investigated.
+  - Do not cite any of these as a settled "Sunbird's cache is
+    inclusive/exclusive" claim without first addressing the three caveats
+    above and the "repeat with multiple target sets/addresses" requirement
+    (every run above tested exactly one target buffer per repeat, just
+    re-seeded). One further unexplained anomaly, L1_vs_LLC run only: its
+    control/sequential box showed 77% spread (max ~756 ticks), not yet
+    investigated. **Not yet run on any other machine.**
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;

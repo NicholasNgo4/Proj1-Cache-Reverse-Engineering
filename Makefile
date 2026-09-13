@@ -15,7 +15,8 @@ SOURCES = \
 	$(COMMON_DIR)/capacity.c \
 	$(COMMON_DIR)/line_size.c \
 	$(COMMON_DIR)/associativity.c \
-	$(COMMON_DIR)/latency.c
+	$(COMMON_DIR)/latency.c \
+	$(COMMON_DIR)/inclusion_policy.c
 
 OBJECTS = $(SOURCES:.c=.o)
 
