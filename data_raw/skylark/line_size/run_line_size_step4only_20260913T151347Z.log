@@ -1,0 +1,565 @@
+== run_step4_only (Method A step 4 ONLY): machine=skylark core=10 seed=12345 ==
+== timestamp=20260913T151347Z boundaries=32768 524288 8388608 candidates=64 64 64 ==
+== candidates chosen by user after visually inspecting the seed=12345 line_size_family_curve.png for each level ==
+
+############################################################
+## LEVEL boundary=32768B candidate=64B -- step4 window=[4096,131072] bytes
+############################################################
+== [L32768 A step 4] bracket=40,48,56,64,72,80,88B (8B granularity) offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L32768 A refine] stride=40B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_40_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_40_off0_summary.csv
+-- [L32768 A refine] stride=48B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_48_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_48_off0_summary.csv
+-- [L32768 A refine] stride=56B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_56_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_56_off0_summary.csv
+-- [L32768 A refine] stride=64B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_64_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_64_off0_summary.csv
+-- [L32768 A refine] stride=72B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_72_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_72_off0_summary.csv
+-- [L32768 A refine] stride=80B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_80_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_80_off0_summary.csv
+-- [L32768 A refine] stride=88B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_88_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_88_off0_summary.csv
+-- [L32768 A refine] stride=40B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_40_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_40_off8_summary.csv
+-- [L32768 A refine] stride=48B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_48_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_48_off8_summary.csv
+-- [L32768 A refine] stride=56B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_56_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_56_off8_summary.csv
+-- [L32768 A refine] stride=64B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_64_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_64_off8_summary.csv
+-- [L32768 A refine] stride=72B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_72_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_72_off8_summary.csv
+-- [L32768 A refine] stride=80B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_80_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_80_off8_summary.csv
+-- [L32768 A refine] stride=88B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_88_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_88_off8_summary.csv
+-- [L32768 A refine] stride=40B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_40_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_40_off16_summary.csv
+-- [L32768 A refine] stride=48B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_48_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_48_off16_summary.csv
+-- [L32768 A refine] stride=56B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_56_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_56_off16_summary.csv
+-- [L32768 A refine] stride=64B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_64_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_64_off16_summary.csv
+-- [L32768 A refine] stride=72B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_72_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_72_off16_summary.csv
+-- [L32768 A refine] stride=80B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_80_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_80_off16_summary.csv
+-- [L32768 A refine] stride=88B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_88_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_88_off16_summary.csv
+-- [L32768 A refine] stride=40B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_40_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_40_off24_summary.csv
+-- [L32768 A refine] stride=48B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_48_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_48_off24_summary.csv
+-- [L32768 A refine] stride=56B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_56_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_56_off24_summary.csv
+-- [L32768 A refine] stride=64B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_64_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_64_off24_summary.csv
+-- [L32768 A refine] stride=72B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_72_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_72_off24_summary.csv
+-- [L32768 A refine] stride=80B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_80_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_80_off24_summary.csv
+-- [L32768 A refine] stride=88B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_88_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_88_off24_summary.csv
+-- [L32768 A refine] stride=40B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_40_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_40_off32_summary.csv
+-- [L32768 A refine] stride=48B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_48_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_48_off32_summary.csv
+-- [L32768 A refine] stride=56B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_56_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_56_off32_summary.csv
+-- [L32768 A refine] stride=64B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_64_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_64_off32_summary.csv
+-- [L32768 A refine] stride=72B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_72_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_72_off32_summary.csv
+-- [L32768 A refine] stride=80B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_80_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_80_off32_summary.csv
+-- [L32768 A refine] stride=88B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_88_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_88_off32_summary.csv
+-- [L32768 A refine] stride=40B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_40_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_40_off40_summary.csv
+-- [L32768 A refine] stride=48B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_48_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_48_off40_summary.csv
+-- [L32768 A refine] stride=56B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_56_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_56_off40_summary.csv
+-- [L32768 A refine] stride=64B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_64_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_64_off40_summary.csv
+-- [L32768 A refine] stride=72B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_72_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_72_off40_summary.csv
+-- [L32768 A refine] stride=80B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_80_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_80_off40_summary.csv
+-- [L32768 A refine] stride=88B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_88_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_88_off40_summary.csv
+-- [L32768 A refine] stride=40B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_40_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_40_off48_summary.csv
+-- [L32768 A refine] stride=48B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_48_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_48_off48_summary.csv
+-- [L32768 A refine] stride=56B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_56_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_56_off48_summary.csv
+-- [L32768 A refine] stride=64B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_64_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_64_off48_summary.csv
+-- [L32768 A refine] stride=72B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_72_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_72_off48_summary.csv
+-- [L32768 A refine] stride=80B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_80_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_80_off48_summary.csv
+-- [L32768 A refine] stride=88B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_88_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_88_off48_summary.csv
+-- [L32768 A refine] stride=40B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_40_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_40_off56_summary.csv
+-- [L32768 A refine] stride=48B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_48_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_48_off56_summary.csv
+-- [L32768 A refine] stride=56B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_56_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_56_off56_summary.csv
+-- [L32768 A refine] stride=64B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_64_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_64_off56_summary.csv
+-- [L32768 A refine] stride=72B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_72_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_72_off56_summary.csv
+-- [L32768 A refine] stride=80B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_80_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_80_off56_summary.csv
+-- [L32768 A refine] stride=88B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/refine_88_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/refine_88_off56_summary.csv
+-- [L32768 A step 4] generating cross-alignment confirmation plots --
+Wrote data_processed/skylark/line_size/level_32768/plots/line_size_offset_elbow.pdf and .png
+Wrote data_processed/skylark/line_size/level_32768/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {40: 52000, 48: 65520, 56: 51968, 64: 51968, 72: 51984, 80: 58320, 88: 52008}
+   offset=8B: {40: 58360, 48: 46320, 56: 41272, 64: 36736, 72: 41256, 80: 58320, 88: 52008}
+   offset=16B: {40: 46320, 48: 46320, 56: 58352, 64: 36736, 72: 73512, 80: 58320, 88: 65472}
+   offset=24B: {40: 58360, 48: 58368, 56: 51968, 64: 51968, 72: 58320, 80: 58320, 88: 58344}
+   offset=32B: {40: 58360, 48: 58368, 56: 51968, 64: 51968, 72: 51984, 80: 58320, 88: 58344}
+   offset=40B: {40: 58360, 48: 46320, 56: 51968, 64: 36736, 72: 41256, 80: 46320, 88: 65472}
+   offset=48B: {40: 58360, 48: 46320, 56: 41272, 64: 51968, 72: 58320, 80: 46320, 88: 58344}
+   offset=56B: {40: 58360, 48: 46320, 56: 41272, 64: 41280, 72: 58320, 80: 46320, 88: 58344}
+-- candidate stride 64B: elbow varies 1.41x across offsets (36736-51968 bytes) -- transition may be alignment-sensitive, do not cite this candidate as a clean line-size result without further investigation
+
+############################################################
+## LEVEL boundary=524288B candidate=64B -- step4 window=[65536,2097152] bytes
+############################################################
+== [L524288 A step 4] bracket=40,48,56,64,72,80,88B (8B granularity) offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L524288 A refine] stride=40B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_40_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_40_off0_summary.csv
+-- [L524288 A refine] stride=48B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_48_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_48_off0_summary.csv
+-- [L524288 A refine] stride=56B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_56_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_56_off0_summary.csv
+-- [L524288 A refine] stride=64B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_64_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_64_off0_summary.csv
+-- [L524288 A refine] stride=72B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_72_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_72_off0_summary.csv
+-- [L524288 A refine] stride=80B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_80_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_80_off0_summary.csv
+-- [L524288 A refine] stride=88B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_88_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_88_off0_summary.csv
+-- [L524288 A refine] stride=40B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_40_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_40_off8_summary.csv
+-- [L524288 A refine] stride=48B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_48_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_48_off8_summary.csv
+-- [L524288 A refine] stride=56B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_56_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_56_off8_summary.csv
+-- [L524288 A refine] stride=64B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_64_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_64_off8_summary.csv
+-- [L524288 A refine] stride=72B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_72_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_72_off8_summary.csv
+-- [L524288 A refine] stride=80B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_80_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_80_off8_summary.csv
+-- [L524288 A refine] stride=88B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_88_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_88_off8_summary.csv
+-- [L524288 A refine] stride=40B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_40_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_40_off16_summary.csv
+-- [L524288 A refine] stride=48B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_48_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_48_off16_summary.csv
+-- [L524288 A refine] stride=56B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_56_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_56_off16_summary.csv
+-- [L524288 A refine] stride=64B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_64_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_64_off16_summary.csv
+-- [L524288 A refine] stride=72B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_72_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_72_off16_summary.csv
+-- [L524288 A refine] stride=80B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_80_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_80_off16_summary.csv
+-- [L524288 A refine] stride=88B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_88_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_88_off16_summary.csv
+-- [L524288 A refine] stride=40B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_40_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_40_off24_summary.csv
+-- [L524288 A refine] stride=48B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_48_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_48_off24_summary.csv
+-- [L524288 A refine] stride=56B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_56_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_56_off24_summary.csv
+-- [L524288 A refine] stride=64B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_64_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_64_off24_summary.csv
+-- [L524288 A refine] stride=72B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_72_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_72_off24_summary.csv
+-- [L524288 A refine] stride=80B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_80_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_80_off24_summary.csv
+-- [L524288 A refine] stride=88B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_88_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_88_off24_summary.csv
+-- [L524288 A refine] stride=40B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_40_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_40_off32_summary.csv
+-- [L524288 A refine] stride=48B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_48_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_48_off32_summary.csv
+-- [L524288 A refine] stride=56B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_56_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_56_off32_summary.csv
+-- [L524288 A refine] stride=64B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_64_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_64_off32_summary.csv
+-- [L524288 A refine] stride=72B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_72_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_72_off32_summary.csv
+-- [L524288 A refine] stride=80B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_80_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_80_off32_summary.csv
+-- [L524288 A refine] stride=88B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_88_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_88_off32_summary.csv
+-- [L524288 A refine] stride=40B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_40_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_40_off40_summary.csv
+-- [L524288 A refine] stride=48B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_48_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_48_off40_summary.csv
+-- [L524288 A refine] stride=56B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_56_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_56_off40_summary.csv
+-- [L524288 A refine] stride=64B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_64_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_64_off40_summary.csv
+-- [L524288 A refine] stride=72B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_72_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_72_off40_summary.csv
+-- [L524288 A refine] stride=80B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_80_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_80_off40_summary.csv
+-- [L524288 A refine] stride=88B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_88_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_88_off40_summary.csv
+-- [L524288 A refine] stride=40B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_40_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_40_off48_summary.csv
+-- [L524288 A refine] stride=48B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_48_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_48_off48_summary.csv
+-- [L524288 A refine] stride=56B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_56_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_56_off48_summary.csv
+-- [L524288 A refine] stride=64B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_64_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_64_off48_summary.csv
+-- [L524288 A refine] stride=72B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_72_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_72_off48_summary.csv
+-- [L524288 A refine] stride=80B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_80_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_80_off48_summary.csv
+-- [L524288 A refine] stride=88B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_88_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_88_off48_summary.csv
+-- [L524288 A refine] stride=40B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_40_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_40_off56_summary.csv
+-- [L524288 A refine] stride=48B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_48_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_48_off56_summary.csv
+-- [L524288 A refine] stride=56B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_56_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_56_off56_summary.csv
+-- [L524288 A refine] stride=64B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_64_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_64_off56_summary.csv
+-- [L524288 A refine] stride=72B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_72_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_72_off56_summary.csv
+-- [L524288 A refine] stride=80B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_80_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_80_off56_summary.csv
+-- [L524288 A refine] stride=88B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/refine_88_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/refine_88_off56_summary.csv
+-- [L524288 A step 4] generating cross-alignment confirmation plots --
+Wrote data_processed/skylark/line_size/level_524288/plots/line_size_offset_elbow.pdf and .png
+Wrote data_processed/skylark/line_size/level_524288/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {40: 934160, 48: 934128, 56: 832216, 64: 934144, 72: 832248, 80: 934160, 88: 934120}
+   offset=8B: {40: 1048560, 48: 934128, 56: 934136, 64: 832192, 72: 934128, 80: 832240, 88: 934120}
+   offset=16B: {40: 934160, 48: 1048560, 56: 832216, 64: 934144, 72: 832248, 80: 832240, 88: 934120}
+   offset=24B: {40: 1048560, 48: 934128, 56: 934136, 64: 832192, 72: 832248, 80: 934160, 88: 934120}
+   offset=32B: {40: 1048560, 48: 934128, 56: 832216, 64: 832192, 72: 934128, 80: 832240, 88: 934120}
+   offset=40B: {40: 1048560, 48: 934128, 56: 934136, 64: 741440, 72: 832248, 80: 934160, 88: 934120}
+   offset=48B: {40: 934160, 48: 934128, 56: 934136, 64: 934144, 72: 741384, 80: 832240, 88: 934120}
+   offset=56B: {40: 934160, 48: 934128, 56: 934136, 64: 832192, 72: 832248, 80: 934160, 88: 832216}
+-- candidate stride 64B: elbow stable across the 8/8 offsets with a detectable elbow (741440-934144 bytes, 1.26x spread) -- consistent with a genuine, alignment-independent transition, but see the gap warning above before treating this as full 8/8 agreement
+
+############################################################
+## LEVEL boundary=8388608B candidate=64B -- step4 window=[1048576,33554432] bytes
+############################################################
+== [L8388608 A step 4] bracket=40,48,56,64,72,80,88B (8B granularity) offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L8388608 A refine] stride=40B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_40_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_40_off0_summary.csv
+-- [L8388608 A refine] stride=48B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_48_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_48_off0_summary.csv
+-- [L8388608 A refine] stride=56B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_56_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_56_off0_summary.csv
+-- [L8388608 A refine] stride=64B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_64_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_64_off0_summary.csv
+-- [L8388608 A refine] stride=72B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_72_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_72_off0_summary.csv
+-- [L8388608 A refine] stride=80B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_80_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_80_off0_summary.csv
+-- [L8388608 A refine] stride=88B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_88_off0_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_88_off0_summary.csv
+-- [L8388608 A refine] stride=40B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_40_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_40_off8_summary.csv
+-- [L8388608 A refine] stride=48B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_48_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_48_off8_summary.csv
+-- [L8388608 A refine] stride=56B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_56_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_56_off8_summary.csv
+-- [L8388608 A refine] stride=64B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_64_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_64_off8_summary.csv
+-- [L8388608 A refine] stride=72B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_72_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_72_off8_summary.csv
+-- [L8388608 A refine] stride=80B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_80_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_80_off8_summary.csv
+-- [L8388608 A refine] stride=88B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_88_off8_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_88_off8_summary.csv
+-- [L8388608 A refine] stride=40B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_40_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_40_off16_summary.csv
+-- [L8388608 A refine] stride=48B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_48_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_48_off16_summary.csv
+-- [L8388608 A refine] stride=56B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_56_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_56_off16_summary.csv
+-- [L8388608 A refine] stride=64B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_64_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_64_off16_summary.csv
+-- [L8388608 A refine] stride=72B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_72_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_72_off16_summary.csv
+-- [L8388608 A refine] stride=80B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_80_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_80_off16_summary.csv
+-- [L8388608 A refine] stride=88B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_88_off16_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_88_off16_summary.csv
+-- [L8388608 A refine] stride=40B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_40_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_40_off24_summary.csv
+-- [L8388608 A refine] stride=48B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_48_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_48_off24_summary.csv
+-- [L8388608 A refine] stride=56B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_56_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_56_off24_summary.csv
+-- [L8388608 A refine] stride=64B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_64_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_64_off24_summary.csv
+-- [L8388608 A refine] stride=72B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_72_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_72_off24_summary.csv
+-- [L8388608 A refine] stride=80B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_80_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_80_off24_summary.csv
+-- [L8388608 A refine] stride=88B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_88_off24_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_88_off24_summary.csv
+-- [L8388608 A refine] stride=40B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_40_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_40_off32_summary.csv
+-- [L8388608 A refine] stride=48B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_48_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_48_off32_summary.csv
+-- [L8388608 A refine] stride=56B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_56_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_56_off32_summary.csv
+-- [L8388608 A refine] stride=64B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_64_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_64_off32_summary.csv
+-- [L8388608 A refine] stride=72B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_72_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_72_off32_summary.csv
+-- [L8388608 A refine] stride=80B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_80_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_80_off32_summary.csv
+-- [L8388608 A refine] stride=88B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_88_off32_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_88_off32_summary.csv
+-- [L8388608 A refine] stride=40B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_40_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_40_off40_summary.csv
+-- [L8388608 A refine] stride=48B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_48_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_48_off40_summary.csv
+-- [L8388608 A refine] stride=56B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_56_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_56_off40_summary.csv
+-- [L8388608 A refine] stride=64B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_64_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_64_off40_summary.csv
+-- [L8388608 A refine] stride=72B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_72_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_72_off40_summary.csv
+-- [L8388608 A refine] stride=80B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_80_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_80_off40_summary.csv
+-- [L8388608 A refine] stride=88B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_88_off40_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_88_off40_summary.csv
+-- [L8388608 A refine] stride=40B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_40_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_40_off48_summary.csv
+-- [L8388608 A refine] stride=48B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_48_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_48_off48_summary.csv
+-- [L8388608 A refine] stride=56B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_56_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_56_off48_summary.csv
+-- [L8388608 A refine] stride=64B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_64_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_64_off48_summary.csv
+-- [L8388608 A refine] stride=72B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_72_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_72_off48_summary.csv
+-- [L8388608 A refine] stride=80B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_80_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_80_off48_summary.csv
+-- [L8388608 A refine] stride=88B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_88_off48_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_88_off48_summary.csv
+-- [L8388608 A refine] stride=40B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_40_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_40_off56_summary.csv
+-- [L8388608 A refine] stride=48B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_48_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_48_off56_summary.csv
+-- [L8388608 A refine] stride=56B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_56_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_56_off56_summary.csv
+-- [L8388608 A refine] stride=64B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_64_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_64_off56_summary.csv
+-- [L8388608 A refine] stride=72B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_72_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_72_off56_summary.csv
+-- [L8388608 A refine] stride=80B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_80_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_80_off56_summary.csv
+-- [L8388608 A refine] stride=88B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/refine_88_off56_20260913T151347Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/refine_88_off56_summary.csv
+-- [L8388608 A step 4] generating cross-alignment confirmation plots --
+Wrote data_processed/skylark/line_size/level_8388608/plots/line_size_offset_elbow.pdf and .png
+Wrote data_processed/skylark/line_size/level_8388608/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {40: 26632160, 48: 26632128, 56: 26632144, 64: 26632128, 72: 26632152, 80: 26632160, 88: 26632144}
+   offset=8B: {40: 26632160, 48: 26632128, 56: 26632144, 64: 26632128, 72: 26632152, 80: 26632160, 88: 26632144}
+   offset=16B: {40: 26632160, 48: 26632128, 56: 26632144, 64: 26632128, 72: 26632152, 80: 26632160, 88: 26632144}
+   offset=24B: {40: 26632160, 48: 26632128, 56: 26632144, 64: 26632128, 72: 26632152, 80: 26632160, 88: 26632144}
+   offset=32B: {40: 26632160, 48: 26632128, 56: 26632144, 64: 26632128, 72: 26632152, 80: 26632160, 88: 26632144}
+   offset=40B: {40: 26632160, 48: 26632128, 56: 26632144, 64: 26632128, 72: 26632152, 80: 26632160, 88: 26632144}
+   offset=48B: {40: 26632160, 48: 26632128, 56: 26632144, 64: 26632128, 72: 26632152, 80: 26632160, 88: 26632144}
+   offset=56B: {40: 26632160, 48: 26632128, 56: 26632144, 64: 23726528, 72: 26632152, 80: 26632160, 88: 26632144}
+-- candidate stride 64B: elbow stable across the 8/8 offsets with a detectable elbow (23726528-26632128 bytes, 1.12x spread) -- consistent with a genuine, alignment-independent transition, but see the gap warning above before treating this as full 8/8 agreement
+
+== done: Method A step 4 only, all 3 levels ==
+== plots per level: data_processed/skylark/line_size/level_<boundary>/plots/line_size_offset_{elbow,boxplots}.{png,pdf} ==
+== full transcript saved to: data_raw/skylark/line_size/run_line_size_step4only_20260913T151347Z.log ==
