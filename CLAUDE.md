@@ -964,6 +964,38 @@ already-collected `miss_latency` data for the matching transition.
     the user's request, so it sits next to `capacity/`, `line_size/`,
     `associativity/`, `latency/`, `inclusion_policy/` rather than in the
     data_raw README).
+
+**Thunderbird (2026-09-13): ran all three pairings using the hardened
+pipeline's per-level `ASSUMED_LINE_SIZE_BYTES` override (64 B for L1_vs_L2,
+128 B for the two LLC-scale pairings, matching this machine's own confirmed
+per-level line_size split) — the first machine to actually need that
+override.** L1_vs_L2: EXCLUSIVE/NON-INCLUSIVE (84.5% survived-like), same
+direction as Sunbird. L2_vs_LLC: formally UNCERTAIN but leans inclusive
+(76.5% invalidated-like, vs. Sunbird's own near-total ambiguity at this
+pairing — a different-looking, not just noisier, result). L1_vs_LLC (skip
+-level): EXCLUSIVE/NON-INCLUSIVE at 80.5% — **the opposite directional lean
+from Sunbird's own skip-level result** (Sunbird leaned inclusive at 75%).
+New Thunderbird-specific finding, not present on Sunbird: this machine's real
+L1 (65,536 B, 4-way, 256 sets) needs 14 address bits of index+offset, 2 more
+than fit in one 4096 B page (Sunbird's L1 fits exactly in 12), so the
+method's "eviction structurally avoids target's own set" guarantee is only
+approximate here even for an L1 target, not exact — read every Thunderbird
+inclusion_policy verdict as somewhat less clean than the equivalent Sunbird
+one for this reason. Also: this machine's coarse 25 MHz timer compresses the
+survived/invalidated calibration classes into just a few integer tick
+values, making per-trial classification here inherently less crisp than on
+x86. **Best-guess overall reading:** L1 vs L2 confidently non-inclusive
+(matches Sunbird); unlike Sunbird, the two LLC-involving pairings do NOT
+combine into one internally consistent hierarchy-wide story on this
+machine — treated as genuinely unresolved rather than forcing Sunbird's
+snoop-filter narrative onto different data. Full writeup:
+`data_raw/thunderbird/README.md`'s inclusion_policy/ section; final table:
+`data_processed/thunderbird/FINAL_CACHE_TABLE.md` (same format as Sunbird's,
+including a reasoned best-guess L2=12-way/LLC=10-way associativity call —
+the same cross-machine confound already documented above, now reproduced on
+a fourth machine and confirmed non-monotonic in its raw numbers here, flagged
+as a likely confound artifact rather than smoothed over).
+
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
