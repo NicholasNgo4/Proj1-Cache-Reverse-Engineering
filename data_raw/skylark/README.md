@@ -76,11 +76,387 @@
   - Folded into `data_processed/skylark/capacity/plots/` -- `capacity_curve.{png,pdf}`/`capacity_boxplots.{png,pdf}` now span the full sweep out to 2 GiB (title-suffix "Phase I timing-only, extended to 2 GiB"), built from all coarse/dense/repeat/tail/tail2 summaries together. Confirms the ~16-22 MiB L3->DRAM transition is followed by a genuine flat plateau (~280 ticks/access) all the way to 2 GiB, not an unresolved further climb.
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Source file(s): `main_code/common/line_size.h`, `main_code/common/main.c`,
+  `main_code/x86_64/timer_x86.h`, `scripts/run_line_size.sh`,
+  `scripts/detect_line_size.py`, `scripts/plot_line_size.py`,
+  `scripts/plot_line_size_family.py`, `scripts/plot_line_size_offset.py`,
+  `scripts/summarize_raw.py`
+- Build command: `make` (from repo root)
+- Run command + arguments (main pass, both levels, both methods):
+  `./scripts/run_line_size.sh skylark 10 32768,18295680 8,16,32,64,128,256 64,128`
+  — boundaries are this machine's own capacity-experiment L1 (32,768 B,
+  PROVISIONAL, see capacity/ above) and the deepest of the three detected
+  L3->DRAM-transition boundaries (18,295,680 B). Two earlier attempts at
+  these same boundaries/strides are kept for the record, both without the
+  `candidate_overrides_csv` 5th argument (Method-A step 4 is designed to be
+  skipped on a first pass, per `run_line_size.sh`'s header comment, so a
+  human can inspect `line_size_family_curve.png` and choose real candidates
+  before rerunning):
+  `data_raw/skylark/line_size/run_line_size_20260912T191440Z.log` died
+  partway through plotting (`ModuleNotFoundError: No module named
+  'matplotlib'`, same failure mode as this machine's capacity run, fixed the
+  same way with `pip3 install --user matplotlib`);
+  `..._20260912T191646Z.log` completed the no-overrides first pass end to
+  end, but (with step 4 skipped by design) also had Method B report `none`
+  at both levels on that particular pass. Not investigated further: Method
+  B's summary CSVs are overwritten (not timestamped) by each subsequent run,
+  and the third attempt below is the one actually treated as authoritative.
+  The third attempt
+  (`./scripts/run_line_size.sh skylark 10 32768,18295680 8,16,32,64,128,256 64,128`,
+  logged to `run_line_size_20260912T192816Z.log`) supplied the candidates
+  chosen from the first pass's plots and is the one whose numbers are
+  reported below; it completed cleanly end to end.
+- Sample count: 1,000,000 per (stride, footprint, offset, pattern) point,
+  seed=12345, core=10 (same core as the capacity/associativity runs on this
+  machine), `-O0` build per repo convention.
+- Notes on alignment/candidate strides tested: Method A (family of curves)
+  swept the assignment's own example strides (8/16/32/64/128/256 B) at each
+  level's own footprint window, then bracketed the chosen candidate at 8-byte
+  granularity (the finest possible — `struct node` is one 8-byte pointer) and
+  re-tested it at 8 node-0 offsets spanning 0-56 B in 8-byte steps to confirm
+  the transition survives different alignments relative to a physical line
+  (not an artifact of every node always starting at the same offset).
+
+**Level 32,768 B (L1) — CONFIRMED, both methods agree.**
+- Method A (family of curves): manual candidate=64B (chosen from
+  `data_processed/skylark/line_size/level_32768/plots/line_size_family_curve.png`
+  after inspecting the raw per-stride elbow diagnostic, which is NOT
+  auto-applied — see `run_line_size.sh`'s header comment). Step-4
+  cross-alignment refinement confirms 64B stable across offsets.
+- Method B (single-curve, ramp-saturation): footprint=65,536 B (2x boundary,
+  the script's default multiplier), coarse sweep (stride 8-1024 B, step 8 B)
+  auto-detects 64B; dense sweep + 2 reproducibility repeats around it (all
+  seeded independently: 12345/12346/12347) confirm 64B every time. See
+  `data_processed/skylark/line_size/level_32768/plots/line_size_{curve,boxplots,family_curve,family_boxplots,offset_elbow,offset_boxplots}.{png,pdf}`.
+- **Both methods agree: 64 bytes.** Matches the near-universal x86 cache
+  line size and Sunbird's own confirmed 64B result
+  (`data_raw/sunbird/README.md`).
+
+**Level 18,295,680 B (deepest L3->DRAM-transition boundary) — Method A
+confirmed 128B; Method B's own default 2x-footprint pass initially found
+NOTHING (missing measurement) — backfilled 2026-09-12 by rerunning Method B
+at a larger footprint multiplier. Read the whole subsection below before
+citing a number for this level: the two methods now agree numerically, but
+NOT with Level 32,768's answer, and that disagreement itself is the
+headline finding.**
+
+- Method A (family of curves): manual candidate=128B (chosen from
+  `data_processed/skylark/line_size/level_18295680/plots/line_size_family_curve.png`).
+  Step-4 cross-alignment refinement: elbow stable across 8/8 tested offsets
+  (23,051,008-25,873,920 B footprint, 1.12x spread) — "consistent with a
+  genuine, alignment-independent transition."
+- Method B (single-curve), original attempt (`run_line_size_20260912T192816Z.log`,
+  the pipeline's default `FOOTPRINT_MULTIPLIER=2.0` -> footprint=36,591,360 B):
+  coarse sweep (stride 8-1024 B, step 8) rose smoothly from ~168 ticks at
+  stride=8B to a single peak of ~274 ticks at stride=128B, then declined
+  *continuously* (not flat) all the way down through ~136 ticks by
+  stride=248B before a sharp final cliff to ~28 ticks by stride~312B+.
+  `detect_line_size.py` correctly reported "no ramp-saturation plateau
+  detected" — there genuinely was no flat run of 5 points within 1% anywhere
+  in the pre-drop segment, only a smooth one-sided hump. **This was the
+  correct, honest output of the tool, not a bug**: manually loosening
+  `--flat-tolerance`/`--confirm` against this same data (tried 0.03/3 and
+  0.02/2) does technically produce an answer (64B), but only by locking onto
+  3-4 adjacent points on a still-visibly-rising slope (218/218/221 ticks,
+  climbing to 274 a few points later) — not a real plateau. Rejected as
+  p-hacking the detector, not a genuine measurement.
+- **Root cause**: at `FOOTPRINT_MULTIPLIER=2.0`, the model's predicted
+  post-saturation flat window (from `stride=line_size` to
+  `stride=2*line_size`, i.e. only 128-256B if line_size=128B) is too narrow
+  and too close to where the ~18.3 MB boundary itself is not a sharp knee
+  (see capacity/ above — this is the "dense-resampled and repeated 2x"
+  boundary, itself softer than a clean step) — the ramp and the fall-off
+  blend into one continuous curve with no flat segment between them at this
+  particular (large, chiplet-LLC-adjacent) boundary. 2.0x reportedly "works
+  reliably" per the script's own header comment, but that was characterized
+  on Sunbird's much-shallower ~20 MB boundary, not verified against a
+  boundary this deep on a different microarchitecture.
+- **Backfilled 2026-09-12 (`run_line_size_methodB_footprint4x_20260912T204919Z.log`)**:
+  reran Method B at `--footprint-bytes 73182720` (4x boundary instead of the
+  script's default 2x), core=10, samples=1,000,000, both patterns, otherwise
+  identical to `run_line_size.sh`'s own Method-B steps (coarse
+  stride 8-1024B step 8, then dense stride 64-257B step 1 bracketing the
+  coarse estimate, then 2 independently-seeded repeats: base seed=12345,
+  rep1=12346, rep2=12347).
+  - Coarse pass (8B-step, full 1,000,000 samples): now shows a genuine long
+    flat plateau (~270-277 ticks) from stride=128B through the end of the
+    dense window (257B) before the eventual capacity-driven drop (~520B) —
+    `detect_line_size.py` at its unmodified DEFAULT thresholds now cleanly
+    reports **128B**, matching Method A at this level exactly, with no
+    threshold tuning needed.
+  - Dense pass (1B-step) + both repeats: all three (base/rep1/rep2)
+    reproducibly report the DEFAULT detector's estimate as **65B**, not
+    128B. Manually inspecting the dense data shows why: strides that are
+    exact multiples of 8 sit systematically ~0.47% below their immediate
+    (non-multiple-of-8) neighbors in the true 128-257B plateau region (mean
+    275.33 vs 276.63 ticks/access, n=17 vs 112, over stride 128-256B) — an
+    alignment/pointer_chase-packing artifact, not a second cache-topology
+    fact. That small periodic dip happens to satisfy the detector's tight
+    1%-over-5-points flat-tolerance in an early, narrow window (strides
+    65-69B) while the underlying curve is still genuinely climbing (251 ->
+    277 ticks over the next ~70 bytes) — a reproducible FALSE POSITIVE
+    (same wrong answer, 65B, from 3 independently-seeded runs — a systematic
+    detector blind spot at this data's specific shape, not run-to-run
+    noise). The real, visually obvious plateau in the same dense data is the
+    long flat run from ~128B to the window's own right edge (257B): 130
+    points, mean 276.5 ticks, essentially all within +-0.7% of each other
+    except the period-8 dips just described.
+  - **Conclusion for this level's Method B: 128 bytes**, taking the coarse
+    pass's clean, threshold-default, unmodified answer and the dense pass's
+    visual (not auto-detected) plateau start over the dense pass's own
+    mis-triggered 65B — see plots:
+    `data_processed/skylark/line_size/level_18295680/plots/line_size_{curve,boxplots}.{png,pdf}`
+    (regenerated 2026-09-12 to include the fp4x coarse/dense/rep1/rep2 data;
+    `--boundary 128` marks the confirmed candidate).
+- **Both methods now agree at this level: 128 bytes. But this does NOT match
+  Level 32,768's 64-byte answer** — real x86 hardware essentially never has a
+  genuinely different physical line size at different cache levels, so a
+  clean 2x disagreement between two internally-well-corroborated
+  measurements is itself the more interesting result, not a resolved
+  answer. Not investigated further within Phase I timing-only discipline;
+  candidate confounds worth checking in Phase II or with a redesigned test
+  (neither confirmed): (1) this AMD EPYC 7532 (Zen 2 "Rome") has a
+  chiplet/CCD L3 built from multiple slices with address-hashing between
+  them (unlike Sunbird's presumably more monolithic LLC) — a stride-128
+  access pattern could interact with that hashing differently than
+  stride-64 does, independent of the physical line size; (2) an effect
+  structurally similar to the DTLB/page-indexed confound already documented
+  for the associativity experiment on other machines (see this repo's
+  `CLAUDE.md`) — worth a dedicated follow-up before trusting either number
+  as the machine's "true" line size over the other.
+- Per `run_line_size.sh`'s own step-5 discipline: **do not average 64B and
+  128B into one number** — report the disagreement, as done here.
+
+**Family-of-curves-only rerun (2026-09-12), boundaries taken from the
+consolidated `CAPACITY_RESULTS.md` rather than re-derived from this file —
+new L2-candidate level added, existing two levels reproduced for a
+consistency check.** Ran Method A steps 1-3 only (coarse per-stride sweep +
+`line_size_family_curve.png`; no Method B, no step-4 offset refinement) at
+three boundaries: L1=32,768 B (exact, per `CAPACITY_RESULTS.md`), a new
+**L2 candidate=8,388,608 B** (8 MiB, the midpoint of `CAPACITY_RESULTS.md`'s
+~4-16.8 MiB unconfirmed candidate-shelf range — not tested by any prior
+line_size run on this machine), and the existing LLC-transition boundary
+18,295,680 B (within `CAPACITY_RESULTS.md`'s ~16-22 MiB onset range; same
+value already used above). Core=10, seed=12345, samples=1,000,000,
+strides=8/16/32/64/128/256B, random pattern, one-off script (not
+`run_line_size.sh` itself, to skip Method B/step-4 — logic mirrors its
+Method-A loop exactly), log:
+`data_raw/skylark/line_size/run_line_size_familyonly_20260912T213811Z.log`.
+- **L1 (32,768 B) and LLC-transition (18,295,680 B) levels reproduce the
+  already-confirmed shapes above** — visually inspecting the new
+  `line_size_family_curve.png` at each: L1's curves fan out starting right
+  at the 32,768 B boundary with larger strides (64/128B) climbing faster,
+  consistent with the already-confirmed 64B answer; the LLC-transition
+  level's 128B/256B curves saturate first and together, consistent with the
+  already-confirmed 128B answer. (The plot's own auto-diagnostic elbow
+  line — printed to the log, e.g. "smallest candidate stride whose elbow
+  agrees... is 8B" — is the known-unreliable single-un-repeated-sweep
+  heuristic documented in `run_line_size.sh`'s header comment, NOT a
+  citable answer on its own; it disagrees with the already-confirmed 64B/
+  128B numbers here for exactly the reason that comment describes, and is
+  not evidence against them.)
+- **New L2-candidate level (8,388,608 B): all 6 stride curves stay flat and
+  overlapping across the entire tested window below ~2^24 (16.78 MiB),
+  with the only separation appearing once the curves enter the
+  already-known LLC transition** (window was `[1,048,576, 33,554,432]`,
+  i.e. spans past the ~16.78 MiB onset). This is a null result for line-size
+  purposes at this candidate — no stride-dependent elbow inside the
+  candidate shelf itself — but it IS consistent with `CAPACITY_RESULTS.md`'s
+  own characterization of this region as a flat, featureless candidate
+  shelf (26.3-33.2 ticks, no monotonic trend) rather than a real boundary
+  with its own line-size-relevant transition. Not pursued further under
+  Phase-I family-of-curves-only scope; would need this region's own
+  ~48-points/octave capacity dense sweep (already flagged as an open TODO
+  in `CAPACITY_RESULTS.md`) before a line-size test here would even be
+  targeting a confirmed boundary.
+- Raw/summary files use a distinct timestamp
+  (`20260912T213811Z`) from the earlier authoritative run
+  (`20260912T192816Z`) — nothing was overwritten; both are preserved.
+
+**Second family-of-curves-only rerun (2026-09-12), boundaries given directly
+as L1/L2/L3 = 32,768 / 524,288 / 8,388,608 B (32 KiB / 512 KiB / 8 MiB) —
+not re-derived from this machine's own capacity sweep.** Same one-off
+Method-A-steps-1-3-only script/parameters as the rerun above (core=10,
+seed=12345, samples=1,000,000, strides=8/16/32/64/128/256B, random pattern),
+log: `data_raw/skylark/line_size/run_line_size_familyonly_20260912T220233Z.log`.
+- **L1 (32,768 B)**: fans out right at the boundary as before, consistent
+  with the already-confirmed 64B result.
+- **L2 (524,288 B, new level)**: `line_size_family_curve.png` shows one
+  continuous rising ramp across the whole [65,536, 2,097,152] window with no
+  flat elbow anywhere — matches this machine's own capacity data, which has
+  no confirmed shelf at 512 KiB (that byte value sits inside the already-
+  documented single L1->LLC ramp region, not at a boundary this machine's
+  own timing data supports).
+- **L3 (8,388,608 B)**: same level directory/window as the earlier rerun's
+  "L2 candidate" (8,388,608 B) — reproduces that result byte-for-byte (flat
+  overlapping curves until ~16.78 MiB, then merging into the already-known
+  LLC transition); see that bullet above.
+
+**Reproducibility repeat (rep1, seed=12346) of the above, 2026-09-12.**
+Same 3 boundaries/core/strides, independent seed (12346 vs. the original
+12345), processed summaries/plots kept separate under each level's own
+`rep1/` subdirectory (`data_processed/skylark/line_size/level_<boundary>/
+rep1/plots/`) so neither seed's output overwrote the other — log:
+`data_raw/skylark/line_size/run_line_size_familyonly_rep1_20260912T221257Z.log`.
+- **L1 and L3 reproduce closely across seeds** (per-stride auto-elbow bytes
+  agree exactly or within one grid step at 8/16/32/64B for both levels; L1's
+  128B/256B auto-elbow shifts between seeds, but that diagnostic is already
+  flagged as unreliable/not-citable above — the visual curve shapes match).
+- **L2 (524,288 B) reproduces the "no real elbow" finding, not a numeric
+  answer**: rep1's `line_size_family_curve.png` is visually the same
+  continuous, featureless ramp as the seed=12345 run (curves overlapping
+  through ~2^18, fanning out only in the gradual mid-ramp, no plateau
+  anywhere in [65,536, 2,097,152]); the auto-elbow diagnostic is noisy and
+  inconsistent between seeds here (e.g. 128B found no elbow at all in
+  rep1) — expected/consistent behavior for a diagnostic run on data with no
+  genuine transition, not a discrepancy to resolve. **Confirms, across two
+  independent seeds, that 512 KiB is not a boundary this machine's own
+  timing data supports.**
+
+**Step-4 offset refinement (2026-09-12), user-chosen candidates (not derived
+from any auto-detector): L1=32B, L2=64B, L3=64B.** Ran the bracket
+(8B granularity around each candidate) + 8-offset (0-56B) cross-alignment
+sweep, seed=12345, same windows as the coarse passes above, log:
+`data_raw/skylark/line_size/run_line_size_step4only_20260912T222756Z.log`.
+All three levels' printed verdict says "elbow stable across the 8/8
+offsets" — **but none of the three should be read as confirming its
+candidate as the true line size**, for three different reasons:
+- **L1 candidate=32B**: offset-stable (52,000-58,368 B, 1.12x spread), but
+  `line_size_offset_elbow.png` for this level is visibly jagged across
+  bracket strides (not a clean flat line), and — more importantly — this
+  is exactly the documented false-positive pattern already called out in
+  `run_line_size.sh`'s own header comment (and first observed on Sunbird,
+  see that machine's README / this repo's `CLAUDE.md`): **a candidate
+  stride below the true line size packs multiple nodes per physical line,
+  which can look alignment-independent for the wrong reason.** This
+  level's true line size is already doubly-confirmed as **64B** (Method A
+  visual read + Method B ramp-saturation, both on the original authoritative
+  run at this same 32,768 B boundary) — this step-4 result at 32B does not
+  overturn that; it reproduces the known failure mode, not a competing
+  answer.
+- **L2 candidate=64B**: offset elbow values are NOT tightly clustered —
+  they jump around a ~1.3x band (741,440-1,048,560 B) non-monotonically
+  across both bracket stride and offset in `line_size_offset_elbow.png`
+  ("stable" only in the sense that the auto-detector's 1.26x-spread
+  threshold was satisfied). This level's own family-of-curves data (both
+  seeds, see above) shows **no plateau/elbow anywhere in the window at
+  all** — a continuous featureless ramp. Read together, this step-4 result
+  is best explained as the detector clustering on noise in a region with no
+  genuine transition, not confirmation of a real 64B-related boundary at
+  512 KiB.
+- **L3 candidate=64B**: all 8 offsets land on the exact same elbow value
+  (~26,632,128-26,632,160 B, 1.00x spread — reproduces perfectly, visible
+  as a single overlapping line in the plot). That precision is real, but
+  the detected footprint (~26.6 MiB) is far outside this level's own
+  [2,097,152, 33,554,432] B window's boundary of interest (8 MiB) and
+  matches this machine's independently-documented, already-characterized
+  LLC->DRAM transition — the same transition directly tested above at
+  boundary=18,295,680 B, where the full-rigor run (Method A + Method B,
+  both agreeing) found **128B, not 64B**. This step-4 "confirmation" is the
+  detector re-locking onto that same distant, unrelated transition (it's
+  inside this level's wide window too), not evidence about anything near
+  8 MiB specifically.
+- **Bottom line**: per-level "8/8 offsets agree" is a necessary but not
+  sufficient check — none of these three results should be cited as a new
+  or competing line-size number; the already-established values (64B at
+  the confirmed L1 boundary, 128B at the confirmed LLC-transition boundary,
+  and no evidence of any real transition at 512 KiB or 8 MiB on this
+  machine) still stand.
+
+**L1-only family-of-curves rerun (2026-09-13), seed=12345 (fresh timing
+sample, not a new seed).** Log:
+`data_raw/skylark/line_size/run_line_size_familyonly_20260913T134703Z.log`.
+Reproduces the already-established shape at this boundary: curves fan out
+right at 32,768 B, 64B/128B stride climbing fastest — consistent with the
+already doubly-confirmed **64B** answer. Auto-elbow diagnostic again
+disagrees run-to-run (this pass: 8B/16B/32B/128B cluster ~58,368 B, 64B
+outlier at 36,736 B, 256B at 51,968 B) — same known-unreliable-on-its-own
+caveat as every earlier pass at this level; not cited on its own.
+**Note:** this rerun overwrote the processed `family_*_summary.csv` files
+under `level_32768/` with fresh (seed=12345) data — raw CSVs are kept
+under their own timestamp, nothing lost, but if the exact numbers from the
+2026-09-12 write-up above are needed again, they're only in the raw CSVs
+now, not the processed summaries.
+
+**Several more family-of-curves reruns (2026-09-13), seed=12345, same 3
+boundaries (32,768 / 524,288 / 8,388,608 B) — repeated verbatim several
+times at the user's request, each overwriting the previous run's processed
+summaries/plots at the same path (raw CSVs kept, uniquely timestamped).
+Logs**: `run_line_size_familyonly_2026091314{1326,1424,2553,4152}Z.log`.
+**No new findings** — each rerun reproduces the same shapes already
+documented above (L1 fans out at the boundary consistent with 64B; L2 is a
+continuous featureless ramp; L3 stays flat until merging into the known
+LLC transition). A seed=12346 reproducibility repeat of all 3 was also run
+the same day, written to each level's own `rep1/` subdirectory (not
+overwriting the seed=12345 data): log
+`run_line_size_familyonly_rep1_20260913T144928Z.log`.
+
+**Second step-4 run (2026-09-13), candidates L1=32B, L2=64B, L3=128B**
+(L3's candidate changed from 64B to 128B vs. the step-4 run above; L1/L2
+unchanged). Log:
+`data_raw/skylark/line_size/run_line_size_step4only_20260913T145558Z.log`.
+- **L1 (32B) and L2 (64B)**: same shape/caveats as the first step-4 run —
+  offset-stable within a ~1.1-1.3x band, but for the same already-documented
+  reasons (L1: below-true-line-size packing artifact vs. the doubly-
+  confirmed 64B; L2: clustering on noise in a window with no real elbow)
+  neither should be read as new evidence.
+- **L3 candidate=128B: a cleaner, more interesting result — but still not
+  citable, and for a new reason.** `line_size_offset_elbow.png` at this
+  level now shows a genuinely sharp, perfectly offset-independent (all 8
+  offsets exactly overlapping) step: flat ~23,726,464 B for bracket
+  strides 104-128B, then a clean jump to ~26,632,072 B for strides
+  136-152B, split exactly at the 128B candidate. That crispness is real.
+  **But the direction is backwards from what a genuine line-size elbow
+  should do**: per this method's own model (a stride below the true line
+  size packs multiple nodes per physical line, so it needs a LARGER
+  footprint before enough distinct lines are touched to trip the knee —
+  see the doubly-confirmed L1 case and the original level_18295680 run,
+  both of which show elbow footprint *decreasing* as stride increases,
+  then flattening once stride reaches/exceeds the true line size). Here
+  it's the opposite: the *smaller* bracket strides (104-128B) give the
+  *smaller* elbow, and the *larger* strides (136-152B) give the *larger*
+  one. That inversion is inconsistent with a real per-stride packing
+  effect, and is much better explained by this level's window being
+  dominated by the same distant, already-characterized real LLC transition
+  documented above (~23.7-26.6 MiB is well within that transition's own
+  climbing region) — the sharp, clean split is most likely this coarse
+  (6-points-per-octave) sweep's detector landing on a different one of a
+  handful of shared grid points depending on tiny, stride-independent
+  noise, not a genuine stride-dependent signal. **Still not evidence for a
+  real boundary near 8 MiB, and still not evidence for 128B (or any
+  stride) being this level's line size.**
+
+**Third step-4 run (2026-09-13), candidates back to L1=32B, L2=64B,
+L3=64B** (same triplet as the first step-4 run, 2026-09-12). Log:
+`data_raw/skylark/line_size/run_line_size_step4only_20260913T150308Z.log`.
+Reproduces that run closely: L1 46,336-58,368 B (1.26x), L2 832,192-934,144 B
+(1.12x), L3 23,726,528-26,632,128 B (1.12x, still squarely inside the known
+real LLC transition). Same caveats as the first step-4 run apply — none of
+the three are new evidence for their candidate as a real line size.
+
+**Fourth step-4 run (2026-09-13), candidates L1=64B, L2=64B, L3=64B.** Log:
+`data_raw/skylark/line_size/run_line_size_step4only_20260913T150727Z.log`.
+Plots: `data_processed/skylark/line_size/level_{32768,524288,8388608}/
+plots/line_size_offset_{elbow,boxplots}.{png,pdf}` (overwrote the prior
+step-4 run's plots/summaries at the same paths; raw CSVs kept separately
+under this run's own timestamp).
+- **L1 candidate=64B: for the first time, the script's own verdict is
+  "NOT stable"** — elbow varies 1.41x across offsets (36,736-51,968 B),
+  printed with "transition may be alignment-sensitive, do not cite this
+  candidate as a clean line-size result without further investigation."
+  Notably different from every 32B-candidate L1 run above, which all
+  reported clean 8/8 offset agreement. Worth flagging rather than
+  smoothing over: this is the one step-4 result so far where the tool
+  itself declined to certify stability, at the one candidate (64B) that
+  matches this level's independently, doubly-confirmed real line size —
+  plausibly consistent with the docstring's own caveat that a candidate
+  AT/above the true line size (unlike one packing multiple nodes below
+  it) is the case where genuine alignment sensitivity could show up. Not
+  chasing this further this pass; noted for anyone continuing this work.
+- **L2 (64B) and L3 (64B)**: same shapes/caveats as the earlier 64B/64B
+  step-4 runs above — L2 offset-stable in a band with no underlying real
+  elbow (noise); L3 offset-stable but squarely inside the known real LLC
+  transition, not evidence about an 8 MiB boundary.
 
 ### associativity/
 - Source file(s): `main_code/common/associativity.c`, `main_code/common/associativity.h`, `main_code/common/main.c`
@@ -99,20 +475,205 @@
 - **Known discrepancy with this machine's own capacity data (flag for report writing):** `CAPACITY_RESULTS.md`'s L2=512 KiB / L3=~8 MiB values used as the stride here do not match what skylark's own capacity sweep above independently found — that data shows one candidate shelf spanning ~4-16.8 MiB (PROVISIONAL-WEAK, not resolved to a single boundary) rather than two separate levels at 512 KiB and 8 MiB. Per team decision (2026-09-12), the associativity experiment was still run at the manually-selected 512 KiB / 8 MiB values despite this open disagreement; the multi-step/non-reproducible results above are consistent with (though not conclusive proof of) `cache_bytes` not matching either level's true capacity, exactly as `associativity.h`'s own design notes predict for a wrong-by-construction stride.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+Two sub-experiments, `hit_latency` and `miss_latency`, run 2026-09-13
+(unattended session; user not present). Footprint/target/evict byte values
+taken **only from `CAPACITY_RESULTS.md`** (L1 = 32,768 B, L2 = 524,288 B,
+LLC ≈ 8 MiB = 8,388,608 B, using N * 1,048,576 for "~N MiB" per project-wide
+direction) — the associativity section above already flags a discrepancy
+between this machine's own capacity data (one candidate ~4-16.8 MiB shelf,
+not two separate L2/L3 boundaries) and `CAPACITY_RESULTS.md`'s picked
+values; per the same project-wide direction that applies to this run,
+`CAPACITY_RESULTS.md` is used anyway and this discrepancy is repeated here
+rather than re-litigated.
+- Idle-core check before running: `who`/`ps` showed no other logged-in
+  users, but `ps aux` found another student's process (`msabap`,
+  `cache_bench_x86 --exp nextlevel`) pinned via `psr=3` to core 3 at ~99.8%
+  CPU the entire session — avoided. Two `/proc/stat` snapshots taken 3s
+  apart confirmed core 6 idle (0 busy ticks out of ~724 total in the
+  window, i.e. <1% busy); core 6 used for both runs below.
+- Build command: `git pull && make clean && make` (from repo root); `python3 -c "import matplotlib"` confirmed working (3.9.4) before running.
+- Git commit hash of the code used: `e343732c0b57beece621da8e7c3a9bd8be236d25`
+
+**hit_latency (dependent chain + independent-load diagnostic control):**
+- Source file(s): `main_code/common/{main.c,latency.c,latency.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Run command + arguments: `./scripts/run_hit_latency_full.sh skylark 6 L1:32768,L2:524288,LLC:8388608,DRAM:536870912` (pinned via `taskset -c 6`). DRAM's 536,870,912 B (512 MiB) footprint is not a `CAPACITY_RESULTS.md` boundary — it's a "deep in the DRAM plateau" pick, matching the same convention every other machine's hit_latency run used.
+- Per level: base run + 2 reproducibility repeats (seed = 12345, 12346, 12347), each run at `--load-mode {dependent,independent}` × `--pattern {random,sequential}` (4 combinations), 1,000,000 timed accesses per combination (batch size 1000, `DEFAULT_BATCH_SIZE`), 3 untimed warm-up passes.
+- Regular vs. randomized control included: yes, both `--pattern random` and `--pattern sequential` run at every (level, load_mode) combination.
+- Raw output filename(s): `data_raw/skylark/latency/hit/<LEVEL>/hit_latency_{base,rep1,rep2}_{dependent,independent}_{random,sequential}_20260913T061014Z.csv.gz`
+- Processing: `scripts/summarize_raw.py` per raw file → `data_processed/skylark/latency/hit/<LEVEL>/*_summary_20260913T061014Z.csv` → `scripts/plot_hit_latency.py` → `data_processed/skylark/latency/hit/<LEVEL>/plots/hit_latency_boxplots.{png,pdf}`.
+- **Result (dependent, random pattern, base run median, n=1000 each): a clean, monotonically increasing 4-tier ladder — L1 ≈ 6.24 ticks, L2 ≈ 16.15 ticks, LLC ≈ 27.22 ticks, DRAM ≈ 274.87 ticks.** At every level and both patterns, `--load-mode independent` measured faster than `dependent` (e.g. LLC random: 7.48 vs 27.22; DRAM random: 46.49 vs 274.87), confirming the independent-load control correctly exposes memory-level parallelism at every level — the expected signature, not itself the reported latency. Sequential-pattern dependent latency stayed essentially flat (~6.1-6.2 ticks) at every level including DRAM, consistent with hardware prefetching hiding the miss cost entirely for a fully predictable stride — this is expected behavior, not a bug.
+- No `[UNEXPECTED -- investigate]` flags fired at any level/pattern (checked all 8 combinations' printouts from `plot_hit_latency.py`'s required MLP-exposing check).
+
+**miss_latency (forced eviction + single-shot reload):**
+- Source file(s): same list as hit_latency above.
+- Eviction-set calibration done before picking final parameters (core 6, random pattern, 100 trials, `target-bytes 8388608`): a candidate `evict-bytes` of 16,777,216 (2x the ~8 MiB LLC capacity) measured ~67.7 ms/trial (6.77s/100). Extrapolated to the full base+2reps × 2-pattern run (1,200 trials total across all three transitions, LLC_to_DRAM dominating) ≈ 81s — comfortably under the ~15 min budget, so no need to shrink; used 16,777,216 B as-is (did not jump to a much larger value, per the explicit caution against repeating Sunbird's original 512 MiB-evict-set mistake).
+- Run command + arguments: `./scripts/run_miss_latency_full.sh skylark 6 L1_to_L2:32768:524288,L2_to_LLC:524288:8388608,LLC_to_DRAM:8388608:16777216` (core 6, same idleness check as hit_latency above; `--batch-size 1` passed automatically by the script only to satisfy `main.c`'s cross-experiment `--samples`/`--batch-size` validation, has no effect on miss_latency's own single-shot-per-trial logic).
+- Per transition: base run + 2 reproducibility repeats (seed = 12345, 12346, 12347), each at `--pattern {random,sequential}`. 200 trials per (transition, pattern, run), 3 untimed warmup passes before the first timed trial and again before every subsequent trial.
+- Raw output filename(s): `data_raw/skylark/latency/miss/<TRANSITION>/miss_latency_{base,rep1,rep2}_{random,sequential}_20260913T061426Z.csv.gz`
+- Processing: `scripts/summarize_raw.py` → `data_processed/skylark/latency/miss/<TRANSITION>/*_summary_20260913T061426Z.csv` → `scripts/plot_miss_latency.py --hit-latency-summary <matching hit_latency dependent/random summaries>` → `data_processed/skylark/latency/miss/<TRANSITION>/plots/miss_latency_boxplots.{png,pdf}`.
+- **Result (random pattern, base run median, n=200 each): L1→L2 ≈ 96.0 ticks, L2→LLC ≈ 120.0 ticks, LLC→DRAM ≈ 360.0 ticks** — monotonically increasing, consistent with genuinely deeper eviction at each transition.
+- Run-to-run spread: `plot_miss_latency.py`'s >20%-spread stderr warning fired on two of the three transitions' random pattern — **L1_to_L2** (medians 96.0/120.0/120.0 across base/rep1/rep2, 21.4% spread) and **L2_to_LLC** (medians 120.0/96.0/144.0, 40.0% spread); **LLC_to_DRAM did not trigger the warning** (medians 360.0/360.0/384.0, ~6.4% spread). Per instructions, these two flagged transitions were NOT re-run to make the warning disappear — recorded as-is, consistent with this project's established pattern of real shared-machine interference showing up as scattered single-run spikes (see Sunbird/Crux/Charnwood/Thunderbird/Ookay's capacity/associativity write-ups) rather than necessarily a methodological flaw; not independently traced to a specific interfering process for this run.
+- **Single-shot measurement overhead, isolated via a dedicated control (2026-09-13):** `taskset -c 6 ./cache_bench --experiment miss_latency --target-bytes 32768 --evict-bytes 512 --pattern random --samples 2000 --batch-size 1 --seed 12345`, then `tail -n +3 | awk -F, '{a[NR]=$5;...} END{asort(a); print a[int(n/2)]}'` → **median = 72 ticks**. `evict-bytes=512` is only ~8 cache lines spread across L1's sets — overwhelmingly unlikely to actually evict the target's own line — so this is a control, not a real L1 miss. Compared to this machine's own batched L1 hit_latency dependent/random median (6.24 ticks, above), the gap is **~65.8 ticks of fixed single-shot measurement overhead** (unamortized `lfence`/`rdtsc`/`rdtscp` + post-function-call pipeline state — see `main_code/common/latency.h`'s `run_miss_latency_experiment` "KNOWN LIMITATION" docstring), not real miss cost. This means every raw miss_latency median above is "true reload latency + ~66 ticks," not a clean number.
+- **Approximate overhead-corrected incremental penalty** (raw miss median minus source-level's own batched hit_latency dependent/random median, then minus the ~65.8-tick overhead measured above — presented as approximate, not precise, per the caveat just above): L1→L2 ≈ 96.0 − 6.24 − 65.8 ≈ **24 ticks**; L2→LLC ≈ 120.0 − 16.15 − 65.8 ≈ **38 ticks**; LLC→DRAM ≈ 360.0 − 27.22 − 65.8 ≈ **267 ticks**. Still monotonically increasing after correction, consistent with genuinely deeper eviction at each transition — but treat the absolute values as approximate, same caution as every other machine's uncorrected miss_latency numbers.
+- Not yet done: the L1_to_L2 and L2_to_LLC repeat-spread hasn't been traced to a specific interfering process (no `mpstat`/`ps` check was run again mid-sweep, only before the whole run started); the single-shot overhead above was only measured once, at the L1 footprint, not independently re-measured at L2/LLC/DRAM footprints.
 
 ### inclusion_policy/
-- Source file(s): 
-- Run command + arguments: 
-- Eviction/reload construction: 
+Run 2026-09-13, same session as this file's other backfills. Boundary values
+from `CAPACITY_RESULTS.md` only (L1 = 32,768 B, L2 = 524,288 B, LLC =
+8,388,608 B) — per project-wide direction, taken as given rather than
+re-derived from this machine's own capacity/ region above (which never
+resolved a single L2/LLC boundary, only a broad ~4-16.8 MiB candidate
+shelf — see capacity/ section).
+- Idle-core check before running: `who` showed 2 other logged-in users
+  (`rrsood`, `dananth`), neither with a process pinned to a specific core
+  per `ps aux --sort=-%cpu` (top CPU consumers were this session's own
+  vscode-server/claude processes and an unrelated `CrashPlanService`, none
+  core-pinned); `mpstat -P ALL 1 2` showed every core at ~0% utilization
+  machine-wide at the time. Reused core 6 (idle-verified via two
+  `/proc/stat` cpu6 snapshots 3s apart: 301/302 ticks idle, ~99.7%) — same
+  core as this machine's own hit_latency/miss_latency runs above.
+- Build command: `git pull && make clean && make` (from repo root). Git
+  commit hash of the code used: `9ded3a929d5ac354a2bcdfb19e18c297e0ecb3c5`
+  (post-merge of Sunbird's hardened `run_inclusion_policy_full.sh`/
+  `ASSUMED_LINE_SIZE_BYTES` env-var override, commit a6c0368, with this
+  machine's own hit_latency/miss_latency commit).
+- Source file(s): `main_code/common/{main.c,inclusion_policy.c,inclusion_policy.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- **Line size used per pairing — NOT a single constant for this machine,
+  per this machine's own line_size/ section's headline finding (64B at the
+  confirmed L1 boundary, but 128B at the confirmed deep LLC->DRAM
+  transition — a genuine, unresolved 2x disagreement, not averaged
+  together).** Ran as two separate invocations so each pairing's
+  `--evict-bytes` scaling uses the line size confirmed nearest its own
+  lower-level target, via `run_inclusion_policy_full.sh`'s
+  `ASSUMED_LINE_SIZE_BYTES` env-var override (added for exactly this
+  cross-machine situation, see that script's header comment and
+  `CLAUDE.md`'s associativity section):
+  - `ASSUMED_LINE_SIZE_BYTES=64 ./scripts/run_inclusion_policy_full.sh skylark 6 L1_vs_L2:32768:524288:L2_to_LLC` (ts `20260913T180514Z`) — 64B matches this machine's doubly-confirmed L1 line size, and there is no evidence of a different line size at the L2 candidate footprint (line_size/ found no elbow there at all — a null result, not counter-evidence for 64B).
+  - `ASSUMED_LINE_SIZE_BYTES=128 ./scripts/run_inclusion_policy_full.sh skylark 6 L2_vs_LLC:524288:8388608:LLC_to_DRAM,L1_vs_LLC:32768:8388608:LLC_to_DRAM` (ts `20260913T180533Z`) — 128B matches this machine's confirmed line size at the real, deep LLC->DRAM transition (both pairings evict past LLC, so both use the LLC-region line size).
+- Wall-time calibration done before committing to a full run (20 trials
+  each, core 6, random pattern): 32 MiB evict_bytes (L1_vs_L2 scale) ran in
+  0.027s (~1.4 ms/trial); 256 MiB evict_bytes (L2_vs_LLC/L1_vs_LLC scale)
+  ran in 0.226s (~11.3 ms/trial). Both far faster than Sunbird's dense-buffer
+  miss_latency calibration (~74-604 ms/trial) — this experiment's eviction
+  buffer only touches one line per 4096 B page (`--evict-stride-bytes
+  4096`), so even a 256 MiB footprint is only 65,536 page touches per lap,
+  not a dense walk. No `tmux` needed; full 3-pairing run (calibration +
+  base + 2 repeats x 2 patterns each) completed in well under a minute.
+- Eviction/reload construction: identical mechanism to Sunbird's (see
+  `main_code/common/inclusion_policy.h`'s module doc comment) —
+  target/control freshly page-aligned at offset 0, eviction buffer one node
+  per page at fixed offset 2048 B, `--evict-bytes` computed as
+  `lower_level_bytes * 4096 / ASSUMED_LINE_SIZE_BYTES` (so L1_vs_L2:
+  524,288 * 4096/64 = 33,554,432 B (32 MiB); L2_vs_LLC and L1_vs_LLC:
+  8,388,608 * 4096/128 = 268,435,456 B (256 MiB) each).
+- Per pairing: calibration (500 single-shot trials, evict_bytes=target_bytes,
+  nothing evicted) + base + 2 reproducibility repeats (seed 12345/12346/12347),
+  both eviction-walk traversal patterns, 200 single-shot trials each
+  (`--batch-size 1`, same cross-experiment-validation-only caveat as
+  `miss_latency`), 3 untimed warm-up passes.
+- Raw output filename(s): `data_raw/skylark/inclusion_policy/<pairing>/inclusion_policy_{calibration,base,rep1,rep2}_{random,sequential}_<ts>.csv.gz`
+- Processing: `scripts/summarize_raw.py` per raw file → `data_processed/skylark/inclusion_policy/<pairing>/*_summary_<ts>.csv` → `scripts/classify_inclusion_policy.py` (reads raw base/random data directly) → `scripts/plot_inclusion_policy.py` (matplotlib confirmed working this session, no plotting failure).
+
+**Same three caveats as Sunbird's writeup apply here (assumed line
+size — resolved per-pairing above, not a blanket assumption; DTLB pressure
+at large eviction footprint; L2 target's index not fitting in one page) —
+see `data_raw/sunbird/README.md`'s inclusion_policy/ section for the full
+argument. One ADDITIONAL caveat specific to this machine, more load-bearing
+than usual: `CAPACITY_RESULTS.md`'s LLC value for Skylark (8,388,608 B =
+8 MiB) is very likely an UNDERESTIMATE of this machine's real LLC
+capacity** — this machine's own capacity/ section never confirmed a clean
+LLC boundary at 8 MiB; the closest thing it found was a genuine knee
+starting around 16.8-21.8 MiB (three auto-detected boundary candidates in
+that range), with 8 MiB sitting inside the earlier, unresolved ~4-16.8 MiB
+candidate shelf rather than at a confirmed edge. If the real LLC capacity
+is closer to ~20 MiB than 8 MiB, then L2_vs_LLC/L1_vs_LLC's 256 MiB
+eviction footprint (32x the ASSUMED 8 MiB, per the scaling formula) is
+only ~12-13x the more-plausible ~20 MiB real capacity — comfortably
+enough to blow way past a boundary that size in absolute byte terms, so
+this doesn't necessarily invalidate the results, but it does mean the
+"32x" safety margin baked into the scaling constant is smaller than
+intended for this machine specifically. Noted as a reason to read the
+LLC-involving verdicts below with slightly reduced confidence, not as
+grounds to discard them.
+
+**Results, one per pairing (n=200 target/control trials each, base/random
+run unless noted):**
+
+- **L1_vs_L2** (survived-class 73.104 ticks, invalidated-class 120.0 ticks
+  from `L2_to_LLC`, classification boundary 93.66 ticks): target median
+  72.0 ticks (68.0% survived-like, 31.5% ambiguous, 0.5% invalidated-like),
+  control median 72.0 ticks (72.0% survived-like, 27.5% ambiguous, 0.5%
+  invalidated-like). Paired check (target slower than its own trial's
+  control): only 11.0%. **Verdict: UNCERTAIN per the classifier** (mixed
+  result), and notably weaker than Sunbird's clean 90%-survived L1_vs_L2
+  result — target and control came back nearly indistinguishable here
+  (72.0 ticks median, both), unlike Sunbird's own 84-vs-68 split. Read as:
+  a WEAK lean toward non-inclusive (majority survived-like, negligible
+  invalidated-like, same qualitative direction as Sunbird's clean result)
+  rather than a clean classification — the near-identical target/control
+  medians suggest this specific 32 MiB eviction footprint isn't cleanly
+  differentiating "L1 survived" from "baseline single-shot overhead" the
+  way Sunbird's run did, not that the underlying policy differs from
+  Sunbird's.
+- **L2_vs_LLC** (survived-class 83.808 ticks, invalidated-class 360.0 ticks
+  from `LLC_to_DRAM`, boundary 173.70 ticks): target median 120.0 ticks
+  (99.5% survived-like, 0.5% ambiguous, 0% invalidated-like), control
+  median 96.0 ticks (100.0% survived-like). Paired check: 74.0% (target
+  slower than its own control most of the time, even though neither
+  channel crosses into the invalidated zone). **Verdict: EXCLUSIVE /
+  NON-INCLUSIVE** by the classifier — but per the LLC-underestimate caveat
+  above and caveat 3 (L2's index almost certainly doesn't fit in one page),
+  read this as the least trustworthy of the three, same as Sunbird's own
+  L2_vs_LLC pairing was its weakest link.
+- **L1_vs_LLC** (survived-class 83.328 ticks, invalidated-class 360.0 ticks
+  from `LLC_to_DRAM`, boundary 173.20 ticks): target median 96.0 ticks
+  (100.0% survived-like), control median 72.0 ticks (100.0% survived-like).
+  Paired check: 51.0%. **Verdict: EXCLUSIVE / NON-INCLUSIVE.** Notably
+  DIFFERENT from Sunbird's own L1_vs_LLC result, which leaned inclusive
+  (75% invalidated-like) — on Skylark, the skip-level L1 copy survived
+  LLC-scale eviction pressure essentially every trial. Given the
+  LLC-capacity-underestimate caveat above, this could mean either (a)
+  Skylark's LLC genuinely does not maintain inclusion of L1 lines
+  (unlike Sunbird's Haswell-era Xeon, a very different microarchitecture —
+  AMD Zen 2 chiplet designs are not known to use an inclusive LLC the way
+  older Intel monolithic ring-bus designs did), or (b) the eviction
+  footprint, while 32x the assumed LLC capacity, undershoots the real one
+  enough that genuine LLC-scale eviction never actually happened. (a) is
+  the more likely explanation given AMD's publicly known non-inclusive L3
+  design on this generation (Zen 2 "Rome") — noted here only as a
+  post-hoc plausibility check, not consulted while forming the reading
+  above, same discipline as Sunbird's own aside.
+- Not yet done, any pairing: multiple different target addresses/sets
+  (same open item as Sunbird's writeup); a dedicated re-check of whether
+  256 MiB eviction genuinely saturates this machine's real (likely
+  ~16-22 MiB) LLC given the capacity-underestimate caveat above; the
+  huge-pages TLB mitigation noted in Sunbird's caveat 2.
+
+**Best-guess synthesis:** all three pairings lean the SAME direction on
+Skylark (non-inclusive/exclusive-like), unlike Sunbird's mixed
+non-inclusive-L2/leaning-inclusive-LLC pattern. Combined with AMD Zen 2's
+publicly documented non-inclusive L3 design (post-hoc plausibility check
+only, per the aside above) and the L2_vs_LLC/L1_vs_LLC caveat about a
+likely-underestimated LLC capacity value, the best-supported single story
+for this machine is a cache hierarchy where **no level tested here is
+inclusive of the level(s) below it** — L1 vs L2 leans this way weakly, and
+L2 vs LLC / L1 vs LLC lean this way strongly (though the LLC-involving
+pairings carry the added capacity-estimate caveat above, so "strongly"
+here means "the classifier's numbers are clean," not "high confidence in
+the absolute claim").
 
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename: 
 - Events collected + exact semantics on this CPU: 
 - Run command + arguments: 
+
+## Final Inferred Cache Table (Skylark, Phase I best guess, 2026-09-13)
+
+Lives at `data_processed/skylark/FINAL_CACHE_TABLE.md`, alongside this
+machine's other processed benchmark outputs (`capacity/`, `line_size/`,
+`associativity/`, `latency/`, `inclusion_policy/`), same convention as
+Sunbird's. The full per-pairing reasoning and caveats behind it remain in
+this file's `associativity/` and `inclusion_policy/` sections above.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: 

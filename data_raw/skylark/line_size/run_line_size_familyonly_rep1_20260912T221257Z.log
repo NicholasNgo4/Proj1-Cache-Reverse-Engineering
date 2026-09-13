@@ -1,0 +1,155 @@
+== run_family_only_rep1 (Method A steps 1-3 ONLY, reproducibility repeat, independent seed): machine=skylark core=10 seed=12346 ==
+== timestamp=20260912T221257Z boundaries=32768 524288 8388608 strides=8 16 32 64 128 256 ==
+== boundaries given directly by user: L1=32768 (32 KiB), L2=524288 (512 KiB), L3=8388608 (8 MiB) ==
+== this is rep1 of the seed=12345 run logged as run_line_size_familyonly_20260912T220233Z.log -- processed summaries/plots go to level_<boundary>/rep1/ to avoid overwriting that run's outputs ==
+
+############################################################
+## LEVEL boundary=32768B -- Method A window=[4096,131072] bytes (rep1, seed=12346)
+############################################################
+-- [L32768 A coarse rep1] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_8_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_8_random_summary.csv
+-- [L32768 A coarse rep1] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_8_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_8_sequential_summary.csv
+-- [L32768 A coarse rep1] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_16_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_16_random_summary.csv
+-- [L32768 A coarse rep1] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_16_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_16_sequential_summary.csv
+-- [L32768 A coarse rep1] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_32_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_32_random_summary.csv
+-- [L32768 A coarse rep1] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_32_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_32_sequential_summary.csv
+-- [L32768 A coarse rep1] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_64_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_64_random_summary.csv
+-- [L32768 A coarse rep1] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_64_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_64_sequential_summary.csv
+-- [L32768 A coarse rep1] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_128_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_128_random_summary.csv
+-- [L32768 A coarse rep1] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_128_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_128_sequential_summary.csv
+-- [L32768 A coarse rep1] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_256_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_256_random_summary.csv
+-- [L32768 A coarse rep1] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_32768/family_256_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_32768/rep1/family_256_sequential_summary.csv
+-- [L32768 A steps 1-3 rep1] generating coarse family-of-curves plots --
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:163: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/skylark/line_size/level_32768/rep1/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 58384, 16B: 58384, 32B: 52000, 64B: 51968, 128B: 51968, 256B: 51968}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~51968 bytes) is 8B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:277: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/skylark/line_size/level_32768/rep1/plots/line_size_family_boxplots.pdf and .png
+
+############################################################
+## LEVEL boundary=524288B -- Method A window=[65536,2097152] bytes (rep1, seed=12346)
+############################################################
+-- [L524288 A coarse rep1] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_8_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_8_random_summary.csv
+-- [L524288 A coarse rep1] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_8_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_8_sequential_summary.csv
+-- [L524288 A coarse rep1] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_16_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_16_random_summary.csv
+-- [L524288 A coarse rep1] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_16_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_16_sequential_summary.csv
+-- [L524288 A coarse rep1] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_32_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_32_random_summary.csv
+-- [L524288 A coarse rep1] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_32_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_32_sequential_summary.csv
+-- [L524288 A coarse rep1] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_64_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_64_random_summary.csv
+-- [L524288 A coarse rep1] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_64_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_64_sequential_summary.csv
+-- [L524288 A coarse rep1] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_128_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_128_random_summary.csv
+-- [L524288 A coarse rep1] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_128_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_128_sequential_summary.csv
+-- [L524288 A coarse rep1] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_256_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_256_random_summary.csv
+-- [L524288 A coarse rep1] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_524288/family_256_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_524288/rep1/family_256_sequential_summary.csv
+-- [L524288 A steps 1-3 rep1] generating coarse family-of-curves plots --
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:163: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/skylark/line_size/level_524288/rep1/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 1048576, 16B: 1048576, 32B: 1048576, 64B: 934144, 128B: None, 256B: 832000}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~832000 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:277: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/skylark/line_size/level_524288/rep1/plots/line_size_family_boxplots.pdf and .png
+
+############################################################
+## LEVEL boundary=8388608B -- Method A window=[1048576,33554432] bytes (rep1, seed=12346)
+############################################################
+-- [L8388608 A coarse rep1] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_8_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_8_random_summary.csv
+-- [L8388608 A coarse rep1] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_8_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_8_sequential_summary.csv
+-- [L8388608 A coarse rep1] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_16_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_16_random_summary.csv
+-- [L8388608 A coarse rep1] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_16_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_16_sequential_summary.csv
+-- [L8388608 A coarse rep1] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_32_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_32_random_summary.csv
+-- [L8388608 A coarse rep1] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_32_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_32_sequential_summary.csv
+-- [L8388608 A coarse rep1] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_64_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_64_random_summary.csv
+-- [L8388608 A coarse rep1] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_64_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_64_sequential_summary.csv
+-- [L8388608 A coarse rep1] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_128_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_128_random_summary.csv
+-- [L8388608 A coarse rep1] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_128_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_128_sequential_summary.csv
+-- [L8388608 A coarse rep1] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_256_random_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_256_random_summary.csv
+-- [L8388608 A coarse rep1] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/skylark/line_size/level_8388608/family_256_sequential_rep1_20260912T221257Z.csv
+Wrote 31 summary rows to data_processed/skylark/line_size/level_8388608/rep1/family_256_sequential_summary.csv
+-- [L8388608 A steps 1-3 rep1] generating coarse family-of-curves plots --
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:163: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/skylark/line_size/level_8388608/rep1/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 26632168, 16B: 26632160, 32B: 26632160, 64B: 26632128, 128B: 23726464, 256B: 23726336}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~23726336 bytes) is 8B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:277: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/skylark/line_size/level_8388608/rep1/plots/line_size_family_boxplots.pdf and .png
+
+== done: family-of-curves (Method A steps 1-3) only, rep1, all 3 levels ==
+== plots per level: data_processed/skylark/line_size/level_<boundary>/rep1/plots/line_size_family_{curve,boxplots}.{png,pdf} ==
+== full transcript saved to: data_raw/skylark/line_size/run_line_size_familyonly_rep1_20260912T221257Z.log ==

@@ -280,7 +280,11 @@ for idx in "${!BOUNDARIES[@]}"; do
   python3 scripts/plot_line_size_family.py \
     "${COARSE_SUMMARIES[@]}" \
     -o "$PLOT_LEVEL_DIR" --machine "$MACHINE" \
-    --title-suffix "(Phase I timing-only, level boundary=${BOUNDARY}B window=[${LEVEL_MIN},${LEVEL_MAX}])"
+    --title-suffix "(Phase I timing-only, level boundary=${BOUNDARY}B window=[${LEVEL_MIN},${LEVEL_MAX}])" \
+  || echo "WARNING: [L${BOUNDARY} A steps 1-3] plotting failed (e.g. matplotlib missing on this" \
+          "machine, same failure mode as Skylark/Thunderbird/Ookay) -- data collection is" \
+          "unaffected, continuing to the next stage; regenerate this level's plots standalone" \
+          "once matplotlib is available." >&2
   echo "   (the per-stride elbow / line-size-estimate lines just above are"
   echo "   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse"
   echo "   sweep -- NOT auto-applied below; see ${PLOT_LEVEL_DIR}/line_size_family_curve.png"
@@ -334,7 +338,9 @@ for idx in "${!BOUNDARIES[@]}"; do
     python3 scripts/plot_line_size_offset.py \
       "${REFINE_SUMMARIES[@]}" \
       -o "$PLOT_LEVEL_DIR" --machine "$MACHINE" --candidate-stride "$CANDIDATE" \
-      --title-suffix "(Phase I timing-only, level boundary=${BOUNDARY}B, step-4 alignment refinement)"
+      --title-suffix "(Phase I timing-only, level boundary=${BOUNDARY}B, step-4 alignment refinement)" \
+    || echo "WARNING: [L${BOUNDARY} A step 4] plotting failed (matplotlib missing?) -- data" \
+            "collection is unaffected; regenerate standalone once matplotlib is available." >&2
 
     LEVEL_ESTIMATES_A+=("${BOUNDARY}:${CANDIDATE}")
   fi
@@ -401,7 +407,9 @@ for idx in "${!BOUNDARIES[@]}"; do
     "${B_SUMMARIES[@]}" \
     -o "$PLOT_LEVEL_DIR" --machine "$MACHINE" \
     --title-suffix "(Phase I timing-only, level boundary=${BOUNDARY}B, single-curve method)" \
-    "${B_PLOT_BOUNDARY_ARGS[@]}"
+    "${B_PLOT_BOUNDARY_ARGS[@]}" \
+  || echo "WARNING: [L${BOUNDARY} B] plotting failed (matplotlib missing?) -- data collection is" \
+          "unaffected; regenerate standalone once matplotlib is available." >&2
 
   LEVEL_ESTIMATES_B+=("${BOUNDARY}:${B_ESTIMATE:-none}")
 done

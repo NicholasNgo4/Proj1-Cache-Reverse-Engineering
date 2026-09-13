@@ -1,0 +1,271 @@
+== run_line_size: machine=upgrade core=5 seed=12345 ==
+== timestamp=20260913T145322Z boundaries=12582912 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=12582912B -- Method A window=[1572864,50331648] bytes
+############################################################
+-- [L12582912 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_8_random_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_8_random_summary.csv
+-- [L12582912 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_8_sequential_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_8_sequential_summary.csv
+-- [L12582912 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_16_random_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_16_random_summary.csv
+-- [L12582912 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_16_sequential_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_16_sequential_summary.csv
+-- [L12582912 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_32_random_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_32_random_summary.csv
+-- [L12582912 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_32_sequential_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_32_sequential_summary.csv
+-- [L12582912 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_64_random_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_64_random_summary.csv
+-- [L12582912 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_64_sequential_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_64_sequential_summary.csv
+-- [L12582912 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_128_random_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_128_random_summary.csv
+-- [L12582912 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_128_sequential_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_128_sequential_summary.csv
+-- [L12582912 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_256_random_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_256_random_summary.csv
+-- [L12582912 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/family_256_sequential_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/family_256_sequential_summary.csv
+-- [L12582912 A steps 1-3] generating coarse family-of-curves plots --
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:163: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/upgrade/line_size/level_12582912/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 31706944, 16B: 31706944, 32B: 28247680, 64B: 19974080, 128B: 31706880, 256B: 31706880}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~31706880 bytes) is 8B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:277: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/upgrade/line_size/level_12582912/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/upgrade/line_size/level_12582912/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L12582912 A step 4] candidate=128B (manual, from line_size_family_curve.png) ==
+== [L12582912 A step 4] bracket=104,112,120,128,136,144,152B (8B granularity) offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L12582912 A refine] stride=104B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_104_off0_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_104_off0_summary.csv
+-- [L12582912 A refine] stride=112B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_112_off0_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_112_off0_summary.csv
+-- [L12582912 A refine] stride=120B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_120_off0_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_120_off0_summary.csv
+-- [L12582912 A refine] stride=128B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_128_off0_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_128_off0_summary.csv
+-- [L12582912 A refine] stride=136B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_136_off0_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_136_off0_summary.csv
+-- [L12582912 A refine] stride=144B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_144_off0_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_144_off0_summary.csv
+-- [L12582912 A refine] stride=152B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_152_off0_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_152_off0_summary.csv
+-- [L12582912 A refine] stride=104B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_104_off8_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_104_off8_summary.csv
+-- [L12582912 A refine] stride=112B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_112_off8_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_112_off8_summary.csv
+-- [L12582912 A refine] stride=120B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_120_off8_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_120_off8_summary.csv
+-- [L12582912 A refine] stride=128B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_128_off8_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_128_off8_summary.csv
+-- [L12582912 A refine] stride=136B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_136_off8_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_136_off8_summary.csv
+-- [L12582912 A refine] stride=144B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_144_off8_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_144_off8_summary.csv
+-- [L12582912 A refine] stride=152B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_152_off8_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_152_off8_summary.csv
+-- [L12582912 A refine] stride=104B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_104_off16_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_104_off16_summary.csv
+-- [L12582912 A refine] stride=112B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_112_off16_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_112_off16_summary.csv
+-- [L12582912 A refine] stride=120B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_120_off16_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_120_off16_summary.csv
+-- [L12582912 A refine] stride=128B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_128_off16_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_128_off16_summary.csv
+-- [L12582912 A refine] stride=136B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_136_off16_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_136_off16_summary.csv
+-- [L12582912 A refine] stride=144B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_144_off16_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_144_off16_summary.csv
+-- [L12582912 A refine] stride=152B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_152_off16_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_152_off16_summary.csv
+-- [L12582912 A refine] stride=104B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_104_off24_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_104_off24_summary.csv
+-- [L12582912 A refine] stride=112B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_112_off24_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_112_off24_summary.csv
+-- [L12582912 A refine] stride=120B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_120_off24_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_120_off24_summary.csv
+-- [L12582912 A refine] stride=128B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_128_off24_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_128_off24_summary.csv
+-- [L12582912 A refine] stride=136B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_136_off24_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_136_off24_summary.csv
+-- [L12582912 A refine] stride=144B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_144_off24_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_144_off24_summary.csv
+-- [L12582912 A refine] stride=152B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_152_off24_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_152_off24_summary.csv
+-- [L12582912 A refine] stride=104B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_104_off32_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_104_off32_summary.csv
+-- [L12582912 A refine] stride=112B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_112_off32_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_112_off32_summary.csv
+-- [L12582912 A refine] stride=120B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_120_off32_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_120_off32_summary.csv
+-- [L12582912 A refine] stride=128B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_128_off32_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_128_off32_summary.csv
+-- [L12582912 A refine] stride=136B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_136_off32_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_136_off32_summary.csv
+-- [L12582912 A refine] stride=144B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_144_off32_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_144_off32_summary.csv
+-- [L12582912 A refine] stride=152B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_152_off32_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_152_off32_summary.csv
+-- [L12582912 A refine] stride=104B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_104_off40_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_104_off40_summary.csv
+-- [L12582912 A refine] stride=112B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_112_off40_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_112_off40_summary.csv
+-- [L12582912 A refine] stride=120B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_120_off40_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_120_off40_summary.csv
+-- [L12582912 A refine] stride=128B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_128_off40_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_128_off40_summary.csv
+-- [L12582912 A refine] stride=136B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_136_off40_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_136_off40_summary.csv
+-- [L12582912 A refine] stride=144B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_144_off40_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_144_off40_summary.csv
+-- [L12582912 A refine] stride=152B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_152_off40_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_152_off40_summary.csv
+-- [L12582912 A refine] stride=104B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_104_off48_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_104_off48_summary.csv
+-- [L12582912 A refine] stride=112B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_112_off48_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_112_off48_summary.csv
+-- [L12582912 A refine] stride=120B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_120_off48_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_120_off48_summary.csv
+-- [L12582912 A refine] stride=128B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_128_off48_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_128_off48_summary.csv
+-- [L12582912 A refine] stride=136B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_136_off48_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_136_off48_summary.csv
+-- [L12582912 A refine] stride=144B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_144_off48_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_144_off48_summary.csv
+-- [L12582912 A refine] stride=152B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_152_off48_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_152_off48_summary.csv
+-- [L12582912 A refine] stride=104B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_104_off56_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_104_off56_summary.csv
+-- [L12582912 A refine] stride=112B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_112_off56_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_112_off56_summary.csv
+-- [L12582912 A refine] stride=120B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_120_off56_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_120_off56_summary.csv
+-- [L12582912 A refine] stride=128B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_128_off56_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_128_off56_summary.csv
+-- [L12582912 A refine] stride=136B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_136_off56_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_136_off56_summary.csv
+-- [L12582912 A refine] stride=144B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_144_off56_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_144_off56_summary.csv
+-- [L12582912 A refine] stride=152B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/upgrade/line_size/level_12582912/refine_152_off56_20260913T145322Z.csv
+Wrote 31 summary rows to data_processed/upgrade/line_size/level_12582912/refine_152_off56_summary.csv
+-- [L12582912 A step 4] generating cross-alignment confirmation plots --
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_offset.py:77: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("plasma", max(len(offsets), 2))
+Wrote data_processed/upgrade/line_size/level_12582912/plots/line_size_offset_elbow.pdf and .png
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_offset.py:143: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("plasma", max(len(offsets), 2))
+Wrote data_processed/upgrade/line_size/level_12582912/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {104: 22420112, 112: 25165728, 120: 28247640, 128: 28247680, 136: 31706904, 144: 35589744, 152: 35589736}
+   offset=8B: {104: 22420112, 112: 25165728, 120: 28247640, 128: 28247680, 136: 31706904, 144: 35589744, 152: 35589736}
+   offset=16B: {104: 22420112, 112: 28247632, 120: 28247640, 128: 31706880, 136: 35589840, 144: 35589744, 152: 35589736}
+   offset=24B: {104: 22420112, 112: 25165728, 120: 31706880, 128: 28247680, 136: 31706904, 144: 35589744, 152: 35589736}
+   offset=32B: {104: 22420112, 112: 25165728, 120: 31706880, 128: 28247680, 136: 31706904, 144: 35589744, 152: 39948184}
+   offset=40B: {104: 22420112, 112: 28247632, 120: 31706880, 128: 28247680, 136: 28247608, 144: 31706928, 152: 31706896}
+   offset=48B: {104: 22420112, 112: 25165728, 120: 31706880, 128: 28247680, 136: 28247608, 144: 28247616, 152: 31706896}
+   offset=56B: {104: 22420112, 112: 31706864, 120: 28247640, 128: 25165824, 136: 31706904, 144: 31706928, 152: 35589736}
+-- candidate stride 128B: elbow stable across the 8/8 offsets with a detectable elbow (25165824-31706880 bytes, 1.26x spread) -- consistent with a genuine, alignment-independent transition, but see the gap warning above before treating this as full 8/8 agreement
+
+-- [L12582912 B] single-curve method, footprint_bytes=25165824 (2.0x boundary) --
+-- [L12582912 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/upgrade/line_size/level_12582912/singlecurve_coarse_random_20260913T145322Z.csv
+  wrote 128002 lines -> data_raw/upgrade/line_size/level_12582912/singlecurve_coarse_sequential_20260913T145322Z.csv
+Wrote 128 summary rows to data_processed/upgrade/line_size/level_12582912/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/upgrade/line_size/level_12582912/singlecurve_coarse_sequential_summary.csv
+-- [L12582912 B] detected line-size estimate (bytes): none --
+-- [L12582912 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L12582912 B] generating single-curve plots --
+  note: flagged 7 isolated spike stride(s) as probable page-aliasing artifacts: [200, 256, 384, 512, 784, 984, 1024]
+Wrote data_processed/upgrade/line_size/level_12582912/plots/line_size_curve.pdf and .png
+Wrote data_processed/upgrade/line_size/level_12582912/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## step 5: cross-level, cross-method agreement summary
+############################################################
+   level boundary=12582912B -> method A (family of curves) = 128B, method B (single curve) = noneB
+== every level/method that produced an estimate AGREES on 128B -- strong Phase-I evidence ==
+== done: all levels, both methods, complete ==
+== this is a FROZEN PHASE-I TIMING-ONLY result -- compare against PMU counters
+   and the documented/system-reported line size in Phase II before treating it as
+   confirmed (see README.md's Phase I/II/III discipline).
+== plots per level: data_processed/upgrade/line_size/level_<boundary>/plots/line_size_family_{curve,boxplots}.{png,pdf} (A, steps 1-3),
+          .../line_size_offset_{elbow,boxplots}.{png,pdf} (A, step 4), .../line_size_{curve,boxplots}.{png,pdf} (B) ==
+== record in data_raw/upgrade/README.md: boundaries=12582912, core=5,
+   seed=12345, samples=1000000, coarse_strides=8,16,32,64,128,256, per-level/per-method estimates as above,
+   timestamp=20260913T145322Z ==
+== full transcript saved to: data_raw/upgrade/line_size/run_line_size_20260913T145322Z.log ==

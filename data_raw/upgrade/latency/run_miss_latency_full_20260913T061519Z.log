@@ -1,0 +1,78 @@
+== run_miss_latency_full: machine=upgrade core=5 base_seed=12345 ==
+== timestamp=20260913T061519Z ==
+
+== transition L1_to_L2: target_bytes=32768 evict_bytes=262144 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L1_to_L2/miss_latency_base_random_20260913T061519Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L1_to_L2/base_random_summary_20260913T061519Z.csv
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L1_to_L2/miss_latency_base_sequential_20260913T061519Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L1_to_L2/base_sequential_summary_20260913T061519Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L1_to_L2/miss_latency_rep1_random_20260913T061519Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L1_to_L2/rep1_random_summary_20260913T061519Z.csv
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L1_to_L2/miss_latency_rep1_sequential_20260913T061519Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L1_to_L2/rep1_sequential_summary_20260913T061519Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L1_to_L2/miss_latency_rep2_random_20260913T061519Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L1_to_L2/rep2_random_summary_20260913T061519Z.csv
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L1_to_L2/miss_latency_rep2_sequential_20260913T061519Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L1_to_L2/rep2_sequential_summary_20260913T061519Z.csv
+-- found source-level (L1) hit_latency data for penalty annotation: data_processed/upgrade/latency/hit/L1/base_dependent_random_summary_20260913T061042Z.csv data_processed/upgrade/latency/hit/L1/rep1_dependent_random_summary_20260913T061042Z.csv data_processed/upgrade/latency/hit/L1/rep2_dependent_random_summary_20260913T061042Z.csv --
+-- generating plots for L1_to_L2 --
+  note: pattern=random has 3 overlapping summary rows with medians [67.0, 123.0, 116.0] (spread 56.0 ticks, 54.9%) -- averaging, widening whiskers to the union
+  note: pattern=sequential has 3 overlapping summary rows with medians [97.5, 79.0, 121.0] (spread 42.0 ticks, 42.4%) -- averaging, widening whiskers to the union
+Wrote data_processed/upgrade/latency/miss/L1_to_L2/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1_to_L2 --
+
+== transition L2_to_LLC: target_bytes=262144 evict_bytes=12582912 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L2_to_LLC/miss_latency_base_random_20260913T061519Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L2_to_LLC/base_random_summary_20260913T061519Z.csv
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L2_to_LLC/miss_latency_base_sequential_20260913T061519Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L2_to_LLC/base_sequential_summary_20260913T061519Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L2_to_LLC/miss_latency_rep1_random_20260913T061519Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L2_to_LLC/rep1_random_summary_20260913T061519Z.csv
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L2_to_LLC/miss_latency_rep1_sequential_20260913T061519Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L2_to_LLC/rep1_sequential_summary_20260913T061519Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L2_to_LLC/miss_latency_rep2_random_20260913T061519Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L2_to_LLC/rep2_random_summary_20260913T061519Z.csv
+  wrote 202 lines -> data_raw/upgrade/latency/miss/L2_to_LLC/miss_latency_rep2_sequential_20260913T061519Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/L2_to_LLC/rep2_sequential_summary_20260913T061519Z.csv
+-- found source-level (L2) hit_latency data for penalty annotation: data_processed/upgrade/latency/hit/L2/base_dependent_random_summary_20260913T061042Z.csv data_processed/upgrade/latency/hit/L2/rep1_dependent_random_summary_20260913T061042Z.csv data_processed/upgrade/latency/hit/L2/rep2_dependent_random_summary_20260913T061042Z.csv --
+-- generating plots for L2_to_LLC --
+  note: pattern=random has 3 overlapping summary rows with medians [510.0, 424.0, 636.0] (spread 212.0 ticks, 40.5%) -- averaging, widening whiskers to the union
+  note: pattern=sequential has 3 overlapping summary rows with medians [170.5, 290.0, 327.5] (spread 157.0 ticks, 59.8%) -- averaging, widening whiskers to the union
+Wrote data_processed/upgrade/latency/miss/L2_to_LLC/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2_to_LLC --
+
+== transition LLC_to_DRAM: target_bytes=12582912 evict_bytes=25165824 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/upgrade/latency/miss/LLC_to_DRAM/miss_latency_base_random_20260913T061519Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/LLC_to_DRAM/base_random_summary_20260913T061519Z.csv
+  wrote 202 lines -> data_raw/upgrade/latency/miss/LLC_to_DRAM/miss_latency_base_sequential_20260913T061519Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/LLC_to_DRAM/base_sequential_summary_20260913T061519Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/upgrade/latency/miss/LLC_to_DRAM/miss_latency_rep1_random_20260913T061519Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/LLC_to_DRAM/rep1_random_summary_20260913T061519Z.csv
+  wrote 202 lines -> data_raw/upgrade/latency/miss/LLC_to_DRAM/miss_latency_rep1_sequential_20260913T061519Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/LLC_to_DRAM/rep1_sequential_summary_20260913T061519Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/upgrade/latency/miss/LLC_to_DRAM/miss_latency_rep2_random_20260913T061519Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/LLC_to_DRAM/rep2_random_summary_20260913T061519Z.csv
+  wrote 202 lines -> data_raw/upgrade/latency/miss/LLC_to_DRAM/miss_latency_rep2_sequential_20260913T061519Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/upgrade/latency/miss/LLC_to_DRAM/rep2_sequential_summary_20260913T061519Z.csv
+-- found source-level (LLC) hit_latency data for penalty annotation: data_processed/upgrade/latency/hit/LLC/base_dependent_random_summary_20260913T061042Z.csv data_processed/upgrade/latency/hit/LLC/rep1_dependent_random_summary_20260913T061042Z.csv data_processed/upgrade/latency/hit/LLC/rep2_dependent_random_summary_20260913T061042Z.csv --
+-- generating plots for LLC_to_DRAM --
+  note: pattern=random has 3 overlapping summary rows with medians [605.0, 461.0, 617.0] (spread 156.0 ticks, 27.8%) -- averaging, widening whiskers to the union
+  note: pattern=sequential has 3 overlapping summary rows with medians [304.0, 288.0, 153.0] (spread 151.0 ticks, 60.8%) -- averaging, widening whiskers to the union
+Wrote data_processed/upgrade/latency/miss/LLC_to_DRAM/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC_to_DRAM --
+
+== done ==
+== L1_to_L2: target_bytes=32768 evict_bytes=262144 ==
+== L2_to_LLC: target_bytes=262144 evict_bytes=12582912 ==
+== LLC_to_DRAM: target_bytes=12582912 evict_bytes=25165824 ==
+== record in data_raw/upgrade/README.md: core=5, base_seed=12345 (repeats use base_seed+index), trials=200, timestamp=20260913T061519Z ==
+== full transcript saved to: data_raw/upgrade/latency/run_miss_latency_full_20260913T061519Z.log ==

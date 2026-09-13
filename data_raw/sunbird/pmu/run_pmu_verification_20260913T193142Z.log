@@ -1,0 +1,63 @@
+== run_pmu_verification: machine=sunbird core=1 base_seed=12345 ==
+== timestamp=20260913T193142Z ==
+
+== level L1: footprint_bytes=32768 ==
+-- base (seed=12345) --
+  group=cache -> data_raw/sunbird/pmu/L1/L1_perfstat_cache_base_20260913T193142Z.csv
+  group=l1 -> data_raw/sunbird/pmu/L1/L1_perfstat_l1_base_20260913T193142Z.csv
+  group=llc -> data_raw/sunbird/pmu/L1/L1_perfstat_llc_base_20260913T193142Z.csv
+  group=cyc -> data_raw/sunbird/pmu/L1/L1_perfstat_cyc_base_20260913T193142Z.csv
+-- rep1 (seed=12346) --
+  group=cache -> data_raw/sunbird/pmu/L1/L1_perfstat_cache_rep1_20260913T193142Z.csv
+  group=l1 -> data_raw/sunbird/pmu/L1/L1_perfstat_l1_rep1_20260913T193142Z.csv
+  group=llc -> data_raw/sunbird/pmu/L1/L1_perfstat_llc_rep1_20260913T193142Z.csv
+  group=cyc -> data_raw/sunbird/pmu/L1/L1_perfstat_cyc_rep1_20260913T193142Z.csv
+-- rep2 (seed=12347) --
+  group=cache -> data_raw/sunbird/pmu/L1/L1_perfstat_cache_rep2_20260913T193142Z.csv
+  group=l1 -> data_raw/sunbird/pmu/L1/L1_perfstat_l1_rep2_20260913T193142Z.csv
+  group=llc -> data_raw/sunbird/pmu/L1/L1_perfstat_llc_rep2_20260913T193142Z.csv
+  group=cyc -> data_raw/sunbird/pmu/L1/L1_perfstat_cyc_rep2_20260913T193142Z.csv
+Wrote 4 rows (incl. median) to data_processed/sunbird/pmu/L1/pmu_summary_20260913T193142Z.csv
+-- wrote data_processed/sunbird/pmu/L1/pmu_summary_20260913T193142Z.csv --
+
+== level L2: footprint_bytes=262144 ==
+-- base (seed=12345) --
+  group=cache -> data_raw/sunbird/pmu/L2/L2_perfstat_cache_base_20260913T193142Z.csv
+  group=l1 -> data_raw/sunbird/pmu/L2/L2_perfstat_l1_base_20260913T193142Z.csv
+  group=llc -> data_raw/sunbird/pmu/L2/L2_perfstat_llc_base_20260913T193142Z.csv
+  group=cyc -> data_raw/sunbird/pmu/L2/L2_perfstat_cyc_base_20260913T193142Z.csv
+-- rep1 (seed=12346) --
+  group=cache -> data_raw/sunbird/pmu/L2/L2_perfstat_cache_rep1_20260913T193142Z.csv
+  group=l1 -> data_raw/sunbird/pmu/L2/L2_perfstat_l1_rep1_20260913T193142Z.csv
+  group=llc -> data_raw/sunbird/pmu/L2/L2_perfstat_llc_rep1_20260913T193142Z.csv
+  group=cyc -> data_raw/sunbird/pmu/L2/L2_perfstat_cyc_rep1_20260913T193142Z.csv
+-- rep2 (seed=12347) --
+  group=cache -> data_raw/sunbird/pmu/L2/L2_perfstat_cache_rep2_20260913T193142Z.csv
+  group=l1 -> data_raw/sunbird/pmu/L2/L2_perfstat_l1_rep2_20260913T193142Z.csv
+  group=llc -> data_raw/sunbird/pmu/L2/L2_perfstat_llc_rep2_20260913T193142Z.csv
+  group=cyc -> data_raw/sunbird/pmu/L2/L2_perfstat_cyc_rep2_20260913T193142Z.csv
+Wrote 4 rows (incl. median) to data_processed/sunbird/pmu/L2/pmu_summary_20260913T193142Z.csv
+-- wrote data_processed/sunbird/pmu/L2/pmu_summary_20260913T193142Z.csv --
+
+== level LLC: footprint_bytes=31457280 ==
+-- base (seed=12345) --
+  group=cache -> data_raw/sunbird/pmu/LLC/LLC_perfstat_cache_base_20260913T193142Z.csv
+  group=l1 -> data_raw/sunbird/pmu/LLC/LLC_perfstat_l1_base_20260913T193142Z.csv
+  group=llc -> data_raw/sunbird/pmu/LLC/LLC_perfstat_llc_base_20260913T193142Z.csv
+  group=cyc -> data_raw/sunbird/pmu/LLC/LLC_perfstat_cyc_base_20260913T193142Z.csv
+-- rep1 (seed=12346) --
+  group=cache -> data_raw/sunbird/pmu/LLC/LLC_perfstat_cache_rep1_20260913T193142Z.csv
+  group=l1 -> data_raw/sunbird/pmu/LLC/LLC_perfstat_l1_rep1_20260913T193142Z.csv
+  group=llc -> data_raw/sunbird/pmu/LLC/LLC_perfstat_llc_rep1_20260913T193142Z.csv
+  group=cyc -> data_raw/sunbird/pmu/LLC/LLC_perfstat_cyc_rep1_20260913T193142Z.csv
+-- rep2 (seed=12347) --
+  group=cache -> data_raw/sunbird/pmu/LLC/LLC_perfstat_cache_rep2_20260913T193142Z.csv
+  group=l1 -> data_raw/sunbird/pmu/LLC/LLC_perfstat_l1_rep2_20260913T193142Z.csv
+  group=llc -> data_raw/sunbird/pmu/LLC/LLC_perfstat_llc_rep2_20260913T193142Z.csv
+  group=cyc -> data_raw/sunbird/pmu/LLC/LLC_perfstat_cyc_rep2_20260913T193142Z.csv
+Wrote 4 rows (incl. median) to data_processed/sunbird/pmu/LLC/pmu_summary_20260913T193142Z.csv
+-- wrote data_processed/sunbird/pmu/LLC/pmu_summary_20260913T193142Z.csv --
+
+== done ==
+== record in data_raw/sunbird/README.md pmu/ section: core=1, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260913T193142Z ==
+== full transcript saved to: data_raw/sunbird/pmu/run_pmu_verification_20260913T193142Z.log ==

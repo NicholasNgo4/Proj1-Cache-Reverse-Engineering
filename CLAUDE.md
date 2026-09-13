@@ -807,10 +807,202 @@ own per-machine capacity prose to pick them.
   transitions showing substantial (26-60%) unexplained repeat-to-repeat
   spread not yet traced to a specific cause. **Not yet run on any other
   machine.**
+- **Upgrade** (`data_raw/upgrade/README.md`'s latency/ section): hit latency
+  at L1/L2/LLC/DRAM (32,768 / 262,144 / 12,582,912 / 536,870,912 B) gives a
+  clean, monotonic 4-tier ladder — L1≈6.17, L2≈16.12, LLC≈155.05, DRAM≈251.56
+  ticks (dependent, random, base-run median) — with independent reading
+  faster than dependent at every level for the random pattern. The
+  `--pattern`-aware independent-addressing fix from Sunbird's run was already
+  present in the pulled code, so nothing new to fix here. One flag DID fire
+  (`LLC sequential: independent >= dependent`, 6.99 vs 6.67) — investigated,
+  not re-run: reproducible across all 3 seeded runs, explained by the
+  hardware prefetcher hiding nearly all real latency for the sequential
+  pattern at both LLC and DRAM footprints (both modes converge to within
+  ~5% of the L1 floor), leaving only a small, consistent secondary effect
+  (independent mode's extra `order[idx]` array read per iteration) visible
+  once there's no real memory-level parallelism left to expose. Miss/next-
+  level latency at L1→L2/L2→LLC/LLC→DRAM gives an increasing 67/510/605-tick
+  sequence (random, base-run median) with >20% repeat-to-repeat spread at
+  **all six** (transition, pattern) combinations (27.8-60.8%) — noted per
+  this run's own instructions rather than re-run until clean. This
+  machine's own single-shot fixed overhead was directly measured (control
+  run, tiny non-evicting eviction set): median 55 ticks vs. this machine's
+  ~6.17-6.35 tick L1 hit-latency median, i.e. a ~48-49 tick floor, similar
+  order of magnitude to but somewhat lower than Sunbird's ~64-85 ticks (not
+  identical, as expected across CPU generations). See
+  `data_raw/upgrade/README.md`'s latency/ section for the full write-up.
+- **Ookay** (`data_raw/ookay/latency/`, 2026-09-13, unattended run): hit
+  latency at L1/L2/LLC/DRAM (32,768 / 262,144 / 8,388,608 / 536,870,912 B,
+  LLC converted from `CAPACITY_RESULTS.md`'s "~8 MiB" as `8*1,048,576`)
+  gives a clean, monotonic 4-tier ladder — L1≈7.49, L2≈18.53, LLC≈74.78,
+  DRAM≈284.45 ticks (dependent, random, median). The pipeline's own
+  independent-vs-dependent check flagged 2 of 8 cells UNEXPECTED (LLC and
+  DRAM, sequential pattern only) — investigated rather than ignored: root
+  cause is the hardware prefetcher fully hiding the sequential (stride-1)
+  pattern at every footprint tested, collapsing both load modes to the
+  same ~L1-speed floor (~7.7-7.9 ticks) regardless of level, so the
+  "inversion" is sub-tick noise around a shared floor, not a broken
+  measurement — LLC/DRAM sequential-pattern numbers should not be cited as
+  real LLC/DRAM latency, only the random-pattern numbers should. Miss/
+  next-level latency at L1→L2/L2→LLC/LLC→DRAM gives 96/723/693 ticks
+  (random, median) — not monotonic (LLC→DRAM ≈ L2→LLC despite evicting one
+  level further) and 4 of 6 (transition, pattern) cells showed >20%
+  run-to-run spread, not resolved this session (core re-verified idle
+  before/after but not monitored continuously during the run; leading
+  candidate is `L2_to_LLC`'s evict_bytes sitting at exactly the LLC
+  capacity estimate rather than past it with margin, not confirmed
+  further). Same fixed single-shot overhead caveat as Sunbird applies,
+  independently measured on this machine at ~58.5 ticks (control median 66
+  vs. L1 hit-latency median 7.49) — even after subtracting it, L2→LLC and
+  LLC→DRAM remain far above their own hit-latency plateaus, so real
+  reload cost is elevated beyond fixed overhead alone, unresolved. See
+  `data_raw/ookay/README.md`'s latency/ section for full detail.
+- **Crux** (`data_raw/crux/latency/`, 2026-09-13): hit latency at L1/L2/LLC/DRAM
+  (32,768 / 262,144 / 8,388,608 / 536,870,912 B, per `CAPACITY_RESULTS.md` —
+  this machine's LLC is ~8 MiB, not Sunbird's ~30 MiB) gives a clean,
+  monotonic 4-tier ladder — L1≈7.42, L2≈14.30, LLC≈43.23, DRAM≈236.80 ticks
+  (dependent, random, median). Independent-load control measured faster than
+  dependent at every level for the random pattern (as required), but flagged
+  `[UNEXPECTED -- investigate]` for the SEQUENTIAL pattern at BOTH LLC and
+  DRAM (independent slightly slower, ~5.6-6.4 ticks either way — i.e. both
+  still near L1 speed). Investigated and root-caused from source rather than
+  discarded: `struct node` is a bare 8-byte pointer, the same size as the
+  `size_t` `order[]` index array `latency.c` allocates for independent-mode's
+  sequential-pattern case — so independent mode's true working set is ~2x
+  `footprint_bytes` at every level, which only matters once that doubled
+  footprint exceeds the level actually being measured (LLC: 2x8 MiB vs an
+  ~8 MiB LLC; DRAM: already past everything). Combined with the sequential
+  pattern's dependent baseline already being fully prefetch-hidden (no MLP
+  headroom left to recover), the extra `order[]` traffic tips the balance to
+  a small, reproducible (confirmed across all 3 repeats individually, not
+  just the aggregate) independent-mode slowdown. This is a real property of
+  the independent-load control's construction, not corruption or contention
+  — see `data_raw/crux/README.md`'s latency/ section for the full per-run
+  numbers. Miss/next-level latency at L1→L2/L2→LLC/LLC→DRAM gives an
+  increasing 77/260/437-tick sequence (random, median) with the same
+  single-shot fixed-overhead caveat as Sunbird (measured directly on this
+  machine: ~50-tick single-shot floor vs. ~7.42-tick batched L1 hit latency,
+  i.e. ~42 ticks fixed overhead) — plus L2→LLC and LLC→DRAM both tripped the
+  >20%-spread warning (up to 77.8%), not traced to a specific process this
+  session.
+- **Charnwood** (`data_raw/charnwood/latency/`): hit latency at L1/L2/LLC/DRAM
+  (32,768 / 262,144 / 8,388,608 / 536,870,912 B, LLC per `CAPACITY_RESULTS.md`'s
+  ~8 MiB row) gives a clean, monotonic 4-tier ladder — L1≈7.98, L2≈17.27,
+  LLC≈107-109, DRAM≈394.6-394.8 ticks (dependent, random, ticks/access) — with
+  the required independent-load control measuring faster than dependent at
+  every level for the random pattern, and at L1/L2/DRAM for sequential too.
+  One UNEXPECTED flag (LLC/sequential: independent slightly slower than
+  dependent, 8.28 vs 8.10, reproduced consistently across all 3 runs but only
+  a 2-3% gap) was investigated, not just noted: at the `sequential` pattern
+  every level's latency clusters in the same narrow ~7.4-8.7 tick band
+  regardless of footprint (prefetching hides the real hierarchy difference
+  entirely, unlike `random`'s clean 10x-40x per-level separation), so a small
+  sign-flippable gap there is expected noise, not a violation of the control's
+  actual claim. Separately (not something Sunbird's writeup needed): this
+  machine's L1/L2 **base** runs measured persistently ~20% higher than their
+  own rep1/rep2 for the run's entire 1000-batch duration (not a brief
+  startup transient) while LLC/DRAM (run later, after the core had already
+  processed 6 prior runs) showed no such gap — read as a P-state/cold-start
+  effect on the very first workload of the whole pipeline, the same category
+  of finding as Artemisia's P-state bimodality; L1/L2 headline numbers above
+  use the rep1+rep2 average, not the base run. Miss/next-level latency at
+  L1→L2/L2→LLC/LLC→DRAM gives an increasing ≈107/≈644/≈852-tick sequence
+  (random, base/rep1/rep2 average) — this machine's own single-shot-overhead
+  control test found essentially the same ~62-tick fixed overhead Sunbird
+  found (median=70 vs. this machine's own ~7.98-tick batched L1 hit latency),
+  so the same "real reload latency + fixed overhead" caveat applies. 3 of 6
+  (transition, pattern) combinations exceeded the pipeline's 20%-spread
+  warning threshold (L1_to_L2/sequential 40.0%; LLC_to_DRAM random and
+  sequential both 22.8%) — not re-run, per task instruction; same established
+  pattern of shared-machine noise as every other multi-run experiment on this
+  team's machines, not independently traced to a specific process here. Full
+  write-up: `data_raw/charnwood/README.md`'s latency/ section.
+- **Artemisia** (`data_raw/artemisia/latency/`, 2026-09-13, unattended, core
+  4): hit latency at L1/L2/LLC/DRAM (49,152 / 2,097,152 / 31,457,280 /
+  536,870,912 B) gives a clean, monotonic 4-tier ladder — L1≈9.9, L2≈28.1,
+  LLC≈94.4, DRAM≈305.6 ticks (dependent, random, median) — independent-load
+  control faster than dependent at every level/pattern except one flagged
+  case: LLC+sequential briefly read `independent >= dependent`, investigated
+  with 3 extra ad hoc seeds and attributed to this machine's already-
+  documented per-invocation P-state/turbo bimodality disproportionately
+  affecting the small, prefetcher-hidden dependent-sequential number (not a
+  real independent-slower-than-dependent effect, and doesn't affect the
+  primary random-pattern signal) — see `data_raw/artemisia/README.md`
+  latency/ section for the full investigation. Miss/next-level latency at
+  L1→L2/L2→LLC/LLC→DRAM gives an increasing 188/381/582-tick sequence
+  (random, median); evict_bytes for LLC→DRAM was calibrated down from a
+  ~2xLLC candidate (~1.04 s/trial, ~21 min projected) to 1.25xLLC (~0.49
+  s/trial, ~9.8 min projected) to stay under the ~15-minute guideline. Same
+  single-shot fixed-overhead caveat as Sunbird, independently confirmed here
+  too: ~60 ticks (median 70 vs ~9.9-tick batched L1 hit latency at the same
+  footprint) — same order of magnitude as Sunbird's ~64-85 ticks. 3 of 6
+  (transition, pattern) combinations flagged >20% repeat spread (36-66%),
+  not traced to a specific process, consistent with this project's
+  established shared-machine-noise signature elsewhere. See
+  `data_raw/artemisia/README.md`'s latency/ section for full detail.
+- **Thunderbird** (`data_raw/thunderbird/latency/`): hit latency at
+  L1/L2/LLC/DRAM (65,536 / 1,048,576 / 31,457,280 / 536,870,912 B) gives a
+  clean monotonic 4-tier ladder in ns (converting via `CNTFRQ_EL0`=25 MHz,
+  40 ns/tick) — L1≈5.0, L2≈11.9, LLC≈36.3, DRAM≈93.4 ns (dependent, random,
+  median; LLC uses the 2 reproducible repeats, not the base run — see
+  below) — agreeing closely with this machine's own independently-measured
+  capacity-experiment DRAM plateau (~92-96 ns). Independent-load control
+  measured faster than dependent at every level/pattern, no `[UNEXPECTED]`
+  flags. LLC's base run (1.642 ticks) was flagged by `plot_hit_latency.py`
+  as a 65% outlier against both repeats (0.889/0.925, agreeing within ~4%)
+  — treated as a single-run interference spike, consistent with this
+  project's established pattern elsewhere, not a third data point.
+  **New finding: sequential-pattern hit latency is flat at ~0.09-0.12
+  ticks across ALL FOUR levels** (no L1→DRAM growth at all) — the
+  prefetcher fully hides footprint-driven latency under a sequential
+  dependent chase on this machine, confirming the sequential control is
+  working as a prefetcher-sanity check but meaning it must never be read
+  as a level-specific number here. Miss/next-level latency
+  (L1_to_L2:65536:131072, L2_to_LLC:1048576:2097152,
+  LLC_to_DRAM:31457280:47185920; the last evict_bytes size, 1.5x LLC, was
+  picked after calibration showed 2x LLC would take ~15.4 min for that
+  transition alone, right at the ~15 min budget) gives random-pattern
+  medians of 2.0/2.0/4.0 ticks — but this machine's coarse 25 MHz counter
+  makes most of this unresolvable: a single-shot overhead control (tiny
+  non-colliding evict set) measured a **median of 1 tick** (mean 0.90,
+  n=2000), meaning **L1_to_L2's 2.0-tick median is statistically
+  indistinguishable from pure measurement overhead** and is reported only
+  for completeness, not as a real number. Only **LLC_to_DRAM's 4-tick
+  median (fully reproducible across all 3 seeds) clears the overhead
+  floor by a resolvable margin (~3 ticks / ~120 ns)** — the one
+  citable-with-caveats miss-latency number from this machine. **Second
+  new finding: sequential-pattern miss_latency collapses to ~1 tick at
+  EVERY transition**, including LLC_to_DRAM where the random pattern
+  clearly separates from the overhead floor — plausibly the eviction
+  walk's own sequential traversal lets the prefetcher re-fetch the
+  target's (adjacent) line before the timed reload, defeating the forced
+  eviction; sequential-pattern miss_latency numbers should not be used as
+  real latencies on this machine. Full detail, including the exact
+  overhead-tick histogram and calibration numbers:
+  `data_raw/thunderbird/README.md`'s latency/ section.
+- **Skylark** (`data_raw/skylark/latency/`, run 2026-09-13, unattended):
+  hit latency at L1/L2/LLC/DRAM (32,768 / 524,288 / 8,388,608 / 536,870,912
+  B) gives a clean, monotonic 4-tier ladder — L1≈6.2, L2≈16.2, LLC≈27.2,
+  DRAM≈274.9 ticks (dependent, random, median) — independent-load control
+  measured faster than dependent at every level/pattern, no
+  `[UNEXPECTED]` flags. Miss/next-level latency at L1→L2/L2→LLC/LLC→DRAM
+  (evict-bytes 524,288 / 8,388,608 / 16,777,216 — the last one picked after
+  a timing calibration showed ~67.7ms/trial at 2x LLC capacity, well under
+  budget) gives an increasing 96/120/360-tick sequence (random, median);
+  L1→L2 and L2→LLC showed >20% repeat-to-repeat spread (21.4%/40.0%,
+  flagged by the plot script, not re-run to chase away) while LLC→DRAM did
+  not (~6.4%). Same single-shot fixed-overhead issue as Sunbird, isolated
+  here too via the same tiny-eviction-set control: ~72-tick median vs.
+  Skylark's own ~6.2-tick batched L1 hit latency → **~65.8 ticks fixed
+  overhead**, consistent with Sunbird's ~64-85 tick range on different
+  hardware. See `data_raw/skylark/README.md`'s latency/ section for the
+  overhead-corrected approximate incremental penalties (~24/38/267 ticks)
+  and full run detail.
 
 **Inclusion/exclusion: implemented 2026-09-13 (`--experiment
-inclusion_policy` in `main_code/common/inclusion_policy.c`/`.h`), first
-(preliminary, uncertain-verdict) data collected on Sunbird only.** Pipeline:
+inclusion_policy` in `main_code/common/inclusion_policy.c`/`.h`), now run on
+Sunbird and Artemisia — Artemisia's LLC-involving verdicts came back
+decisively cleaner than Sunbird's (see its bullet below).** Pipeline:
 `scripts/run_inclusion_policy_full.sh` + `scripts/classify_inclusion_policy.py`
 + `scripts/plot_inclusion_policy.py`. Method (see `inclusion_policy.h`'s
 module doc comment for the full argument): target + an untouched control
@@ -878,6 +1070,294 @@ already-collected `miss_latency` data for the matching transition.
     re-seeded). One further unexplained anomaly, L1_vs_LLC run only: its
     control/sequential box showed 77% spread (max ~756 ticks), not yet
     investigated. **Not yet run on any other machine.**
+  - **Synthesis update (2026-09-13, no new runs — resolved/sharpened the
+    caveats above using line_size data that now exists for Sunbird):**
+    caveat 1 (assumed 64B line size) is confirmed correct, not just assumed
+    (Sunbird's line_size/ section independently confirmed 64B at all 3
+    footprints on 2026-09-11, before this experiment existed) — the
+    eviction-footprint math for L1_vs_L2/L1_vs_LLC was already right, no
+    re-run needed; `run_inclusion_policy_full.sh`'s stale "documented
+    assumption, not measured" wording was corrected to say so. Caveat 3
+    (L2 target's index may not fit in one page) is now a math-backed
+    structural argument, not just a suspicion: L1's confirmed 64 sets x
+    64B lines = exactly one page (12 bits), which is why the method works
+    for an L1 target; any bigger level needs more sets than fit in that
+    remaining space, so L2_vs_LLC is very likely unfixable by more repeats
+    under this design. **Best-guess overall reading, combining all three
+    pairings:** L1 is confidently non-inclusive w.r.t. L2, and the L1-vs-LLC
+    skip-level result leans inclusive (just under the confidence threshold)
+    — a pattern consistent with a non-inclusive L2 alongside an LLC that
+    behaves inclusively toward L1 (acting as a cross-core inclusion/snoop
+    directory), though L2_vs_LLC's own ambiguity can't confirm or deny this.
+    Full writeup and caveats: `data_raw/sunbird/README.md`'s inclusion_policy/
+    "Best-guess synthesis" subsection. The assignment-required final inferred
+    cache table itself (level/size/line size/associativity/derived sets/hit
+    latency/miss latency/sharing scope/inclusion behavior) for Sunbird now
+    lives at `data_processed/sunbird/FINAL_CACHE_TABLE.md`, alongside this
+    machine's other processed benchmark outputs (moved there 2026-09-13 at
+    the user's request, so it sits next to `capacity/`, `line_size/`,
+    `associativity/`, `latency/`, `inclusion_policy/` rather than in the
+    data_raw README).
+- **Artemisia** (`data_raw/artemisia/inclusion_policy/{L1_vs_L2,L2_vs_LLC,L1_vs_LLC}/`,
+  2026-09-13, core 4, all three pairings from `CAPACITY_RESULTS.md`'s L1/L2/LLC
+  boundaries — note L2's value, 2,097,152 B, is the same one this machine's own
+  capacity data already flags as NOT a confirmed boundary, run anyway per
+  project-wide direction): **both LLC-involving pairings came back a clean
+  100% invalidated-like / 0% ambiguous split** — L2_vs_LLC (target median 476
+  vs. 88.8-tick survived/582-tick invalidated calibration) and L1_vs_LLC
+  (target median 523 vs. 70.2/582) — noticeably cleaner than Sunbird's own
+  ambiguous/borderline results for the equivalent pairings. **Verdict for
+  both: INCLUSIVE.** L1_vs_L2, by contrast, came back 77.5% ambiguous (target
+  median 160 vs. 70.1-tick survived/381-tick invalidated calibration, control
+  a clean 100% survived-like) — **Verdict: UNCERTAIN** — most likely because
+  this pairing's eviction footprint scales off the same unconfirmed 2 MiB L2
+  candidate, making it 8x larger (128 MiB/32,768 pages) than Sunbird's
+  equivalent, confirmed-capacity L1_vs_L2 pairing (16 MiB/4,096 pages),
+  pushing it into the DTLB-risk regime Sunbird's writeup only expected for
+  LLC-scale pairings. `ASSUMED_LINE_SIZE_BYTES` left at the default 64 —
+  this machine's own line_size/ section confirms 64B at L1 and reads it as
+  best-supported (though not offset-invariance-clean) at L2; no line-size
+  signal exists at all at the LLC candidate after 11 independent attempts, so
+  64B is simply the only measured value anywhere on this machine, not a
+  blind carry-over. **Best-guess overall reading:** Artemisia's LLC reads as
+  confidently inclusive of both L1 and L2 (cleaner evidence than Sunbird's
+  own LLC pairings produced), while L1's own relationship to L2 remains open
+  pending a re-run at a corrected eviction footprint once a real L2 capacity
+  is established for this machine. Full writeup: `data_raw/artemisia/README.md`'s
+  inclusion_policy/ section. Final table:
+  `data_processed/artemisia/FINAL_CACHE_TABLE.md` — L1 associativity best
+  guess 12-way (not machine-confirmed, unlike Sunbird/Upgrade/Charnwood's
+  8-way), L2/LLC both best-guessed at 16-way (same confound as every other
+  machine, reasoned from L1's floor + L2's capacity being a pure power of two
+  forcing a power-of-two associativity guess; see the table's own reasoning
+  section for why LLC's "clean sets" check is weaker evidence than L2's
+  there). **Not yet run on any other machine besides these two.**
+
+**Thunderbird (2026-09-13): ran all three pairings using the hardened
+pipeline's per-level `ASSUMED_LINE_SIZE_BYTES` override (64 B for L1_vs_L2,
+128 B for the two LLC-scale pairings, matching this machine's own confirmed
+per-level line_size split) — the first machine to actually need that
+override.** L1_vs_L2: EXCLUSIVE/NON-INCLUSIVE (84.5% survived-like), same
+direction as Sunbird. L2_vs_LLC: formally UNCERTAIN but leans inclusive
+(76.5% invalidated-like, vs. Sunbird's own near-total ambiguity at this
+pairing — a different-looking, not just noisier, result). L1_vs_LLC (skip
+-level): EXCLUSIVE/NON-INCLUSIVE at 80.5% — **the opposite directional lean
+from Sunbird's own skip-level result** (Sunbird leaned inclusive at 75%).
+New Thunderbird-specific finding, not present on Sunbird: this machine's real
+L1 (65,536 B, 4-way, 256 sets) needs 14 address bits of index+offset, 2 more
+than fit in one 4096 B page (Sunbird's L1 fits exactly in 12), so the
+method's "eviction structurally avoids target's own set" guarantee is only
+approximate here even for an L1 target, not exact — read every Thunderbird
+inclusion_policy verdict as somewhat less clean than the equivalent Sunbird
+one for this reason. Also: this machine's coarse 25 MHz timer compresses the
+survived/invalidated calibration classes into just a few integer tick
+values, making per-trial classification here inherently less crisp than on
+x86. **Best-guess overall reading:** L1 vs L2 confidently non-inclusive
+(matches Sunbird); unlike Sunbird, the two LLC-involving pairings do NOT
+combine into one internally consistent hierarchy-wide story on this
+machine — treated as genuinely unresolved rather than forcing Sunbird's
+snoop-filter narrative onto different data. Full writeup:
+`data_raw/thunderbird/README.md`'s inclusion_policy/ section; final table:
+`data_processed/thunderbird/FINAL_CACHE_TABLE.md` (same format as Sunbird's,
+including a reasoned best-guess L2=12-way/LLC=10-way associativity call —
+the same cross-machine confound already documented above, now reproduced on
+a fourth machine and confirmed non-monotonic in its raw numbers here, flagged
+as a likely confound artifact rather than smoothed over).
+
+**Skylark (2026-09-13): inclusion_policy run completed, Phase I closed out
+for this machine — FINAL_CACHE_TABLE.md now exists alongside Sunbird's.**
+Ran both remaining pairings-pass invocations (`run_inclusion_policy_full.sh`
+now supports a per-invocation `ASSUMED_LINE_SIZE_BYTES` env-var override,
+used here because this machine's own line_size/ section found a genuine 2x
+disagreement — 64B at L1, 128B at the deep LLC-region transition — so
+L1_vs_L2 was run at 64B and L2_vs_LLC/L1_vs_LLC at 128B, rather than one
+constant for the whole machine). All three pairings came back leaning
+**NON-INCLUSIVE**, unlike Sunbird's mixed result (non-inclusive L2,
+leaning-inclusive skip-level LLC): L1_vs_L2 is a weak lean (classifier
+itself calls it UNCERTAIN — target/control medians came back nearly
+identical, unlike Sunbird's clean split), while L2_vs_LLC and L1_vs_LLC
+both came back numerically clean (99.5%/100% survived-like) — though both
+carry a machine-specific caveat this session flagged: `CAPACITY_RESULTS.md`'s
+8 MiB LLC value for Skylark is very likely an underestimate (this machine's
+own capacity data shows the real LLC->DRAM knee starting closer to
+~16.8-21.8 MiB), so the 256 MiB eviction footprint used for those two
+pairings has a smaller effective safety margin over the *real* LLC capacity
+than the scaling formula's "32x" nominally implies. Full detail:
+`data_raw/skylark/README.md`'s inclusion_policy/ section. Associativity
+above L1 hit the same universal confound as 5 of the other 7 machines (L2
+auto-detected "9" is very likely an L1-aliasing artifact — 524,288 B is an
+exact 16x multiple of L1's own stride; LLC auto-detected 8/8/7, not fully
+reproducible) — best-guessed as **8-way for both L2 and LLC** (matching L1,
+and the only nearby integer giving a clean S=C/(A×B) derived-set count at
+LLC's confirmed 128B line size). `data_processed/skylark/FINAL_CACHE_TABLE.md`
+written in the same 9-column format as Sunbird's, every cell leading with a
+concrete best-guess value.
+
+**Upgrade (2026-09-13): hit_latency/miss_latency/inclusion_policy all now
+complete, Phase I closed out for this machine — FINAL_CACHE_TABLE.md now
+exists alongside Sunbird's and Skylark's.** After merging in Sunbird's
+hardened `run_inclusion_policy_full.sh`, ran all three pairings in one
+invocation at `ASSUMED_LINE_SIZE_BYTES=64` uniformly — unlike Skylark/
+Thunderbird, this machine never produced a citable alternate line-size
+value at any level (L2/LLC line_size/ data never converged across 7+
+repeated runs, pure noise, not a competing measurement), so 64B (this
+machine's only confirmed value, at L1) was used for every pairing rather
+than guessing a different one. **L1_vs_L2: confidently NON-INCLUSIVE**
+(99.0% survived-like, cleanest of the three). **L2_vs_LLC: leans
+NON-INCLUSIVE** (95.5% survived-like) but weakest-confidence per the
+usual L2-index-doesn't-fit-one-page caveat, plus a 90.4%-spread repeat
+flagged (same "one repeat spikes hard" signature as Sunbird's own
+L2_vs_LLC). **L1_vs_LLC (skip-level): classifier-UNCERTAIN** — target
+landed almost exactly on the geometric-mean classification boundary (168
+vs. 167.39 ticks), 95% of trials ambiguous — but a closer read found
+target's tight 165-174 tick IQR sits far closer to this machine's own
+on-chip LLC-hit latency (~155 ticks) than to either the survived (~46) or
+invalidated (~605) calibration extremes, i.e. the walk evicts L1 but the
+data is landing back in cache rather than being forced to DRAM — read as
+a reasoned NON-INCLUSIVE lean rather than a non-answer (see
+`data_raw/upgrade/README.md`'s inclusion_policy/ section for the full
+argument). **All three pairings therefore point the same direction**
+(non-inclusive), unlike Sunbird's mixed non-inclusive-L2/leaning-inclusive-
+LLC result — same overall shape as Skylark's read, though Upgrade is Intel
+Coffee Lake (not AMD Zen 2), so the vendor/generation correlation Skylark's
+aside suggested doesn't hold uniformly across the team's own Intel
+machines (Sunbird's Haswell-EP leaned the other way) — noted as an open
+cross-machine question, not resolved further under Phase I discipline.
+Associativity above L1 hit the same universal confound as 5 of the other
+7 machines; best-guessed as **8-way for both L2 and LLC** (matching L1,
+supported by the derived-stride-scan technique's full-rigor confirm run
+showing a real second knee at way=9 once the shallow first-step artifact
+is looked past, and the only nearby integer giving a clean S=C/(A×B)
+derived-set count — 24,576 — at LLC's ~12 MiB `CAPACITY_RESULTS.md`
+value). `data_processed/upgrade/FINAL_CACHE_TABLE.md` written in the same
+9-column format as Sunbird's/Skylark's, every cell leading with a concrete
+best-guess value. Idle-core check: core 5 (same core as every other
+Upgrade run), reconfirmed idle via `/proc/stat` deltas immediately before
+the run.
+
+**Ookay (2026-09-13): inclusion_policy run completed, Phase I closed out for
+this machine — FINAL_CACHE_TABLE.md now exists alongside Sunbird's and
+Skylark's.** hit_latency/miss_latency had already been run on this machine
+(see the earlier Ookay bullet above); this session merged in Sunbird's
+hardened pipeline (commit `a6c0368` + follow-ups) and ran the one remaining
+piece, `run_inclusion_policy_full.sh ookay 2` at all three
+`CAPACITY_RESULTS.md` pairings (`ASSUMED_LINE_SIZE_BYTES` left at the
+default 64 — no machine-specific line-size override needed, since this
+machine's own line_size/ data doesn't contradict 64 B at any level, just
+under-confirms it at L2/LLC compared to Sunbird's positive 3-footprint
+confirmation). Unlike Sunbird's ~1.9 GiB/~604 ms-per-trial LLC-scale
+eviction footprint, Ookay's scaled footprint (512 MiB at the 8 MiB LLC
+candidate) ran at ~12 ms/trial — the whole 3-pairing pipeline finished in
+under a minute, no `tmux` needed. Results: **L1_vs_L2 confidently
+NON-INCLUSIVE** (100%/100% target/control survived-like, the cleanest such
+result on any machine so far, cleaner even than Sunbird's own 90%/92%).
+**L1_vs_LLC (skip-level) leans INVALIDATED/inclusive-like**, on the strength
+of a 99.5% paired-check signal (target read slower than its own control in
+essentially every trial) even though the absolute-ticks classifier calls the
+median itself ambiguous (194 vs. a 198.98-tick threshold, just inside the
+±15% fence). **L2_vs_LLC: UNCERTAIN with a weak lean toward
+INVALIDATED/inclusive-like** (target 30.5% invalidated-like vs. control's
+2.5%, ~12x) — same lowest-confidence status as every other machine's
+L2_vs_LLC (L2 target's index doesn't fit in one page), and notably leaning
+the *opposite* direction from Sunbird's own L2_vs_LLC result (which leaned
+toward survived) — read as evidence this specific pairing doesn't produce a
+reliable per-machine signal at all, not as evidence the two machines'
+LLCs actually differ. Associativity above L1 hit the same universal confound
+as 5 of the other 7 machines: L2 and LLC (262,144 B and 8,388,608 B
+candidates) produce numerically indistinguishable two-step staircases at
+the *same* num_ways breakpoints despite a 32x capacity difference — with no
+extra corroborating technique available on this machine (unlike Sunbird's
+use of Upgrade's derived-stride-scan to separate L2 from LLC), both were
+best-guessed at the **same 8-way** (matching L1's own confirmed value and
+the second staircase step at num_ways=9, the same wall documented
+elsewhere) rather than inventing an artificial split; the S=C/(A×B)
+cross-check is flagged as less discriminating here than on Sunbird, since
+Ookay's 8 MiB LLC candidate is already an exact power of two (so nearly any
+power-of-two associativity guess also yields a clean integer set count,
+unlike Sunbird's non-power-of-two ~30 MiB value). Also backfilled this
+session: the `line_size/` section of `data_raw/ookay/README.md`, which had
+been left blank even though a teammate's commit (`990d5b6`) already added
+the underlying data — narrative summary only, not independently
+re-verified. Full detail: `data_raw/ookay/README.md`'s `line_size/`,
+`inclusion_policy/`, and `associativity/` sections;
+`data_processed/ookay/FINAL_CACHE_TABLE.md` for the consolidated table.
+
+**Crux (2026-09-13): inclusion_policy run completed, Phase I closed out for
+this machine — FINAL_CACHE_TABLE.md now exists alongside Sunbird's and
+Skylark's.** Ran all 3 pairings in one invocation
+(`./scripts/run_inclusion_policy_full.sh crux 3 L1_vs_L2:32768:262144:L2_to_LLC,
+L2_vs_LLC:262144:8388608:LLC_to_DRAM,L1_vs_LLC:32768:8388608:LLC_to_DRAM`) —
+line size was already confirmed 64B at all 3 levels before this ran, so no
+`ASSUMED_LINE_SIZE_BYTES` override was needed. Calibrated the largest scaled
+eviction footprint (512 MiB, for the two LLC-scale pairings) before
+committing: only ~11.6 ms/trial on this machine (vs. Sunbird's reported
+74-604 ms/trial range for miss_latency-style eviction), so the full pipeline
+ran in well under a minute per pairing with no `tmux` needed. Results: **L1
+vs L2 confidently non-inclusive (97.5% survived-like)**; **L2 vs LLC leans
+non-inclusive with moderate confidence (90.5%)** — notably a firmer call than
+Sunbird's own L2_vs_LLC pairing, which came back mostly ambiguous; **L1 vs
+LLC (skip-level) is this machine's weakest result, 98% ambiguous, leaning
+non-inclusive only barely** — the opposite directional lean from Sunbird's
+own skip-level result (which leaned inclusive). Both LLC-scale pairings'
+control channels showed elevated run-to-run spread (24-40%), read as evidence
+of real DTLB pressure at the 512 MiB eviction scale (the same caveat
+Sunbird's own README flags but did not observe as directly). Associativity
+above L1: raw detector reports 4-way for both L2 and LLC with full 3/3
+reproducibility each — but this is treated as the same confound already
+documented elsewhere, not a real result, specifically because Crux's "4" at
+both 262,144 B and 8,388,608 B (a 32x capacity spread) is an exact match to
+Charnwood's own confound-driven "4" at those identical candidate byte values
+(see Charnwood's bullet above) — best-guessed as **8-way for both L2 and
+LLC** (anchored to L1's confirmed 8-way; also the only choice that makes
+S=C/(A×B) come out to a clean integer at all three levels: 64/512/16,384,
+each ratio exactly matching the corresponding capacity ratio). Best-guess
+overall read: a uniformly non-inclusive hierarchy at every tested boundary —
+a genuine contrast with Sunbird's own mixed (non-inclusive L2,
+inclusive-leaning LLC-as-snoop-filter) reading. Full detail:
+`data_raw/crux/README.md`'s `inclusion_policy/` section;
+`data_processed/crux/FINAL_CACHE_TABLE.md` written in the same 9-column
+format as Sunbird's/Skylark's, every cell leading with a concrete best-guess
+value.
+
+**Charnwood (2026-09-13): inclusion_policy run completed, Phase I closed out
+for this machine — FINAL_CACHE_TABLE.md now exists alongside Sunbird's and
+Skylark's.** Ran all three pairings in one invocation at `ASSUMED_LINE_SIZE_
+BYTES` left at its default (64) — a checked, not blind, choice: this
+machine's own line_size/ section confirms 64B at L1, finds 64B as the
+leading (75%-agreement, not fully settled) candidate at LLC, and has no
+competing value at all for L2 (a settled null result), so one constant is
+the best-supported call here, unlike Skylark's genuine per-level 64B/128B
+split. L1_vs_L2 came back the cleanest of the three (86.0% survived-like,
+control 100% clean) — **EXCLUSIVE/NON-INCLUSIVE**, matching Sunbird's own
+L1_vs_L2 read. Both LLC-scale pairings (L2_vs_LLC, L1_vs_LLC) triggered the
+classifier's own confound warning — **control itself showed 54.0% and 40.0%
+invalidated-like trials respectively, despite never being touched by the
+eviction walk** — the clearest on-team evidence yet that the DTLB/large-
+footprint confound (`inclusion_policy.h`'s caveat 2) can contaminate the
+control channel, not just target (Sunbird's own 3 pairings kept clean
+controls throughout). Per task instruction not to leave a confounded
+pairing as a bare non-answer, both were given a directional best guess
+using the target-vs-control gap on top of the shared noise floor rather
+than the classifier's absolute threshold: **L2_vs_LLC leans invalidated/
+inclusive-like, low confidence** (54-tick gap, both the DTLB and the
+index-doesn't-fit-one-page caveats apply); **L1_vs_LLC leans invalidated/
+inclusive-like, moderate confidence** (124-tick gap, more than double
+L2_vs_LLC's, and L1's index is confirmed to fit in one page). Associativity
+above L1 hit the same universal confound as 5 of the other 7 machines, with
+an unusually clean same-run demonstration: L2's (262,144 B) and LLC's
+(8,388,608 B) median-latency curves agree to within ~0.05 ticks/access at
+every num_ways from 2-23 despite a 32x capacity difference — direct
+same-machine evidence both auto-detected "4" readings are the shared DTLB
+confound, not real signal. Best-guessed as **8-way for both L2 and LLC**
+(matching L1, reasoning from the staircase's second jump at num_ways=9 the
+way Skylark's own LLC best-guess did) — the S=C/(A×B) cross-check comes out
+unusually clean here (both L1→L2 and L2→LLC set-count ratios exactly match
+their capacity ratios, 8x and 32x), a stronger internal-consistency result
+than Sunbird's own table got. Full detail: `data_raw/charnwood/README.md`'s
+inclusion_policy/ section. `data_processed/charnwood/FINAL_CACHE_TABLE.md`
+written in the same 9-column format as Sunbird's/Skylark's, every cell
+leading with a concrete best-guess value.
+
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
@@ -885,38 +1365,176 @@ check that machine's own `data_raw/<machine>/README.md` and recent git log
 (not this paragraph) for its actual current per-machine data-collection
 status, since this file lags active work in progress.
 
-**Phase II (PMU + literature verification): started 2026-09-13, Thunderbird
-only so far.** `phase1-timing-only` tagged at commit `7be6dac` (local tag
-only — this session had no push credentials to origin; push it when you
-have them). Full Table 2, methodology, and citations:
-**`PHASE2_VALIDATION.md`** (new file, structured like `CAPACITY_RESULTS.md`
-— one `## <Machine>` section per machine as Phase II proceeds). Headline
-findings for Thunderbird (Ampere Altra Q80-30 / Neoverse N1): (1) a PMU
-miss-rate sweep (`armv8_pmuv3_0` raw `l{1,2,3}d_cache[_refill]` events via
-`perf stat`, same access pattern as Phase I's capacity sweep — see
-`data_raw/thunderbird/pmu/`) gives an exact L1D miss-rate knee at 64 KiB,
-matching Phase I's timing edge AND the literature value 3 ways; (2) L2's
-miss-rate curve is a smooth knee-free ramp with no elbow near the 1 MiB
-reference size, corroborating (not resolving) Phase I's own "no flat L2
-shelf" finding; (3) the `l3d_cache` PMU events show NO capacity-dependent
-signature anywhere in a 4 KiB-512 MiB sweep (flat/noisy ~50-65% even at
-trivially-L1-resident sizes) and this SoC's SLC doesn't appear in
-`lscpu`/sysfs cache topology at all — so Phase II could NOT independently
-corroborate the Phase-I ~30 MiB LLC-candidate number via counters, only via
-literature (Ampere's datasheet: 32 MiB SLC, 16-way, **shared across all 80
-cores** — a real correction to how Phase-I's single-core `taskset` pinning
-should be read for this level specifically, since every other level on this
-machine is private-per-core and the SLC structurally isn't); (4) literature
-(Ampere Altra Datasheet Rev A1 v1.30 + Arm Neoverse N1 Core TRM r3p1, two
-independent sources agreeing) gives L2 = 8-way, directly disagreeing with
-Phase I's associativity-experiment number of 11-12-way at that stride —
-Phase II reads this as literature-side confirmation that the already-
-documented DTLB/page-count confound (see the associativity section above)
-is the likely explanation, NOT a correction to apply to the Phase-I number.
-Do not edit any frozen Phase-I timing value in light of this — the
-disagreement itself is the reportable Phase-II finding, kept in a separate
-column/section per the assignment's own instruction. Not yet attempted on
-any other machine; Hazel (Phase III) has not started.
+**Phase II (counter- and literature-based verification): started
+2026-09-13, two machines done (Sunbird, Thunderbird), 6 outstanding.**
+`phase1-timing-only` tagged at commit `7be6dac` — **two sessions tagged it
+independently and concurrently (both at this same commit, so the tags
+should be identical objects pointing to the same target); verify with
+`git ls-remote --tags origin` before pushing again, in case that produced
+two divergent tag objects of the same name that need reconciling, not
+just one.** Per `README.md`'s Phase Discipline, this is the first point at
+which `perf`, PMU, and cache-topology commands became allowed.
+
+**Important, unresolved cross-session divergence — read before starting
+Phase II on a 3rd machine:** Sunbird and Thunderbird were done by two
+concurrent sessions that never saw each other's work, and they invented
+two different, incompatible Phase II conventions:
+- Sunbird's session built a **reusable pipeline**:
+  `scripts/run_pmu_verification.sh <machine> <core> <level>:<footprint_bytes>[,...]`
+  + `scripts/summarize_pmu.py`, writing one `data_processed/<machine>/
+  PHASE2_VALIDATION_TABLE.md` per machine (mirroring the existing
+  per-machine `FINAL_CACHE_TABLE.md` convention).
+- Thunderbird's session wrote an **ad hoc per-machine script**
+  (`data_raw/thunderbird/pmu/run_pmu_sweep.sh`) reusing the Phase-I
+  `cache_bench --experiment capacity` binary directly under `perf stat`,
+  and a single **consolidated** `PHASE2_VALIDATION.md` at repo root
+  (mirroring `CAPACITY_RESULTS.md`'s one-file-many-machines convention)
+  instead of a per-machine file.
+- Neither session's approach is wrong, but a 3rd machine run under either
+  convention will fragment the deliverable further. **Pick one before the
+  next machine** — the reusable-pipeline approach is more consistent with
+  every other experiment type in this repo (`run_capacity_full.sh`,
+  `run_associativity_full.sh`, etc. are all shared scripts, not per-machine
+  ad hoc ones), so it's the more likely candidate to standardize on, but
+  this hasn't been decided by the team yet — don't unilaterally migrate
+  Thunderbird's results into the other format without checking first.
+
+- **New pipeline**: `scripts/run_pmu_verification.sh <machine> <core>
+  <level>:<footprint_bytes>[,...]` (mirrors `run_hit_latency_full.sh`'s
+  conventions: same `CAPACITY_RESULTS.md`-sourced footprints, base+2-seeded-
+  repeats, timestamped raw output) + `scripts/summarize_pmu.py`. For each
+  level, it wraps the existing `cache_bench --experiment hit_latency`
+  invocation in 4 SEPARATE `perf stat -e duration_time,<2 events>,...`
+  calls — `{cache-references,cache-misses}`, `{L1-dcache-loads,
+  L1-dcache-load-misses}`, `{LLC-loads,LLC-load-misses}`,
+  `{cycles,instructions}` — rather than one combined command. **Why 4
+  separate 2-event groups**: hand-checked on Sunbird before writing the
+  script — this PMU only reliably schedules 2 generic hardware counters at
+  100%; a 3-event group only got 57-71% scheduled (`nmi_watchdog=1` pins one
+  counter). If a future machine schedules fewer than 2 at 100% (heavier PMU
+  contention from other students), that's a real, honestly-documented
+  limitation to record, not a bug to work around by fabricating numbers.
+  Raw perf CSVs + cache_bench's own CSV from the same invocation land in
+  `data_raw/<machine>/pmu/<level>/` (gzip these by hand after a manual/ad hoc
+  run — `.gitignore`'s `data_raw/**/*.csv` rule applies here too, same as
+  every other experiment); parsed summaries (miss rates, cycles/access,
+  perf's own wall-clock ns/access) in
+  `data_processed/<machine>/pmu/<level>/pmu_summary_<ts>.csv`.
+  **Not the pipeline Thunderbird used** — see the divergence note above.
+- **System-reported cache info**: now-allowed, no new code — `lscpu --caches`
+  and full `lscpu`, plus per-instance `/sys/devices/system/cpu/cpu0/cache/
+  index*/{level,type,size,ways_of_associativity,coherency_line_size,
+  number_of_sets,shared_cpu_list}`, saved to
+  `data_raw/<machine>/pmu/system_reported_cache_info.txt`. `shared_cpu_list`
+  directly answers Table 2's "Sharing scope" column (which Phase I could
+  only ever guess at architecturally) — check it per machine, don't assume
+  Sunbird's own private-per-core-L1/L2 + shared-per-socket-L3 pattern holds
+  everywhere (**it does not hold on Thunderbird** — see that machine's
+  results below: L1/L2 are private-per-core but the LLC-equivalent SLC is
+  shared across all 80 cores, not per-socket).
+- **Literature reference**: Agner Fog's *microarchitecture* manual
+  (`www.agner.org/optimize/microarchitecture.pdf`) for the 6 machines it
+  covers (Sunbird/Haswell, Charnwood/Skylake, Crux+Ookay+Upgrade/
+  Skylake-family, Skylark/Zen2) — find the right microarchitecture section
+  by grepping a converted-to-text copy for the microarch name (Fog organizes
+  by numbered chapter per microarchitecture, cache info is usually its own
+  numbered subsection with a "Cache sizes on ..." table). For Artemisia
+  (Sapphire Rapids) and Thunderbird (ARM Neoverse N1) — not covered by Fog —
+  use vendor docs (Intel optimization manual/datasheet; ARM's Neoverse N1
+  Technical Reference Manual) supplemented by WikiChip/Chips and Cheese
+  where a specific field isn't published, each cited with exact
+  section/page or URL (per explicit project direction, not assumed).
+  **Thunderbird now done**: Ampere Altra Datasheet Rev A1 v1.30 (SKU-specific)
+  + Arm Neoverse N1 Core TRM r3p1 (architectural), both cited by
+  section/page in `PHASE2_VALIDATION.md` — no WikiChip/Chips and Cheese
+  fallback was needed, both primary sources had what was required except
+  load-use latency in cycles, which neither publishes.
+- **Deliverable**: the plan was a single `data_processed/<machine>/
+  PHASE2_VALIDATION_TABLE.md` per machine (separate file from
+  `FINAL_CACHE_TABLE.md`, never edits it) — `PROJECT 1.pdf`'s Table 2
+  columns (Level | Measured size | Measured ways | Derived sets | Line |
+  Measured latency | Sharing scope | Reference value | Agreement) for
+  L1D/L2/LLC, with every cell distinguishing Phase-I-timing vs.
+  Phase-II-PMU vs. Phase-II-system-reported vs. literature before landing
+  on an Agreement verdict. Disagreements get stated plainly, not smoothed
+  over. **Thunderbird's session didn't see this plan and used a
+  consolidated `PHASE2_VALIDATION.md` instead** — see the divergence note
+  above; both files currently coexist.
+- **Sunbird results (full detail:
+  `data_processed/sunbird/PHASE2_VALIDATION_TABLE.md`)**:
+  - **Size/ways/sets/line/sharing-scope: exact match across Phase I timing,
+    Phase II system-report, AND literature at L1D and L2** — most
+    strikingly, the system-reported L2 associativity (8-way, from
+    `lscpu`/sysfs) independently confirms Phase I's confound-blocked L2
+    best guess, which Phase I itself could never fully trust.
+  - **LLC size: Phase I's ~30 MiB estimate matches the system-reported
+    30,720 KiB (31,457,280 B) exactly, byte for byte** — remarkable given
+    Phase I derived it purely from timing.
+  - **LLC associativity: a real, informative disagreement.** Phase I's
+    best guess was 9-way (explicitly flagged as a low-confidence "effective
+    lower bound", blocked by the cross-machine DTLB-scale confound
+    documented extensively in the associativity section above).
+    System-reported: **20-way.** This directly confirms — not just
+    suspects — that Phase I's repeatedly-observed "~9-10" wall really was
+    the shared small-structure confound artifact, not real LLC
+    associativity; also, only 20-way (not 9-way) gives a clean integer
+    derived-set count (24,576 vs. a non-integer 54,613), additional
+    post-hoc evidence 9-way was wrong. Also notable: Fog's Table 10.2
+    quotes a 12-16-way *range* for the Haswell/Broadwell family in general,
+    and this SKU's actual 20-way falls outside even that range — a
+    concrete, textbook case of `PROJECT 1.pdf`'s own warning not to assume
+    one value applies to every SKU in a generation.
+  - **Latency: measured (Phase I ticks AND Phase II perf-derived
+    cycles/access) reads consistently higher than Fog's reference cycle
+    counts at all 3 levels** (ratio roughly 1.7-2.6x, most pronounced at
+    L1/L2) — attributed to this project's `-O0` compiled dependent-chase
+    loop (stack spill/reload of the chase pointer sits in the true
+    dependency chain every iteration), not a contradiction; see the
+    table's own caveat section for the full reasoning, including why the
+    Phase-II PMU "cycles/access"/"ns/access" numbers are themselves only
+    trustworthy as an order-of-magnitude cross-check (they're whole-
+    process-lifetime figures divided by only the timed samples, heavily
+    diluted by untimed warmup/setup at small footprints and NOT usable as
+    an absolute number at the LLC footprint) — miss-rate ratios (which
+    cancel most of that contamination) are the reliable Phase-II PMU
+    corroboration signal, and they cleanly reproduce Phase I's own L1/L2/LLC
+    boundary placement (an order-of-magnitude jump in LLC-scope miss rate,
+    ~0.1-1.4% to ~11-14%, lands exactly at the LLC footprint).
+  - This machine's PMU only reliably schedules 2 generic hardware counters
+    at once (see pipeline note above) — a real, machine-specific
+    limitation worth re-checking (not assuming) on each of the other 7.
+- **Thunderbird results (full detail: `PHASE2_VALIDATION.md`, Thunderbird
+  section)**: PMU miss-rate sweep (`armv8_pmuv3_0` raw
+  `l{1,2,3}d_cache[_refill]` events via `perf stat`, same access pattern as
+  Phase I's capacity sweep — see `data_raw/thunderbird/pmu/`) gives an
+  exact L1D miss-rate knee at 64 KiB, matching Phase I's timing edge AND
+  the literature value 3 ways; L2's miss-rate curve is a smooth knee-free
+  ramp with no elbow near the 1 MiB reference size, corroborating (not
+  resolving) Phase I's own "no flat L2 shelf" finding; the `l3d_cache` PMU
+  events show NO capacity-dependent signature anywhere in a 4 KiB-512 MiB
+  sweep (flat/noisy ~50-65% even at trivially-L1-resident sizes) and this
+  SoC's SLC doesn't appear in `lscpu`/sysfs cache topology at all — so
+  Phase II could NOT independently corroborate the Phase-I ~30 MiB
+  LLC-candidate number via counters, only via literature (Ampere's
+  datasheet: 32 MiB SLC, 16-way, **shared across all 80 cores** — a real
+  correction to how Phase-I's single-core `taskset` pinning should be read
+  for this level specifically, since every other level on this machine is
+  private-per-core and the SLC structurally isn't); literature (Ampere
+  Altra Datasheet Rev A1 v1.30 + Arm Neoverse N1 Core TRM r3p1, two
+  independent sources agreeing) gives L2 = 8-way, directly disagreeing with
+  Phase I's associativity-experiment number of 11-12-way at that stride —
+  read as literature-side confirmation that the already-documented
+  DTLB/page-count confound (see the associativity section above) is the
+  likely explanation, NOT a correction to apply to the Phase-I number.
+  Do not edit any frozen Phase-I timing value in light of this — the
+  disagreement itself is the reportable Phase-II finding, kept in a
+  separate column/section per the assignment's own instruction.
+- **Not yet done on the other 6 machines (Skylark, Artemisia, Charnwood,
+  Crux, Ookay, Upgrade).** Whoever picks up the next one should first (1)
+  resolve the pipeline-convention divergence above rather than silently
+  picking a 3rd approach, then (2) read both the Sunbird and Thunderbird
+  writeups + their respective output files before choosing a literature
+  source for that machine's own CPU.
 
 ## Known constraints from prior sessions
 

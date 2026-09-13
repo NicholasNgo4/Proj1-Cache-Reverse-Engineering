@@ -200,6 +200,10 @@ per-method names cited below.
   - **This actually happened, immediately:** `./scripts/run_line_size_full.sh sunbird 20` was re-run (`source`d directly in a terminal -- see `run_line_size_full_20260909T205256Z.log`, and note it also got appended, garbled with shell-prompt text, into the older `..._20260909T202041Z.log` because `source`ing the script leaves its `exec > tee` redirect attached to the *interactive* shell instead of a subshell -- harmless here but worth invoking this script with `./scripts/...` or `bash scripts/...`, not `source`, going forward). That re-run auto-picked `footprint_bytes=571728` (558 KiB) exactly per the paragraph above, produced a noisy/non-monotonic curve, and correctly got `no line-size transition detected` from the fixed `detect_line_size.py` -- but it still overwrote `coarse_{random,sequential}_summary.csv` and the plots with that noisy, no-signal coarse-only data (dense/repeat stages were skipped, since detection had failed). Restored by re-summarizing from the still-good `line_size_coarse_{random,sequential}_20260909T202041Z.csv` raw files back onto `data_processed/sunbird/line_size/coarse_{random,sequential}_summary.csv`, then re-plotting against the (untouched) dense/dense_rep1/dense_rep2 summaries -- back to the 64B estimate and clean plot described above. `run_line_size_full.sh` now prints an explicit, actionable warning (naming this exact failure mode and suggesting the override) instead of silently completing when this happens again.
 
 - **Family-of-curves sub-experiment (PROJECT 1.pdf's Figure 3 / "Example B" requirement) -- superseded three times now, current architecture is per-cache-level with a MANUAL step-4 candidate (auto-detection removed, see Attempt 4).** History, most recent first (each bullet below is a full retelling of the fix that produced it, not just a result -- the earlier attempts are kept for the record, not because they're still trustworthy; see the code-layout note at the top of this line_size/ section for current script/source names):
+  - **Attempt 5 (2026-09-12, partial re-runs -- does not supersede Attempt 4, adds two independent reproducibility checks on top of it): two narrower re-runs, not the full 3-level pipeline.** `taskset -c 1`; core selected the same way as prior sessions -- `/proc/stat` idle-time deltas sampled across 3 separate ~3s windows plus a `ps`/`who` check (one other logged-in user, `nsngo`'s own `claude` process pinned on core 2 at low CPU%, cores 0/1/2 all 95-99% idle across every window) -- before picking core 1. Same SAMPLES=1,000,000/BATCH=1000/SEED=12345/ALIGN_BYTES=4096 constants as every prior run on this machine. Timestamp `20260912T222501Z`, transcript `data_raw/sunbird/line_size/run_line_size_partial_20260912T222501Z.log`. Both raw CSVs are NOT YET gzipped (TODO, same as Attempt 4's raw data).
+    - **L1 (boundary=32768B), Method A steps 1-3 only (coarse family-of-curves, no step 4, no Method B) -- fresh coarse pass reproduces 64B.** Per-stride elbow: `{8B: None, 16B: None, 32B: None, 64B: 36736, 128B: 36736, 256B: 36608}` -- same clean {8,16,32B} vs {64,128,256B} split as every prior L1 coarse pass on this machine, inferred estimate 64B. Raw: `data_raw/sunbird/line_size/level_32768/family_*_20260912T222501Z.csv`; this overwrote `data_processed/sunbird/line_size/level_32768/family_*_summary.csv` and `plots/line_size_family_{curve,boxplots}.png` (Attempt 4's step-4 offset-refine outputs for this level, `refine_*`/`line_size_offset_*`, were untouched -- this re-run didn't run step 4 for L1).
+    - **L2 candidate (boundary=262144B), Method A step 4 only (bracket+offset refine at candidate=64B, reusing the already-established candidate rather than re-running steps 1-3) -- reproduces and slightly tightens Attempt 4's clean result.** All 8/8 tested offsets (0-56B) again produced a detectable elbow at the bracket (unlike L1's noisier Attempt-4 step-4 run), landing in 330,240-416,128 bytes -- a **1.26x spread**, tighter than Attempt 4's own 1.41x for this same level. Raw: `data_raw/sunbird/line_size/level_262144/refine_*_20260912T222501Z.csv`; overwrote `data_processed/sunbird/line_size/level_262144/refine_*_summary.csv` and `plots/line_size_offset_{elbow,boxplots}.png` (steps 1-3 outputs for this level were untouched -- this re-run didn't redo the coarse pass).
+    - Net: both re-runs agree with Attempt 4's 64B verdict for these two levels; no new disagreement introduced. Still subject to the same 2026-09-11 correction noted below -- 262144B is not itself a genuine capacity boundary.
   - **Attempt 4 (current, authoritative): keeps attempt 3's per-cache-level architecture but removes Method-A's automatic step-4 candidate selection.** Two exploratory re-runs of attempt 3's own auto-detection (identical boundaries/strides/seed, only the pinned core changed) showed the coarse pass's candidate was NOT reproducible: core 1 (`run_line_size_20260911T182443Z.log`) picked 32B/16B/32B for the 32768/262144/31457280B levels respectively; core 0 (`run_line_size_20260911T185011Z.log`) picked 16B/64B/8B for the same three levels. Boundaries used for these and the final run below: `32768,262144,31457280` -- note the latter two differ from attempt 3's `20971520,157286400` because they're sourced from an in-progress reprocessing of this machine's random-pattern-only capacity data (`data_processed/sunbird/capacity/coarse_combined_random_summary.csv` and siblings) that was **not written up in this README's capacity/ section at the time this bullet was written. Resolved 2026-09-11: see the "Re-verified 256 KiB and ~30 MiB" bullet in the capacity/ section above -- both values turned out to be noise/detector artifacts, not genuine capacity boundaries** (262144 rides a continuous, boundary-free ramp; 31457280 sits partway up the already-documented ~26-27 MiB+ climb, and a fresh high-resolution re-run of the same detector on that exact window reproduces a spurious boundary by locking onto a 3-point interference spike). This does not invalidate the 64B line-size results below on its own (see that bullet's practical-takeaway note), but these two footprints should be described as sitting inside the L2/L3-to-DRAM transition region, not at a cache-level edge. Root cause of the instability: `infer_line_size()` (`scripts/plot_line_size_family.py`) anchors to the largest tested stride's elbow, which is the right design (see that function's docstring), but the underlying elbow values it's comparing come from a single, un-repeated, 6-points-per-octave coarse sweep -- noisy enough that which smaller stride's elbow happens to fall inside the 1.2x agreement ratio flips from run to run. Worse, a wrong (too-small) candidate's own step-4 offset check can still look clean: below the true line size, packing multiple nodes per line is roughly offset-insensitive too, so "N/8 offsets agree" doesn't by itself validate a candidate (confirmed directly -- core 0's spurious 16B pick for the L1 level passed its own step-4 check at "7/8 offsets, 1.00x spread", every bit as clean-looking as a correct candidate would be). **Fix: `scripts/run_line_size.sh` no longer auto-applies this estimate.** Steps 1-3 (coarse pass, `line_size_family_curve.png`) still run unconditionally for every level; the coarse pass's own diagnostic elbow/estimate is still computed and printed to the log (useful as a hint) but step 4 is now skipped for any level whose `candidate_overrides_csv` field is left blank, with an explicit message pointing at that level's plot and asking for a manual candidate on the next invocation -- see the script's header comment for the full rationale and usage. Final run: all three levels manually forced to **64B** (chosen by inspecting each level's `line_size_family_curve.png` -- all three show the same textbook split, {8,16,32B} clustering separately from {64,128,256B}), `taskset -c 1`, timestamp `20260911T200548Z`, log `run_line_size_20260911T200548Z.log` (this is the authoritative raw/plot data for the three `level_<boundary>/` directories cited below; the two exploratory auto-detect logs above are kept only as evidence for the instability finding, not as a source of trustworthy line-size numbers).
     - **Level boundary=32768B (L1) -- RESULT: 64B, but this particular run's own step-4 check was noisy (3.56x spread, 1/8 offsets with no detectable elbow at all; see `plots/line_size_offset_elbow.png`) -- a spike at offset=0B/stride=64B and at offset=32B/stride=80B, several offsets only partially covered.** Don't over-read this one run in isolation: Method B independently reads 64B here (as it does in every run on this machine so far), and attempt 3's dedicated, earlier run of this exact level already produced a clean 64B confirmation (5/8 offsets, 36736 bytes, documented above) -- the noise here is sampling variance in one more coarse pass, not a contradiction of the established result.
     - **Level boundary=262144B -- RESULT: 64B, clean (but see 2026-09-11 correction: this footprint is NOT a real capacity boundary, just a point on a continuous ramp -- see the capacity/ section's "Re-verified 256 KiB and ~30 MiB" bullet).** `plots/line_size_offset_elbow.png` shows a tight V bottoming right at stride=64B with all 8 offsets visually overlapping (printed spread 1.41x, 8/8 offsets reporting -- the printed ratio undersells how clean this looks visually). Method B found no ramp-saturation signal in its own coarse sweep at this footprint (consistent with the "no separation at deeper levels" pattern already documented at the 20/150 MiB levels above -- not a contradiction).
@@ -631,10 +635,89 @@ the others; each has its own confidence level (see per-pairing Results below).
 - Anomaly noted separately, not yet explained: in the L1_vs_LLC run specifically, the `control (sequential)` box showed 77% spread (max ~756 ticks) — worth a dedicated re-check (e.g. `who`/`mpstat` at the time) before citing that pairing's sequential-pattern numbers.
 - Not yet done, any pairing: multiple different target addresses/sets (PROJECT 1.pdf explicitly asks to "repeat with controls and multiple target sets/addresses" — every run above tested exactly one target buffer per repeat, just re-seeded); a real line_size measurement to replace the assumed 64 B scaling constant; and the huge-pages TLB mitigation noted in caveat 2.
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename: 
-- Events collected + exact semantics on this CPU: 
-- Run command + arguments: 
+**Best-guess synthesis (2026-09-13), now that this machine's line size is confirmed — no new runs, just resolving/sharpening the three caveats above with data already in hand:**
+- **Caveat 1 (assumed line size) is resolved, and favorably.** The line_size/ section above independently confirmed **64 B** at all three tested footprints (2026-09-11, two methods, both patterns) — before this experiment was even written. `ASSUMED_LINE_SIZE_BYTES=64` in `run_inclusion_policy_full.sh` was therefore already the machine's real, confirmed value, not a guess — the eviction-footprint scaling used for L1_vs_L2 and L1_vs_LLC was correct as run. No re-run needed on this basis (script comments updated to stop calling it an unverified assumption).
+- **Caveat 3 (index-fits-in-one-page guarantee) is sharpened, not resolved.** With line size = 64 B (6 offset bits) and L1's hand-confirmed 32,768 B / 8-way giving exactly 64 sets (6 index bits), L1's full index+offset is exactly 12 bits — one page. That's *why* the method's "eviction avoids target's own set" trick works cleanly for an L1 target. Any level bigger than L1 almost certainly needs more sets than fit in the remaining 12 bits (capacity grows much faster than ways typically does), so L2_vs_LLC's own index very likely depends on address bits above the page offset — meaning the eviction walk's many-page footprint can land in the L2 target's own set by ordinary chance. This is now a real, math-backed reason L2_vs_LLC is structurally weaker, not just noisier — more repeats of this exact test are unlikely to fix it; a redesigned method (e.g. huge-pages, or a differently-constructed eviction set) would be needed.
+- **Best-guess overall inference (this is the project's own reasoning from the timing data collected here, per PROJECT 1.pdf's "state exactly what behavior your experiment proves" instruction — not a certainty):**
+  - **L1 vs L2: confidently NOT INCLUSIVE.** L2-scale eviction pressure does not force out the L1-resident line 90% of the time — behaves as exclusive or non-inclusive (this experiment can't distinguish those two further).
+  - **L1 vs LLC (skip-level): UNCERTAIN by the strict 80% threshold, but leaning INVALIDATED/inclusive-like (75%)** — LLC-scale eviction pressure does tend to remove the L1 copy, unlike L2-scale pressure.
+  - **L2 vs LLC: UNCERTAIN**, and per the caveat-3 sharpening above, not expected to resolve under this method regardless of repeat count.
+  - **Put together:** the pattern (non-inclusive at the L1-L2 hop, leaning-inclusive at the L1-LLC skip-level hop) is internally consistent with a design where the **LLC keeps a copy of everything cached anywhere below it** (acting like a cross-core inclusion/snoop-filter directory) while the **L2 itself behaves non-inclusively** — an LLC that's inclusive of L1 lines directly would explain the leaning-invalidated L1_vs_LLC result independent of whatever L2 does, which matches what was actually measured. This is the best-supported single story across all three pairings, not a proven policy — L2_vs_LLC's own ambiguity neither confirms nor contradicts it.
+  - *Aside, explicitly NOT part of the Phase-I evidence above (Phase I discipline reserves documentation/counter validation for Phase II — see PROJECT 1.pdf and this repo's top-level README):* this non-inclusive-L2 / inclusive-LLC-snoop-filter pattern happens to match the publicly documented design of pre-Skylake-SP Intel Xeons, which is Sunbird's own generation (Haswell-EP, per `CAPACITY_RESULTS.md`'s machine table). Noted only as a plausibility sanity-check after the fact, not consulted while forming the inference above.
+
+### pmu/ (Phase II — 2026-09-13)
+Phase I frozen/tagged (`phase1-timing-only`, at the commit this section was
+written against) before anything below was run, per `README.md`'s Phase
+Discipline. See `CLAUDE.md`'s "Phase II" subsection and
+`data_processed/sunbird/PHASE2_VALIDATION_TABLE.md` for the full
+methodology/results write-up and literature citation — this section is the
+raw-data/reproduction-detail record.
+
+- Source file(s): `scripts/run_pmu_verification.sh`, `scripts/summarize_pmu.py`
+  (both new this session; no `cache_bench` source changes — reuses the
+  existing `--experiment hit_latency` binary, wrapped in `perf stat`).
+- Machine-specific PMU check done before writing the pipeline:
+  `/proc/sys/kernel/nmi_watchdog` = 1 (reserves one generic counter); a
+  naive combined `perf stat -e cache-references,cache-misses,L1-dcache-loads,
+  L1-dcache-load-misses,cycles,instructions` only scheduled each event at
+  9-58%. A 3-hardware-event group (`cache-references,cache-misses,
+  L1-dcache-loads`) only reached 57-71%. Only 2-hardware-event groups (each
+  paired with the software `duration_time` event, which doesn't consume a
+  counter) reliably scheduled at 100% — confirmed for all 4 groups the
+  script uses. `LLC-loads`/`LLC-load-misses` specifically also come back
+  `<not counted>` when bundled with other events but schedule fine (100%)
+  requested alone — this is why the script splits into 4 separate `perf
+  stat` invocations instead of one combined command.
+- Run command: `./scripts/run_pmu_verification.sh sunbird 1
+  L1:32768,L2:262144,LLC:31457280` (core 1 — cores 0/1/2, this session's
+  only cpuset-allowed cores, checked via `/proc/stat` idle-time deltas
+  across two 3s-apart samples immediately before running: all ~95-98% idle;
+  core 1 chosen for consistency with prior Sunbird re-verification runs).
+  base_seed=12345 (repeats use base_seed+index), samples=1,000,000/run,
+  batch_size=1000, warmup_passes=3, dependent load mode, random pattern
+  (matching the existing `hit_latency` convention), timestamp
+  `20260913T193142Z`.
+- Raw output: `data_raw/sunbird/pmu/{L1,L2,LLC}/*_perfstat_*.csv.gz` (perf
+  stat's own `-x,` CSV output, one file per group×run_tag) and
+  `*_bench_*.csv.gz` (cache_bench's own CSV from the same invocation, for
+  direct side-by-side comparison against the perf-derived numbers).
+  Transcript: `data_raw/sunbird/pmu/run_pmu_verification_20260913T193142Z.log`.
+- Processed: `data_processed/sunbird/pmu/{L1,L2,LLC}/pmu_summary_20260913T193142Z.csv`
+  (one row per run_tag + a median-of-3 row; columns include miss rates for
+  cache-references/L1-dcache/LLC, cycles/access, IPC, and perf's own
+  wall-clock ns/access — see `scripts/summarize_pmu.py`'s docstring for the
+  exact parsing/derivation and its caveats).
+- System-reported cache info (also Phase II, same run):
+  `data_raw/sunbird/pmu/system_reported_cache_info.txt` — `lscpu --caches`,
+  full `lscpu`, and per-instance `/sys/devices/system/cpu/cpu0/cache/index*/`
+  fields, collected 2026-09-13T19:28:20Z.
+- Headline results (full detail and caveats:
+  `data_processed/sunbird/PHASE2_VALIDATION_TABLE.md`): size/ways/sets/line
+  match exactly across Phase I timing, this system-report, AND Agner Fog's
+  literature table at L1D and L2 (notably, system-reported L2 associativity
+  independently confirms Phase I's confound-blocked 8-way best guess); LLC
+  size matches Phase I's ~30 MiB estimate to the exact byte
+  (31,457,280 B); **LLC associativity disagrees — Phase I's confound-caveated
+  best guess was 9-way, system-reported is 20-way**, read as confirmation
+  that Phase I's repeated "~9-10" wall really was the shared small-structure
+  (DTLB-scale) confound, not real LLC associativity. Miss-rate PMU evidence
+  (the reliable Phase-II corroboration signal — see the validation table's
+  caveat section for why raw cycles/ns numbers from this pipeline are only
+  an order-of-magnitude cross-check, not a clean per-access latency)
+  reproduces Phase I's own L1/L2/LLC boundary placement: LLC-scope miss
+  rate jumps from ~0.1-1.4% at the L1/L2 footprints to ~11-14% exactly at
+  the LLC footprint.
+
+## Final Inferred Cache Table (Sunbird, Phase I best guess, 2026-09-13)
+
+Moved to `data_processed/sunbird/FINAL_CACHE_TABLE.md` (2026-09-13) so it sits
+alongside this machine's other processed benchmark outputs, next to
+`capacity/`, `line_size/`, `associativity/`, `latency/`, `inclusion_policy/`.
+The full per-pairing reasoning and caveats behind it remain here, in the
+`inclusion_policy/` section's "Best-guess synthesis" subsection above, and in
+the `capacity/`, `line_size/`, `associativity/`, and `latency/` sections above
+that — the processed-directory copy is the consolidated table only, not a
+replacement for that narrative.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: 
