@@ -924,6 +924,36 @@ already-collected `miss_latency` data for the matching transition.
     the user's request, so it sits next to `capacity/`, `line_size/`,
     `associativity/`, `latency/`, `inclusion_policy/` rather than in the
     data_raw README).
+
+**Skylark (2026-09-13): inclusion_policy run completed, Phase I closed out
+for this machine — FINAL_CACHE_TABLE.md now exists alongside Sunbird's.**
+Ran both remaining pairings-pass invocations (`run_inclusion_policy_full.sh`
+now supports a per-invocation `ASSUMED_LINE_SIZE_BYTES` env-var override,
+used here because this machine's own line_size/ section found a genuine 2x
+disagreement — 64B at L1, 128B at the deep LLC-region transition — so
+L1_vs_L2 was run at 64B and L2_vs_LLC/L1_vs_LLC at 128B, rather than one
+constant for the whole machine). All three pairings came back leaning
+**NON-INCLUSIVE**, unlike Sunbird's mixed result (non-inclusive L2,
+leaning-inclusive skip-level LLC): L1_vs_L2 is a weak lean (classifier
+itself calls it UNCERTAIN — target/control medians came back nearly
+identical, unlike Sunbird's clean split), while L2_vs_LLC and L1_vs_LLC
+both came back numerically clean (99.5%/100% survived-like) — though both
+carry a machine-specific caveat this session flagged: `CAPACITY_RESULTS.md`'s
+8 MiB LLC value for Skylark is very likely an underestimate (this machine's
+own capacity data shows the real LLC->DRAM knee starting closer to
+~16.8-21.8 MiB), so the 256 MiB eviction footprint used for those two
+pairings has a smaller effective safety margin over the *real* LLC capacity
+than the scaling formula's "32x" nominally implies. Full detail:
+`data_raw/skylark/README.md`'s inclusion_policy/ section. Associativity
+above L1 hit the same universal confound as 5 of the other 7 machines (L2
+auto-detected "9" is very likely an L1-aliasing artifact — 524,288 B is an
+exact 16x multiple of L1's own stride; LLC auto-detected 8/8/7, not fully
+reproducible) — best-guessed as **8-way for both L2 and LLC** (matching L1,
+and the only nearby integer giving a clean S=C/(A×B) derived-set count at
+LLC's confirmed 128B line size). `data_processed/skylark/FINAL_CACHE_TABLE.md`
+written in the same 9-column format as Sunbird's, every cell leading with a
+concrete best-guess value.
+
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
