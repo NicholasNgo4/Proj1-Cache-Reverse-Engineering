@@ -167,11 +167,37 @@
     interference (occasional batch maxima far above the surrounding medians).
 
 ### line_size/
-- Source file(s):
-- Build command:
-- Run command + arguments:
-- Sample count:
-- Notes on alignment/candidate strides tested:
+Ran by a teammate (commit `990d5b6`, 2026-09-13, core 2) — narrative backfilled
+here (2026-09-13) since the README section had been left blank while the data
+itself was already committed. Not re-verified independently this session;
+treat the git log message as the source of truth pending a fuller writeup.
+- Source file(s): `main_code/common/{main.c,line_size.c,line_size.h}` +
+  `scripts/{run_line_size.sh,plot_line_size_family.py,plot_line_size_offset.py}`;
+  raw/processed data under `data_raw/ookay/line_size/level_{32768,262144,8388608}/`,
+  `data_processed/ookay/line_size/level_{32768,262144,8388608}/`.
+- Run command + arguments: `run_line_size.sh` for the three `CAPACITY_RESULTS.md`
+  boundaries (32,768 / 262,144 / 8,388,608 B), Method A (family of curves) and
+  Method B (single-curve ramp-saturation) each, plus a Method-A step-4
+  bracket+offset refinement at candidate stride=64 B for all three levels. See
+  `data_raw/ookay/line_size_run_wrapper.log` / `line_size_step4_wrapper.log`
+  for the exact invocations.
+- **Findings (from the commit message, not independently re-derived here):**
+  L1 shows a clean, offset-independent V-shaped elbow at **64 B** — good
+  Phase-I evidence for a 64 B line. L2's step-4 data is flat across the whole
+  40–88 B bracket, not distinctively minimized at 64 B specifically — weak
+  evidence, not counter-evidence. L3/LLC's family-of-curves data shows no
+  stride-dependent separation at all (every candidate stride rides the same
+  continuous capacity-to-DRAM ramp, consistent with this file's own capacity/
+  section finding no clean LLC shelf); its step-4 "8/8 offset agreement" was
+  flagged in the commit message as an artifact of the coarse
+  points-per-octave=6 footprint grid quantizing nearby true elbow locations
+  into the same bucket, not a genuine alignment-independent signal.
+- **Net for downstream use:** 64 B is confirmed at L1, weakly-consistent
+  (not contradicted) at L2, and unresolved at L3/LLC. `inclusion_policy/`'s
+  `ASSUMED_LINE_SIZE_BYTES` below uses 64 B for all three levels on this
+  basis — a materially weaker justification than Sunbird's (which had a
+  positively-confirmed 64 B at all three footprints before that experiment
+  ran), not a matching confirmation.
 
 ### associativity/
 - Source file(s): `data_raw/ookay/associativity/{L1,L2,L3_LLC}/associativity_*.csv.gz`,
@@ -310,14 +336,187 @@ below for why this matters.
 - Not yet done: tracing the 4-cell spread to a specific cause (no continuous `mpstat`/`/proc/stat` sampling during the run itself, only before/after); re-running L2_to_LLC/LLC_to_DRAM with an evict_bytes comfortably larger than the LLC capacity (e.g. 1.5–2× margin at L2_to_LLC too) to test the near-capacity-aliasing hypothesis; isolating per-transition single-shot overhead (only measured once, at the L1 footprint, matching Sunbird's own approach).
 
 ### inclusion_policy/
-- Source file(s):
-- Run command + arguments:
-- Eviction/reload construction:
+Ran 2026-09-13 using the hardened `run_inclusion_policy_full.sh` pulled from
+main (commit `a6c0368` and its follow-ups). Boundary values from
+`CAPACITY_RESULTS.md` only, same as latency/ above: L1 = 32,768 B,
+L2 = 262,144 B, LLC = 8,388,608 B (8 MiB). All three pairings implied by
+those three levels were run (L1 vs L2, L2 vs LLC, L1 vs LLC skip-level),
+mirroring Sunbird's/Skylark's coverage.
+
+**Idle-core check:** two `/proc/stat` per-core delta snapshots ~7s apart
+(3s window each), taken immediately before the run, showed core 2
+(CPU2/CPU6) at 0.0% busy in both — reused core 2, the same core the
+hit_latency/miss_latency runs above already used successfully. `who`/`ps`
+showed no CPU-heavy process from another user at the time (4 users logged
+in: `rrsood`, `dchen27`, `dananth`, plus this session).
+
+- Source file(s): `main_code/common/{main.c,inclusion_policy.c,inclusion_policy.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Build command: `make` (from repo root)
+- Run command + arguments (pinned `taskset -c 2`, all three pairings in one invocation):
+  `./scripts/run_inclusion_policy_full.sh ookay 2 L1_vs_L2:32768:262144:L2_to_LLC,L2_vs_LLC:262144:8388608:LLC_to_DRAM,L1_vs_LLC:32768:8388608:LLC_to_DRAM`
+  (timestamp `20260913T182203Z`). The 3rd field on each spec names the
+  already-collected `miss_latency` transition (see `latency/` section above)
+  that pairing sources its "invalidated" calibration class from: L1_vs_L2
+  evicts at L2 scale → invalidated class = `L2_to_LLC`; both L2_vs_LLC and
+  L1_vs_LLC evict at LLC scale → invalidated class = `LLC_to_DRAM`.
+- **`ASSUMED_LINE_SIZE_BYTES` left at the script's default of 64** (not
+  overridden). Justification, since this file's own `line_size/` section
+  above was never filled in narratively even though the raw/processed data
+  exists (see `data_processed/ookay/line_size/`, generated by a teammate's
+  commit `990d5b6`, "Add Ookay line_size results"): that run found L1 shows
+  a clean, offset-independent 64B elbow (good evidence); L2's step-4 data is
+  flat across the whole 40–88B bracket, i.e. not distinctively minimized at
+  64B, but also not contradicting it (weak evidence, not counter-evidence);
+  L3/LLC's family-of-curves data showed no stride-dependent separation at
+  all (rides the same continuous capacity-to-DRAM ramp at every candidate
+  stride, consistent with this machine's own capacity/ section finding no
+  clean LLC shelf) — inconclusive, not contradictory. With no machine-level
+  evidence pointing away from 64B at any of the three levels (unlike
+  Thunderbird's confirmed 64B-at-L1/L2-vs-128B-at-LLC split), 64B was kept
+  as the scaling constant for every pairing here. Flagged as a **weaker
+  basis than Sunbird's** (which had a clean, positively-confirmed 64B at all
+  three footprints before this experiment ran) — if L2 or LLC's real line
+  size turns out to differ, the two LLC-scale pairings' eviction-footprint
+  math below would need re-scaling.
+- Eviction/reload construction: identical method to Sunbird's (see
+  `main_code/common/inclusion_policy.h`'s module doc comment) — target and
+  an untouched control buffer freshly page-aligned at offset 0; eviction
+  buffer places one node per page (`--evict-stride-bytes 4096`) at a fixed
+  sub-page offset of 2048 B, so it spans many pages/lower-level sets while
+  structurally avoiding target's own line, provided target's full index
+  fits within one page (true for L1, not reliable for the L2 target in
+  L2_vs_LLC — same caveat 3 as Sunbird's writeup, see below).
+- Per trial: 200 single-shot trials (`--samples 200 --batch-size 1`), base +
+  2 reproducibility repeats (seed 12345/12346/12347), both eviction-walk
+  patterns, 3 untimed warmup passes; separate 500-trial calibration run per
+  pairing (`--evict-bytes` = `--target-bytes`, nothing evicted) for the
+  "survived" baseline.
+- **Wall-time calibration done first** (per this session's cross-machine
+  caveat that miss_latency/inclusion_policy timing is non-linear in
+  eviction-set size): a 20-trial and then a 200-trial manual run at the
+  L2_vs_LLC/L1_vs_LLC scale (`--evict-bytes 536870912`, the 8 MiB LLC value
+  scaled by `4096/64`, i.e. 512 MiB / 131,072 pages) measured **~12 ms/trial**
+  — the full pipeline (calibration + base+2reps×2patterns per pairing, ~1,700
+  single-shot trials total across all 3 pairings) finished in well under a
+  minute end to end, unlike Sunbird's ~1.9 GiB/~604 ms-per-trial LLC-scale
+  footprint — no `tmux` needed at this machine's scale.
+- Raw output filename(s): `data_raw/ookay/inclusion_policy/<pairing>/inclusion_policy_{calibration,base,rep1,rep2}_{random,sequential}_20260913T182203Z.csv.gz`
+- Processing: `scripts/summarize_raw.py` → `data_processed/ookay/inclusion_policy/<pairing>/*_summary_20260913T182203Z.csv` → `scripts/classify_inclusion_policy.py` (reads the base/random raw data directly) → `scripts/plot_inclusion_policy.py`.
+
+**Fixed single-shot overhead:** already isolated in the latency/ section above
+(~58.5 ticks, control median 66 vs. batched L1 hit-latency median 7.49) — the
+same instrument and overhead applies here since inclusion_policy also times a
+single dependent reload per trial. Every ticks number below carries that same
+floor; the classification below works in absolute/relative terms against this
+machine's own single-shot survived/invalidated calibration, so the fixed
+overhead is present in both reference points and in the measured channels
+alike — it does not need a separate subtraction to make the *classification*
+valid, only to interpret any individual tick number as a "clean" latency.
+
+**Results, one per pairing (n=200 target/control trials each, base/random run
+unless noted):**
+
+- **L1_vs_L2** (survived-class 61.44 ticks, invalidated-class 723.0 ticks from
+  `L2_to_LLC`): target median 90 ticks (100.0% survived-like, 0% invalidated-like),
+  control median 88 ticks (100.0% survived-like). Paired check (target slower
+  than its own control): 52.0% — essentially a coin flip, i.e. target and
+  control are statistically indistinguishable from each other, both sitting
+  right next to the survived-class calibration and nowhere near the
+  invalidated-class one. **Verdict: EXCLUSIVE / NON-INCLUSIVE** — the cleanest
+  and most confident result of the three, matching Sunbird's and Skylark's own
+  L1_vs_L2 conclusion, and arguably even cleaner here (100%/100% survived-like
+  vs. Sunbird's 90%/92%, with no invalidated-like trials at all).
+- **L2_vs_LLC** (survived-class 73.86 ticks, invalidated-class 693.0 ticks
+  from `LLC_to_DRAM`): target median 142 ticks (69.5% survived-like, 30.5%
+  invalidated-like, 0% ambiguous — this machine's classifier resolved every
+  trial one way or the other here, unlike Sunbird's 85%-ambiguous result for
+  the same pairing), control median 166 ticks (97.5% survived-like, 2.5%
+  invalidated-like). Paired check: 29.0% (target read slower than control in
+  only 29% of trials — control was, if anything, the slower channel more
+  often, plausibly reflecting run-to-run noise given the high spread flagged
+  by the plotting step below rather than a real per-trial effect). **Verdict:
+  UNCERTAIN**, but with a real directional lean worth stating: target's
+  30.5% invalidated-like fraction is ~12x control's 2.5%, i.e. eviction
+  pressure at LLC scale invalidates the L2-sized target meaningfully more
+  often than it invalidates an untouched control of the same size — a weak
+  lean toward INVALIDATED/inclusive-like, same direction as this pairing's
+  result on Sunbird (which leaned survived, i.e. the *opposite* direction —
+  see the cross-machine note below) and consistent with caveat 3: an L2
+  target's index does not fit in one page, so this pairing structurally
+  can't distinguish "LLC evicted the L2 line because it's inclusive" from
+  "the eviction walk incidentally landed on the L2 target's own set" —
+  read this as the least trustworthy of the three, per Sunbird's own
+  writeup's reasoning, not because the data itself is noisier than the
+  others (it isn't — L1_vs_L2 and L1_vs_LLC are both individually more
+  internally consistent). The plotting step flagged two boxes with >20%
+  run-to-run spread: `control/random` (medians 166/142/136, 20.3%) and
+  `target/sequential` (medians 140/326/218, 81.6%) — not investigated
+  further this session.
+- **L1_vs_LLC** (survived-class 57.13 ticks, invalidated-class 693.0 ticks
+  from `LLC_to_DRAM`): target median 194 ticks (0% survived-like, 97.0%
+  ambiguous, 3.0% invalidated-like — median sits just inside the classifier's
+  ±15% ambiguous band around its 198.98-tick boundary, 194 vs. 198.98, so
+  almost the entire distribution lands in the fence rather than resolving
+  either way), control median 132 ticks (98.5% survived-like). **Paired
+  check: 99.5%** — target read slower than its own trial's control in
+  essentially every single trial, the single cleanest directional signal of
+  any pairing on this machine (cleaner even than L1_vs_L2's own paired
+  check, which was a coin flip in the *other* direction). **Verdict:
+  UNCERTAIN** by the absolute-ticks classifier (it never quite crosses into
+  "invalidated-like" territory), but the paired check makes the directional
+  read unambiguous: LLC-scale eviction pressure consistently and
+  substantially slows down the L1-resident target relative to an untouched
+  control of the same size, i.e. leans strongly toward INVALIDATED/
+  inclusive-like — matching Sunbird's own L1_vs_LLC lean (75% invalidated-like
+  there) in direction, just expressed through a different one of this
+  script's two diagnostics (paired-check vs. absolute-threshold) on this
+  machine's numbers.
+- **Cross-machine note on L2_vs_LLC's direction:** Sunbird's L2_vs_LLC leaned
+  (weakly, 9:1 among the trials that resolved) toward SURVIVED; Ookay's leans
+  (weakly, ~12x) toward INVALIDATED. Given caveat 3 applies identically to
+  both machines (an L2 target's index structurally doesn't fit in one page on
+  either), and both results are individually low-confidence to begin with,
+  this disagreement is read as evidence the pairing itself doesn't produce a
+  reliable per-machine signal at all, not as evidence Sunbird's and Ookay's
+  LLCs actually behave oppositely toward L2. Kept as a directional best guess
+  per pairing (below) anyway, per this session's instruction not to leave any
+  cell blank — just flagged as the lowest-confidence number in the table.
+- Not yet done, any pairing: multiple different target addresses/sets (only
+  one target buffer per repeat, just re-seeded); a real (narratively
+  documented) line_size measurement for L2/LLC to replace the weak/
+  inconclusive evidence noted above; the huge-pages TLB mitigation for
+  caveat 2 (large-footprint DTLB pressure) that Sunbird's writeup also
+  flagged as future work, not implemented here either.
+
+**Best-guess synthesis:** combining all three pairings the same way Sunbird's
+table does — **L1 vs L2: confidently NON-INCLUSIVE** (cleanest result, no
+caveats apply strongly). **L1 vs LLC (skip-level): leans INVALIDATED/
+inclusive-like**, on the strength of the 99.5% paired-check signal even
+though the absolute-ticks classifier calls it ambiguous. **L2 vs LLC:
+UNCERTAIN with a weak lean toward INVALIDATED/inclusive-like**, read with the
+least confidence of the three per caveat 3 and the cross-machine direction
+disagreement noted above. Put together: this is the same overall story
+Sunbird's data told — a non-inclusive L2 alongside an LLC that behaves
+inclusively toward what's resident above it (both L1 directly and, more
+weakly, L2) — reached independently on a second machine, which is itself
+mild corroborating evidence for that pattern rather than a coincidence of
+one machine's noise.
 
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename:
 - Events collected + exact semantics on this CPU:
 - Run command + arguments:
+
+## Final Inferred Cache Table (Ookay, Phase I best guess, 2026-09-13)
+
+Lives at `data_processed/ookay/FINAL_CACHE_TABLE.md` (2026-09-13), alongside
+this machine's other processed benchmark outputs, next to `capacity/`,
+`line_size/`, `associativity/`, `latency/`, `inclusion_policy/` — same
+placement convention as Sunbird's. The full per-pairing reasoning and caveats
+behind it remain here, in this file's `associativity/` and `inclusion_policy/`
+sections above (the latter's "Best-guess synthesis" subsection in particular)
+— the processed-directory copy is the consolidated table only, not a
+replacement for that narrative.
 
 ## Reservation Log (if applicable)
 - Reserved core/package:

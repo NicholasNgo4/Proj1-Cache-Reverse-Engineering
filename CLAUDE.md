@@ -980,6 +980,53 @@ LLC's confirmed 128B line size). `data_processed/skylark/FINAL_CACHE_TABLE.md`
 written in the same 9-column format as Sunbird's, every cell leading with a
 concrete best-guess value.
 
+**Ookay (2026-09-13): inclusion_policy run completed, Phase I closed out for
+this machine — FINAL_CACHE_TABLE.md now exists alongside Sunbird's and
+Skylark's.** hit_latency/miss_latency had already been run on this machine
+(see the earlier Ookay bullet above); this session merged in Sunbird's
+hardened pipeline (commit `a6c0368` + follow-ups) and ran the one remaining
+piece, `run_inclusion_policy_full.sh ookay 2` at all three
+`CAPACITY_RESULTS.md` pairings (`ASSUMED_LINE_SIZE_BYTES` left at the
+default 64 — no machine-specific line-size override needed, since this
+machine's own line_size/ data doesn't contradict 64 B at any level, just
+under-confirms it at L2/LLC compared to Sunbird's positive 3-footprint
+confirmation). Unlike Sunbird's ~1.9 GiB/~604 ms-per-trial LLC-scale
+eviction footprint, Ookay's scaled footprint (512 MiB at the 8 MiB LLC
+candidate) ran at ~12 ms/trial — the whole 3-pairing pipeline finished in
+under a minute, no `tmux` needed. Results: **L1_vs_L2 confidently
+NON-INCLUSIVE** (100%/100% target/control survived-like, the cleanest such
+result on any machine so far, cleaner even than Sunbird's own 90%/92%).
+**L1_vs_LLC (skip-level) leans INVALIDATED/inclusive-like**, on the strength
+of a 99.5% paired-check signal (target read slower than its own control in
+essentially every trial) even though the absolute-ticks classifier calls the
+median itself ambiguous (194 vs. a 198.98-tick threshold, just inside the
+±15% fence). **L2_vs_LLC: UNCERTAIN with a weak lean toward
+INVALIDATED/inclusive-like** (target 30.5% invalidated-like vs. control's
+2.5%, ~12x) — same lowest-confidence status as every other machine's
+L2_vs_LLC (L2 target's index doesn't fit in one page), and notably leaning
+the *opposite* direction from Sunbird's own L2_vs_LLC result (which leaned
+toward survived) — read as evidence this specific pairing doesn't produce a
+reliable per-machine signal at all, not as evidence the two machines'
+LLCs actually differ. Associativity above L1 hit the same universal confound
+as 5 of the other 7 machines: L2 and LLC (262,144 B and 8,388,608 B
+candidates) produce numerically indistinguishable two-step staircases at
+the *same* num_ways breakpoints despite a 32x capacity difference — with no
+extra corroborating technique available on this machine (unlike Sunbird's
+use of Upgrade's derived-stride-scan to separate L2 from LLC), both were
+best-guessed at the **same 8-way** (matching L1's own confirmed value and
+the second staircase step at num_ways=9, the same wall documented
+elsewhere) rather than inventing an artificial split; the S=C/(A×B)
+cross-check is flagged as less discriminating here than on Sunbird, since
+Ookay's 8 MiB LLC candidate is already an exact power of two (so nearly any
+power-of-two associativity guess also yields a clean integer set count,
+unlike Sunbird's non-power-of-two ~30 MiB value). Also backfilled this
+session: the `line_size/` section of `data_raw/ookay/README.md`, which had
+been left blank even though a teammate's commit (`990d5b6`) already added
+the underlying data — narrative summary only, not independently
+re-verified. Full detail: `data_raw/ookay/README.md`'s `line_size/`,
+`inclusion_policy/`, and `associativity/` sections;
+`data_processed/ookay/FINAL_CACHE_TABLE.md` for the consolidated table.
+
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
