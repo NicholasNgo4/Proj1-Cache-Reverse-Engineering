@@ -878,6 +878,34 @@ already-collected `miss_latency` data for the matching transition.
     re-seeded). One further unexplained anomaly, L1_vs_LLC run only: its
     control/sequential box showed 77% spread (max ~756 ticks), not yet
     investigated. **Not yet run on any other machine.**
+  - **Synthesis update (2026-09-13, no new runs — resolved/sharpened the
+    caveats above using line_size data that now exists for Sunbird):**
+    caveat 1 (assumed 64B line size) is confirmed correct, not just assumed
+    (Sunbird's line_size/ section independently confirmed 64B at all 3
+    footprints on 2026-09-11, before this experiment existed) — the
+    eviction-footprint math for L1_vs_L2/L1_vs_LLC was already right, no
+    re-run needed; `run_inclusion_policy_full.sh`'s stale "documented
+    assumption, not measured" wording was corrected to say so. Caveat 3
+    (L2 target's index may not fit in one page) is now a math-backed
+    structural argument, not just a suspicion: L1's confirmed 64 sets x
+    64B lines = exactly one page (12 bits), which is why the method works
+    for an L1 target; any bigger level needs more sets than fit in that
+    remaining space, so L2_vs_LLC is very likely unfixable by more repeats
+    under this design. **Best-guess overall reading, combining all three
+    pairings:** L1 is confidently non-inclusive w.r.t. L2, and the L1-vs-LLC
+    skip-level result leans inclusive (just under the confidence threshold)
+    — a pattern consistent with a non-inclusive L2 alongside an LLC that
+    behaves inclusively toward L1 (acting as a cross-core inclusion/snoop
+    directory), though L2_vs_LLC's own ambiguity can't confirm or deny this.
+    Full writeup and caveats: `data_raw/sunbird/README.md`'s inclusion_policy/
+    "Best-guess synthesis" subsection. The assignment-required final inferred
+    cache table itself (level/size/line size/associativity/derived sets/hit
+    latency/miss latency/sharing scope/inclusion behavior) for Sunbird now
+    lives at `data_processed/sunbird/FINAL_CACHE_TABLE.md`, alongside this
+    machine's other processed benchmark outputs (moved there 2026-09-13 at
+    the user's request, so it sits next to `capacity/`, `line_size/`,
+    `associativity/`, `latency/`, `inclusion_policy/` rather than in the
+    data_raw README).
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;

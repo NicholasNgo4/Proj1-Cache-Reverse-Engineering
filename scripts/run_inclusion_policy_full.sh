@@ -12,18 +12,26 @@
 # read those before trusting a result out of this script. Two load-bearing
 # caveats repeated here because they directly shape this script's behavior:
 #
-# 1. ASSUMED LINE SIZE. The eviction buffer touches exactly one cache line
+# 1. LINE SIZE. The eviction buffer touches exactly one cache line
 #    per PAGE (see inclusion_policy.h), so for a given byte footprint it
 #    touches far fewer distinct lines than a dense buffer would -- to exert
 #    capacity-COMPARABLE pressure on the lower level, this script scales
 #    the lower level's real byte capacity up by (evict_stride_bytes /
 #    ASSUMED_LINE_SIZE_BYTES) before passing it as --evict-bytes.
-#    ASSUMED_LINE_SIZE_BYTES=64 below is a DOCUMENTED ASSUMPTION (the most
-#    common modern line size), NOT a measured value -- line_size data for
-#    this machine was not available when this script was written. If the
-#    real line size is smaller (e.g. 32 B), this UNDERSTATES the needed
-#    eviction footprint. Once real line_size data exists for this machine,
-#    recompute and re-run rather than trusting this default blindly.
+#    The default of 64 below was a documented assumption when this script
+#    was first written (line_size data didn't exist yet for any machine at
+#    that point); it has SINCE BEEN CONFIRMED CORRECT for Sunbird (2026-09-11,
+#    data_raw/sunbird/README.md's line_size/ section: 64 B at all 3 tested
+#    footprints, 2 independent methods) -- the eviction-footprint math this
+#    script already ran was using the right constant, not a guess.
+#    NOT universal, though: Thunderbird's own line_size/ data (see
+#    data_raw/thunderbird/README.md) reads 64 B at L1/L2 but 128 B at its
+#    LLC-region candidate -- a machine's line size can differ BY LEVEL, so a
+#    single constant is itself a simplification even per-machine. Override via
+#    the ASSUMED_LINE_SIZE_BYTES environment variable before invoking this
+#    script (e.g. `ASSUMED_LINE_SIZE_BYTES=128 ./scripts/run_inclusion_policy_full.sh
+#    thunderbird 4 ...` for an LLC-scale pairing there) -- check that
+#    machine's own line_size/ results first, per level being tested.
 # 2. SINGLE-SHOT / TLB CONFOUND. A large scaled eviction footprint touches
 #    many thousands of distinct pages, which can blow the DTLB regardless
 #    of any real cache-level eviction -- this shows up as the CONTROL
@@ -81,7 +89,7 @@ SEED=12345
 REPEATS=2
 EVICT_STRIDE_BYTES=4096
 EVICT_OFFSET_BYTES=2048
-ASSUMED_LINE_SIZE_BYTES=64   # see caveat 1 above -- DOCUMENTED ASSUMPTION, not measured
+ASSUMED_LINE_SIZE_BYTES="${ASSUMED_LINE_SIZE_BYTES:-64}"   # see caveat 1 above -- confirmed correct for Sunbird 2026-09-11 (all levels); NOT universal across levels on every machine -- override via env var per-machine/per-level
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
@@ -95,7 +103,7 @@ LOG="${RAW_ROOT}/run_inclusion_policy_full_${TS}.log"
 exec > >(tee -a "$LOG") 2>&1
 
 echo "== run_inclusion_policy_full: machine=${MACHINE} core=${CORE} base_seed=${SEED} =="
-echo "== assumed_line_size_bytes=${ASSUMED_LINE_SIZE_BYTES} (documented assumption, not measured) =="
+echo "== assumed_line_size_bytes=${ASSUMED_LINE_SIZE_BYTES} (confirmed for Sunbird 2026-09-11; verify for other machines) =="
 echo "== timestamp=${TS} =="
 
 make -s
@@ -191,11 +199,16 @@ for spec in "${SPECS[@]}"; do
 
   # ---- step 5: plots ----
   echo "-- generating plots for ${LABEL} --"
-  python3 scripts/plot_inclusion_policy.py \
+  if ! python3 scripts/plot_inclusion_policy.py \
     "${ALL_SUMMARIES[@]}" \
     -o "$PLOT_DIR" --machine "$MACHINE" --label "$LABEL" \
     --title-suffix "(Phase I timing-only, auto pipeline)" \
-    --survived-ticks "$SURVIVED_TICKS" --invalidated-ticks "$INVALIDATED_TICKS"
+    --survived-ticks "$SURVIVED_TICKS" --invalidated-ticks "$INVALIDATED_TICKS"; then
+    echo "WARNING: plotting failed for ${LABEL} (matplotlib missing? see CLAUDE.md's known" >&2
+    echo "  matplotlib gap on Skylark/Thunderbird/Ookay) -- data and classification above" >&2
+    echo "  are still valid; continuing to the next pairing and re-run" >&2
+    echo "  plot_inclusion_policy.py by hand once matplotlib is available." >&2
+  fi
 
   echo "-- compressing raw CSVs for ${LABEL} --"
   gzip -f "${RAW_DIR}"/inclusion_policy_*.csv

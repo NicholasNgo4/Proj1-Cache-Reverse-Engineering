@@ -635,10 +635,31 @@ the others; each has its own confidence level (see per-pairing Results below).
 - Anomaly noted separately, not yet explained: in the L1_vs_LLC run specifically, the `control (sequential)` box showed 77% spread (max ~756 ticks) — worth a dedicated re-check (e.g. `who`/`mpstat` at the time) before citing that pairing's sequential-pattern numbers.
 - Not yet done, any pairing: multiple different target addresses/sets (PROJECT 1.pdf explicitly asks to "repeat with controls and multiple target sets/addresses" — every run above tested exactly one target buffer per repeat, just re-seeded); a real line_size measurement to replace the assumed 64 B scaling constant; and the huge-pages TLB mitigation noted in caveat 2.
 
+**Best-guess synthesis (2026-09-13), now that this machine's line size is confirmed — no new runs, just resolving/sharpening the three caveats above with data already in hand:**
+- **Caveat 1 (assumed line size) is resolved, and favorably.** The line_size/ section above independently confirmed **64 B** at all three tested footprints (2026-09-11, two methods, both patterns) — before this experiment was even written. `ASSUMED_LINE_SIZE_BYTES=64` in `run_inclusion_policy_full.sh` was therefore already the machine's real, confirmed value, not a guess — the eviction-footprint scaling used for L1_vs_L2 and L1_vs_LLC was correct as run. No re-run needed on this basis (script comments updated to stop calling it an unverified assumption).
+- **Caveat 3 (index-fits-in-one-page guarantee) is sharpened, not resolved.** With line size = 64 B (6 offset bits) and L1's hand-confirmed 32,768 B / 8-way giving exactly 64 sets (6 index bits), L1's full index+offset is exactly 12 bits — one page. That's *why* the method's "eviction avoids target's own set" trick works cleanly for an L1 target. Any level bigger than L1 almost certainly needs more sets than fit in the remaining 12 bits (capacity grows much faster than ways typically does), so L2_vs_LLC's own index very likely depends on address bits above the page offset — meaning the eviction walk's many-page footprint can land in the L2 target's own set by ordinary chance. This is now a real, math-backed reason L2_vs_LLC is structurally weaker, not just noisier — more repeats of this exact test are unlikely to fix it; a redesigned method (e.g. huge-pages, or a differently-constructed eviction set) would be needed.
+- **Best-guess overall inference (this is the project's own reasoning from the timing data collected here, per PROJECT 1.pdf's "state exactly what behavior your experiment proves" instruction — not a certainty):**
+  - **L1 vs L2: confidently NOT INCLUSIVE.** L2-scale eviction pressure does not force out the L1-resident line 90% of the time — behaves as exclusive or non-inclusive (this experiment can't distinguish those two further).
+  - **L1 vs LLC (skip-level): UNCERTAIN by the strict 80% threshold, but leaning INVALIDATED/inclusive-like (75%)** — LLC-scale eviction pressure does tend to remove the L1 copy, unlike L2-scale pressure.
+  - **L2 vs LLC: UNCERTAIN**, and per the caveat-3 sharpening above, not expected to resolve under this method regardless of repeat count.
+  - **Put together:** the pattern (non-inclusive at the L1-L2 hop, leaning-inclusive at the L1-LLC skip-level hop) is internally consistent with a design where the **LLC keeps a copy of everything cached anywhere below it** (acting like a cross-core inclusion/snoop-filter directory) while the **L2 itself behaves non-inclusively** — an LLC that's inclusive of L1 lines directly would explain the leaning-invalidated L1_vs_LLC result independent of whatever L2 does, which matches what was actually measured. This is the best-supported single story across all three pairings, not a proven policy — L2_vs_LLC's own ambiguity neither confirms nor contradicts it.
+  - *Aside, explicitly NOT part of the Phase-I evidence above (Phase I discipline reserves documentation/counter validation for Phase II — see PROJECT 1.pdf and this repo's top-level README):* this non-inclusive-L2 / inclusive-LLC-snoop-filter pattern happens to match the publicly documented design of pre-Skylake-SP Intel Xeons, which is Sunbird's own generation (Haswell-EP, per `CAPACITY_RESULTS.md`'s machine table). Noted only as a plausibility sanity-check after the fact, not consulted while forming the inference above.
+
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename: 
 - Events collected + exact semantics on this CPU: 
 - Run command + arguments: 
+
+## Final Inferred Cache Table (Sunbird, Phase I best guess, 2026-09-13)
+
+Moved to `data_processed/sunbird/FINAL_CACHE_TABLE.md` (2026-09-13) so it sits
+alongside this machine's other processed benchmark outputs, next to
+`capacity/`, `line_size/`, `associativity/`, `latency/`, `inclusion_policy/`.
+The full per-pairing reasoning and caveats behind it remain here, in the
+`inclusion_policy/` section's "Best-guess synthesis" subsection above, and in
+the `capacity/`, `line_size/`, `associativity/`, and `latency/` sections above
+that — the processed-directory copy is the consolidated table only, not a
+replacement for that narrative.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: 
