@@ -808,6 +808,46 @@ own per-machine capacity prose to pick them.
   transitions showing substantial (26-60%) unexplained repeat-to-repeat
   spread not yet traced to a specific cause. **Not yet run on any other
   machine.**
+- **Thunderbird** (`data_raw/thunderbird/latency/`): hit latency at
+  L1/L2/LLC/DRAM (65,536 / 1,048,576 / 31,457,280 / 536,870,912 B) gives a
+  clean monotonic 4-tier ladder in ns (converting via `CNTFRQ_EL0`=25 MHz,
+  40 ns/tick) — L1≈5.0, L2≈11.9, LLC≈36.3, DRAM≈93.4 ns (dependent, random,
+  median; LLC uses the 2 reproducible repeats, not the base run — see
+  below) — agreeing closely with this machine's own independently-measured
+  capacity-experiment DRAM plateau (~92-96 ns). Independent-load control
+  measured faster than dependent at every level/pattern, no `[UNEXPECTED]`
+  flags. LLC's base run (1.642 ticks) was flagged by `plot_hit_latency.py`
+  as a 65% outlier against both repeats (0.889/0.925, agreeing within ~4%)
+  — treated as a single-run interference spike, consistent with this
+  project's established pattern elsewhere, not a third data point.
+  **New finding: sequential-pattern hit latency is flat at ~0.09-0.12
+  ticks across ALL FOUR levels** (no L1→DRAM growth at all) — the
+  prefetcher fully hides footprint-driven latency under a sequential
+  dependent chase on this machine, confirming the sequential control is
+  working as a prefetcher-sanity check but meaning it must never be read
+  as a level-specific number here. Miss/next-level latency
+  (L1_to_L2:65536:131072, L2_to_LLC:1048576:2097152,
+  LLC_to_DRAM:31457280:47185920; the last evict_bytes size, 1.5x LLC, was
+  picked after calibration showed 2x LLC would take ~15.4 min for that
+  transition alone, right at the ~15 min budget) gives random-pattern
+  medians of 2.0/2.0/4.0 ticks — but this machine's coarse 25 MHz counter
+  makes most of this unresolvable: a single-shot overhead control (tiny
+  non-colliding evict set) measured a **median of 1 tick** (mean 0.90,
+  n=2000), meaning **L1_to_L2's 2.0-tick median is statistically
+  indistinguishable from pure measurement overhead** and is reported only
+  for completeness, not as a real number. Only **LLC_to_DRAM's 4-tick
+  median (fully reproducible across all 3 seeds) clears the overhead
+  floor by a resolvable margin (~3 ticks / ~120 ns)** — the one
+  citable-with-caveats miss-latency number from this machine. **Second
+  new finding: sequential-pattern miss_latency collapses to ~1 tick at
+  EVERY transition**, including LLC_to_DRAM where the random pattern
+  clearly separates from the overhead floor — plausibly the eviction
+  walk's own sequential traversal lets the prefetcher re-fetch the
+  target's (adjacent) line before the timed reload, defeating the forced
+  eviction; sequential-pattern miss_latency numbers should not be used as
+  real latencies on this machine. Full detail, including the exact
+  overhead-tick histogram and calibration numbers:
+  `data_raw/thunderbird/README.md`'s latency/ section.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
