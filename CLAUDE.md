@@ -978,6 +978,48 @@ LLC's confirmed 128B line size). `data_processed/skylark/FINAL_CACHE_TABLE.md`
 written in the same 9-column format as Sunbird's, every cell leading with a
 concrete best-guess value.
 
+**Upgrade (2026-09-13): hit_latency/miss_latency/inclusion_policy all now
+complete, Phase I closed out for this machine — FINAL_CACHE_TABLE.md now
+exists alongside Sunbird's and Skylark's.** After merging in Sunbird's
+hardened `run_inclusion_policy_full.sh`, ran all three pairings in one
+invocation at `ASSUMED_LINE_SIZE_BYTES=64` uniformly — unlike Skylark/
+Thunderbird, this machine never produced a citable alternate line-size
+value at any level (L2/LLC line_size/ data never converged across 7+
+repeated runs, pure noise, not a competing measurement), so 64B (this
+machine's only confirmed value, at L1) was used for every pairing rather
+than guessing a different one. **L1_vs_L2: confidently NON-INCLUSIVE**
+(99.0% survived-like, cleanest of the three). **L2_vs_LLC: leans
+NON-INCLUSIVE** (95.5% survived-like) but weakest-confidence per the
+usual L2-index-doesn't-fit-one-page caveat, plus a 90.4%-spread repeat
+flagged (same "one repeat spikes hard" signature as Sunbird's own
+L2_vs_LLC). **L1_vs_LLC (skip-level): classifier-UNCERTAIN** — target
+landed almost exactly on the geometric-mean classification boundary (168
+vs. 167.39 ticks), 95% of trials ambiguous — but a closer read found
+target's tight 165-174 tick IQR sits far closer to this machine's own
+on-chip LLC-hit latency (~155 ticks) than to either the survived (~46) or
+invalidated (~605) calibration extremes, i.e. the walk evicts L1 but the
+data is landing back in cache rather than being forced to DRAM — read as
+a reasoned NON-INCLUSIVE lean rather than a non-answer (see
+`data_raw/upgrade/README.md`'s inclusion_policy/ section for the full
+argument). **All three pairings therefore point the same direction**
+(non-inclusive), unlike Sunbird's mixed non-inclusive-L2/leaning-inclusive-
+LLC result — same overall shape as Skylark's read, though Upgrade is Intel
+Coffee Lake (not AMD Zen 2), so the vendor/generation correlation Skylark's
+aside suggested doesn't hold uniformly across the team's own Intel
+machines (Sunbird's Haswell-EP leaned the other way) — noted as an open
+cross-machine question, not resolved further under Phase I discipline.
+Associativity above L1 hit the same universal confound as 5 of the other
+7 machines; best-guessed as **8-way for both L2 and LLC** (matching L1,
+supported by the derived-stride-scan technique's full-rigor confirm run
+showing a real second knee at way=9 once the shallow first-step artifact
+is looked past, and the only nearby integer giving a clean S=C/(A×B)
+derived-set count — 24,576 — at LLC's ~12 MiB `CAPACITY_RESULTS.md`
+value). `data_processed/upgrade/FINAL_CACHE_TABLE.md` written in the same
+9-column format as Sunbird's/Skylark's, every cell leading with a concrete
+best-guess value. Idle-core check: core 5 (same core as every other
+Upgrade run), reconfirmed idle via `/proc/stat` deltas immediately before
+the run.
+
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
