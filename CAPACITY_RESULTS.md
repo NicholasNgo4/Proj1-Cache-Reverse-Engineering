@@ -38,10 +38,10 @@ file yet.
 | Sunbird | 32,768 B (32 KiB) | |
 | Thunderbird | 65,536 B (64 KiB) | |
 | Skylark | 32,768 B (32 KiB) | |
-| Artemisia | 49,152 B (48 KiB) | Associativity sweep 2026-09-12: base+repeat1 report 12-way; repeat2's detector says 3 but that's a noise artifact (same P-state bimodality already documented for this machine's small-buffer capacity data) -- all runs actually transition cleanly at num_ways=13. Plausibly 12-way but not machine-confirmed; see `data_raw/artemisia/README.md` associativity/ section. |
+| Artemisia | 49,152 B (48 KiB) | |
 | Charnwood | 32,768 B (32 KiB) | |
 | Crux | 32,768 B (32 KiB) | |
-| Ookay | 32,768 B (32 KiB) | Cross-validated 2026-09-12: associativity sweep at this stride shows a single clean 8-way knee, reproduced across 2 repeats. See `data_raw/ookay/README.md` associativity/ section. |
+| Ookay | 32,768 B (32 KiB) | |
 | Upgrade | 32,768 B (32 KiB) | |
 
 **Cross-machine finding:** 6 of this team's 7 x86 machines (Sunbird, Skylark, Charnwood, Crux, Ookay,
@@ -57,10 +57,10 @@ independently corroborated via a clean associativity knee at that stride.
 | Sunbird | 262,144 B (256 KiB) | |
 | Thunderbird | 1,048,576 B (1 MiB) | |
 | Skylark | 524,288 B(512 KiB) | |
-| Artemisia | 2,097,152 B (2 MiB) | This machine's own capacity data flags this exact byte value as NOT a real boundary (a waypoint inside one continuous ~48 KiB-90 MiB ramp). Associativity sweep run anyway 2026-09-12 -- produced a curve numerically indistinguishable from the LLC row's, despite a 15x stride difference. Not cross-validated; see `data_raw/artemisia/README.md` associativity/ section. |
+| Artemisia | 2,097,152 B (2 MiB) | |
 | Charnwood | 262,144 B (256 KiB) | |
 | Crux | 262,144 B (256 KiB) | |
-| Ookay | 262,144 B (256 KiB) | Associativity sweep attempted at this stride 2026-09-12 (reported "4-way") but the curve is a two-step staircase, not a single knee — the detector only sees the first step; a second, sharper step coincides with L1's own 8-way limit. Not treated as cross-validated; see `data_raw/ookay/README.md` associativity/ section. |
+| Ookay | 262,144 B (256 KiB) | |
 | Upgrade | 262,144 B (256 KiB) | |
 
 
@@ -71,10 +71,10 @@ independently corroborated via a clean associativity knee at that stride.
 | Sunbird | ~30 MiB | |
 | Thunderbird | ~30 MiB | |
 | Skylark | ~8 MiB | |
-| Artemisia | ~30 MiB | Associativity sweep 2026-09-12 at 31,457,280 B -- curve numerically indistinguishable from the L2 row's above despite a 15x smaller stride there, the same universal small-structure confound documented for Sunbird/Upgrade/Thunderbird/Charnwood. Not cross-validated; see `data_raw/artemisia/README.md` associativity/ section. |
+| Artemisia | ~30 MiB | |
 | Charnwood | ~8 MiB | |
 | Crux | ~8 MiB | |
-| Ookay | ~8 MiB | Associativity sweep attempted at 8,388,608 B 2026-09-12 (reported "4-way") — same two-step staircase issue as the L2 row above, numerically identical to the L2 curve despite a 32x larger stride. Not treated as cross-validated; see `data_raw/ookay/README.md` associativity/ section. |
+| Ookay | ~8 MiB | |
 | Upgrade | ~12 MiB | |
 
 

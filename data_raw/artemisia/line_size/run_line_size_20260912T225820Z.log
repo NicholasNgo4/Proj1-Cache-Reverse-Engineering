@@ -1,0 +1,89 @@
+== run_line_size: machine=artemisia core=3 seed=12345 ==
+== timestamp=20260912T225820Z boundaries=31457280 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=31457280B -- Method A window=[3932160,125829120] bytes
+############################################################
+-- [L31457280 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_8_random_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_8_random_summary.csv
+-- [L31457280 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_8_sequential_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_8_sequential_summary.csv
+-- [L31457280 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_16_random_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_16_random_summary.csv
+-- [L31457280 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_16_sequential_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_16_sequential_summary.csv
+-- [L31457280 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_32_random_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_32_random_summary.csv
+-- [L31457280 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_32_sequential_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_32_sequential_summary.csv
+-- [L31457280 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_64_random_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_64_random_summary.csv
+-- [L31457280 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_64_sequential_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_64_sequential_summary.csv
+-- [L31457280 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_128_random_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_128_random_summary.csv
+-- [L31457280 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_128_sequential_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_128_sequential_summary.csv
+-- [L31457280 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_256_random_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_256_random_summary.csv
+-- [L31457280 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/artemisia/line_size/level_31457280/family_256_sequential_20260912T225820Z.csv
+Wrote 31 summary rows to data_processed/artemisia/line_size/level_31457280/family_256_sequential_summary.csv
+-- [L31457280 A steps 1-3] generating coarse family-of-curves plots --
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:163: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/artemisia/line_size/level_31457280/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 99870632, 16B: 88974624, 32B: 44487296, 64B: 88974592, 128B: 99870592, 256B: 79267328}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~79267328 bytes) is 16B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+/home/krchen/Proj1-Cache-Reverse-Engineering/scripts/plot_line_size_family.py:277: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = cm.get_cmap("viridis", max(len(strides), 2))
+Wrote data_processed/artemisia/line_size/level_31457280/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/artemisia/line_size/level_31457280/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L31457280 A] no candidate given for this level -- inspect
+   data_processed/artemisia/line_size/level_31457280/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L31457280 B] single-curve method, footprint_bytes=62914560 (2.0x boundary) --
+-- [L31457280 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/artemisia/line_size/level_31457280/singlecurve_coarse_random_20260912T225820Z.csv
+  wrote 128002 lines -> data_raw/artemisia/line_size/level_31457280/singlecurve_coarse_sequential_20260912T225820Z.csv
+Wrote 128 summary rows to data_processed/artemisia/line_size/level_31457280/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/artemisia/line_size/level_31457280/singlecurve_coarse_sequential_summary.csv
+-- [L31457280 B] detected line-size estimate (bytes): none --
+-- [L31457280 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L31457280 B] generating single-curve plots --
+  note: flagged 7 isolated spike stride(s) as probable page-aliasing artifacts: [56, 96, 128, 168, 256, 512, 1024]
+Wrote data_processed/artemisia/line_size/level_31457280/plots/line_size_curve.pdf and .png
+Wrote data_processed/artemisia/line_size/level_31457280/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## step 5: cross-level, cross-method agreement summary
+############################################################
+   level boundary=31457280B -> method A (family of curves) = noneB, method B (single curve) = noneB
+== no level/method produced a usable estimate -- widen windows or strides before citing anything
+== done: all levels, both methods, complete ==
+== this is a FROZEN PHASE-I TIMING-ONLY result -- compare against PMU counters
+   and the documented/system-reported line size in Phase II before treating it as
+   confirmed (see README.md's Phase I/II/III discipline).
+== plots per level: data_processed/artemisia/line_size/level_<boundary>/plots/line_size_family_{curve,boxplots}.{png,pdf} (A, steps 1-3),
+          .../line_size_offset_{elbow,boxplots}.{png,pdf} (A, step 4), .../line_size_{curve,boxplots}.{png,pdf} (B) ==
+== record in data_raw/artemisia/README.md: boundaries=31457280, core=3,
+   seed=12345, samples=1000000, coarse_strides=8,16,32,64,128,256, per-level/per-method estimates as above,
+   timestamp=20260912T225820Z ==
+== full transcript saved to: data_raw/artemisia/line_size/run_line_size_20260912T225820Z.log ==

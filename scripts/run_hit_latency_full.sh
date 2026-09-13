@@ -126,10 +126,15 @@ for spec in "${LEVEL_SPECS[@]}"; do
   done
 
   echo "-- generating plots for ${LEVEL} --"
-  python3 scripts/plot_hit_latency.py \
+  if ! python3 scripts/plot_hit_latency.py \
     "${ALL_SUMMARIES[@]}" \
     -o "$PLOT_DIR" --machine "$MACHINE" --level "$LEVEL" \
-    --title-suffix "(Phase I timing-only, auto pipeline)"
+    --title-suffix "(Phase I timing-only, auto pipeline)"; then
+    echo "WARNING: plotting failed for ${LEVEL} (matplotlib missing? see CLAUDE.md's known" >&2
+    echo "  matplotlib gap on Skylark/Thunderbird/Ookay) -- data above is still valid;" >&2
+    echo "  continuing to the next level and re-run plot_hit_latency.py by hand once" >&2
+    echo "  matplotlib is available." >&2
+  fi
 
   echo "-- compressing raw CSVs for ${LEVEL} --"
   gzip -f "${RAW_DIR}"/hit_latency_*.csv
