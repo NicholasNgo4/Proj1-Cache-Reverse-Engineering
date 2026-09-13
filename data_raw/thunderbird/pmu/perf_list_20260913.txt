@@ -1,0 +1,69 @@
+# perf list output — Thunderbird (Ampere Q80-30 / Neoverse N1)
+# Captured 2026-09-13T20:20:03Z
+
+== perf list cache ==
+
+armv8_pmuv3_0:
+  L1-dcache-loads OR armv8_pmuv3_0/L1-dcache-loads/
+  L1-dcache-load-misses OR armv8_pmuv3_0/L1-dcache-load-misses/
+  L1-icache-loads OR armv8_pmuv3_0/L1-icache-loads/
+  L1-icache-load-misses OR armv8_pmuv3_0/L1-icache-load-misses/
+  dTLB-loads OR armv8_pmuv3_0/dTLB-loads/
+  dTLB-load-misses OR armv8_pmuv3_0/dTLB-load-misses/
+  iTLB-loads OR armv8_pmuv3_0/iTLB-loads/
+  iTLB-load-misses OR armv8_pmuv3_0/iTLB-load-misses/
+  branch-loads OR armv8_pmuv3_0/branch-loads/
+  branch-load-misses OR armv8_pmuv3_0/branch-load-misses/
+
+== perf list hw ==
+  branch-instructions OR branches                    [Hardware event]
+  branch-misses                                      [Hardware event]
+  bus-cycles                                         [Hardware event]
+  cache-misses                                       [Hardware event]
+  cache-references                                   [Hardware event]
+  cpu-cycles OR cycles                               [Hardware event]
+  instructions                                       [Hardware event]
+  stalled-cycles-backend OR idle-cycles-backend      [Hardware event]
+  stalled-cycles-frontend OR idle-cycles-frontend    [Hardware event]
+
+== full armv8_pmuv3_0 raw PMU event list (/sys/bus/event_source/devices/armv8_pmuv3_0/events/) ==
+br_mis_pred
+br_mis_pred_retired
+br_pred
+br_retired
+bus_access
+bus_cycles
+cid_write_retired
+cpu_cycles
+exc_return
+exc_taken
+inst_retired
+inst_spec
+l1d_cache
+l1d_cache_refill
+l1d_cache_wb
+l1d_tlb
+l1d_tlb_refill
+l1i_cache
+l1i_cache_refill
+l1i_tlb
+l1i_tlb_refill
+l2d_cache
+l2d_cache_allocate
+l2d_cache_refill
+l2d_cache_wb
+l2d_tlb
+l2d_tlb_refill
+l3d_cache
+l3d_cache_allocate
+l3d_cache_refill
+l3d_cache_wb
+mem_access
+memory_error
+sample_collision
+sample_feed
+sample_filtrate
+sample_pop
+stall_backend
+stall_frontend
+ttbr_write_retired

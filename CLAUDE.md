@@ -883,9 +883,40 @@ Line size: `--experiment line_size` exists (added by @krchen1, commit
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
 check that machine's own `data_raw/<machine>/README.md` and recent git log
 (not this paragraph) for its actual current per-machine data-collection
-status, since this file lags active work in progress. PMU verification
-(Phase II) and Hazel (Phase III) have not started; Phase I must be
-frozen/tagged first per `README.md`.
+status, since this file lags active work in progress.
+
+**Phase II (PMU + literature verification): started 2026-09-13, Thunderbird
+only so far.** `phase1-timing-only` tagged at commit `7be6dac` (local tag
+only — this session had no push credentials to origin; push it when you
+have them). Full Table 2, methodology, and citations:
+**`PHASE2_VALIDATION.md`** (new file, structured like `CAPACITY_RESULTS.md`
+— one `## <Machine>` section per machine as Phase II proceeds). Headline
+findings for Thunderbird (Ampere Altra Q80-30 / Neoverse N1): (1) a PMU
+miss-rate sweep (`armv8_pmuv3_0` raw `l{1,2,3}d_cache[_refill]` events via
+`perf stat`, same access pattern as Phase I's capacity sweep — see
+`data_raw/thunderbird/pmu/`) gives an exact L1D miss-rate knee at 64 KiB,
+matching Phase I's timing edge AND the literature value 3 ways; (2) L2's
+miss-rate curve is a smooth knee-free ramp with no elbow near the 1 MiB
+reference size, corroborating (not resolving) Phase I's own "no flat L2
+shelf" finding; (3) the `l3d_cache` PMU events show NO capacity-dependent
+signature anywhere in a 4 KiB-512 MiB sweep (flat/noisy ~50-65% even at
+trivially-L1-resident sizes) and this SoC's SLC doesn't appear in
+`lscpu`/sysfs cache topology at all — so Phase II could NOT independently
+corroborate the Phase-I ~30 MiB LLC-candidate number via counters, only via
+literature (Ampere's datasheet: 32 MiB SLC, 16-way, **shared across all 80
+cores** — a real correction to how Phase-I's single-core `taskset` pinning
+should be read for this level specifically, since every other level on this
+machine is private-per-core and the SLC structurally isn't); (4) literature
+(Ampere Altra Datasheet Rev A1 v1.30 + Arm Neoverse N1 Core TRM r3p1, two
+independent sources agreeing) gives L2 = 8-way, directly disagreeing with
+Phase I's associativity-experiment number of 11-12-way at that stride —
+Phase II reads this as literature-side confirmation that the already-
+documented DTLB/page-count confound (see the associativity section above)
+is the likely explanation, NOT a correction to apply to the Phase-I number.
+Do not edit any frozen Phase-I timing value in light of this — the
+disagreement itself is the reportable Phase-II finding, kept in a separate
+column/section per the assignment's own instruction. Not yet attempted on
+any other machine; Hazel (Phase III) has not started.
 
 ## Known constraints from prior sessions
 

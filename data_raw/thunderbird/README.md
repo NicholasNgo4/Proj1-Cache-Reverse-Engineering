@@ -83,10 +83,31 @@
 - Run command + arguments:
 - Eviction/reload construction:
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename:
-- Events collected + exact semantics on this CPU:
-- Run command + arguments:
+### pmu/ (Phase II — started 2026-09-13, after tagging `phase1-timing-only` at commit `7be6dac`)
+- `perf list` output filename: `data_raw/thunderbird/pmu/perf_list_20260913.txt` (also
+  the full `armv8_pmuv3_0` raw event list from
+  `/sys/bus/event_source/devices/armv8_pmuv3_0/events/`); system-reported cache
+  topology (`lscpu -C`, sysfs) saved separately at
+  `data_raw/thunderbird/pmu/sysfs_cache_topology_20260913.txt`.
+- Events collected + exact semantics on this CPU: raw `armv8_pmuv3_0` architected
+  ARMv8 PMUv3 cache events — `l1d_cache`/`l1d_cache_refill`,
+  `l2d_cache`/`l2d_cache_refill`, `l3d_cache`/`l3d_cache_refill` (the `_cache` event
+  counts attributable accesses at that level, `_refill` counts linefills i.e.
+  misses), plus `mem_access`/`bus_access` and generic `cache-references`/
+  `cache-misses` as a cross-check. Full per-level miss-rate results, PMU-vs-Phase-I
+  comparison, and the required Table 2 are in `PHASE2_VALIDATION.md` (Thunderbird
+  section) — not duplicated here to avoid the two documents drifting apart.
+- Run command + arguments: `data_raw/thunderbird/pmu/run_pmu_sweep.sh 3
+  data_raw/thunderbird/pmu/pmu_sweep_raw.csv` — reuses the Phase-I `cache_bench
+  --experiment capacity` binary at one working-set size per invocation
+  (`--samples 1000000 --pattern random --seed 12345`, same as Phase I), swept across
+  23 sizes (4 KiB–512 MiB) under `perf stat`, core 3 (idle-checked via `/proc/stat`
+  first, 96.5% idle). Raw: `data_raw/thunderbird/pmu/pmu_sweep_raw.csv`; processed:
+  `data_processed/thunderbird/pmu/pmu_sweep_summary.csv`; plot:
+  `data_processed/thunderbird/pmu/plots/pmu_miss_rate_sweep.{png,pdf}`.
+- Literature references used: Ampere Altra Datasheet Rev A1 v1.30 (2022-07-28)
+  §2.3–2.5 pp.9; Arm Neoverse N1 Core TRM r3p1 (100616_0301_01_en) §A2.1.2/A6.4/A7.1
+  — full citations and the per-level Agreement analysis are in `PHASE2_VALIDATION.md`.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: core 3 (of `Cpus_allowed_list: 0-4` granted to this session)
