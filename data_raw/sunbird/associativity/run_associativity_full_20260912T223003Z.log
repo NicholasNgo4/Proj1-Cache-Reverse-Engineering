@@ -1,0 +1,44 @@
+== run_associativity_full: machine=sunbird core=6 base_seed=12345 max_ways=40 ==
+== timestamp=20260912T223003Z ==
+-- using explicit cache_bytes override: 65536 --
+
+== level L1: cache_bytes=65536 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/sunbird/associativity/L1/associativity_base_random_20260912T223003Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/sunbird/associativity/L1/associativity_base_sequential_20260912T223003Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/sunbird/associativity/L1/base_random_summary_20260912T223003Z.csv
+Wrote 39 summary rows to data_processed/sunbird/associativity/L1/base_sequential_summary_20260912T223003Z.csv
+-- detected associativity estimate: 32 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/sunbird/associativity/L1/associativity_rep1_random_20260912T223003Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/sunbird/associativity/L1/associativity_rep1_sequential_20260912T223003Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/sunbird/associativity/L1/rep1_random_summary_20260912T223003Z.csv
+Wrote 39 summary rows to data_processed/sunbird/associativity/L1/rep1_sequential_summary_20260912T223003Z.csv
+     repeat 1 detected estimate: 4
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/sunbird/associativity/L1/associativity_rep2_random_20260912T223003Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/sunbird/associativity/L1/associativity_rep2_sequential_20260912T223003Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/sunbird/associativity/L1/rep2_random_summary_20260912T223003Z.csv
+Wrote 39 summary rows to data_processed/sunbird/associativity/L1/rep2_sequential_summary_20260912T223003Z.csv
+     repeat 2 detected estimate: 4
+WARNING: repeat(s) disagree with the base estimate (base=32,
+         repeats=4 4) -- do NOT treat this level's
+         associativity as resolved; investigate before citing a number.
+-- generating plots for L1 --
+  note: num_ways=2 (random) has 3 overlapping summary rows with medians [21.0, 14.8, 14.8] (spread 6.2 ticks, 36.6%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (random) has 3 overlapping summary rows with medians [21.0, 14.0, 14.0] (spread 7.0 ticks, 42.8%) -- averaging, widening whiskers to the union
+  note: num_ways=4 (random) has 3 overlapping summary rows with medians [18.0, 13.3, 12.6] (spread 5.4 ticks, 36.9%) -- averaging, widening whiskers to the union
+  note: num_ways=5 (random) has 3 overlapping summary rows with medians [28.2, 21.5, 21.5] (spread 6.7 ticks, 28.3%) -- averaging, widening whiskers to the union
+  note: num_ways=28 (random) has 3 overlapping summary rows with medians [25.1, 25.1, 36.4] (spread 11.3 ticks, 39.3%) -- averaging, widening whiskers to the union
+  note: num_ways=29 (random) has 3 overlapping summary rows with medians [25.1, 25.1, 35.8] (spread 10.7 ticks, 37.4%) -- averaging, widening whiskers to the union
+  note: num_ways=30 (random) has 3 overlapping summary rows with medians [25.0, 25.1, 35.4] (spread 10.4 ticks, 36.5%) -- averaging, widening whiskers to the union
+  note: num_ways=31 (random) has 3 overlapping summary rows with medians [25.1, 25.1, 34.2] (spread 9.1 ticks, 32.4%) -- averaging, widening whiskers to the union
+  note: num_ways=32 (random) has 3 overlapping summary rows with medians [25.1, 25.0, 34.0] (spread 9.1 ticks, 32.3%) -- averaging, widening whiskers to the union
+Wrote data_processed/sunbird/associativity/L1/plots/associativity_curve.pdf and .png
+Wrote data_processed/sunbird/associativity/L1/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== done ==
+== L1: cache_bytes=65536 -> associativity=32 (repeats: 4 4) ==
+== record in data_raw/sunbird/README.md: core=6, base_seed=12345 (repeats use base_seed+index), samples=1000000, max_ways=40, timestamp=20260912T223003Z ==
+== full transcript saved to: data_raw/sunbird/associativity/run_associativity_full_20260912T223003Z.log ==

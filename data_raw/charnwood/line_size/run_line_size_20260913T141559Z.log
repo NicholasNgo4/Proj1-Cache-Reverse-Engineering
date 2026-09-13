@@ -1,0 +1,524 @@
+== run_line_size: machine=charnwood core=3 seed=12345 ==
+== timestamp=20260913T141559Z boundaries=262144,8388608 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=262144B -- Method A window=[32768,1048576] bytes
+############################################################
+-- [L262144 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_8_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_8_random_summary.csv
+-- [L262144 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_8_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_8_sequential_summary.csv
+-- [L262144 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_16_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_16_random_summary.csv
+-- [L262144 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_16_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_16_sequential_summary.csv
+-- [L262144 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_32_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_32_random_summary.csv
+-- [L262144 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_32_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_32_sequential_summary.csv
+-- [L262144 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_64_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_64_random_summary.csv
+-- [L262144 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_64_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_64_sequential_summary.csv
+-- [L262144 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_128_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_128_random_summary.csv
+-- [L262144 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_128_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_128_sequential_summary.csv
+-- [L262144 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_256_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_256_random_summary.csv
+-- [L262144 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/family_256_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/family_256_sequential_summary.csv
+-- [L262144 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/charnwood/line_size/level_262144/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 588488, 16B: 588480, 32B: 588480, 64B: 467072, 128B: 467072, 256B: 416000}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~416000 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/charnwood/line_size/level_262144/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/charnwood/line_size/level_262144/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L262144 A step 4] candidate=64B (manual, from line_size_family_curve.png) ==
+== [L262144 A step 4] bracket=40,48,56,64,72,80,88B (8B granularity) offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L262144 A refine] stride=40B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_40_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_40_off0_summary.csv
+-- [L262144 A refine] stride=48B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_48_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_48_off0_summary.csv
+-- [L262144 A refine] stride=56B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_56_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_56_off0_summary.csv
+-- [L262144 A refine] stride=64B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_64_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_64_off0_summary.csv
+-- [L262144 A refine] stride=72B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_72_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_72_off0_summary.csv
+-- [L262144 A refine] stride=80B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_80_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_80_off0_summary.csv
+-- [L262144 A refine] stride=88B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_88_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_88_off0_summary.csv
+-- [L262144 A refine] stride=40B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_40_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_40_off8_summary.csv
+-- [L262144 A refine] stride=48B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_48_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_48_off8_summary.csv
+-- [L262144 A refine] stride=56B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_56_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_56_off8_summary.csv
+-- [L262144 A refine] stride=64B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_64_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_64_off8_summary.csv
+-- [L262144 A refine] stride=72B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_72_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_72_off8_summary.csv
+-- [L262144 A refine] stride=80B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_80_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_80_off8_summary.csv
+-- [L262144 A refine] stride=88B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_88_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_88_off8_summary.csv
+-- [L262144 A refine] stride=40B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_40_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_40_off16_summary.csv
+-- [L262144 A refine] stride=48B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_48_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_48_off16_summary.csv
+-- [L262144 A refine] stride=56B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_56_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_56_off16_summary.csv
+-- [L262144 A refine] stride=64B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_64_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_64_off16_summary.csv
+-- [L262144 A refine] stride=72B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_72_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_72_off16_summary.csv
+-- [L262144 A refine] stride=80B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_80_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_80_off16_summary.csv
+-- [L262144 A refine] stride=88B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_88_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_88_off16_summary.csv
+-- [L262144 A refine] stride=40B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_40_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_40_off24_summary.csv
+-- [L262144 A refine] stride=48B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_48_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_48_off24_summary.csv
+-- [L262144 A refine] stride=56B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_56_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_56_off24_summary.csv
+-- [L262144 A refine] stride=64B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_64_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_64_off24_summary.csv
+-- [L262144 A refine] stride=72B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_72_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_72_off24_summary.csv
+-- [L262144 A refine] stride=80B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_80_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_80_off24_summary.csv
+-- [L262144 A refine] stride=88B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_88_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_88_off24_summary.csv
+-- [L262144 A refine] stride=40B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_40_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_40_off32_summary.csv
+-- [L262144 A refine] stride=48B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_48_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_48_off32_summary.csv
+-- [L262144 A refine] stride=56B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_56_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_56_off32_summary.csv
+-- [L262144 A refine] stride=64B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_64_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_64_off32_summary.csv
+-- [L262144 A refine] stride=72B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_72_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_72_off32_summary.csv
+-- [L262144 A refine] stride=80B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_80_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_80_off32_summary.csv
+-- [L262144 A refine] stride=88B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_88_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_88_off32_summary.csv
+-- [L262144 A refine] stride=40B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_40_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_40_off40_summary.csv
+-- [L262144 A refine] stride=48B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_48_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_48_off40_summary.csv
+-- [L262144 A refine] stride=56B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_56_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_56_off40_summary.csv
+-- [L262144 A refine] stride=64B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_64_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_64_off40_summary.csv
+-- [L262144 A refine] stride=72B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_72_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_72_off40_summary.csv
+-- [L262144 A refine] stride=80B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_80_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_80_off40_summary.csv
+-- [L262144 A refine] stride=88B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_88_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_88_off40_summary.csv
+-- [L262144 A refine] stride=40B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_40_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_40_off48_summary.csv
+-- [L262144 A refine] stride=48B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_48_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_48_off48_summary.csv
+-- [L262144 A refine] stride=56B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_56_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_56_off48_summary.csv
+-- [L262144 A refine] stride=64B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_64_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_64_off48_summary.csv
+-- [L262144 A refine] stride=72B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_72_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_72_off48_summary.csv
+-- [L262144 A refine] stride=80B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_80_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_80_off48_summary.csv
+-- [L262144 A refine] stride=88B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_88_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_88_off48_summary.csv
+-- [L262144 A refine] stride=40B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_40_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_40_off56_summary.csv
+-- [L262144 A refine] stride=48B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_48_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_48_off56_summary.csv
+-- [L262144 A refine] stride=56B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_56_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_56_off56_summary.csv
+-- [L262144 A refine] stride=64B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_64_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_64_off56_summary.csv
+-- [L262144 A refine] stride=72B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_72_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_72_off56_summary.csv
+-- [L262144 A refine] stride=80B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_80_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_80_off56_summary.csv
+-- [L262144 A refine] stride=88B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_262144/refine_88_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_262144/refine_88_off56_summary.csv
+-- [L262144 A step 4] generating cross-alignment confirmation plots --
+Wrote data_processed/charnwood/line_size/level_262144/plots/line_size_offset_elbow.pdf and .png
+Wrote data_processed/charnwood/line_size/level_262144/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {40: 588480, 48: 524256, 56: 524272, 64: 524288, 72: 467064, 80: 524240, 88: 660528}
+   offset=8B: {40: 588480, 48: 588480, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=16B: {40: 588480, 48: 524256, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=24B: {40: 588480, 48: 588480, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=32B: {40: 588480, 48: 588480, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+   offset=40B: {40: 588480, 48: 524256, 56: 524272, 64: 524288, 72: 467064, 80: 524240, 88: 524216}
+   offset=48B: {40: 524280, 48: 588480, 56: 588448, 64: 524288, 72: 524232, 80: 524240, 88: 467016}
+   offset=56B: {40: 588480, 48: 524256, 56: 524272, 64: 524288, 72: 524232, 80: 524240, 88: 524216}
+-- candidate stride 64B: elbow stable across the 8/8 offsets with a detectable elbow (524288-524288 bytes, 1.00x spread) -- consistent with a genuine, alignment-independent transition, but see the gap warning above before treating this as full 8/8 agreement
+
+-- [L262144 B] single-curve method, footprint_bytes=524288 (2.0x boundary) --
+-- [L262144 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/charnwood/line_size/level_262144/singlecurve_coarse_random_20260913T141559Z.csv
+  wrote 128002 lines -> data_raw/charnwood/line_size/level_262144/singlecurve_coarse_sequential_20260913T141559Z.csv
+Wrote 128 summary rows to data_processed/charnwood/line_size/level_262144/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/charnwood/line_size/level_262144/singlecurve_coarse_sequential_summary.csv
+-- [L262144 B] detected line-size estimate (bytes): 64 --
+-- [L262144 B] dense sweep around estimate 64 bytes: 32-129 (step 1) --
+  wrote 98002 lines -> data_raw/charnwood/line_size/level_262144/singlecurve_dense_random_20260913T141559Z.csv
+  wrote 98002 lines -> data_raw/charnwood/line_size/level_262144/singlecurve_dense_sequential_20260913T141559Z.csv
+Wrote 98 summary rows to data_processed/charnwood/line_size/level_262144/singlecurve_dense_random_summary.csv
+Wrote 98 summary rows to data_processed/charnwood/line_size/level_262144/singlecurve_dense_sequential_summary.csv
+  -- [L262144 B] repeat 1/2 of the dense window --
+  wrote 98002 lines -> data_raw/charnwood/line_size/level_262144/singlecurve_dense_rep1_random_20260913T141559Z.csv
+  wrote 98002 lines -> data_raw/charnwood/line_size/level_262144/singlecurve_dense_rep1_sequential_20260913T141559Z.csv
+Wrote 98 summary rows to data_processed/charnwood/line_size/level_262144/singlecurve_dense_rep1_random_summary.csv
+Wrote 98 summary rows to data_processed/charnwood/line_size/level_262144/singlecurve_dense_rep1_sequential_summary.csv
+  -- [L262144 B] repeat 2/2 of the dense window --
+  wrote 98002 lines -> data_raw/charnwood/line_size/level_262144/singlecurve_dense_rep2_random_20260913T141559Z.csv
+  wrote 98002 lines -> data_raw/charnwood/line_size/level_262144/singlecurve_dense_rep2_sequential_20260913T141559Z.csv
+Wrote 98 summary rows to data_processed/charnwood/line_size/level_262144/singlecurve_dense_rep2_random_summary.csv
+Wrote 98 summary rows to data_processed/charnwood/line_size/level_262144/singlecurve_dense_rep2_sequential_summary.csv
+-- [L262144 B] generating single-curve plots --
+  note: 32B (sequential) has 4 overlapping summary rows with medians [8.4, 11.6, 11.5, 11.5] (spread 3.1 ticks, 29.2%) -- averaging, widening whiskers to the union
+  note: flagged 3 isolated spike stride(s) as probable page-aliasing artifacts: [256, 512, 1024]
+Wrote data_processed/charnwood/line_size/level_262144/plots/line_size_curve.pdf and .png
+Wrote data_processed/charnwood/line_size/level_262144/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## LEVEL boundary=8388608B -- Method A window=[1048576,33554432] bytes
+############################################################
+-- [L8388608 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_8_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_8_random_summary.csv
+-- [L8388608 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_8_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_8_sequential_summary.csv
+-- [L8388608 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_16_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_16_random_summary.csv
+-- [L8388608 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_16_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_16_sequential_summary.csv
+-- [L8388608 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_32_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_32_random_summary.csv
+-- [L8388608 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_32_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_32_sequential_summary.csv
+-- [L8388608 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_64_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_64_random_summary.csv
+-- [L8388608 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_64_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_64_sequential_summary.csv
+-- [L8388608 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_128_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_128_random_summary.csv
+-- [L8388608 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_128_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_128_sequential_summary.csv
+-- [L8388608 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_256_random_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_256_random_summary.csv
+-- [L8388608 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/family_256_sequential_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/family_256_sequential_summary.csv
+-- [L8388608 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/charnwood/line_size/level_8388608/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 21137968, 16B: 21137968, 32B: 18831776, 64B: 14946752, 128B: 13315968, 256B: 18831616}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~18831616 bytes) is 8B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/charnwood/line_size/level_8388608/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/charnwood/line_size/level_8388608/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L8388608 A step 4] candidate=64B (manual, from line_size_family_curve.png) ==
+== [L8388608 A step 4] bracket=40,48,56,64,72,80,88B (8B granularity) offsets=0,8,16,24,32,40,48,56B pattern=random ==
+-- [L8388608 A refine] stride=40B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_40_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_40_off0_summary.csv
+-- [L8388608 A refine] stride=48B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_48_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_48_off0_summary.csv
+-- [L8388608 A refine] stride=56B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_56_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_56_off0_summary.csv
+-- [L8388608 A refine] stride=64B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_64_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_64_off0_summary.csv
+-- [L8388608 A refine] stride=72B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_72_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_72_off0_summary.csv
+-- [L8388608 A refine] stride=80B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_80_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_80_off0_summary.csv
+-- [L8388608 A refine] stride=88B offset=0B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_88_off0_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_88_off0_summary.csv
+-- [L8388608 A refine] stride=40B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_40_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_40_off8_summary.csv
+-- [L8388608 A refine] stride=48B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_48_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_48_off8_summary.csv
+-- [L8388608 A refine] stride=56B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_56_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_56_off8_summary.csv
+-- [L8388608 A refine] stride=64B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_64_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_64_off8_summary.csv
+-- [L8388608 A refine] stride=72B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_72_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_72_off8_summary.csv
+-- [L8388608 A refine] stride=80B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_80_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_80_off8_summary.csv
+-- [L8388608 A refine] stride=88B offset=8B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_88_off8_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_88_off8_summary.csv
+-- [L8388608 A refine] stride=40B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_40_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_40_off16_summary.csv
+-- [L8388608 A refine] stride=48B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_48_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_48_off16_summary.csv
+-- [L8388608 A refine] stride=56B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_56_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_56_off16_summary.csv
+-- [L8388608 A refine] stride=64B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_64_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_64_off16_summary.csv
+-- [L8388608 A refine] stride=72B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_72_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_72_off16_summary.csv
+-- [L8388608 A refine] stride=80B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_80_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_80_off16_summary.csv
+-- [L8388608 A refine] stride=88B offset=16B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_88_off16_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_88_off16_summary.csv
+-- [L8388608 A refine] stride=40B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_40_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_40_off24_summary.csv
+-- [L8388608 A refine] stride=48B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_48_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_48_off24_summary.csv
+-- [L8388608 A refine] stride=56B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_56_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_56_off24_summary.csv
+-- [L8388608 A refine] stride=64B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_64_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_64_off24_summary.csv
+-- [L8388608 A refine] stride=72B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_72_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_72_off24_summary.csv
+-- [L8388608 A refine] stride=80B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_80_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_80_off24_summary.csv
+-- [L8388608 A refine] stride=88B offset=24B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_88_off24_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_88_off24_summary.csv
+-- [L8388608 A refine] stride=40B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_40_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_40_off32_summary.csv
+-- [L8388608 A refine] stride=48B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_48_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_48_off32_summary.csv
+-- [L8388608 A refine] stride=56B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_56_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_56_off32_summary.csv
+-- [L8388608 A refine] stride=64B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_64_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_64_off32_summary.csv
+-- [L8388608 A refine] stride=72B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_72_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_72_off32_summary.csv
+-- [L8388608 A refine] stride=80B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_80_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_80_off32_summary.csv
+-- [L8388608 A refine] stride=88B offset=32B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_88_off32_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_88_off32_summary.csv
+-- [L8388608 A refine] stride=40B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_40_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_40_off40_summary.csv
+-- [L8388608 A refine] stride=48B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_48_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_48_off40_summary.csv
+-- [L8388608 A refine] stride=56B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_56_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_56_off40_summary.csv
+-- [L8388608 A refine] stride=64B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_64_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_64_off40_summary.csv
+-- [L8388608 A refine] stride=72B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_72_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_72_off40_summary.csv
+-- [L8388608 A refine] stride=80B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_80_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_80_off40_summary.csv
+-- [L8388608 A refine] stride=88B offset=40B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_88_off40_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_88_off40_summary.csv
+-- [L8388608 A refine] stride=40B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_40_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_40_off48_summary.csv
+-- [L8388608 A refine] stride=48B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_48_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_48_off48_summary.csv
+-- [L8388608 A refine] stride=56B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_56_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_56_off48_summary.csv
+-- [L8388608 A refine] stride=64B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_64_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_64_off48_summary.csv
+-- [L8388608 A refine] stride=72B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_72_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_72_off48_summary.csv
+-- [L8388608 A refine] stride=80B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_80_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_80_off48_summary.csv
+-- [L8388608 A refine] stride=88B offset=48B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_88_off48_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_88_off48_summary.csv
+-- [L8388608 A refine] stride=40B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_40_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_40_off56_summary.csv
+-- [L8388608 A refine] stride=48B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_48_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_48_off56_summary.csv
+-- [L8388608 A refine] stride=56B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_56_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_56_off56_summary.csv
+-- [L8388608 A refine] stride=64B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_64_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_64_off56_summary.csv
+-- [L8388608 A refine] stride=72B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_72_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_72_off56_summary.csv
+-- [L8388608 A refine] stride=80B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_80_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_80_off56_summary.csv
+-- [L8388608 A refine] stride=88B offset=56B pattern=random --
+  wrote 31002 lines -> data_raw/charnwood/line_size/level_8388608/refine_88_off56_20260913T141559Z.csv
+Wrote 31 summary rows to data_processed/charnwood/line_size/level_8388608/refine_88_off56_summary.csv
+-- [L8388608 A step 4] generating cross-alignment confirmation plots --
+Wrote data_processed/charnwood/line_size/level_8388608/plots/line_size_offset_elbow.pdf and .png
+Wrote data_processed/charnwood/line_size/level_8388608/plots/line_size_offset_boxplots.pdf and .png
+-- elbow footprint by (offset, stride):
+   offset=0B: {40: 18831760, 48: 18831744, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=8B: {40: 18831760, 48: 18831744, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=16B: {40: 18831760, 48: 18831744, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=24B: {40: 18831760, 48: 18831744, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=32B: {40: 18831760, 48: 18831744, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=40B: {40: 18831760, 48: 18831744, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=48B: {40: 18831760, 48: 18831744, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+   offset=56B: {40: 18831760, 48: 18831744, 56: 16777208, 64: 14946752, 72: 14946768, 80: 14946800, 88: 14946800}
+-- candidate stride 64B: elbow stable across the 8/8 offsets with a detectable elbow (14946752-14946752 bytes, 1.00x spread) -- consistent with a genuine, alignment-independent transition, but see the gap warning above before treating this as full 8/8 agreement
+
+-- [L8388608 B] single-curve method, footprint_bytes=16777216 (2.0x boundary) --
+-- [L8388608 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/charnwood/line_size/level_8388608/singlecurve_coarse_random_20260913T141559Z.csv
+  wrote 128002 lines -> data_raw/charnwood/line_size/level_8388608/singlecurve_coarse_sequential_20260913T141559Z.csv
+Wrote 128 summary rows to data_processed/charnwood/line_size/level_8388608/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/charnwood/line_size/level_8388608/singlecurve_coarse_sequential_summary.csv
+-- [L8388608 B] detected line-size estimate (bytes): none --
+-- [L8388608 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L8388608 B] generating single-curve plots --
+  note: flagged 8 isolated spike stride(s) as probable page-aliasing artifacts: [256, 384, 512, 760, 848, 904, 928, 1024]
+Wrote data_processed/charnwood/line_size/level_8388608/plots/line_size_curve.pdf and .png
+Wrote data_processed/charnwood/line_size/level_8388608/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## step 5: cross-level, cross-method agreement summary
+############################################################
+   level boundary=262144B -> method A (family of curves) = 64B, method B (single curve) = 64B
+   level boundary=8388608B -> method A (family of curves) = 64B, method B (single curve) = noneB
+== every level/method that produced an estimate AGREES on 64B -- strong Phase-I evidence ==
+== done: all levels, both methods, complete ==
+== this is a FROZEN PHASE-I TIMING-ONLY result -- compare against PMU counters
+   and the documented/system-reported line size in Phase II before treating it as
+   confirmed (see README.md's Phase I/II/III discipline).
+== plots per level: data_processed/charnwood/line_size/level_<boundary>/plots/line_size_family_{curve,boxplots}.{png,pdf} (A, steps 1-3),
+          .../line_size_offset_{elbow,boxplots}.{png,pdf} (A, step 4), .../line_size_{curve,boxplots}.{png,pdf} (B) ==
+== record in data_raw/charnwood/README.md: boundaries=262144,8388608, core=3,
+   seed=12345, samples=1000000, coarse_strides=8,16,32,64,128,256, per-level/per-method estimates as above,
+   timestamp=20260913T141559Z ==
+== full transcript saved to: data_raw/charnwood/line_size/run_line_size_20260913T141559Z.log ==
