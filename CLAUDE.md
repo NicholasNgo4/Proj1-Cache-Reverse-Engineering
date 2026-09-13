@@ -850,8 +850,9 @@ own per-machine capacity prose to pick them.
   and full run detail.
 
 **Inclusion/exclusion: implemented 2026-09-13 (`--experiment
-inclusion_policy` in `main_code/common/inclusion_policy.c`/`.h`), first
-(preliminary, uncertain-verdict) data collected on Sunbird only.** Pipeline:
+inclusion_policy` in `main_code/common/inclusion_policy.c`/`.h`), now run on
+Sunbird and Artemisia — Artemisia's LLC-involving verdicts came back
+decisively cleaner than Sunbird's (see its bullet below).** Pipeline:
 `scripts/run_inclusion_policy_full.sh` + `scripts/classify_inclusion_policy.py`
 + `scripts/plot_inclusion_policy.py`. Method (see `inclusion_policy.h`'s
 module doc comment for the full argument): target + an untouched control
@@ -947,6 +948,40 @@ already-collected `miss_latency` data for the matching transition.
     the user's request, so it sits next to `capacity/`, `line_size/`,
     `associativity/`, `latency/`, `inclusion_policy/` rather than in the
     data_raw README).
+- **Artemisia** (`data_raw/artemisia/inclusion_policy/{L1_vs_L2,L2_vs_LLC,L1_vs_LLC}/`,
+  2026-09-13, core 4, all three pairings from `CAPACITY_RESULTS.md`'s L1/L2/LLC
+  boundaries — note L2's value, 2,097,152 B, is the same one this machine's own
+  capacity data already flags as NOT a confirmed boundary, run anyway per
+  project-wide direction): **both LLC-involving pairings came back a clean
+  100% invalidated-like / 0% ambiguous split** — L2_vs_LLC (target median 476
+  vs. 88.8-tick survived/582-tick invalidated calibration) and L1_vs_LLC
+  (target median 523 vs. 70.2/582) — noticeably cleaner than Sunbird's own
+  ambiguous/borderline results for the equivalent pairings. **Verdict for
+  both: INCLUSIVE.** L1_vs_L2, by contrast, came back 77.5% ambiguous (target
+  median 160 vs. 70.1-tick survived/381-tick invalidated calibration, control
+  a clean 100% survived-like) — **Verdict: UNCERTAIN** — most likely because
+  this pairing's eviction footprint scales off the same unconfirmed 2 MiB L2
+  candidate, making it 8x larger (128 MiB/32,768 pages) than Sunbird's
+  equivalent, confirmed-capacity L1_vs_L2 pairing (16 MiB/4,096 pages),
+  pushing it into the DTLB-risk regime Sunbird's writeup only expected for
+  LLC-scale pairings. `ASSUMED_LINE_SIZE_BYTES` left at the default 64 —
+  this machine's own line_size/ section confirms 64B at L1 and reads it as
+  best-supported (though not offset-invariance-clean) at L2; no line-size
+  signal exists at all at the LLC candidate after 11 independent attempts, so
+  64B is simply the only measured value anywhere on this machine, not a
+  blind carry-over. **Best-guess overall reading:** Artemisia's LLC reads as
+  confidently inclusive of both L1 and L2 (cleaner evidence than Sunbird's
+  own LLC pairings produced), while L1's own relationship to L2 remains open
+  pending a re-run at a corrected eviction footprint once a real L2 capacity
+  is established for this machine. Full writeup: `data_raw/artemisia/README.md`'s
+  inclusion_policy/ section. Final table:
+  `data_processed/artemisia/FINAL_CACHE_TABLE.md` — L1 associativity best
+  guess 12-way (not machine-confirmed, unlike Sunbird/Upgrade/Charnwood's
+  8-way), L2/LLC both best-guessed at 16-way (same confound as every other
+  machine, reasoned from L1's floor + L2's capacity being a pure power of two
+  forcing a power-of-two associativity guess; see the table's own reasoning
+  section for why LLC's "clean sets" check is weaker evidence than L2's
+  there). **Not yet run on any other machine besides these two.**
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
