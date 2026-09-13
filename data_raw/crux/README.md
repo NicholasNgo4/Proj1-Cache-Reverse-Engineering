@@ -93,10 +93,48 @@
   capacity.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+Two sub-experiments, `hit_latency` and `miss_latency`, run 2026-09-13. Footprint/
+target/evict byte values taken **only from `CAPACITY_RESULTS.md`** (L1 =
+32,768 B, L2 = 262,144 B, LLC ≈ 8 MiB = 8,388,608 B — same values already used
+for this machine's `associativity/` section above) — per project-wide direction,
+`CAPACITY_RESULTS.md` is the single source of truth for these boundaries; this
+file's own more-detailed capacity write-up above (steep, not-fully-resolved
+~4-64 MiB transition) is not used to pick these numbers.
+- Core: 2 (not the 7 used for capacity/associativity earlier — re-checked idle
+  for this session: `who`/`ps` showed no other students' processes pinned to any
+  core, and two independent `/proc/stat` idle-time-delta samples ~3s apart,
+  taken both immediately before the hit_latency run and again immediately after
+  the miss_latency run finished, showed every core 0-7 under ~1.5% busy both
+  times).
+- Build: `git pull && make clean && make` (fast-forwarded `cb1f482..e343732`);
+  `python3 -c "import matplotlib"` confirmed working (3.6.3) before running.
+
+**hit_latency (dependent chain + independent-load diagnostic control):**
+- Source file(s): `main_code/common/{main.c,latency.c,latency.h,benchmark.c,benchmark.h,pointer_chase.c,pointer_chase.h,random.c,random.h}`, `main_code/x86_64/timer_x86.h`, `main_code/common/timer.h`
+- Run command + arguments: `./scripts/run_hit_latency_full.sh crux 2 L1:32768,L2:262144,LLC:8388608,DRAM:536870912` (DRAM's 512 MiB footprint is not a `CAPACITY_RESULTS.md` value — a "deep in the DRAM plateau" pick, same convention Sunbird's README used).
+- Per level: base run + 2 reproducibility repeats (seed 12345/12346/12347), each at `--load-mode {dependent,independent}` x `--pattern {random,sequential}`, 1,000,000 timed accesses per combination (batch size 1000), 3 untimed warm-up passes.
+- Raw output: `data_raw/crux/latency/hit/<LEVEL>/hit_latency_{base,rep1,rep2}_{dependent,independent}_{random,sequential}_20260913T061111Z.csv.gz`; processed summaries + plots under `data_processed/crux/latency/hit/<LEVEL>/{*.csv,plots/hit_latency_boxplots.{png,pdf}}`. Full transcript: `data_raw/crux/latency/run_hit_latency_full_20260913T061111Z.log`.
+- **Result (dependent, random pattern, base run median): a clean, monotonically increasing 4-tier ladder — L1 ≈ 7.42 ticks, L2 ≈ 14.30 ticks, LLC ≈ 43.23 ticks, DRAM ≈ 236.80 ticks.** Confirms the `CAPACITY_RESULTS.md` byte values correspond to 4 genuinely distinct levels on this machine.
+- **Independent-vs-dependent check: 6 of 8 (level, pattern) combinations show the expected `independent < dependent`; the random pattern is expected-faster at all 4 levels (L1: 5.42 vs 7.42; L2: 7.06 vs 14.30; LLC: 16.70/19.53(mean) vs 43.23; DRAM: 46.91 vs 236.80). Both LLC and DRAM flagged `[UNEXPECTED -- investigate]` for the SEQUENTIAL pattern** (LLC: 5.96 vs 5.63 aggregate; DRAM: 5.95 vs 5.81 aggregate) — investigated per the task's directive before trusting this data, root-caused from source rather than dismissed or re-run blind:
+  - Per-run breakdown (not just the aggregated median) confirms this is reproducible, not a one-off fluke: LLC sequential dependent medians are tight across all 3 runs (5.61/5.65/5.64), while independent's are consistently at or above them (5.70/5.81/6.38) — same direction every time.
+  - Root cause, found in `main_code/common/latency.c` (`run_hit_latency_experiment`) and `benchmark.c` (`measure_independent_loads_batched`): `struct node` is a single 8-byte pointer (`pointer_chase.h`), the same size as a `size_t`. For `LOAD_MODE_INDEPENDENT` + sequential pattern, `latency.c` allocates a full `order[num_nodes]` array (`order[i] = i`) the SAME SIZE in bytes as the `nodes[]` array itself — so independent mode's true touched working set at any footprint is ~2x `footprint_bytes`, not `footprint_bytes`. At L1/L2 (32,768/262,144 B -> 65,536/524,288 B combined) this doesn't matter enough to flip the result. At LLC (8,388,608 B -> ~16.78 MiB combined, roughly 2x this machine's own ~8 MiB LLC estimate) and at DRAM (already far past any cache), the extra `order[]` stream adds real memory traffic/cache pressure that dependent mode never pays (it only ever touches `nodes[]`). For the SEQUENTIAL pattern specifically, the dependent baseline is already riding the hardware next-line prefetcher down to near-L1 speed (~5.6-5.8 ticks, essentially flat from L1 all the way to a 512 MiB footprint — see below) — there is no latency headroom left for independent mode's MLP-exposure benefit to recover, so the extra `order[]` array cost shows up as a small but consistent net slowdown instead. This is a real, source-grounded methodology artifact of the independent-load control (auxiliary index array doubling its footprint), not corruption, not core contention, and not a reason to distrust the RANDOM-pattern numbers (which is where the real headline latency ladder above comes from).
+  - Notable side finding from the same data: sequential-pattern latency (both modes) stays within ~5.4-6.4 ticks across the ENTIRE 32,768 B-536,870,912 B range (L1 through DRAM) — the hardware prefetcher fully hides main-memory latency for sequential access even at 512 MiB, matching this machine's own capacity/ finding above ("Sequential-pattern latency stayed flat ... across the entire 1 KiB-1 GiB range").
+  - Not fixed / not re-run: this is a property of the independent-load control's construction (present since the bug-fix documented in `CLAUDE.md`/Sunbird's README), not something this session's task scope (hit_latency/miss_latency data collection only) authorized changing in `benchmark.c`/`latency.c`.
+
+**miss_latency (forced eviction + single-shot reload):**
+- Source file(s): same list as hit_latency above.
+- Eviction-set calibration (done before committing to full parameters, core 2, random pattern, target=8,388,608, 100 trials): 16,777,216 B (16 MiB, 2x the LLC estimate) evict_bytes measured ~94 ms/trial (9.411s/100) — extrapolated to 3 runs x 2 patterns x 200 trials = 1200 trials, ~2 min for the LLC_to_DRAM transition alone; well under the ~15 min budget, so no need to shrink further (did not try evict_bytes anywhere near the 512 MiB DRAM hit_latency footprint, per the task's explicit warning against jumping straight to a huge value).
+- Run command + arguments: `./scripts/run_miss_latency_full.sh crux 2 L1_to_L2:32768:262144,L2_to_LLC:262144:8388608,LLC_to_DRAM:8388608:16777216`.
+- Per transition: base run + 2 reproducibility repeats (seed 12345/12346/12347), each at `--pattern {random,sequential}`, 200 single-shot trials each (`--batch-size 1`, meaningless to this experiment but required by `main.c`'s cross-experiment validation), 3 untimed warm-up passes per trial.
+- Raw output: `data_raw/crux/latency/miss/<TRANSITION>/miss_latency_{base,rep1,rep2}_{random,sequential}_20260913T061432Z.csv.gz`; processed summaries + plots under `data_processed/crux/latency/miss/<TRANSITION>/{*.csv,plots/miss_latency_boxplots.{png,pdf}}` (annotated with the incremental-penalty delta against this machine's own hit_latency dependent/random summaries, found automatically by the script for all 3 transitions). Full transcript: `data_raw/crux/latency/run_miss_latency_full_20260913T061432Z.log`.
+- **Result (random pattern, base run median, n=200 each): L1→L2 ≈ 77 ticks, L2→LLC ≈ 260 ticks, LLC→DRAM ≈ 437 ticks** — monotonically increasing, consistent with genuinely deeper eviction at each transition (same qualitative ladder shape as Sunbird's 124/284/622).
+- **Run-to-run spread: L1→L2 is tight (base/rep1/rep2 medians 77/78/74 random, 79/78/78 sequential, <7% spread, no warning) but L2→LLC and LLC→DRAM both triggered `plot_miss_latency.py`'s >20%-spread warning, per the task's instruction NOT to re-run until it disappears — reported as-is:**
+  - L2→LLC random: medians [260.0, 105.5, 270.5], spread 165.0 ticks = 77.8%.
+  - LLC→DRAM random: medians [437.0, 512.0, 407.0], spread 105.0 ticks = 23.2%.
+  - LLC→DRAM sequential: medians [260.5, 396.5, 301.5], spread 136.0 ticks = 42.6%.
+  - Not traced to a specific interfering process this session (machine was re-confirmed idle via `who`/`/proc/stat` immediately before hit_latency and immediately after miss_latency, but not polled mid-run) — consistent with the same transient-interference signature documented throughout this team's capacity/associativity work on shared machines (scattered single-run spikes, not a systematic bias), but not independently confirmed as such here.
+- **Single-shot measurement overhead, measured per this machine (task step 7):** `--target-bytes 32768 --evict-bytes 512 --pattern random --samples 2000` (an 8-line eviction set overwhelmingly unlikely to evict the target) gives a median of **50 ticks**, versus this machine's own batched L1 hit_latency dependent/random median of **7.42 ticks** at the identical 32,768 B footprint — a ~42-tick fixed single-shot overhead (serializing timer cost + post-call pipeline state, unamortized across a batch, per `latency.h`'s documented KNOWN LIMITATION). Every miss_latency number above is "true reload latency + ~42 ticks of fixed overhead," not a clean number; the 77→260→437 increasing trend is still meaningful evidence of deeper eviction, but do not subtract/compare these directly against hit_latency plateaus without accounting for this overhead.
+- Not yet done: overhead was only measured once at the L1 footprint (not per-transition); the L2→LLC/LLC→DRAM spread was not traced to a specific process.
 
 ### inclusion_policy/
 - Source file(s): 

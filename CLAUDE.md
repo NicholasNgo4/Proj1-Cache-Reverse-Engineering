@@ -808,6 +808,34 @@ own per-machine capacity prose to pick them.
   transitions showing substantial (26-60%) unexplained repeat-to-repeat
   spread not yet traced to a specific cause. **Not yet run on any other
   machine.**
+- **Crux** (`data_raw/crux/latency/`, 2026-09-13): hit latency at L1/L2/LLC/DRAM
+  (32,768 / 262,144 / 8,388,608 / 536,870,912 B, per `CAPACITY_RESULTS.md` —
+  this machine's LLC is ~8 MiB, not Sunbird's ~30 MiB) gives a clean,
+  monotonic 4-tier ladder — L1≈7.42, L2≈14.30, LLC≈43.23, DRAM≈236.80 ticks
+  (dependent, random, median). Independent-load control measured faster than
+  dependent at every level for the random pattern (as required), but flagged
+  `[UNEXPECTED -- investigate]` for the SEQUENTIAL pattern at BOTH LLC and
+  DRAM (independent slightly slower, ~5.6-6.4 ticks either way — i.e. both
+  still near L1 speed). Investigated and root-caused from source rather than
+  discarded: `struct node` is a bare 8-byte pointer, the same size as the
+  `size_t` `order[]` index array `latency.c` allocates for independent-mode's
+  sequential-pattern case — so independent mode's true working set is ~2x
+  `footprint_bytes` at every level, which only matters once that doubled
+  footprint exceeds the level actually being measured (LLC: 2x8 MiB vs an
+  ~8 MiB LLC; DRAM: already past everything). Combined with the sequential
+  pattern's dependent baseline already being fully prefetch-hidden (no MLP
+  headroom left to recover), the extra `order[]` traffic tips the balance to
+  a small, reproducible (confirmed across all 3 repeats individually, not
+  just the aggregate) independent-mode slowdown. This is a real property of
+  the independent-load control's construction, not corruption or contention
+  — see `data_raw/crux/README.md`'s latency/ section for the full per-run
+  numbers. Miss/next-level latency at L1→L2/L2→LLC/LLC→DRAM gives an
+  increasing 77/260/437-tick sequence (random, median) with the same
+  single-shot fixed-overhead caveat as Sunbird (measured directly on this
+  machine: ~50-tick single-shot floor vs. ~7.42-tick batched L1 hit latency,
+  i.e. ~42 ticks fixed overhead) — plus L2→LLC and LLC→DRAM both tripped the
+  >20%-spread warning (up to 77.8%), not traced to a specific process this
+  session.
 Line size: `--experiment line_size` exists (added by @krchen1, commit
 `5aaa83f`) with its own `scripts/{run_line_size_full.sh,
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
