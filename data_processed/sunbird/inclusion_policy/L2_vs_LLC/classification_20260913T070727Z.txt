@@ -1,0 +1,9 @@
+Survived-class (upper-level hit) median:       76.05 ticks
+Invalidated-class (beyond-lower-level) median: 622.00 ticks
+Classification boundary (geometric mean):      217.49 ticks
+
+TARGET channel  (n=200): median=212.0 mean=213.9 ticks -- 27 survived-like (13.5%), 170 ambiguous, 3 invalidated-like (1.5%)
+CONTROL channel (n=200): median=144.0 mean=148.1 ticks -- 193 survived-like (96.5%), 2 ambiguous, 5 invalidated-like (2.5%)
+Paired check: target read slower than its own trial's control in 92.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: UNCERTAIN (mixed result -- do not claim a global policy from this alone)

@@ -1,0 +1,77 @@
+== run_inclusion_policy_full: machine=skylark core=6 base_seed=12345 ==
+== assumed_line_size_bytes=128 (confirmed for Sunbird 2026-09-11; verify for other machines) ==
+== timestamp=20260913T180533Z ==
+
+== L2_vs_LLC: target_bytes=524288 lower_level_bytes=8388608 -> evict_bytes=268435456 (scaled 4096/128x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 83.808 ticks
+  invalidated-class (from data_processed/skylark/latency/miss/LLC_to_DRAM/base_random_summary_20260913T061426Z.csv): 360.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L2_vs_LLC/inclusion_policy_base_random_20260913T180533Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L2_vs_LLC/base_random_summary_20260913T180533Z.csv
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L2_vs_LLC/inclusion_policy_base_sequential_20260913T180533Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L2_vs_LLC/base_sequential_summary_20260913T180533Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_random_20260913T180533Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L2_vs_LLC/rep1_random_summary_20260913T180533Z.csv
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_sequential_20260913T180533Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L2_vs_LLC/rep1_sequential_summary_20260913T180533Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_random_20260913T180533Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L2_vs_LLC/rep2_random_summary_20260913T180533Z.csv
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_sequential_20260913T180533Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L2_vs_LLC/rep2_sequential_summary_20260913T180533Z.csv
+Survived-class (upper-level hit) median:       83.81 ticks
+Invalidated-class (beyond-lower-level) median: 360.00 ticks
+Classification boundary (geometric mean):      173.70 ticks
+
+TARGET channel  (n=200): median=120.0 mean=118.7 ticks -- 199 survived-like (99.5%), 1 ambiguous, 0 invalidated-like (0.0%)
+CONTROL channel (n=200): median=96.0 mean=92.2 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+Paired check: target read slower than its own trial's control in 74.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L2_vs_LLC --
+  note: ('target', 'sequential') has 3 overlapping summary rows with medians [96.0, 96.0, 144.0] (spread 48.0 ticks, 42.9%) -- averaging, widening whiskers to the union
+  note: ('control', 'sequential') has 3 overlapping summary rows with medians [72.0, 96.0, 72.0] (spread 24.0 ticks, 30.0%) -- averaging, widening whiskers to the union
+Wrote data_processed/skylark/inclusion_policy/L2_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L2_vs_LLC --
+
+== L1_vs_LLC: target_bytes=32768 lower_level_bytes=8388608 -> evict_bytes=268435456 (scaled 4096/128x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 83.328 ticks
+  invalidated-class (from data_processed/skylark/latency/miss/LLC_to_DRAM/base_random_summary_20260913T061426Z.csv): 360.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L1_vs_LLC/inclusion_policy_base_random_20260913T180533Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L1_vs_LLC/base_random_summary_20260913T180533Z.csv
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L1_vs_LLC/inclusion_policy_base_sequential_20260913T180533Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L1_vs_LLC/base_sequential_summary_20260913T180533Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_random_20260913T180533Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L1_vs_LLC/rep1_random_summary_20260913T180533Z.csv
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_sequential_20260913T180533Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L1_vs_LLC/rep1_sequential_summary_20260913T180533Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_random_20260913T180533Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L1_vs_LLC/rep2_random_summary_20260913T180533Z.csv
+  wrote 402 lines -> data_raw/skylark/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_sequential_20260913T180533Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/skylark/inclusion_policy/L1_vs_LLC/rep2_sequential_summary_20260913T180533Z.csv
+Survived-class (upper-level hit) median:       83.33 ticks
+Invalidated-class (beyond-lower-level) median: 360.00 ticks
+Classification boundary (geometric mean):      173.20 ticks
+
+TARGET channel  (n=200): median=96.0 mean=90.8 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+CONTROL channel (n=200): median=72.0 mean=80.5 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+Paired check: target read slower than its own trial's control in 51.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L1_vs_LLC --
+  note: ('control', 'random') has 3 overlapping summary rows with medians [72.0, 72.0, 96.0] (spread 24.0 ticks, 30.0%) -- averaging, widening whiskers to the union
+  note: ('control', 'sequential') has 3 overlapping summary rows with medians [96.0, 72.0, 72.0] (spread 24.0 ticks, 30.0%) -- averaging, widening whiskers to the union
+Wrote data_processed/skylark/inclusion_policy/L1_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_LLC --
+
+== done ==
+== L2_vs_LLC: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== L1_vs_LLC: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== record in data_raw/skylark/README.md: core=6, base_seed=12345 (repeats use base_seed+index), trials=200, assumed_line_size_bytes=128, timestamp=20260913T180533Z ==
+== full transcript saved to: data_raw/skylark/inclusion_policy/run_inclusion_policy_full_20260913T180533Z.log ==

@@ -46,7 +46,6 @@ import sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 
 REQUIRED_COLS = {"footprint_bytes", "stride_bytes", "pattern", "median", "q1", "q3",
                   "p5", "p95", "n", "n_outliers"}
@@ -160,7 +159,7 @@ def plot_curve(by_pattern, machine, out_prefix, title_suffix):
                           "real line-size effect (a stride prefetcher hides it)")
 
     strides = sorted(by_pattern["random"].keys())
-    cmap = cm.get_cmap("viridis", max(len(strides), 2))
+    cmap = matplotlib.colormaps["viridis"].resampled(max(len(strides), 2))
 
     fig, ax = plt.subplots(figsize=(8.5, 5.5))
 
@@ -274,7 +273,7 @@ def plot_boxplots(by_pattern, machine, out_prefix, title_suffix, elbow):
     if len(footprints) == 1:
         axes = [axes]
 
-    cmap = cm.get_cmap("viridis", max(len(strides), 2))
+    cmap = matplotlib.colormaps["viridis"].resampled(max(len(strides), 2))
     for ax, fp in zip(axes, footprints):
         box_data, labels, colors = [], [], []
         for i, stride in enumerate(strides):
