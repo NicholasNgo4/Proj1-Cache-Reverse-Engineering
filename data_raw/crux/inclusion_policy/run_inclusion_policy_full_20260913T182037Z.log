@@ -1,0 +1,111 @@
+== run_inclusion_policy_full: machine=crux core=3 base_seed=12345 ==
+== assumed_line_size_bytes=64 (confirmed for Sunbird 2026-09-11; verify for other machines) ==
+== timestamp=20260913T182037Z ==
+
+== L1_vs_L2: target_bytes=32768 lower_level_bytes=262144 -> evict_bytes=16777216 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 56.284 ticks
+  invalidated-class (from data_processed/crux/latency/miss/L2_to_LLC/base_random_summary_20260913T061432Z.csv): 260.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_L2/inclusion_policy_base_random_20260913T182037Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_L2/base_random_summary_20260913T182037Z.csv
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_L2/inclusion_policy_base_sequential_20260913T182037Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_L2/base_sequential_summary_20260913T182037Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_random_20260913T182037Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_L2/rep1_random_summary_20260913T182037Z.csv
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_sequential_20260913T182037Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_L2/rep1_sequential_summary_20260913T182037Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_random_20260913T182037Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_L2/rep2_random_summary_20260913T182037Z.csv
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_sequential_20260913T182037Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_L2/rep2_sequential_summary_20260913T182037Z.csv
+Survived-class (upper-level hit) median:       56.28 ticks
+Invalidated-class (beyond-lower-level) median: 260.00 ticks
+Classification boundary (geometric mean):      120.97 ticks
+
+TARGET channel  (n=200): median=87.0 mean=89.5 ticks -- 195 survived-like (97.5%), 4 ambiguous, 1 invalidated-like (0.5%)
+CONTROL channel (n=200): median=65.0 mean=65.6 ticks -- 199 survived-like (99.5%), 1 ambiguous, 0 invalidated-like (0.0%)
+Paired check: target read slower than its own trial's control in 100.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L1_vs_L2 --
+  note: ('target', 'random') has 3 overlapping summary rows with medians [87.0, 71.0, 70.0] (spread 17.0 ticks, 22.4%) -- averaging, widening whiskers to the union
+Wrote data_processed/crux/inclusion_policy/L1_vs_L2/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_L2 --
+
+== L2_vs_LLC: target_bytes=262144 lower_level_bytes=8388608 -> evict_bytes=536870912 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 57.984 ticks
+  invalidated-class (from data_processed/crux/latency/miss/LLC_to_DRAM/base_random_summary_20260913T061432Z.csv): 437.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L2_vs_LLC/inclusion_policy_base_random_20260913T182037Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L2_vs_LLC/base_random_summary_20260913T182037Z.csv
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L2_vs_LLC/inclusion_policy_base_sequential_20260913T182037Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L2_vs_LLC/base_sequential_summary_20260913T182037Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_random_20260913T182037Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L2_vs_LLC/rep1_random_summary_20260913T182037Z.csv
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_sequential_20260913T182037Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L2_vs_LLC/rep1_sequential_summary_20260913T182037Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_random_20260913T182037Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L2_vs_LLC/rep2_random_summary_20260913T182037Z.csv
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_sequential_20260913T182037Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L2_vs_LLC/rep2_sequential_summary_20260913T182037Z.csv
+Survived-class (upper-level hit) median:       57.98 ticks
+Invalidated-class (beyond-lower-level) median: 437.00 ticks
+Classification boundary (geometric mean):      159.18 ticks
+
+TARGET channel  (n=200): median=131.0 mean=136.0 ticks -- 181 survived-like (90.5%), 14 ambiguous, 5 invalidated-like (2.5%)
+CONTROL channel (n=200): median=106.0 mean=106.5 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+Paired check: target read slower than its own trial's control in 98.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L2_vs_LLC --
+  note: ('target', 'sequential') has 3 overlapping summary rows with medians [111.0, 145.0, 113.0] (spread 34.0 ticks, 27.6%) -- averaging, widening whiskers to the union
+  note: ('control', 'sequential') has 3 overlapping summary rows with medians [101.0, 82.0, 123.0] (spread 41.0 ticks, 40.2%) -- averaging, widening whiskers to the union
+Wrote data_processed/crux/inclusion_policy/L2_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L2_vs_LLC --
+
+== L1_vs_LLC: target_bytes=32768 lower_level_bytes=8388608 -> evict_bytes=536870912 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 42.306 ticks
+  invalidated-class (from data_processed/crux/latency/miss/LLC_to_DRAM/base_random_summary_20260913T061432Z.csv): 437.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_LLC/inclusion_policy_base_random_20260913T182037Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_LLC/base_random_summary_20260913T182037Z.csv
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_LLC/inclusion_policy_base_sequential_20260913T182037Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_LLC/base_sequential_summary_20260913T182037Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_random_20260913T182037Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_LLC/rep1_random_summary_20260913T182037Z.csv
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_sequential_20260913T182037Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_LLC/rep1_sequential_summary_20260913T182037Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_random_20260913T182037Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_LLC/rep2_random_summary_20260913T182037Z.csv
+  wrote 402 lines -> data_raw/crux/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_sequential_20260913T182037Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/crux/inclusion_policy/L1_vs_LLC/rep2_sequential_summary_20260913T182037Z.csv
+Survived-class (upper-level hit) median:       42.31 ticks
+Invalidated-class (beyond-lower-level) median: 437.00 ticks
+Classification boundary (geometric mean):      135.97 ticks
+
+TARGET channel  (n=200): median=132.0 mean=135.1 ticks -- 0 survived-like (0.0%), 196 ambiguous, 4 invalidated-like (2.0%)
+CONTROL channel (n=200): median=103.0 mean=106.3 ticks -- 196 survived-like (98.0%), 0 ambiguous, 4 invalidated-like (2.0%)
+Paired check: target read slower than its own trial's control in 99.5% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: UNCERTAIN (mixed result -- do not claim a global policy from this alone)
+-- generating plots for L1_vs_LLC --
+  note: ('control', 'random') has 3 overlapping summary rows with medians [103.0, 83.0, 107.0] (spread 24.0 ticks, 24.6%) -- averaging, widening whiskers to the union
+  note: ('control', 'sequential') has 3 overlapping summary rows with medians [75.5, 83.0, 97.0] (spread 21.5 ticks, 25.2%) -- averaging, widening whiskers to the union
+Wrote data_processed/crux/inclusion_policy/L1_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_LLC --
+
+== done ==
+== L1_vs_L2: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== L2_vs_LLC: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== L1_vs_LLC: VERDICT: UNCERTAIN (mixed result -- do not claim a global policy from this alone) ==
+== record in data_raw/crux/README.md: core=3, base_seed=12345 (repeats use base_seed+index), trials=200, assumed_line_size_bytes=64, timestamp=20260913T182037Z ==
+== full transcript saved to: data_raw/crux/inclusion_policy/run_inclusion_policy_full_20260913T182037Z.log ==

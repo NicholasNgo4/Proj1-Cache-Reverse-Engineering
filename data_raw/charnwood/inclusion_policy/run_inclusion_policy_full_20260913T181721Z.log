@@ -1,0 +1,114 @@
+== run_inclusion_policy_full: machine=charnwood core=3 base_seed=12345 ==
+== assumed_line_size_bytes=64 (confirmed for Sunbird 2026-09-11; verify for other machines) ==
+== timestamp=20260913T181721Z ==
+
+== L1_vs_L2: target_bytes=32768 lower_level_bytes=262144 -> evict_bytes=16777216 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 118.304 ticks
+  invalidated-class (from data_processed/charnwood/latency/miss/L2_to_LLC/base_random_summary_20260913T061723Z.csv): 639.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_L2/inclusion_policy_base_random_20260913T181721Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_L2/base_random_summary_20260913T181721Z.csv
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_L2/inclusion_policy_base_sequential_20260913T181721Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_L2/base_sequential_summary_20260913T181721Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_random_20260913T181721Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_L2/rep1_random_summary_20260913T181721Z.csv
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_sequential_20260913T181721Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_L2/rep1_sequential_summary_20260913T181721Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_random_20260913T181721Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_L2/rep2_random_summary_20260913T181721Z.csv
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_sequential_20260913T181721Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_L2/rep2_sequential_summary_20260913T181721Z.csv
+Survived-class (upper-level hit) median:       118.30 ticks
+Invalidated-class (beyond-lower-level) median: 639.00 ticks
+Classification boundary (geometric mean):      274.95 ticks
+
+TARGET channel  (n=200): median=158.0 mean=187.7 ticks -- 172 survived-like (86.0%), 2 ambiguous, 26 invalidated-like (13.0%)
+CONTROL channel (n=200): median=140.0 mean=138.7 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+Paired check: target read slower than its own trial's control in 99.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L1_vs_L2 --
+  note: ('target', 'sequential') has 3 overlapping summary rows with medians [148.0, 181.0, 188.0] (spread 40.0 ticks, 23.2%) -- averaging, widening whiskers to the union
+  note: ('control', 'sequential') has 3 overlapping summary rows with medians [122.0, 158.0, 134.0] (spread 36.0 ticks, 26.1%) -- averaging, widening whiskers to the union
+Wrote data_processed/charnwood/inclusion_policy/L1_vs_L2/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_L2 --
+
+== L2_vs_LLC: target_bytes=262144 lower_level_bytes=8388608 -> evict_bytes=536870912 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 77.868 ticks
+  invalidated-class (from data_processed/charnwood/latency/miss/LLC_to_DRAM/base_random_summary_20260913T061723Z.csv): 818.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L2_vs_LLC/inclusion_policy_base_random_20260913T181721Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L2_vs_LLC/base_random_summary_20260913T181721Z.csv
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L2_vs_LLC/inclusion_policy_base_sequential_20260913T181721Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L2_vs_LLC/base_sequential_summary_20260913T181721Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_random_20260913T181721Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L2_vs_LLC/rep1_random_summary_20260913T181721Z.csv
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_sequential_20260913T181721Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L2_vs_LLC/rep1_sequential_summary_20260913T181721Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_random_20260913T181721Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L2_vs_LLC/rep2_random_summary_20260913T181721Z.csv
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_sequential_20260913T181721Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L2_vs_LLC/rep2_sequential_summary_20260913T181721Z.csv
+WARNING: control channel shows 54.0% invalidated-like trials, but control is never touched by the eviction walk by construction -- this suggests the avoidance construction is compromised on this machine/level (e.g. DTLB pressure from a large eviction footprint, or the upper level's index range exceeding one page -- see inclusion_policy.h's KNOWN LIMITATION). Treat the target verdict below as UNCERTAIN regardless of its own fraction.
+Survived-class (upper-level hit) median:       77.87 ticks
+Invalidated-class (beyond-lower-level) median: 818.00 ticks
+Classification boundary (geometric mean):      252.38 ticks
+
+TARGET channel  (n=200): median=346.0 mean=366.8 ticks -- 0 survived-like (0.0%), 0 ambiguous, 200 invalidated-like (100.0%)
+CONTROL channel (n=200): median=292.0 mean=306.1 ticks -- 0 survived-like (0.0%), 92 ambiguous, 108 invalidated-like (54.0%)
+Paired check: target read slower than its own trial's control in 98.5% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: UNCERTAIN (confound suspected -- see warning above)
+-- generating plots for L2_vs_LLC --
+  note: ('target', 'random') has 3 overlapping summary rows with medians [346.0, 326.0, 472.0] (spread 146.0 ticks, 38.3%) -- averaging, widening whiskers to the union
+  note: ('target', 'sequential') has 3 overlapping summary rows with medians [480.0, 372.0, 346.0] (spread 134.0 ticks, 33.6%) -- averaging, widening whiskers to the union
+  note: ('control', 'sequential') has 3 overlapping summary rows with medians [218.0, 318.0, 332.0] (spread 114.0 ticks, 39.4%) -- averaging, widening whiskers to the union
+Wrote data_processed/charnwood/inclusion_policy/L2_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L2_vs_LLC --
+
+== L1_vs_LLC: target_bytes=32768 lower_level_bytes=8388608 -> evict_bytes=536870912 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 74.604 ticks
+  invalidated-class (from data_processed/charnwood/latency/miss/LLC_to_DRAM/base_random_summary_20260913T061723Z.csv): 818.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_LLC/inclusion_policy_base_random_20260913T181721Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_LLC/base_random_summary_20260913T181721Z.csv
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_LLC/inclusion_policy_base_sequential_20260913T181721Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_LLC/base_sequential_summary_20260913T181721Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_random_20260913T181721Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_LLC/rep1_random_summary_20260913T181721Z.csv
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_sequential_20260913T181721Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_LLC/rep1_sequential_summary_20260913T181721Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_random_20260913T181721Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_LLC/rep2_random_summary_20260913T181721Z.csv
+  wrote 402 lines -> data_raw/charnwood/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_sequential_20260913T181721Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/charnwood/inclusion_policy/L1_vs_LLC/rep2_sequential_summary_20260913T181721Z.csv
+WARNING: control channel shows 40.0% invalidated-like trials, but control is never touched by the eviction walk by construction -- this suggests the avoidance construction is compromised on this machine/level (e.g. DTLB pressure from a large eviction footprint, or the upper level's index range exceeding one page -- see inclusion_policy.h's KNOWN LIMITATION). Treat the target verdict below as UNCERTAIN regardless of its own fraction.
+Survived-class (upper-level hit) median:       74.60 ticks
+Invalidated-class (beyond-lower-level) median: 818.00 ticks
+Classification boundary (geometric mean):      247.03 ticks
+
+TARGET channel  (n=200): median=408.0 mean=414.6 ticks -- 0 survived-like (0.0%), 1 ambiguous, 199 invalidated-like (99.5%)
+CONTROL channel (n=200): median=284.0 mean=287.7 ticks -- 4 survived-like (2.0%), 116 ambiguous, 80 invalidated-like (40.0%)
+Paired check: target read slower than its own trial's control in 99.5% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: UNCERTAIN (confound suspected -- see warning above)
+-- generating plots for L1_vs_LLC --
+  note: ('control', 'random') has 3 overlapping summary rows with medians [284.0, 282.0, 502.0] (spread 220.0 ticks, 61.8%) -- averaging, widening whiskers to the union
+Wrote data_processed/charnwood/inclusion_policy/L1_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_LLC --
+
+== done ==
+== L1_vs_L2: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== L2_vs_LLC: VERDICT: UNCERTAIN (confound suspected -- see warning above) ==
+== L1_vs_LLC: VERDICT: UNCERTAIN (confound suspected -- see warning above) ==
+== record in data_raw/charnwood/README.md: core=3, base_seed=12345 (repeats use base_seed+index), trials=200, assumed_line_size_bytes=64, timestamp=20260913T181721Z ==
+== full transcript saved to: data_raw/charnwood/inclusion_policy/run_inclusion_policy_full_20260913T181721Z.log ==
