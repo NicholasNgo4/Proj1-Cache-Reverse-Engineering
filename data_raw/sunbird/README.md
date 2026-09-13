@@ -645,10 +645,68 @@ the others; each has its own confidence level (see per-pairing Results below).
   - **Put together:** the pattern (non-inclusive at the L1-L2 hop, leaning-inclusive at the L1-LLC skip-level hop) is internally consistent with a design where the **LLC keeps a copy of everything cached anywhere below it** (acting like a cross-core inclusion/snoop-filter directory) while the **L2 itself behaves non-inclusively** — an LLC that's inclusive of L1 lines directly would explain the leaning-invalidated L1_vs_LLC result independent of whatever L2 does, which matches what was actually measured. This is the best-supported single story across all three pairings, not a proven policy — L2_vs_LLC's own ambiguity neither confirms nor contradicts it.
   - *Aside, explicitly NOT part of the Phase-I evidence above (Phase I discipline reserves documentation/counter validation for Phase II — see PROJECT 1.pdf and this repo's top-level README):* this non-inclusive-L2 / inclusive-LLC-snoop-filter pattern happens to match the publicly documented design of pre-Skylake-SP Intel Xeons, which is Sunbird's own generation (Haswell-EP, per `CAPACITY_RESULTS.md`'s machine table). Noted only as a plausibility sanity-check after the fact, not consulted while forming the inference above.
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename: 
-- Events collected + exact semantics on this CPU: 
-- Run command + arguments: 
+### pmu/ (Phase II — 2026-09-13)
+Phase I frozen/tagged (`phase1-timing-only`, at the commit this section was
+written against) before anything below was run, per `README.md`'s Phase
+Discipline. See `CLAUDE.md`'s "Phase II" subsection and
+`data_processed/sunbird/PHASE2_VALIDATION_TABLE.md` for the full
+methodology/results write-up and literature citation — this section is the
+raw-data/reproduction-detail record.
+
+- Source file(s): `scripts/run_pmu_verification.sh`, `scripts/summarize_pmu.py`
+  (both new this session; no `cache_bench` source changes — reuses the
+  existing `--experiment hit_latency` binary, wrapped in `perf stat`).
+- Machine-specific PMU check done before writing the pipeline:
+  `/proc/sys/kernel/nmi_watchdog` = 1 (reserves one generic counter); a
+  naive combined `perf stat -e cache-references,cache-misses,L1-dcache-loads,
+  L1-dcache-load-misses,cycles,instructions` only scheduled each event at
+  9-58%. A 3-hardware-event group (`cache-references,cache-misses,
+  L1-dcache-loads`) only reached 57-71%. Only 2-hardware-event groups (each
+  paired with the software `duration_time` event, which doesn't consume a
+  counter) reliably scheduled at 100% — confirmed for all 4 groups the
+  script uses. `LLC-loads`/`LLC-load-misses` specifically also come back
+  `<not counted>` when bundled with other events but schedule fine (100%)
+  requested alone — this is why the script splits into 4 separate `perf
+  stat` invocations instead of one combined command.
+- Run command: `./scripts/run_pmu_verification.sh sunbird 1
+  L1:32768,L2:262144,LLC:31457280` (core 1 — cores 0/1/2, this session's
+  only cpuset-allowed cores, checked via `/proc/stat` idle-time deltas
+  across two 3s-apart samples immediately before running: all ~95-98% idle;
+  core 1 chosen for consistency with prior Sunbird re-verification runs).
+  base_seed=12345 (repeats use base_seed+index), samples=1,000,000/run,
+  batch_size=1000, warmup_passes=3, dependent load mode, random pattern
+  (matching the existing `hit_latency` convention), timestamp
+  `20260913T193142Z`.
+- Raw output: `data_raw/sunbird/pmu/{L1,L2,LLC}/*_perfstat_*.csv.gz` (perf
+  stat's own `-x,` CSV output, one file per group×run_tag) and
+  `*_bench_*.csv.gz` (cache_bench's own CSV from the same invocation, for
+  direct side-by-side comparison against the perf-derived numbers).
+  Transcript: `data_raw/sunbird/pmu/run_pmu_verification_20260913T193142Z.log`.
+- Processed: `data_processed/sunbird/pmu/{L1,L2,LLC}/pmu_summary_20260913T193142Z.csv`
+  (one row per run_tag + a median-of-3 row; columns include miss rates for
+  cache-references/L1-dcache/LLC, cycles/access, IPC, and perf's own
+  wall-clock ns/access — see `scripts/summarize_pmu.py`'s docstring for the
+  exact parsing/derivation and its caveats).
+- System-reported cache info (also Phase II, same run):
+  `data_raw/sunbird/pmu/system_reported_cache_info.txt` — `lscpu --caches`,
+  full `lscpu`, and per-instance `/sys/devices/system/cpu/cpu0/cache/index*/`
+  fields, collected 2026-09-13T19:28:20Z.
+- Headline results (full detail and caveats:
+  `data_processed/sunbird/PHASE2_VALIDATION_TABLE.md`): size/ways/sets/line
+  match exactly across Phase I timing, this system-report, AND Agner Fog's
+  literature table at L1D and L2 (notably, system-reported L2 associativity
+  independently confirms Phase I's confound-blocked 8-way best guess); LLC
+  size matches Phase I's ~30 MiB estimate to the exact byte
+  (31,457,280 B); **LLC associativity disagrees — Phase I's confound-caveated
+  best guess was 9-way, system-reported is 20-way**, read as confirmation
+  that Phase I's repeated "~9-10" wall really was the shared small-structure
+  (DTLB-scale) confound, not real LLC associativity. Miss-rate PMU evidence
+  (the reliable Phase-II corroboration signal — see the validation table's
+  caveat section for why raw cycles/ns numbers from this pipeline are only
+  an order-of-magnitude cross-check, not a clean per-access latency)
+  reproduces Phase I's own L1/L2/LLC boundary placement: LLC-scope miss
+  rate jumps from ~0.1-1.4% at the L1/L2 footprints to ~11-14% exactly at
+  the LLC footprint.
 
 ## Final Inferred Cache Table (Sunbird, Phase I best guess, 2026-09-13)
 

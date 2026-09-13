@@ -1363,9 +1363,119 @@ Line size: `--experiment line_size` exists (added by @krchen1, commit
 run_line_size_sweep.sh,detect_line_size.py,plot_line_size.py}` pipeline;
 check that machine's own `data_raw/<machine>/README.md` and recent git log
 (not this paragraph) for its actual current per-machine data-collection
-status, since this file lags active work in progress. PMU verification
-(Phase II) and Hazel (Phase III) have not started; Phase I must be
-frozen/tagged first per `README.md`.
+status, since this file lags active work in progress.
+
+**Phase II (counter- and literature-based verification): started
+2026-09-13, tag `phase1-timing-only` created and pushed at that point
+(check `git tag -l`/`git ls-remote --tags origin` before assuming it's
+still the tip of `main` — every machine's Phase I work up to that commit is
+what's frozen), Sunbird fully done, other 7 machines outstanding.** Per
+`README.md`'s Phase Discipline, this is the first point at which `perf`,
+PMU, and cache-topology commands (`lscpu` — including full/`--caches`, not
+just the Phase-I whitelist subset — and `/sys/devices/system/cpu/cpu*/cache/`)
+became allowed, and this session used exactly the pipeline below to close
+out Sunbird; the same pipeline should be run once per remaining machine as
+sessions get shell access there.
+
+- **New pipeline**: `scripts/run_pmu_verification.sh <machine> <core>
+  <level>:<footprint_bytes>[,...]` (mirrors `run_hit_latency_full.sh`'s
+  conventions: same `CAPACITY_RESULTS.md`-sourced footprints, base+2-seeded-
+  repeats, timestamped raw output) + `scripts/summarize_pmu.py`. For each
+  level, it wraps the existing `cache_bench --experiment hit_latency`
+  invocation in 4 SEPARATE `perf stat -e duration_time,<2 events>,...`
+  calls — `{cache-references,cache-misses}`, `{L1-dcache-loads,
+  L1-dcache-load-misses}`, `{LLC-loads,LLC-load-misses}`,
+  `{cycles,instructions}` — rather than one combined command. **Why 4
+  separate 2-event groups**: hand-checked on Sunbird before writing the
+  script — this PMU only reliably schedules 2 generic hardware counters at
+  100%; a 3-event group only got 57-71% scheduled (`nmi_watchdog=1` pins one
+  counter). If a future machine schedules fewer than 2 at 100% (heavier PMU
+  contention from other students), that's a real, honestly-documented
+  limitation to record, not a bug to work around by fabricating numbers.
+  Raw perf CSVs + cache_bench's own CSV from the same invocation land in
+  `data_raw/<machine>/pmu/<level>/` (gzip these by hand after a manual/ad hoc
+  run — `.gitignore`'s `data_raw/**/*.csv` rule applies here too, same as
+  every other experiment); parsed summaries (miss rates, cycles/access,
+  perf's own wall-clock ns/access) in
+  `data_processed/<machine>/pmu/<level>/pmu_summary_<ts>.csv`.
+- **System-reported cache info**: now-allowed, no new code — `lscpu --caches`
+  and full `lscpu`, plus per-instance `/sys/devices/system/cpu/cpu0/cache/
+  index*/{level,type,size,ways_of_associativity,coherency_line_size,
+  number_of_sets,shared_cpu_list}`, saved to
+  `data_raw/<machine>/pmu/system_reported_cache_info.txt`. `shared_cpu_list`
+  directly answers Table 2's "Sharing scope" column (which Phase I could
+  only ever guess at architecturally) — check it per machine, don't assume
+  Sunbird's own private-per-core-L1/L2 + shared-per-socket-L3 pattern holds
+  everywhere.
+- **Literature reference**: Agner Fog's *microarchitecture* manual
+  (`www.agner.org/optimize/microarchitecture.pdf`) for the 6 machines it
+  covers (Sunbird/Haswell, Charnwood/Skylake, Crux+Ookay+Upgrade/
+  Skylake-family, Skylark/Zen2) — find the right microarchitecture section
+  by grepping a converted-to-text copy for the microarch name (Fog organizes
+  by numbered chapter per microarchitecture, cache info is usually its own
+  numbered subsection with a "Cache sizes on ..." table). For Artemisia
+  (Sapphire Rapids) and Thunderbird (ARM Neoverse N1) — not covered by Fog —
+  use vendor docs (Intel optimization manual/datasheet; ARM's Neoverse N1
+  Technical Reference Manual) supplemented by WikiChip/Chips and Cheese
+  where a specific field isn't published, each cited with exact
+  section/page or URL (per explicit project direction, not assumed).
+- **Deliverable**: a NEW `data_processed/<machine>/PHASE2_VALIDATION_TABLE.md`
+  per machine (separate file from `FINAL_CACHE_TABLE.md`, never edits it) —
+  `PROJECT 1.pdf`'s Table 2 columns (Level | Measured size | Measured ways |
+  Derived sets | Line | Measured latency | Sharing scope | Reference value |
+  Agreement) for L1D/L2/LLC, with every cell distinguishing Phase-I-timing
+  vs. Phase-II-PMU vs. Phase-II-system-reported vs. literature before
+  landing on an Agreement verdict. Disagreements get stated plainly, not
+  smoothed over.
+- **Sunbird results (full detail:
+  `data_processed/sunbird/PHASE2_VALIDATION_TABLE.md`)**:
+  - **Size/ways/sets/line/sharing-scope: exact match across Phase I timing,
+    Phase II system-report, AND literature at L1D and L2** — most
+    strikingly, the system-reported L2 associativity (8-way, from
+    `lscpu`/sysfs) independently confirms Phase I's confound-blocked L2
+    best guess, which Phase I itself could never fully trust.
+  - **LLC size: Phase I's ~30 MiB estimate matches the system-reported
+    30,720 KiB (31,457,280 B) exactly, byte for byte** — remarkable given
+    Phase I derived it purely from timing.
+  - **LLC associativity: a real, informative disagreement.** Phase I's
+    best guess was 9-way (explicitly flagged as a low-confidence "effective
+    lower bound", blocked by the cross-machine DTLB-scale confound
+    documented extensively in the associativity section above).
+    System-reported: **20-way.** This directly confirms — not just
+    suspects — that Phase I's repeatedly-observed "~9-10" wall really was
+    the shared small-structure confound artifact, not real LLC
+    associativity; also, only 20-way (not 9-way) gives a clean integer
+    derived-set count (24,576 vs. a non-integer 54,613), additional
+    post-hoc evidence 9-way was wrong. Also notable: Fog's Table 10.2
+    quotes a 12-16-way *range* for the Haswell/Broadwell family in general,
+    and this SKU's actual 20-way falls outside even that range — a
+    concrete, textbook case of `PROJECT 1.pdf`'s own warning not to assume
+    one value applies to every SKU in a generation.
+  - **Latency: measured (Phase I ticks AND Phase II perf-derived
+    cycles/access) reads consistently higher than Fog's reference cycle
+    counts at all 3 levels** (ratio roughly 1.7-2.6x, most pronounced at
+    L1/L2) — attributed to this project's `-O0` compiled dependent-chase
+    loop (stack spill/reload of the chase pointer sits in the true
+    dependency chain every iteration), not a contradiction; see the
+    table's own caveat section for the full reasoning, including why the
+    Phase-II PMU "cycles/access"/"ns/access" numbers are themselves only
+    trustworthy as an order-of-magnitude cross-check (they're whole-
+    process-lifetime figures divided by only the timed samples, heavily
+    diluted by untimed warmup/setup at small footprints and NOT usable as
+    an absolute number at the LLC footprint) — miss-rate ratios (which
+    cancel most of that contamination) are the reliable Phase-II PMU
+    corroboration signal, and they cleanly reproduce Phase I's own L1/L2/LLC
+    boundary placement (an order-of-magnitude jump in LLC-scope miss rate,
+    ~0.1-1.4% to ~11-14%, lands exactly at the LLC footprint).
+  - This machine's PMU only reliably schedules 2 generic hardware counters
+    at once (see pipeline note above) — a real, machine-specific
+    limitation worth re-checking (not assuming) on each of the other 7.
+  - **Not yet done on any other machine.** Next machine picked up should
+    read this Sunbird writeup + `data_processed/sunbird/PHASE2_VALIDATION_TABLE.md`
+    first, then run the same pipeline with that machine's own
+    `CAPACITY_RESULTS.md` footprints and CPU/microarch (from
+    `MACHINE_RESEARCH.md`/`CAPACITY_RESULTS.md`'s machine table) before
+    picking a literature source.
 
 ## Known constraints from prior sessions
 
