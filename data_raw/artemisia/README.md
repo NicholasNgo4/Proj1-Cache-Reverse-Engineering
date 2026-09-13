@@ -231,11 +231,351 @@ Phase I reporting purposes given the region is already correctly characterized
 as "one continuous ramp, not discrete steps" regardless of this residual noise.
 
 ### line_size/
-- Source file(s):
-- Build command:
-- Run command + arguments:
-- Sample count:
-- Notes on alignment/candidate strides tested:
+- Source file(s): `main_code/common/{main.c,line_size.c,line_size.h,random.c,random.h}`,
+  `scripts/{cache_bench.c,pointer_chase.h,timer_x86.h,run_line_size.sh,
+  plot_line_size_family.py,plot_line_size.py,detect_line_size.py,summarize_raw.py}`
+- Build command: `make` (from repo root)
+- Run command + arguments (**2026-09-12, first pass — Method A steps 1-3 + full Method B,
+  no step-4 candidates yet**): `./scripts/run_line_size.sh artemisia 20
+  49152,2097152,94371840` (boundaries = this machine's own established L1/L2/L3-onset
+  capacity boundaries, see `CAPACITY_RESULTS.md` and the capacity/ section above; core 20
+  reused deliberately — the same core independently re-verified idle via a fresh 3-window
+  `/proc/stat` sample immediately before this run, no other `cache_bench` process running).
+  Default coarse strides 8/16/32/64/128/256B, samples=1,000,000, batch=1000, seed=12345,
+  align-bytes=4096, points-per-octave=6. Run inside a detached `tmux` session
+  (`artemisia_line_size`) per this project's convention for long runs. Timestamp
+  `20260912T213325Z`; full transcript
+  `data_raw/artemisia/line_size/run_line_size_20260912T213325Z.log`.
+- Sample count: 1,000,000 timed accesses per (stride, footprint, pattern) point; 2 warm-up
+  passes (Method A) / 3 (Method B) excluded from that count.
+- Notes on alignment/candidate strides tested: Method A step 4 (bracket + 0-56B offset
+  refinement) was **not yet run** — no `candidate_overrides_csv` was supplied on this pass,
+  per the script's own design (no auto-detection; a human must inspect
+  `line_size_family_curve.png` first). Findings from steps 1-3 + Method B, by level:
+  - **L1 (boundary=49,152B, window=[6144,196608]): clean, confident 64B.** Both methods
+    agree. Method A's auto-pick: per-stride elbow footprints (bytes) `{8B: 110336, 16B:
+    110336, 32B: 87552, 64B: 55168, 128B: 55168, 256B: 55040}` -> smallest stride agreeing
+    with the largest-stride (256B) reference is **64B**. Visual inspection of
+    `data_processed/artemisia/line_size/level_49152/plots/line_size_family_curve.png`
+    strongly corroborates this independent of the numeric picker: the 64/128/256B curves
+    are visually indistinguishable, rising in lockstep to a shared ~16 ticks/access
+    plateau at the same footprint (~2^15.85 B), while 8/16/32B stay measurably lower and
+    ramp up more gradually (32B partially, 8/16B most) — exactly the signature the method
+    predicts for strides at/above vs. below the true line size. Method B (single-curve,
+    footprint=98,304B) independently auto-detected **64B** from ramp-saturation with no
+    manual intervention. **Two independently-designed methods agreeing = frozen Phase I
+    result for this level.**
+  - **L2 (boundary=2,097,152B, window=[262144,8388608]): visual evidence also points to
+    64B, but the numeric auto-pick is NOT trustworthy here — read before citing.**
+    Per-stride elbow footprints: `{8B: 4707944, 16B: 4707936, 32B: 3736672, 64B: 3328960,
+    128B: 3328896, 256B: 3328768}` -> the auto-picker's smallest-agreeing-stride answer is
+    **32B** (ratio to the 256B reference = 1.122, just inside the 1.2 `separation_ratio`
+    threshold) — but this is exactly the "coincidental near-boundary agreement" failure
+    mode the script's own docstring warns about, not a real signal: visually, in
+    `data_processed/artemisia/line_size/level_2097152/plots/line_size_family_curve.png`,
+    the 64/128/256B curves track closely together throughout (plateauing ~65-73
+    ticks/access from ~2^21.5B), while 32B sits measurably and consistently below them and
+    8/16B sit lowest — the same qualitative pattern as L1, with 64B (not 32B) as the
+    better-supported line-size candidate. Method B found **no transition** in its coarse
+    sweep (footprint=4,194,304B = 2x boundary) — flagged 4 likely page-aliasing spike
+    strides (128/256/512/1024B) but no clean saturation elbow, so no B-method corroboration
+    at this level yet.
+  - **L3-onset window (boundary=94,371,840B [90 MiB], window=[11796480,268435456]):
+    inconclusive/noisy — expected, not a real anomaly.** Per-stride elbow footprints:
+    `{8B: 94371840, 16B: 118901056, 32B: 94371840, 64B: 118901056, 128B: 118900992, 256B:
+    133461760}` — non-monotonic in stride (8B and 32B match each other; 16/64/128B match
+    each other; 256B separate again), and the auto-picker's "16B" answer has no visual
+    support: in
+    `data_processed/artemisia/line_size/level_94371840/plots/line_size_family_curve.png`
+    the six stride curves cross and re-order repeatedly across the whole window with no
+    clean convergence signature at any stride threshold (32B actually leads for most of
+    the range, the opposite of the expected ordering). This is consistent with — not
+    contradicting — this machine's own capacity finding
+    (`CAPACITY_RESULTS.md` / capacity/ section above) that ~48-55 KiB through ~90 MiB is
+    **one continuous ramp with no discrete plateau**, and 90 MiB is only the *onset* of the
+    sequential-pattern plateau, not a clean, already-established cache-level edge the way
+    L1/L2 boundaries are — the family-of-curves method's core premise (comparing where
+    curves saturate against a real capacity plateau) doesn't cleanly apply to a window that
+    isn't itself at a real boundary. Method B likewise found no transition. Not pursued
+    further this pass; a step-4 run here would need a better-established LLC/DRAM boundary
+    first (this machine doesn't have one — see the open items in capacity/ above).
+  - **Recommended next step (not yet run):** re-run with
+    `candidate_overrides_csv=64,64,` (L1 and L2 at 64B, L3-onset skipped) to get Method A's
+    step-4 bracket (56/64/72B at 8B granularity) + 0-56B offset-invariance check, which
+    would let the two already-agreeing L1 signals plus L2's visual-but-unconfirmed 64B
+    candidate be checked against alignment sensitivity before either is cited as fully
+    confirmed.
+
+- Run command + arguments (**2026-09-12, second pass — independent full re-run, same
+  boundaries/core/seed, no step-4 candidates yet — a reproducibility check, not a step-4
+  refinement**): same command, `./scripts/run_line_size.sh artemisia 20
+  49152,2097152,94371840`, re-launched from a fresh detached `tmux` session
+  (`artemisia_line_size_rerun`) ~20 minutes after the first pass. Core 20 re-verified idle
+  again beforehand (3-window `/proc/stat` sample: cpu20 busy 4.8/5.2/0.5%, sibling cpu76
+  busy 0.0/4.8/11.8% — light shared-machine background jitter, not a competing benchmark;
+  no other `cache_bench` process running). Timestamp `20260912T215134Z`; full transcript
+  `data_raw/artemisia/line_size/run_line_size_20260912T215134Z.log`.
+  - **L1: reproduced exactly.** Per-stride elbow footprints came back byte-for-byte
+    identical to the first pass: `{8B: 110336, 16B: 110336, 32B: 87552, 64B: 55168, 128B:
+    55168, 256B: 55040}` -> same 64B auto-pick, and Method B independently re-detected 64B
+    again too. Visual inspection of the re-generated
+    `line_size_family_curve.png` shows the same 64/128/256B lockstep-to-plateau signature
+    (some below-64B curve *shape* wobble between the two runs — e.g. 16B tracks closer to
+    32B this time than it did in the first pass — but the ≥64B cluster and its elbow
+    location are unchanged). **This is now a twice-reproduced, two-method-agreeing result —
+    the strongest-evidenced number in this machine's whole line-size dataset.**
+  - **L2: also reproduced exactly, still short one corroborating method.** Elbow footprints
+    identical to the first pass: `{8B: 4707944, 16B: 4707936, 32B: 3736672, 64B: 3328960,
+    128B: 3328896, 256B: 3328768}` -> auto-pick still lands on 32B (same
+    known near-threshold-agreement caveat as before — not trusted at face value), and the
+    64/128/256B-track-together-while-32B-sits-below visual pattern reproduced too. Method B
+    again found no transition. Reproducibility strengthens confidence that 64B is the real
+    L2 answer (not run-to-run noise), but it's still a visual read, not a second
+    independently-designed method's confirmation the way L1 has.
+  - **L3-onset window: did NOT reproduce — and that instability is itself the useful
+    result.** Elbow footprints came back substantially different from the first pass at
+    3 of 6 strides: `{8B: 168151496 (was 94371840), 16B: 118901056 (unchanged), 32B:
+    105928800 (was 94371840), 64B: 74902976 (was 118901056), 128B: 133461888 (~unchanged),
+    256B: 133461760 (unchanged)}`. Auto-pick coincidentally landed on 16B again, but via a
+    different, equally-unreliable path. This run-to-run instability in exactly the window
+    this machine's own capacity data already flags as "one continuous ramp, no discrete
+    plateau" (see capacity/ section above) is corroborating evidence, not a new problem: a
+    genuine cache-level boundary's elbow should reproduce the way L1's and L2's did, and
+    this window's failure to do so is consistent with there being no real boundary here for
+    the family-of-curves method to lock onto.
+  - Both runs' step-5 summary lines list method A as "none" at every level in their printed
+    table — this is expected, not a discrepancy: `LEVEL_ESTIMATES_A` is only populated when
+    a step-4 candidate override is supplied (see script header), so with no overrides given
+    on either pass it always records "none" there regardless of the diagnostic elbow
+    estimate printed earlier in the log. The diagnostic estimate (64B/32B/16B per level,
+    discussed above) is what should actually be cited pending a step-4 run, not that
+    summary line.
+  - **Updated recommended next step:** the L1 vs. L2/L3 reproducibility contrast makes L1's
+    64B step-4 refinement the highest-value next run (already two-method-confirmed and now
+    twice-reproduced — step 4's offset check is the last remaining box to check before
+    calling it fully frozen); L2 at 64B remains worth a step-4 run too now that it's shown
+    to be reproducible, just not yet on L1's footing; L3-onset is not worth a step-4 run
+    until this machine has an actual confirmed LLC/DRAM boundary to test at instead of this
+    ramp's onset.
+
+- Run command + arguments (**2026-09-12, third pass — L3 only, alternate candidate boundary
+  = the ~30 MiB transition-onset value from `CAPACITY_RESULTS.md`'s L3 row, i.e. the
+  earlier/looser onset rather than the ~90 MiB confirmed-sequential-plateau onset used
+  above**): `./scripts/run_line_size.sh artemisia 20 31457280` (31,457,280 B = exactly
+  30 MiB; single-boundary invocation, L1/L2 not re-run). Core 20 re-verified idle beforehand
+  (3-window `/proc/stat` sample: cpu20 busy 1.8/2.5/1.2%, sibling cpu76 busy 2.3/1.5/0.2%).
+  Detached `tmux` session `artemisia_line_size_l3_30mib`. Timestamp `20260912T220658Z`;
+  full transcript `data_raw/artemisia/line_size/run_line_size_20260912T220658Z.log`. Window
+  = [3932160, 125829120] bytes (boundary/8 to boundary*4).
+  - **Still no clean signal — same conclusion as the ~90 MiB onset, now confirmed at a
+    second candidate boundary in the same broad transition.** Per-stride elbow footprints:
+    `{8B: 88974624, 16B: 88974624, 32B: 79267360, 64B: 99870592, 128B: 88974592, 256B:
+    112100864}` — non-monotonic in stride with no large-stride cluster (128B's elbow sits
+    *below* 64B's and close to 8B/16B's, the opposite of the expected ordering). The
+    auto-picker's "64B" answer is an artifact of 64B being the *only* stride whose elbow
+    happened to fall within the 1.2x threshold of the 256B reference, not a real
+    convergence — visually, in
+    `data_processed/artemisia/line_size/level_31457280/plots/line_size_family_curve.png`,
+    all six curves interleave and cross throughout the window, and at the right edge
+    16B (highest) and 8B (second-highest) sit *above* every larger stride, essentially
+    inverted from the line-size signature's prediction. Method B again found no transition
+    (footprint=62,914,560B = 2x boundary). This is consistent with — and reinforces —
+    Artemisia's own capacity finding that ~30 MiB is merely this ramp's transition onset,
+    not a real plateau edge (`CAPACITY_RESULTS.md`'s Artemisia L3 row: "Transition onset
+    (one continuous ramp)"); the family-of-curves method needs a genuine capacity plateau to
+    anchor against, and neither of the two candidate boundaries tried in this broad
+    ~48 KiB–90 MiB span (30 MiB here, 90 MiB above) provides one. **No further line-size
+    attempts are worth making in this span** until/unless a real intermediate plateau is
+    found in the capacity data (currently none is — see capacity/ section above); the next
+    useful boundary to try would be a confirmed LLC/DRAM edge above ~90 MiB, once one
+    exists.
+
+- Run command + arguments (**2026-09-12, fourth pass — L1 + L3(30 MiB) only, L2 skipped**):
+  `./scripts/run_line_size.sh artemisia 20 49152,31457280`. Core 20 re-verified idle
+  beforehand (3-window `/proc/stat` sample: cpu20 busy 0.2/0.0/0.2%, sibling cpu76 busy
+  0.7/0.3/0.7% — as quiet as any run this session). Detached `tmux` session
+  `artemisia_line_size_l1_l3_rerun`. Timestamp `20260912T223233Z`; full transcript
+  `data_raw/artemisia/line_size/run_line_size_20260912T223233Z.log`.
+  - **L1: Method A reproduced exactly a third time** — identical elbow footprints
+    `{8B: 110336, 16B: 110336, 32B: 87552, 64B: 55168, 128B: 55168, 256B: 55040}`, same 64B
+    answer, three runs running. **Method B this time reported "none" — but this looks like
+    detector fragility, not a real change**, and is worth flagging for anyone touching
+    `detect_line_size.py` later: the re-generated
+    `data_processed/artemisia/line_size/level_49152/plots/line_size_curve.png` shows the
+    *same* clean rise-then-flat-saturation shape at ~stride 200B as the two prior runs that
+    successfully auto-detected 64B (visually indistinguishable from them), so the input
+    curve's own shape didn't meaningfully change — `find_saturation`'s `confirm`/
+    `flat_tolerance` logic apparently sits right at an edge case that flips pass/fail
+    between otherwise-near-identical runs. Since Method A independently reproduced 3/3 and
+    Method B still agreed 2/3, this doesn't weaken the 64B conclusion, but it does mean
+    "Method B says none" should not, on its own, be read as contradicting evidence without
+    checking the actual curve plot first.
+  - **L3(30 MiB): still no clean signal, still doesn't reproduce run-to-run — third
+    independent confirmation that this boundary carries no real line-size-detectable
+    edge.** Elbow footprints yet again different from both prior 30 MiB attempts:
+    `{8B: 99870632, 16B: 70619200, 32B: 79267360, 64B: 79267328, 128B: 99870592, 256B:
+    88974592}`. Auto-pick landed on 8B this time (vs. 64B on the prior 30 MiB pass) — a
+    third distinct "winning" stride across three tries at nominally the same measurement,
+    which is itself strong evidence the picker is just latching onto whichever stride's
+    noise happens to land closest to the reference each time, not a real signal. Visually,
+    `data_processed/artemisia/line_size/level_31457280/plots/line_size_family_curve.png`
+    again shows all six curves interleaving with no clean large-stride cluster. Method B
+    again found no transition. **Conclusion unchanged and now well-supported: this span
+    (30-90 MiB) has no capacity plateau for the family-of-curves method to anchor on, and
+    no further reruns here are likely to add new information** — see the recommended next
+    step in the third-pass entry above (a confirmed boundary above ~90 MiB is needed
+    instead).
+
+- Run command + arguments (**2026-09-12, fifth pass — L3(30 MiB) only, 4th independent
+  attempt at this boundary, user-requested rerun**): `./scripts/run_line_size.sh artemisia
+  17 31457280`. **Core switched from 20 to 17** (logical CPUs 17/73) — core 20 was found
+  mid-`updatedb`/`locate` cron-job bursts (0-50% busy across a 4-window sample, `ps`
+  confirmed `locate` at ~29% on cpu20), the same transient-cron interference pattern
+  documented on other machines in this project; core 17/73 sampled clean (<5% busy) across
+  4 independent 5s windows and was used instead. Timestamp `20260912T225025Z`; full
+  transcript `data_raw/artemisia/line_size/run_line_size_20260912T225025Z.log`.
+  - **4th distinct non-reproducing elbow set, same conclusion.** `{8B: 88974624, 16B:
+    79267376, 32B: 62914560, 64B: 79267328, 128B: 79267328, 256B: 99870464}` — auto-pick
+    8B again (matching the 3rd pass's pick, but at different absolute byte values, so not a
+    real repeat), Method B again "none". Plot again shows full interleaving with 16B/8B near
+    the top at the right edge rather than clustering with the larger strides. Four
+    independent attempts (3 on core 20, 1 on core 17 — ruling out a core-specific artifact
+    too) now agree on one thing only: **no reproducible line-size signal exists at this
+    boundary.** Treating this as settled; no further reruns planned here absent a new,
+    confirmed capacity boundary to target instead.
+
+- Run command + arguments (**2026-09-12, sixth pass — L3(30 MiB), 5th independent attempt,
+  user-requested rerun**): `./scripts/run_line_size.sh artemisia 3 31457280`. Core switched
+  again, to 3 (logical CPUs 3/59) — a 4-window `/proc/stat` sample found core 17 (used last
+  pass) had since picked up a load spike (85.8% busy in the last window) and core 20 also
+  showed intermittent load; core 3/59 sampled clean (≤3.2%/2.2%) across all 4 windows and
+  was used instead — the third distinct physical core used across these 5 attempts.
+  Timestamp `20260912T225820Z`; transcript
+  `data_raw/artemisia/line_size/run_line_size_20260912T225820Z.log`.
+  - **5th distinct, still-non-reproducing elbow set** — `{8B: 99870632, 16B: 88974624, 32B:
+    44487296, 64B: 88974592, 128B: 99870592, 256B: 79267328}`, auto-pick 16B (a 4th
+    different "winning" stride across 5 tries: 64B, 8B, 8B, 16B). Method B again "none".
+    **This run's underlying data is also the noisiest of the five** — the family-curve plot
+    shows spikes past 400 ticks/access (vs. ~250-290 ticks max on the prior four attempts),
+    despite core 3/59 having sampled clean immediately beforehand — consistent with this
+    machine's own documented session-level-noise phenomenon (capacity/ section's Anomaly 2:
+    slow, multi-hour-scale background contention drift that a short point-in-time
+    `/proc/stat` sample can miss entirely). Doesn't change the conclusion — a noisier run
+    still shows no large-stride convergence, it's just noisier on top of already having no
+    signal — but is worth flagging as a data-quality note if anyone revisits this run
+    specifically. **Five attempts across three physical cores (20, 17, 3) now agree: no
+    reproducible line-size signal at 30 MiB.** Continuing to treat this as settled.
+
+- Run command + arguments (**2026-09-13, seventh pass — L3(30 MiB), 6th independent
+  attempt, user-requested rerun**): `./scripts/run_line_size.sh artemisia 0 31457280`, core 0
+  (logical CPUs 0/56, a 4th distinct physical core, sampled clean beforehand). Timestamp
+  `20260913T134827Z`. **7th distinct elbow set, same null result:** `{8B: 99870632, 16B:
+  70619200, 32B: 79267360, 64B: 99870592, 128B: 99870592, 256B: 88974592}`, auto-pick 8B,
+  Method B "none".
+- Run command + arguments (**2026-09-13, eighth pass — L3(30 MiB), 7th independent
+  attempt, user-requested rerun**): `./scripts/run_line_size.sh artemisia 9 31457280`, core 9
+  (logical CPUs 9/65, a 5th distinct physical core, sampled clean beforehand). Timestamp
+  `20260913T135516Z`. **8th distinct elbow set, same null result:** `{8B: 99870632, 16B:
+  88974624, 32B: 70619200, 64B: 99870592, 128B: 79267328, 256B: 99870464}`, auto-pick 8B,
+  Method B "none". **Seven independent attempts now, across five physical cores (20, 17, 3,
+  0, 9) and two session days: the null result at 30 MiB is thoroughly exhausted.** Recommend
+  treating this as final; further reruns at this specific boundary are not expected to add
+  information (see the "next useful boundary" note earlier in this section).
+
+- Run command + arguments (**2026-09-13, ninth pass — L3(30 MiB), 8th independent
+  attempt, user-requested rerun**): `./scripts/run_line_size.sh artemisia 1 31457280`, core 1
+  (logical CPUs 1/57, a 6th distinct physical core, sampled clean beforehand). Timestamp
+  `20260913T142742Z`. **9th distinct elbow set, same null result:** `{8B: 79267376, 16B:
+  79267376, 32B: 79267360, 64B: 112100992, 128B: 99870592, 256B: 79267328}`, auto-pick 8B,
+  Method B "none". Plot:
+  `data_processed/artemisia/line_size/level_31457280/plots/line_size_family_curve.png`.
+
+- Run command + arguments (**2026-09-13, tenth pass — first formal Method-A step-4 run
+  for L1 and L2 (candidate=64B each), plus a 10th independent L3(30 MiB) family-of-curves
+  attempt, all in one invocation**): `./scripts/run_line_size.sh artemisia 0
+  49152,2097152,31457280 8,16,32,64,128,256 64,64,` (L3's override field left blank —
+  steps 1-3 + Method B only there, no step 4, per the established no-signal finding). Core 0
+  (logical CPUs 0/56), sampled clean beforehand. Timestamp `20260913T143931Z`; transcript
+  `data_raw/artemisia/line_size/run_line_size_20260913T143931Z.log`.
+  - **L1: step 4 confirms 64B cleanly — this is now the script's own formally "frozen"
+    number, not just a diagnostic.** Steps 1-3 reproduced the by-now-familiar exact elbow
+    set (`{8B: 110336, 16B: 110336, 32B: 87552, 64B: 55168, 128B: 55168, 256B: 55040}`).
+    Step 4's bracket (40/48/56/64/72/80/88B) × 8 offsets (0-56B) plot —
+    `data_processed/artemisia/line_size/level_49152/plots/line_size_offset_elbow.png` —
+    shows a clean, symmetric V bottoming out at **exactly 64B for every one of the 8 tested
+    offsets**, all landing on the same point with no visible spread. This is the offset-
+    invariance signature step 4 exists to check, and it's about as clean as this method can
+    produce. Method B reconfirmed 64B too. Step 5's formal summary (populated for the first
+    time, since a candidate was supplied): `method A (family of curves) = 64B, method B
+    (single curve) = 64B`. **L1 = 64B: two methods, offset-invariance-confirmed, multiply
+    reproduced — as settled as anything in this dataset.**
+  - **L2: step 4 also lands on 64B, but the offset-invariance picture is much messier than
+    L1's — read the plot before citing this as equally solid.** Steps 1-3's elbow set
+    this time was `{8B: 4707944, 16B: 4707936, 32B: 4194304, 64B: 3328960, 128B: 3328896,
+    256B: 3328768}` — note 32B's own elbow (4,194,304) moved further from the 64-256B
+    cluster than in prior runs (was 3,736,672, within the auto-picker's threshold before);
+    this time the auto-picker correctly lands on **64B directly**, not 32B, for the first
+    time across all L2 attempts this session. But
+    `data_processed/artemisia/line_size/level_2097152/plots/line_size_offset_elbow.png`
+    shows several offsets (0B, 16B, 32B, 48B) jumping straight back up toward the 2^22-byte
+    ceiling for candidate strides *above* 64B (72/80/88B) instead of staying low the way
+    L1's did — only some offsets (8B, 24B, 40B, 56B) stay flat past the candidate. This is
+    a real asymmetry, not just noise-shaped: a genuine line-size elbow should stay saturated
+    for every stride ≥ the true line size regardless of alignment, and about half the tested
+    offsets don't. Method B still found no transition at this level. Step 5:
+    `method A (family of curves) = 64B, method B (single curve) = noneB`. **Treat L2 = 64B
+    as the best-supported candidate, not yet as solid as L1** — the offset-invariance check
+    that was supposed to be the final confirmation step instead surfaced a real, unresolved
+    alignment sensitivity above the candidate stride.
+  - **L3(30 MiB): 10th independent attempt, same null result** (`{8B: 99870632, 16B:
+    88974624, 32B: 56050496, 64B: 70619200, 128B: 88974592, 256B: 88974592}`, auto-pick 8B,
+    Method B "none", no step 4 attempted). Plot:
+    `data_processed/artemisia/line_size/level_31457280/plots/line_size_family_curve.png`.
+    No change to the standing conclusion that this boundary carries no detectable signal.
+  - **All plot paths from this run**, for reference:
+    - L1: `data_processed/artemisia/line_size/level_49152/plots/line_size_family_curve.png`,
+      `line_size_family_boxplots.png`, `line_size_offset_elbow.png`,
+      `line_size_offset_boxplots.png`, `line_size_curve.png` (Method B), `line_size_boxplots.png`
+    - L2: same filenames under `data_processed/artemisia/line_size/level_2097152/plots/`
+    - L3: `data_processed/artemisia/line_size/level_31457280/plots/line_size_family_curve.png`,
+      `line_size_family_boxplots.png`, `line_size_curve.png` (Method B), `line_size_boxplots.png`
+      (no offset plots — step 4 not run at this level)
+
+- Run command + arguments (**2026-09-13, eleventh pass — forced Method-A step 4 at L3(30
+  MiB) with candidate=64B, user-requested, specifically to test whether forcing the same
+  candidate that worked at L1/L2 produces L1's clean offset-invariance signature here
+  too**): `./scripts/run_line_size.sh artemisia 0 31457280 8,16,32,64,128,256 64`. Core 0,
+  sampled clean beforehand. Timestamp `20260913T145240Z`; transcript
+  `data_raw/artemisia/line_size/run_line_size_20260913T145240Z.log`.
+  - Steps 1-3 gave an 11th distinct elbow set (`{8B: 99870632, 16B: 79267376, 32B:
+    79267360, 64B: 112100992, 128B: 99870592, 256B: 99870464}`, auto-pick 8B) — same
+    pattern as every prior attempt.
+  - **Step 4's result answers the question directly: no, forcing 64B here does NOT
+    reproduce L1's signature — it produces the opposite.**
+    `data_processed/artemisia/line_size/level_31457280/plots/line_size_offset_elbow.png`
+    shows all 8 tested offsets scattered essentially at random across roughly a 4x
+    footprint range (2^25.5-2^27B), with no V-shape, no convergence at or near the 64B
+    candidate line, and no coherent relationship to stride at all — the complete opposite
+    of L1's clean, symmetric, offset-invariant V. This is the clearest direct
+    demonstration yet that there's no line-size signal at this boundary: even when handed
+    the "right" answer as a forced candidate, the alignment-invariance check that's
+    supposed to confirm it instead falsifies it.
+  - **Important caveat for anyone reading this run's own printed step-5 summary line
+    without checking the plot first**: the script's `LEVEL_ESTIMATES_A` array records
+    whatever candidate was supplied as soon as step 4 runs, unconditionally — it does NOT
+    check whether the offset plot actually confirmed alignment-invariance before writing
+    it down. This run's own step 5 output literally says `method A (family of curves) =
+    64B` and `every level/method that produced an estimate AGREES on 64B`, which reads as
+    a confirmation but is actually just an echo of the forced input — the offset-elbow
+    plot above is the real result, and it says the opposite. Worth fixing in
+    `run_line_size.sh` if this script sees further use (record confirmed/unconfirmed
+    separately), but not attempted here since Phase I data collection, not tooling work,
+    was requested.
+  - Method B again found no transition. **Conclusion unchanged and now further
+    strengthened**: no line-size signal exists at 30 MiB, and this is no longer just an
+    absence of a positive result (steps 1-3 not converging) — step 4 actively falsifies the
+    64B candidate at this boundary specifically, which is the strongest form of evidence
+    against it this method can produce.
 
 ### associativity/
 - Source file(s): `main_code/common/associativity.c`, `associativity.h`

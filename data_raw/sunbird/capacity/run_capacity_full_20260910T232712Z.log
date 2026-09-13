@@ -1,0 +1,20 @@
+== run_capacity_full: machine=sunbird core=1 coarse_max=67108864 seed=12345 ==
+== timestamp=20260910T232712Z ==
+-- coarse sweep 1024-67108864 bytes --
+  wrote 129002 lines -> data_raw/sunbird/capacity/capacity_coarse_random_20260910T232712Z.csv
+Wrote 129 summary rows to data_processed/sunbird/capacity/coarse_random_summary.csv
+  (SKIP_SEQUENTIAL=1: not running sequential-pattern coarse sweep)
+-- tail-extension sweep 67108864-268435456 bytes --
+  wrote 17002 lines -> data_raw/sunbird/capacity/capacity_coarse_ext_random_20260910T232712Z.csv
+Wrote 17 summary rows to data_processed/sunbird/capacity/coarse_ext_random_summary.csv
+-- detected boundaries (bytes): 240384 339952 25874000 30769544 33554432 51748008 --
+-- dense sweep around boundary 240384 bytes: 30048-1923072 --
+  wrote 289002 lines -> data_raw/sunbird/capacity/capacity_dense0_random_20260910T232712Z.csv
+Wrote 289 summary rows to data_processed/sunbird/capacity/dense0_random_summary.csv
+-- dense sweep around boundary 339952 bytes: 42494-2719616 --
+  wrote 289002 lines -> data_raw/sunbird/capacity/capacity_dense1_random_20260910T232712Z.csv
+Wrote 289 summary rows to data_processed/sunbird/capacity/dense1_random_summary.csv
+-- dense sweep around boundary 25874000 bytes: 3234250-206992000 --
+  wrote 289002 lines -> data_raw/sunbird/capacity/capacity_dense2_random_20260910T232712Z.csv
+Wrote 289 summary rows to data_processed/sunbird/capacity/dense2_random_summary.csv
+-- dense sweep around boundary 30769544 bytes: 3846193-246156352 --
