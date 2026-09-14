@@ -1366,7 +1366,7 @@ check that machine's own `data_raw/<machine>/README.md` and recent git log
 status, since this file lags active work in progress.
 
 **Phase II (counter- and literature-based verification): started
-2026-09-13, two machines done (Sunbird, Thunderbird), 6 outstanding.**
+2026-09-13, three machines done (Sunbird, Thunderbird, Skylark), 5 outstanding.**
 `phase1-timing-only` tagged at commit `7be6dac` — **two sessions tagged it
 independently and concurrently (both at this same commit, so the tags
 should be identical objects pointing to the same target); verify with
@@ -1539,13 +1539,72 @@ open decision.**
   third independent piece of evidence for "this SoC's SLC is invisible to
   per-core PMU/OS reporting," alongside sysfs's missing L3 entry and finding
   (2) above.
-- **Not yet done on the other 6 machines (Skylark, Artemisia, Charnwood,
-  Crux, Ookay, Upgrade).** Whoever picks up the next one should use
+- **Skylark (2026-09-14): third machine done, first AMD/Zen 2 result — full
+  detail: `data_processed/skylark/PHASE2_VALIDATION_TABLE.md`.** Ran
+  `scripts/run_pmu_verification.sh skylark 5 L1:32768,L2:524288,LLC:8388608`
+  (core 5, confirmed idle via two `mpstat` samples — cores 0/2/3 were busy
+  with other students' processes at the time), timestamp
+  `20260914T002932Z`, literature source Agner Fog's manual, Ch. 22 §22.16,
+  Table 22.3 "Cache sizes on AMD Zen 2", p. 237.
+  - **L1D and L2: exact match across Phase I timing, Phase II
+    system-report, AND literature** (size/ways/sets/line) — system-reported
+    L2 associativity (8-way) independently confirms Phase I's
+    confound-blocked best guess, the same pattern as Sunbird's L2 row.
+  - **LLC size: system-reported 16,777,216 B (16 MiB) confirms Phase I's
+    own already-documented suspicion that its 8 MiB `CAPACITY_RESULTS.md`
+    value was an underestimate** — lands almost exactly at the bottom of
+    Skylark's own `FINAL_CACHE_TABLE.md`-flagged ~16.8-21.8 MiB re-look
+    bracket, a clean resolution rather than a new puzzle.
+  - **LLC associativity: Phase I's confound-blocked best guess (8-way) vs.
+    system-reported 16-way — resolved in favor of the system-reported
+    value**, the same confound-confirmation pattern as Sunbird's (9→20) and
+    Thunderbird's L2 (12→8) rows; 16-way also sits at the low end of Fog's
+    quoted 16-24-way range for this generation.
+  - **Line size: a genuine, unresolved disagreement, not yet seen on
+    Sunbird or Thunderbird.** Phase I independently confirmed 128 B
+    specifically at the LLC-region transition via two methods (2x this
+    machine's own L1/L2 line size); system-report and literature both say
+    64 B uniformly at every level. Leading hypothesis (NOT confirmed —
+    no dedicated follow-up run this phase): Zen 2's documented
+    adjacent-line/stream prefetcher creating an apparent 128 B granularity
+    for a stride-based line-size probe once the working set spills past
+    L2, without the physical line actually being wider. Left open.
+  - **Sharing scope: the standout finding on this machine.** Phase I had
+    guessed "shared across cores/socket" for the LLC (architecturally
+    typical, untested). System-reported `shared_cpu_list` shows this LLC
+    is shared by only **2** logical cores per instance (spot-checked
+    machine-wide across 5 other cores, not just core 5) — resolved via AMD's
+    published EPYC 7532 spec: 8 CCDs x 2 CCX/CCD x 16 MiB/CCX = 256 MiB
+    total L3 per socket, this exact SKU's known "cache-doubled" Rome
+    binning (only 2 of 4 possible cores active per CCX, each CCX still
+    granted its full 16 MiB), not a measurement artifact and not a
+    contradiction of Fog's own microarchitecture-generic "one L3 per 4
+    cores" figure (Table 22.3 states a generation-wide default, not a
+    per-SKU guarantee — the same "don't assume one number applies to every
+    SKU" lesson Sunbird's LLC-associativity finding already produced).
+  - **This AMD PMU has no working LLC-scope perf event for an unprivileged
+    user at all** — `LLC-loads`/`LLC-load-misses` return `<not supported>`
+    (a harder failure than Sunbird's clean scheduling, and unlike
+    Thunderbird's ARM PMU, also true of AMD's own raw uncore L3 events
+    `l3_accesses`/`l3_misses`, blocked by this session's
+    `perf_event_paranoid=2` even system-wide). The generic
+    `cache-references`/`cache-misses` group's miss rate is also not a
+    clean monotonic LLC-scope signal here (19.34% at L1 footprint → 11.32%
+    at L2 → 46.59% at LLC — a dip, not a steady climb), most likely because
+    this generic AMD alias tracks something closer to L2-request traffic
+    than Intel's LLC-scope mapping does (very low absolute event counts at
+    the L1 footprint support this); the LLC footprint's own sharp jump is
+    still a clean, trustworthy boundary confirmation regardless.
+- **Not yet done on the remaining 5 machines (Artemisia, Charnwood, Crux,
+  Ookay, Upgrade).** Whoever picks up the next one should use
   `scripts/run_pmu_verification.sh` (now the settled convention, see above)
-  and read both the Sunbird and Thunderbird writeups + their respective
-  output files before choosing a literature source for that machine's own
-  CPU — an ARM machine should also expect (and not be alarmed by) the
-  `LLC-loads` `<not supported>` limitation documented above.
+  and read the Sunbird, Thunderbird, and Skylark writeups + their
+  respective output files before choosing a literature source for that
+  machine's own CPU — an ARM machine should also expect (and not be
+  alarmed by) the `LLC-loads` `<not supported>` limitation documented
+  above, and an AMD machine should expect (per Skylark, just above) the
+  same limitation plus a possible non-monotonic generic-cache-group
+  miss-rate signal.
 
 ## Known constraints from prior sessions
 
