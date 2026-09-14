@@ -2252,63 +2252,50 @@ that freeze will be fit from.
   `PHASE2_VALIDATION_TABLE.md` files already used ad hoc (e.g. Sunbird's
   "~4.14 ns @ 2.5 GHz nominal"); this session just applied it uniformly
   across all 8 for the master table/plots.
-- **15 of the 15 required chronological plots produced** (`scripts/
+- **All 15 of the 15 required chronological plots now produced, including
+  item 14 (2026-09-14, closing the last gap)** (`scripts/
   plot_chronological_master.py` → `plots/chrono_01..15_*.{png,pdf}`,
   grayscale/no-gridlines/solid-marker "old-ISCA" style matching
   `plot_capacity.py`'s existing convention; distinct marker shapes for
   Intel/AMD/Arm; log2 y-axis for the 3 capacity plots; open-marker +
   dotted-tie-line overlay wherever Phase II resolved a Phase-I
   disagreement, so the correction is visible without replacing the plotted
-  point). **Plot item 14 (timing-derived hit-rate/residency metric vs.
-  year) is STILL NOT produced, but the reason has changed since this
-  section was first drafted (in a separate, concurrent merge — see this
-  file's own "Software-only cache hit-rate estimator" bullet above)**: the
-  estimator (`PROJECT 1.pdf` §8.5, `main_code/software_hit_rate/`) is no
-  longer an empty stub — it's implemented and has PMU-validated results on
-  Sunbird, Thunderbird, Skylark, Crux, Upgrade, Charnwood, Ookay, and now
-  Artemisia — **all 8 of 8 machines have `software_hit_rate` data**, as of
-  two concurrent 2026-09-14 sessions (this Artemisia bullet, merged
-  together with a separate audit pass that added Crux/Upgrade/Charnwood/
-  Ookay's bullets and covered the other 6). **That audit pass verified
-  coverage by checking every machine's actual committed files, not just
-  this file's prose, and found a gap that is STILL open even now that all
-  8 machines are represented**: two machines (Sunbird, Ookay) are missing
-  their top-level `hit_rate_sweep_<ts>.csv` sweep-summary file from git —
-  the per-point raw CSVs, the run log, AND the derived plots are all
-  committed and correct (the plots were evidently generated before the
-  summary file was lost/never staged), but the summary table itself isn't
-  in the repo for either machine. Likely cause: `.gitignore`'s
-  `data_raw/**/*.csv` rule silently excludes an uncompressed CSV unless
-  someone manually gzips + force-adds it (the convention every other
-  machine's session followed, e.g. Charnwood's and Artemisia's 2026-09-14
-  sessions both did this by hand) — that step was apparently skipped for
-  Sunbird/Ookay. Not re-derivable from what's in THIS repo clone (each lab
-  machine has its own non-shared `/home`, so the file may still exist
-  locally on Sunbird's or Ookay's own machine if a future session logs
-  into one of them and checks before it's cleaned up — otherwise it would
-  need to be regenerated from the still-present raw per-point CSVs via
-  `scripts/summarize_software_hit_rate.py`). **A cross-machine
-  chronological plot (item 14) can now be attempted in principle — all 8
-  machines have some data — but should wait on the Sunbird/Ookay
-  summary-file gap being closed first**, not be built off two machines'
-  regenerated-from-scratch numbers standing in for what should be the
-  original run's own output. Still a known gap, just a
-  narrower one than "the code doesn't exist yet."
+  point). The Sunbird/Ookay missing-sweep-summary-CSV gap this bullet
+  previously flagged as blocking item 14 was already closed by commits
+  `eafe8df`/`f6c4f68` (both files gzipped + force-added, since
+  `data_raw/**/*.csv` is gitignored) — this paragraph is the belated
+  update to match. **Plot 14 (`chrono_14_software_hit_rate.{png,pdf}`)
+  uses ONE identical absolute workload size across all 8 machines,
+  262,144 B (256 KiB)** — chosen over the more obvious 536,870,912 B
+  (512 MiB, DRAM-scale) because DRAM-scale collapses to ~0/no cross-machine
+  signal on every machine (already-documented estimator limitation, not
+  new information); 256 KiB is small enough to sit well above every
+  machine's own self-calibrated classification threshold while still
+  exceeding every machine's L1 (32–65 KiB range), giving real,
+  non-degenerate variation to plot. **Result: Sunbird is a clear,
+  statistically real outlier at Ĥ=0.7404 (CI 0.7363–0.7446, not
+  overlapping any other machine)** — the same already-documented
+  Sunbird-specific L1-boundary conflict/associativity-edge effect showing
+  up at 8× that boundary's size, not new data. **Every other machine reads
+  at or within noise of 1.0 — no clean chronological trend, which is the
+  honest/expected result at a workload this small relative to every
+  machine's own cache hierarchy**, not evidence of a broken plot. Full
+  size-selection rationale and the per-machine Ĥ/CI table:
+  `CHRONOLOGICAL_MASTER_TABLE.md`'s own "Software-only timing-derived hit
+  rate" section.
 - **Still open before Hazel can be touched at all**: fit the actual
   quantitative trend models/doubling-times from this data, formulate and
   freeze the two named team "Cache Laws," fill in and tag
   `PREDICTION_FREEZE.md`, THEN (only after that tag) verify Hazel access and
   begin §8.6. Also still open, independent of Hazel: §8.4's eight-counter
   *cross-machine standardized* comparison — item 1 (the 3 fixed
-  benchmarks themselves) is no longer a stub as of 2026-09-14, see the
-  dedicated bullet just below, but items 2-4 (normalization, ranked
-  S-curves, and the Intel/AMD/Arm + generation comparison) still need all
-  8 machines' data first; and finishing §8.5's software-only hit-rate
-  estimator's cross-machine coverage (implemented and validated on 7 of 8
-  machines so far — see this file's own "Software-only cache hit-rate
-  estimator" bullet above — not a stub anymore, just incomplete; 2 of
-  those 7 are also missing their sweep-summary CSV from git, see that
-  bullet).
+  benchmarks themselves) finished on all 8 machines 2026-09-14 (see the
+  dedicated bullet just below), but items 2-4 (normalization, ranked
+  S-curves, and the Intel/AMD/Arm + generation comparison) haven't been
+  attempted yet. §8.5's software-only hit-rate estimator is now complete
+  on all 8 of 8 machines (sweep + PMU validation each), including the
+  Sunbird/Ookay sweep-summary-CSV gap closed by `eafe8df`/`f6c4f68` — no
+  longer an open item.
 
 **Problem 8.4 (eight interesting performance counters across generations),
 item 1: started AND FINISHED 2026-09-14 — all 8 machines done (Sunbird,

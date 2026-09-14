@@ -156,6 +156,58 @@ and Artemisia reads as confidently, cleanly inclusive at both LLC pairings.
 Thunderbird is the one machine whose own two LLC-involving results point in
 *different* directions from each other.
 
+## Software-only timing-derived hit rate, Ĥ (§8.5, plot item 14)
+
+Per `PROJECT 1.pdf` plot item 14: "your timing-derived hit-rate/residency
+metric vs. year under one identical standardized workload." Source:
+`data_raw/<machine>/software_hit_rate/hit_rate_sweep_*.csv.gz` (the
+self-calibrated ROC-threshold + Rogan-Gladen-debiased estimator implemented
+in `main_code/software_hit_rate/software_hit_rate.c` — see `CLAUDE.md`'s
+"Software-only cache hit-rate estimator" section for the full method,
+including its documented single-threshold limitation).
+
+**Workload-size selection, made explicit rather than picked silently:**
+every machine's sweep shares a common set of tested byte sizes (4096 through
+536,870,912, plus each machine's own capacity-boundary insertions). Two
+candidates were compared before choosing: 536,870,912 B (512 MiB, DRAM-scale)
+collapses to ~0.00–0.02 on every machine (already past every machine's LLC,
+so the metric has no cross-machine discriminating power there — an
+already-documented, expected estimator limitation, not new information);
+**262,144 B (256 KiB) was chosen instead** because it is small enough to
+still be well above every machine's self-calibrated classification threshold
+(tight bootstrap CIs everywhere except Crux) while large enough to already
+exceed every machine's L1 (all 8 machines' L1 ranges 32–65 KiB) without
+depending on any machine-specific L2/LLC boundary — a genuinely *identical*
+absolute-byte workload, not one scaled per machine.
+
+| Machine | Ĥ @ 256 KiB | 95% CI |
+|---|---|---|
+| Sunbird | **0.7404** | 0.7363–0.7446 |
+| Charnwood | 1.0000 | 1.0000–1.0000 |
+| Ookay | 0.9613 | 0.9321–0.9631 |
+| Upgrade | 0.9992 | 0.9512–1.0000 |
+| Crux | 0.9824 | 0.8951–0.9928 |
+| Skylark | 0.9958 | 0.9942–0.9974 |
+| Thunderbird | 1.0000 | 1.0000–1.0000 |
+| Artemisia | 1.0000 | 0.9931–1.0000 |
+
+**Sunbird is the one clear, statistically real outlier** (Ĥ=0.74, a tight CI
+that does not overlap any other machine's) — not new data, but the same
+already-documented Sunbird-specific finding (a genuine conflict/
+associativity-edge effect: a random cyclic address stream sized near its own
+L1 capacity does not evenly fill every set) showing up at exactly this
+standardized size, which happens to sit close enough to Sunbird's own
+32,768 B L1 boundary to inherit that edge effect at 8× the boundary size.
+Every other machine reads at or within measurement noise of 1.0 — **the
+metric does not show a clean chronological trend** (no evidence that newer
+generations classify this fixed-size workload any differently, which is the
+expected/honest result given 256 KiB is small relative to every machine's
+own L1+L2, not evidence the estimator or the plot is broken). Thunderbird's
+CI is degenerate (exactly 1.0000–1.0000) because its 25 MHz `CNTVCT_EL0`
+quantizes the self-calibrated threshold to `tau=1.0000` ticks — a
+machine-specific timer-resolution artifact already documented in `CLAUDE.md`,
+not a claim of literally zero uncertainty.
+
 ## Two PMU-derived normalized metrics vs. machine (for §8.4/§9's cross-machine PMU comparison)
 
 | Machine | L1 miss rate @ L1 footprint (sanity check, expect ~0%) | Generic cache-miss rate @ LLC footprint |

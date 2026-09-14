@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Plot the required Moore-style chronological cross-generation figures
-(PROJECT 1.pdf Section 9, Figures 4-7 / plot list items 1-13, 15) from the
+(PROJECT 1.pdf Section 9, Figures 4-7 / plot list items 1-15) from the
 consolidated `data_processed/master/chronological_master_table.csv`.
 
 Every column's PRIMARY plotted value is the Phase I timing-only inferred
@@ -198,6 +198,52 @@ def plot_dual_series(rows, field_a, label_a, field_b, label_b, out_path, ylabel,
     print(f"Wrote {out_path}.pdf/.png", file=sys.stderr)
 
 
+def plot_hit_rate(rows, field, field_lo, field_hi, out_path, ylabel, title):
+    """Plot #14: the software-only timing-derived hit-rate estimator (Hhat,
+    PROJECT 1.pdf Sec. 8.5) vs. year, evaluated at ONE identical standardized
+    workload size across every machine (262,144 B / 256 KiB -- the largest
+    common footprint tested on every machine's sweep that still shows real
+    cross-machine variation rather than having already collapsed near 0 or
+    1; see CHRONOLOGICAL_MASTER_TABLE.md for the size-selection rationale).
+    Bootstrap 95% CI error bars come directly from the estimator's own
+    output, not fabricated."""
+    fig, ax = base_plot()
+    by_vendor = {}
+    for r in rows:
+        y = fnum(r[field])
+        if y is None:
+            continue
+        by_vendor.setdefault(r["vendor"], []).append(r)
+
+    all_pts_for_annotation = []
+    for vendor, vrows in by_vendor.items():
+        vrows = sorted(vrows, key=lambda r: r["year"])
+        style = VENDOR_STYLE.get(vendor, dict(marker="D", label=vendor))
+        xs = [r["year"] for r in vrows]
+        ys = [fnum(r[field]) for r in vrows]
+        lo = [fnum(r[field]) - fnum(r[field_lo]) for r in vrows]
+        hi = [fnum(r[field_hi]) - fnum(r[field]) for r in vrows]
+        ax.errorbar(xs, ys, yerr=[lo, hi], color="black", marker=style["marker"],
+                     markersize=8, markerfacecolor="black", linewidth=1.4,
+                     linestyle="-", capsize=4, elinewidth=1.0, label=style["label"])
+        all_pts_for_annotation.extend(zip(xs, ys, vrows))
+    all_pts_for_annotation.sort(key=lambda t: t[0])
+    annotate_points(ax, all_pts_for_annotation)
+
+    ax.set_ylim(0.65, 1.05)
+    ax.set_xlabel("Year (processor generation / microarchitecture introduction)")
+    ax.set_ylabel(ylabel)
+    ax.set_title(title, fontsize=12)
+    all_years = [r["year"] for r in rows]
+    ax.set_xlim(min(all_years) - 1, max(all_years) + 1)
+    ax.legend(frameon=False, fontsize=9, loc="lower left")
+    fig.tight_layout()
+    fig.savefig(f"{out_path}.pdf")
+    fig.savefig(f"{out_path}.png", dpi=200)
+    plt.close(fig)
+    print(f"Wrote {out_path}.pdf/.png", file=sys.stderr)
+
+
 INCL_ORDER = ["NON-INCLUSIVE", "UNCERTAIN", "INCLUSIVE"]
 
 
@@ -310,6 +356,13 @@ def main():
                 "in CHRONOLOGICAL_MASTER_TABLE.md where it differs)")
     # 13. Inclusion/exclusion behavior vs year (categorical)
     plot_inclusion(rows, p("chrono_13_inclusion_exclusion"))
+    # 14. Timing-derived hit-rate/residency metric vs year, one identical
+    # standardized workload (262,144 B / 256 KiB) across all 8 machines
+    plot_hit_rate(rows, "hhat_256kib", "hhat_256kib_ci_lower", "hhat_256kib_ci_upper",
+                  p("chrono_14_software_hit_rate"),
+                  "Estimated hit rate, Ĥ (256 KiB workload, bootstrap 95% CI)",
+                  "Software-only timing-derived hit rate vs. year\n"
+                  "(identical 262,144 B standardized workload, every machine)")
     # 15. At least 2 PMU-derived normalized metrics vs year
     plot_dual_series(rows, "pmu_l1missrate_at_l1fp_pct", "L1 miss rate @ L1 footprint (sanity check)",
                       "pmu_cachemissrate_at_llcfp_pct", "Generic cache-miss rate @ LLC footprint",
@@ -317,9 +370,6 @@ def main():
                       "Miss rate (%)",
                       "PMU-derived normalized metrics vs. year")
 
-    print("\nNote: plot item 14 (timing-derived hit-rate/residency metric vs. year) is "
-          "not produced -- the software-only hit-rate estimator (PROJECT 1.pdf Sec. 8.5, "
-          "main_code/software_hit_rate/) has not been implemented yet.", file=sys.stderr)
     return 0
 
 
