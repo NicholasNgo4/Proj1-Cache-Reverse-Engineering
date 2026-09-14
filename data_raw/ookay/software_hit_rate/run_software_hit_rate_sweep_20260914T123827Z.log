@@ -1,0 +1,43 @@
+== run_software_hit_rate_sweep: machine=ookay core=2 seed=12345 ==
+== boundaries=L1:32768,L2:262144,LLC:8388608,DRAM:536870912 ==
+== timestamp=20260914T123827Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=94.0000 sensitivity=0.9953 specificity=0.9999 p_obs=0.9998 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=92.0000 sensitivity=0.9952 specificity=0.9999 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=98.0000 sensitivity=0.9953 specificity=0.9999 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=92.0000 sensitivity=0.9952 specificity=0.9999 p_obs=0.9997 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=94.0000 sensitivity=0.9953 specificity=0.9998 p_obs=0.9990 Hhat=1.0000 ci_lower=0.9972 ci_upper=1.0000 bootstrap_mean=0.9997 bootstrap_std=0.0009 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=90.0000 sensitivity=0.9953 specificity=0.9999 p_obs=0.9568 Hhat=0.9613 ci_lower=0.9321 ci_upper=0.9631 bootstrap_mean=0.9504 bootstrap_std=0.0142 bootstrap_reps=2000
+== test_bytes=1048576 ==
+  # result tau_ticks=92.0000 sensitivity=0.9953 specificity=0.9998 p_obs=0.7037 Hhat=0.7069 ci_lower=0.4018 ci_upper=0.7100 bootstrap_mean=0.5584 bootstrap_std=0.1395 bootstrap_reps=2000
+== test_bytes=4194304 ==
+  # result tau_ticks=104.0000 sensitivity=0.9950 specificity=0.9998 p_obs=0.9913 Hhat=0.9964 ci_lower=0.3370 ci_upper=0.9974 bootstrap_mean=0.7754 bootstrap_std=0.2660 bootstrap_reps=2000
+== test_bytes=8388608 ==
+  # result tau_ticks=96.0000 sensitivity=0.9953 specificity=0.9999 p_obs=0.5949 Hhat=0.5976 ci_lower=0.3786 ci_upper=0.6014 bootstrap_mean=0.5467 bootstrap_std=0.0826 bootstrap_reps=2000
+== test_bytes=16777216 ==
+  # result tau_ticks=94.0000 sensitivity=0.9952 specificity=0.9999 p_obs=0.1274 Hhat=0.1279 ci_lower=0.0270 ci_upper=0.1306 bootstrap_mean=0.0936 bootstrap_std=0.0420 bootstrap_reps=2000
+== test_bytes=31457280 ==
+  # result tau_ticks=98.0000 sensitivity=0.9952 specificity=0.9998 p_obs=0.0525 Hhat=0.0526 ci_lower=0.0440 ci_upper=0.0544 bootstrap_mean=0.0501 bootstrap_std=0.0035 bootstrap_reps=2000
+== test_bytes=67108864 ==
+  # result tau_ticks=94.0000 sensitivity=0.9953 specificity=0.9998 p_obs=0.0078 Hhat=0.0077 ci_lower=0.0025 ci_upper=0.0084 bootstrap_mean=0.0066 bootstrap_std=0.0019 bootstrap_reps=2000
+== test_bytes=134217728 ==
+  # result tau_ticks=92.0000 sensitivity=0.9952 specificity=0.9998 p_obs=0.0025 Hhat=0.0023 ci_lower=0.0014 ci_upper=0.0028 bootstrap_mean=0.0023 bootstrap_std=0.0003 bootstrap_reps=2000
+== test_bytes=268435456 ==
+  # result tau_ticks=92.0000 sensitivity=0.9952 specificity=0.9999 p_obs=0.0007 Hhat=0.0005 ci_lower=0.0002 ci_upper=0.0009 bootstrap_mean=0.0005 bootstrap_std=0.0002 bootstrap_reps=2000
+== test_bytes=536870912 ==
+  # result tau_ticks=92.0000 sensitivity=0.9951 specificity=0.9999 p_obs=0.0002 Hhat=0.0000 ci_lower=0.0000 ci_upper=0.0003 bootstrap_mean=0.0001 bootstrap_std=0.0001 bootstrap_reps=2000
+wrote 15 rows -> data_raw/ookay/software_hit_rate/hit_rate_sweep_20260914T123827Z.csv
+-- generating plots --
+wrote data_processed/ookay/software_hit_rate/plots/calibration_distributions.{png,pdf}
+wrote data_processed/ookay/software_hit_rate/plots/hit_rate_sweep.{png,pdf}
+-- compressing raw per-access CSVs --
+
+== done ==
+== summary: data_raw/ookay/software_hit_rate/hit_rate_sweep_20260914T123827Z.csv ==
+== record in data_raw/ookay/README.md: core=2, seed=12345, timestamp=20260914T123827Z ==
+== full transcript saved to: data_raw/ookay/software_hit_rate/run_software_hit_rate_sweep_20260914T123827Z.log ==

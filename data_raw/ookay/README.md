@@ -628,6 +628,152 @@ and a different fixed 8-event set (`cache-references`, `cache-misses`,
   associativity investigation, not yet interpreted further (items 2-4 of
   Problem 8.4 need all 8 machines' data first, per `CLAUDE.md`).
 
+### software_hit_rate/ (Problem 8.5 — 2026-09-14)
+Software-only, timing-derived cache hit-rate estimator
+(`main_code/software_hit_rate/`, no PMU access anywhere in that file) plus
+its Phase-II PMU validation. Same pipeline and method as Sunbird's own
+`software_hit_rate/` section (see that machine's README for the full
+calibration -> ROC threshold -> Rogan-Gladen -> bootstrap CI method write-up
+and the PMU-validation-script redesign history) — no script changes needed
+for this machine.
+
+- Idle-core check immediately before running: two independent `/proc/stat`
+  idle-time-delta samples (2s apart each), physical core 2 (logical CPUs 2
+  and 6) 0.0% busy in both windows, with only kernel housekeeping threads
+  (`cpuhp/2`, `ksoftirqd/2`, `kworker/2:*`, etc.) scheduled there — used core
+  2 for both the sweep and the PMU validation run.
+
+#### Sweep (parts 1-3, standalone, no perf)
+- Run command: `./scripts/run_software_hit_rate_sweep.sh ookay 2 ""
+  "L1:32768,L2:262144,LLC:8388608,DRAM:536870912"` — footprint arg left
+  empty so the script's default 15-point log-spaced sweep (4 KiB-512 MiB)
+  ran (an empty `"$3"` falls through bash's `${3:-default}` the same as
+  unset, per `run_software_hit_rate_sweep.sh`'s own default-sweep logic);
+  boundary_spec passed explicitly as this machine's own
+  `CAPACITY_RESULTS.md` values (L1=32,768 B, L2=262,144 B, LLC=8,388,608 B,
+  DRAM=536,870,912 B) for the plot reference lines only, per the
+  Skylark-discovered bug already documented in the shared script's header
+  comment (never rely on the hardcoded Sunbird default for a non-Sunbird
+  machine). core=2, seed=12345, resident_bytes=16384,
+  nonresident_bytes=536870912, calib_samples=20000, test_samples=50000,
+  bootstrap_reps=2000, pattern=random, timestamp `20260914T123827Z`.
+- Raw output: `data_raw/ookay/software_hit_rate/raw/hit_rate_<bytes>_20260914T123827Z.csv.gz`.
+  Transcript: `data_raw/ookay/software_hit_rate/run_software_hit_rate_sweep_20260914T123827Z.log`.
+- Processed: `data_raw/ookay/software_hit_rate/hit_rate_sweep_20260914T123827Z.csv`;
+  plots: `data_processed/ookay/software_hit_rate/plots/{hit_rate_sweep,calibration_distributions}.{png,pdf}`.
+- **Headline results**: Hhat=1.0000 for every footprint from 4,096 B through
+  131,072 B — i.e. through this machine's own L1 (32,768 B) boundary AND
+  well past it into L2-scale territory, consistent with the estimator's
+  "hit = served by ANY cache level" definition, not L1-specifically. Unlike
+  Sunbird (whose dip showed up exactly at its own L1 boundary), **Ookay's
+  first dip appears at the L2 boundary (262,144 B): Hhat=0.9613** (CI
+  0.9321-0.9631) — a modest, real conflict/associativity-driven dip at
+  exactly-full L2 capacity, the same qualitative signature Sunbird
+  documented at its own boundary. Falls further at 1,048,576 B (Hhat=0.7069,
+  but with a very wide CI: 0.40-0.71, bootstrap_std=0.14 — the noisiest
+  point in the whole sweep) and, oddly, partially recovers at 4,194,304 B
+  (Hhat=0.9964, CI 0.337-0.997, bootstrap_std=0.266 — also highly unstable,
+  not a genuine second high-hit-rate region) before resuming its decline:
+  0.5976 at the LLC boundary itself (8,388,608 B), 0.1279 at 16,777,216 B,
+  down to 0.0526/0.0077/0.0023/0.0005/0.0000 at 31,457,280 / 67,108,864 /
+  134,217,728 / 268,435,456 / 536,870,912 B. **The 1 MiB-4 MiB region's huge
+  bootstrap-std swing (0.14-0.27, an order of magnitude above every other
+  point's spread) is the same single-threshold-classifier instability later
+  confirmed more sharply in the PMU-validation run below (see LLC repeat
+  disagreement) — read this mid-sweep noise as an early symptom of the same
+  root cause, not independent noise.**
+
+#### PMU validation (part 4)
+- Run command: `./scripts/run_hit_rate_pmu_validation.sh ookay 2
+  L1:32768,L2:262144,LLC:8388608,DRAM:536870912` (core 2, same idle check as
+  above). Tested footprints after the script's own /2 "safely inside the
+  level" halving: L1=16384, L2=131072, LLC=4194304, DRAM=536870912
+  (unchanged). base_seed=12345 (repeats use base_seed+index), timestamp
+  `20260914T125828Z`.
+- Raw output: `data_raw/ookay/software_hit_rate/pmu/{L1,L2,LLC,DRAM}/
+  *_{calibonly,bench,hitlatpmu,perfstat}_{base,rep1,rep2}_20260914T125828Z.csv.gz`.
+  Transcript: `data_raw/ookay/software_hit_rate/pmu/run_hit_rate_pmu_validation_20260914T125828Z.log`.
+- Processed: `data_processed/ookay/software_hit_rate/pmu_validation_20260914T125828Z.csv`.
+- Headline results (median of base+2 repeats):
+
+  | Level | Tested footprint | Hhat | H_pmu | rel. error |
+  |---|---|---|---|---|
+  | L1  | 16,384 B    | 1.0000 | 0.8564 | 16.8% |
+  | L2  | 131,072 B   | 1.0000 | 0.8655 | 14.9% |
+  | LLC | 4,194,304 B | 0.7886 | 0.9705 | 18.7% |
+  | DRAM | 536,870,912 B | 0.0002 | 0.4484 | 99.96% |
+
+- **L1/L2: Hhat correctly reads 1.0 (both footprints genuinely fit and
+  should hit), but H_pmu independently reads only ~0.86-0.87 — a
+  reproducible ~15-17% disagreement even where the software estimator is
+  unambiguously right.** Cross-checked against this machine's own, entirely
+  separate Phase-II PMU run (`data_processed/ookay/pmu/L1/pmu_summary_
+  20260914T003308Z.csv`, full unhalved 32,768 B footprint, different
+  timestamp/session): that run independently measured an 18.5%
+  `cache-references`/`cache-misses` miss rate at L1 too — so this ~15-17%
+  gap is a real, reproducible property of what these generic PMU events
+  count on Ookay specifically (not a fluke of this run), consistent with
+  the generic PMU-event-semantics gap already documented elsewhere in this
+  project — read as evidence against H_pmu's own precision here, not
+  against Hhat.
+- **LLC: the single most unstable result of the whole run — Hhat swings
+  0.7886 (base) -> 0.1702 (rep1) -> 0.9990 (rep2) at the IDENTICAL
+  4,194,304 B footprint, only the seed changed — but tracing this into the
+  raw calibration data changes the diagnosis from the first-pass read
+  below.** base/rep1 calibrated tau≈88-94 ticks; rep2's calibration landed
+  on tau=266. Directly inspecting rep2's 20,000-sample `calib_resident`
+  distribution (`LLC_calibonly_rep2_...csv.gz`): the bulk is tightly
+  clustered (median 60, p95=68 ticks, nearly identical to base's median
+  58/p95 68) — **only 63/20,000 (0.3%) of "resident" calibration samples
+  exceed 266 ticks**, a sparse high-tail contamination (plausibly page
+  faults/scheduler noise on the freshly-mapped calibration buffer, not a
+  second real latency population) that the ROC/Youden threshold selection
+  is evidently sensitive to: to keep sensitivity up despite that thin tail,
+  it pushed tau all the way to 266 (specificity dropped correspondingly,
+  0.9980 vs. the usual 0.9998-0.9999). **This is a calibration-step
+  robustness issue — present in principle for ANY level's run, since
+  calibration always re-uses the same fixed 16,384 B resident buffer
+  regardless of test_bytes — not evidence that the classifier specifically
+  breaks down "at LLC scale."** It happened to land on the LLC run in this
+  session; the sweep's own per-point tau values (all 15 points: 90-104
+  ticks, no outliers) show this instability did NOT recur elsewhere this
+  run, so it reads as an infrequent (~1/12 calibrations here) but real
+  failure mode, not a systematic LLC-specific one. **H_pmu, by contrast,
+  stays tight and physically sensible across all 3 runs (2.9-3.6% miss
+  rate)** — 4,194,304 B is half this machine's ~8 MiB LLC estimate so
+  should mostly hit, which matches; this is also consistent with (not
+  contradicting) the much higher ~61.5% miss rate the separate Phase-II PMU
+  run measured at the FULL 8,388,608 B boundary itself — a footprint sized
+  to exactly fill LLC capacity is expected to show far more conflict misses
+  than one sized to half of it, the same boundary-vs-interior pattern
+  already seen in the L2 dip in the sweep above.
+- **L2's rep1 also shows an isolated H_pmu dip (0.669, vs. base/rep2's
+  ~0.866-0.871) despite Hhat correctly reading 1.0 in all three L2 runs.**
+  Checked the raw `perf stat` output directly: `duration_time` (5.80/6.04/
+  5.83 ms) and `cache-references` counts (217,268/219,100/216,344) are
+  essentially identical across base/rep1/rep2 — ruling out the
+  wall-time-inflation failure mode already documented for `hit_rate`'s own
+  single-shot loop (that would show up as elevated duration_time/reference
+  counts too, and doesn't here). Only `cache-misses` itself jumps
+  (29,222/72,526/28,003) with timing and reference-count otherwise
+  unchanged — genuine, unexplained hardware-counter noise isolated to one
+  repeat, not a measurement-harness artifact; flagged rather than averaged
+  away.
+- **DRAM: Hhat correctly reads ~0.0001-0.0002 (near-zero, as expected for a
+  512 MiB random footprint), but H_pmu reads 0.448 (44.8%)** — the same
+  generic PMU-event-semantics gap already documented at DRAM scale on
+  Sunbird; H_pmu is not a trustworthy ground truth at this footprint either.
+- **Conclusion for the report:** Hhat is directionally correct everywhere
+  here (high where it should hit, near-zero at DRAM) and its L1/L2 values
+  are arguably the most reliable numbers in this table (corroborated by an
+  independent PMU run). Its one real failure mode observed this session is
+  a calibration-threshold instability driven by sparse outlier ticks in the
+  resident reference distribution (not a footprint-scale-dependent
+  weakness) — a second, distinct
+  concrete failure mode for the same underlying single-threshold design
+  limitation, useful as a second data point for the report's "when does
+  this estimator fail" discussion (8.5, part 4).
+
 ## Final Inferred Cache Table (Ookay, Phase I best guess, 2026-09-13)
 
 Lives at `data_processed/ookay/FINAL_CACHE_TABLE.md` (2026-09-13), alongside

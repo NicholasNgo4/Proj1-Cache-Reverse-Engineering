@@ -1,0 +1,47 @@
+== run_software_hit_rate_sweep: machine=thunderbird core=3 seed=12345 ==
+== timestamp=20260914T122246Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=1.0000 sensitivity=0.9914 specificity=0.9962 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=1.0000 sensitivity=0.9909 specificity=0.9971 p_obs=0.9996 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=1.0000 sensitivity=0.9920 specificity=0.9970 p_obs=0.9986 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=1.0000 sensitivity=0.9908 specificity=0.9973 p_obs=0.9991 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=1.0000 sensitivity=0.9907 specificity=0.9963 p_obs=0.9933 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=1.0000 sensitivity=0.9919 specificity=0.9966 p_obs=0.9974 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=524288 ==
+  # result tau_ticks=1.0000 sensitivity=0.9916 specificity=0.9966 p_obs=0.9597 Hhat=0.9677 ci_lower=0.9656 ci_upper=0.9699 bootstrap_mean=0.9677 bootstrap_std=0.0011 bootstrap_reps=2000
+== test_bytes=1048576 ==
+  # result tau_ticks=1.0000 sensitivity=0.9913 specificity=0.9966 p_obs=0.8232 Hhat=0.8299 ci_lower=0.8264 ci_upper=0.8334 bootstrap_mean=0.8299 bootstrap_std=0.0018 bootstrap_reps=2000
+== test_bytes=2097152 ==
+  # result tau_ticks=1.0000 sensitivity=0.9913 specificity=0.9972 p_obs=0.5746 Hhat=0.5784 ci_lower=0.5740 ci_upper=0.5830 bootstrap_mean=0.5785 bootstrap_std=0.0023 bootstrap_reps=2000
+== test_bytes=4194304 ==
+  # result tau_ticks=1.0000 sensitivity=0.9905 specificity=0.9965 p_obs=0.4490 Hhat=0.4514 ci_lower=0.4471 ci_upper=0.4557 bootstrap_mean=0.4514 bootstrap_std=0.0022 bootstrap_reps=2000
+== test_bytes=8388608 ==
+  # result tau_ticks=1.0000 sensitivity=0.9918 specificity=0.9970 p_obs=0.3839 Hhat=0.3852 ci_lower=0.3808 ci_upper=0.3897 bootstrap_mean=0.3852 bootstrap_std=0.0022 bootstrap_reps=2000
+== test_bytes=16777216 ==
+  # result tau_ticks=1.0000 sensitivity=0.9907 specificity=0.9970 p_obs=0.3552 Hhat=0.3566 ci_lower=0.3525 ci_upper=0.3608 bootstrap_mean=0.3566 bootstrap_std=0.0022 bootstrap_reps=2000
+== test_bytes=31457280 ==
+  # result tau_ticks=1.0000 sensitivity=0.9917 specificity=0.9969 p_obs=0.2907 Hhat=0.2909 ci_lower=0.2869 ci_upper=0.2950 bootstrap_mean=0.2910 bootstrap_std=0.0021 bootstrap_reps=2000
+== test_bytes=67108864 ==
+  # result tau_ticks=1.0000 sensitivity=0.9913 specificity=0.9964 p_obs=0.0794 Hhat=0.0767 ci_lower=0.0741 ci_upper=0.0793 bootstrap_mean=0.0768 bootstrap_std=0.0013 bootstrap_reps=2000
+== test_bytes=134217728 ==
+  # result tau_ticks=1.0000 sensitivity=0.9913 specificity=0.9969 p_obs=0.0204 Hhat=0.0175 ci_lower=0.0161 ci_upper=0.0190 bootstrap_mean=0.0175 bootstrap_std=0.0007 bootstrap_reps=2000
+== test_bytes=268435456 ==
+  # result tau_ticks=1.0000 sensitivity=0.9908 specificity=0.9971 p_obs=0.0081 Hhat=0.0054 ci_lower=0.0043 ci_upper=0.0064 bootstrap_mean=0.0054 bootstrap_std=0.0006 bootstrap_reps=2000
+== test_bytes=536870912 ==
+  # result tau_ticks=1.0000 sensitivity=0.9906 specificity=0.9972 p_obs=0.0036 Hhat=0.0008 ci_lower=0.0000 ci_upper=0.0017 bootstrap_mean=0.0009 bootstrap_std=0.0004 bootstrap_reps=2000
+wrote 17 rows -> data_raw/thunderbird/software_hit_rate/hit_rate_sweep_20260914T122246Z.csv
+-- generating plots --
+== boundary markers: L1:65536,L2:1048576,LLC:31457280,DRAM:536870912 ==
+wrote data_processed/thunderbird/software_hit_rate/plots/calibration_distributions.{png,pdf}
+wrote data_processed/thunderbird/software_hit_rate/plots/hit_rate_sweep.{png,pdf}
+-- compressing raw per-access CSVs --
+
+== done ==
+== summary: data_raw/thunderbird/software_hit_rate/hit_rate_sweep_20260914T122246Z.csv ==
+== record in data_raw/thunderbird/README.md: core=3, seed=12345, timestamp=20260914T122246Z ==
+== full transcript saved to: data_raw/thunderbird/software_hit_rate/run_software_hit_rate_sweep_20260914T122246Z.log ==

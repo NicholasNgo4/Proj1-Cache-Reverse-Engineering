@@ -1,0 +1,68 @@
+== run_hit_rate_pmu_validation: machine=charnwood core=3 base_seed=12345 ==
+== timestamp=20260914T125811Z ==
+
+== level L1: capacity_results_bytes=32768 tested_footprint_bytes=16384 ==
+-- base (seed=12345) --
+  calibration: tau=196.0000 sensitivity=0.9960 specificity=0.9998 (-> data_raw/charnwood/software_hit_rate/pmu/L1/L1_calibonly_base_20260914T125811Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/charnwood/software_hit_rate/pmu/L1/L1_bench_base_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/L1/L1_perfstat_base_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/L1/L1_hitlatpmu_base_20260914T125811Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=188.0000 sensitivity=0.9958 specificity=0.9998 (-> data_raw/charnwood/software_hit_rate/pmu/L1/L1_calibonly_rep1_20260914T125811Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/charnwood/software_hit_rate/pmu/L1/L1_bench_rep1_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/L1/L1_perfstat_rep1_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/L1/L1_hitlatpmu_rep1_20260914T125811Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=192.0000 sensitivity=0.9956 specificity=0.9997 (-> data_raw/charnwood/software_hit_rate/pmu/L1/L1_calibonly_rep2_20260914T125811Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/charnwood/software_hit_rate/pmu/L1/L1_bench_rep2_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/L1/L1_perfstat_rep2_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/L1/L1_hitlatpmu_rep2_20260914T125811Z.csv
+
+== level L2: capacity_results_bytes=262144 tested_footprint_bytes=131072 ==
+-- base (seed=12345) --
+  calibration: tau=138.0000 sensitivity=0.9960 specificity=0.9999 (-> data_raw/charnwood/software_hit_rate/pmu/L2/L2_calibonly_base_20260914T125811Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/charnwood/software_hit_rate/pmu/L2/L2_bench_base_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/L2/L2_perfstat_base_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/L2/L2_hitlatpmu_base_20260914T125811Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=198.0000 sensitivity=0.9958 specificity=0.9998 (-> data_raw/charnwood/software_hit_rate/pmu/L2/L2_calibonly_rep1_20260914T125811Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/charnwood/software_hit_rate/pmu/L2/L2_bench_rep1_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/L2/L2_perfstat_rep1_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/L2/L2_hitlatpmu_rep1_20260914T125811Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=210.0000 sensitivity=0.9948 specificity=0.9992 (-> data_raw/charnwood/software_hit_rate/pmu/L2/L2_calibonly_rep2_20260914T125811Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/charnwood/software_hit_rate/pmu/L2/L2_bench_rep2_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/L2/L2_perfstat_rep2_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/L2/L2_hitlatpmu_rep2_20260914T125811Z.csv
+
+== level LLC: capacity_results_bytes=8388608 tested_footprint_bytes=4194304 ==
+-- base (seed=12345) --
+  calibration: tau=190.0000 sensitivity=0.9960 specificity=0.9999 (-> data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_calibonly_base_20260914T125811Z.csv)
+  Hhat (unwrapped): 0.9637 (-> data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_bench_base_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_perfstat_base_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_hitlatpmu_base_20260914T125811Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=194.0000 sensitivity=0.9960 specificity=0.9995 (-> data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_calibonly_rep1_20260914T125811Z.csv)
+  Hhat (unwrapped): 0.9998 (-> data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_bench_rep1_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_perfstat_rep1_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_hitlatpmu_rep1_20260914T125811Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=192.0000 sensitivity=0.9956 specificity=0.9997 (-> data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_calibonly_rep2_20260914T125811Z.csv)
+  Hhat (unwrapped): 0.9999 (-> data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_bench_rep2_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_perfstat_rep2_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/LLC/LLC_hitlatpmu_rep2_20260914T125811Z.csv
+
+== level DRAM: capacity_results_bytes=536870912 tested_footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  calibration: tau=196.0000 sensitivity=0.9961 specificity=0.9998 (-> data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_calibonly_base_20260914T125811Z.csv)
+  Hhat (unwrapped): 0.0000 (-> data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_bench_base_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_perfstat_base_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_base_20260914T125811Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=188.0000 sensitivity=0.9959 specificity=0.9997 (-> data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_calibonly_rep1_20260914T125811Z.csv)
+  Hhat (unwrapped): 0.0001 (-> data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_bench_rep1_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_perfstat_rep1_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_rep1_20260914T125811Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=188.0000 sensitivity=0.9956 specificity=0.9997 (-> data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_calibonly_rep2_20260914T125811Z.csv)
+  Hhat (unwrapped): 0.0000 (-> data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_bench_rep2_20260914T125811Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_perfstat_rep2_20260914T125811Z.csv / data_raw/charnwood/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_rep2_20260914T125811Z.csv
+wrote 12 run rows + 4 level summaries -> data_processed/charnwood/software_hit_rate/pmu_validation_20260914T125811Z.csv
+  L1 (footprint=16384): Hhat=1.0 H_pmu=0.8588626636136207 abs_error=0.14113733638637926 rel_error_pct=16.43305063379413 (n_valid=3/3)
+  L2 (footprint=131072): Hhat=1.0 H_pmu=0.8797940741176355 abs_error=0.12020592588236445 rel_error_pct=13.662961529142098 (n_valid=3/3)
+  LLC (footprint=4194304): Hhat=0.9998 H_pmu=0.9644993751353457 abs_error=0.03530062486465435 rel_error_pct=3.659994581095577 (n_valid=3/3)
+  DRAM (footprint=536870912): Hhat=0.0 H_pmu=0.44868724915446 abs_error=0.44868724915446 rel_error_pct=100.0 (n_valid=3/3)
+-- wrote data_processed/charnwood/software_hit_rate/pmu_validation_20260914T125811Z.csv --
+
+== done ==
+== record in data_raw/charnwood/README.md software_hit_rate/ section: core=3, base_seed=12345 (repeats use base_seed+index), timestamp=20260914T125811Z ==
+== full transcript saved to: data_raw/charnwood/software_hit_rate/pmu/run_hit_rate_pmu_validation_20260914T125811Z.log ==

@@ -1,0 +1,68 @@
+== run_hit_rate_pmu_validation: machine=ookay core=2 base_seed=12345 ==
+== timestamp=20260914T125828Z ==
+
+== level L1: capacity_results_bytes=32768 tested_footprint_bytes=16384 ==
+-- base (seed=12345) --
+  calibration: tau=92.0000 sensitivity=0.9960 specificity=0.9999 (-> data_raw/ookay/software_hit_rate/pmu/L1/L1_calibonly_base_20260914T125828Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/ookay/software_hit_rate/pmu/L1/L1_bench_base_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/L1/L1_perfstat_base_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/L1/L1_hitlatpmu_base_20260914T125828Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=90.0000 sensitivity=0.9957 specificity=0.9998 (-> data_raw/ookay/software_hit_rate/pmu/L1/L1_calibonly_rep1_20260914T125828Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/ookay/software_hit_rate/pmu/L1/L1_bench_rep1_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/L1/L1_perfstat_rep1_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/L1/L1_hitlatpmu_rep1_20260914T125828Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=90.0000 sensitivity=0.9957 specificity=0.9998 (-> data_raw/ookay/software_hit_rate/pmu/L1/L1_calibonly_rep2_20260914T125828Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/ookay/software_hit_rate/pmu/L1/L1_bench_rep2_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/L1/L1_perfstat_rep2_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/L1/L1_hitlatpmu_rep2_20260914T125828Z.csv
+
+== level L2: capacity_results_bytes=262144 tested_footprint_bytes=131072 ==
+-- base (seed=12345) --
+  calibration: tau=88.0000 sensitivity=0.9961 specificity=0.9999 (-> data_raw/ookay/software_hit_rate/pmu/L2/L2_calibonly_base_20260914T125828Z.csv)
+  Hhat (unwrapped): 0.9933 (-> data_raw/ookay/software_hit_rate/pmu/L2/L2_bench_base_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/L2/L2_perfstat_base_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/L2/L2_hitlatpmu_base_20260914T125828Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=92.0000 sensitivity=0.9960 specificity=0.9997 (-> data_raw/ookay/software_hit_rate/pmu/L2/L2_calibonly_rep1_20260914T125828Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/ookay/software_hit_rate/pmu/L2/L2_bench_rep1_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/L2/L2_perfstat_rep1_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/L2/L2_hitlatpmu_rep1_20260914T125828Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=90.0000 sensitivity=0.9957 specificity=0.9998 (-> data_raw/ookay/software_hit_rate/pmu/L2/L2_calibonly_rep2_20260914T125828Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/ookay/software_hit_rate/pmu/L2/L2_bench_rep2_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/L2/L2_perfstat_rep2_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/L2/L2_hitlatpmu_rep2_20260914T125828Z.csv
+
+== level LLC: capacity_results_bytes=8388608 tested_footprint_bytes=4194304 ==
+-- base (seed=12345) --
+  calibration: tau=94.0000 sensitivity=0.9961 specificity=0.9999 (-> data_raw/ookay/software_hit_rate/pmu/LLC/LLC_calibonly_base_20260914T125828Z.csv)
+  Hhat (unwrapped): 0.7886 (-> data_raw/ookay/software_hit_rate/pmu/LLC/LLC_bench_base_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/LLC/LLC_perfstat_base_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/LLC/LLC_hitlatpmu_base_20260914T125828Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=88.0000 sensitivity=0.9956 specificity=0.9999 (-> data_raw/ookay/software_hit_rate/pmu/LLC/LLC_calibonly_rep1_20260914T125828Z.csv)
+  Hhat (unwrapped): 0.1702 (-> data_raw/ookay/software_hit_rate/pmu/LLC/LLC_bench_rep1_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/LLC/LLC_perfstat_rep1_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/LLC/LLC_hitlatpmu_rep1_20260914T125828Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=266.0000 sensitivity=0.9969 specificity=0.9980 (-> data_raw/ookay/software_hit_rate/pmu/LLC/LLC_calibonly_rep2_20260914T125828Z.csv)
+  Hhat (unwrapped): 0.9990 (-> data_raw/ookay/software_hit_rate/pmu/LLC/LLC_bench_rep2_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/LLC/LLC_perfstat_rep2_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/LLC/LLC_hitlatpmu_rep2_20260914T125828Z.csv
+
+== level DRAM: capacity_results_bytes=536870912 tested_footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  calibration: tau=90.0000 sensitivity=0.9960 specificity=1.0000 (-> data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_calibonly_base_20260914T125828Z.csv)
+  Hhat (unwrapped): 0.0002 (-> data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_bench_base_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_perfstat_base_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_base_20260914T125828Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=92.0000 sensitivity=0.9959 specificity=0.9999 (-> data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_calibonly_rep1_20260914T125828Z.csv)
+  Hhat (unwrapped): 0.0002 (-> data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_bench_rep1_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_perfstat_rep1_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_rep1_20260914T125828Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=90.0000 sensitivity=0.9955 specificity=0.9999 (-> data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_calibonly_rep2_20260914T125828Z.csv)
+  Hhat (unwrapped): 0.0001 (-> data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_bench_rep2_20260914T125828Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_perfstat_rep2_20260914T125828Z.csv / data_raw/ookay/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_rep2_20260914T125828Z.csv
+wrote 12 run rows + 4 level summaries -> data_processed/ookay/software_hit_rate/pmu_validation_20260914T125828Z.csv
+  L1 (footprint=16384): Hhat=1.0 H_pmu=0.8563692695022762 abs_error=0.1436307304977238 rel_error_pct=16.772055655523733 (n_valid=3/3)
+  L2 (footprint=131072): Hhat=1.0 H_pmu=0.8655025130253879 abs_error=0.1294373775098916 rel_error_pct=14.868244301559397 (n_valid=3/3)
+  LLC (footprint=4194304): Hhat=0.7886 H_pmu=0.9704573785120257 abs_error=0.18185737851202577 rel_error_pct=18.739347295278687 (n_valid=3/3)
+  DRAM (footprint=536870912): Hhat=0.0002 H_pmu=0.4483685815346614 abs_error=0.44816858153466144 rel_error_pct=99.95539384153203 (n_valid=3/3)
+-- wrote data_processed/ookay/software_hit_rate/pmu_validation_20260914T125828Z.csv --
+
+== done ==
+== record in data_raw/ookay/README.md software_hit_rate/ section: core=2, base_seed=12345 (repeats use base_seed+index), timestamp=20260914T125828Z ==
+== full transcript saved to: data_raw/ookay/software_hit_rate/pmu/run_hit_rate_pmu_validation_20260914T125828Z.log ==

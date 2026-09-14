@@ -1,0 +1,43 @@
+== run_software_hit_rate_sweep: machine=crux core=5 seed=12345 ==
+== boundaries=L1:32768,L2:262144,LLC:8388608,DRAM:536870912 ==
+== timestamp=20260914T123738Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=70.0000 sensitivity=0.9953 specificity=0.9999 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=67.0000 sensitivity=0.9951 specificity=1.0000 p_obs=0.9994 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=75.0000 sensitivity=0.9952 specificity=0.9999 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=72.0000 sensitivity=0.9952 specificity=0.9999 p_obs=0.9995 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=72.0000 sensitivity=0.9953 specificity=0.9998 p_obs=0.9984 Hhat=1.0000 ci_lower=0.9881 ci_upper=1.0000 bootstrap_mean=0.9988 bootstrap_std=0.0038 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=72.0000 sensitivity=0.9952 specificity=0.9998 p_obs=0.9777 Hhat=0.9824 ci_lower=0.8951 ci_upper=0.9928 bootstrap_mean=0.9779 bootstrap_std=0.0230 bootstrap_reps=2000
+== test_bytes=1048576 ==
+  # result tau_ticks=71.0000 sensitivity=0.9953 specificity=0.9998 p_obs=0.6946 Hhat=0.6978 ci_lower=0.3087 ci_upper=0.7016 bootstrap_mean=0.6283 bootstrap_std=0.1296 bootstrap_reps=2000
+== test_bytes=4194304 ==
+  # result tau_ticks=69.0000 sensitivity=0.9954 specificity=0.9998 p_obs=0.3618 Hhat=0.3633 ci_lower=0.0917 ci_upper=0.3673 bootstrap_mean=0.3266 bootstrap_std=0.0847 bootstrap_reps=2000
+== test_bytes=8388608 ==
+  # result tau_ticks=72.0000 sensitivity=0.9952 specificity=0.9999 p_obs=0.4622 Hhat=0.4643 ci_lower=0.1626 ci_upper=0.7225 bootstrap_mean=0.5063 bootstrap_std=0.1610 bootstrap_reps=2000
+== test_bytes=16777216 ==
+  # result tau_ticks=69.0000 sensitivity=0.9953 specificity=0.9999 p_obs=0.0865 Hhat=0.0868 ci_lower=0.0266 ci_upper=0.2418 bootstrap_mean=0.1345 bootstrap_std=0.0802 bootstrap_reps=2000
+== test_bytes=33554432 ==
+  # result tau_ticks=73.0000 sensitivity=0.9953 specificity=0.9998 p_obs=0.0506 Hhat=0.0506 ci_lower=0.0073 ci_upper=0.0523 bootstrap_mean=0.0333 bootstrap_std=0.0184 bootstrap_reps=2000
+== test_bytes=67108864 ==
+  # result tau_ticks=72.0000 sensitivity=0.9953 specificity=0.9998 p_obs=0.0097 Hhat=0.0095 ci_lower=0.0037 ci_upper=0.0158 bootstrap_mean=0.0104 bootstrap_std=0.0026 bootstrap_reps=2000
+== test_bytes=134217728 ==
+  # result tau_ticks=73.0000 sensitivity=0.9953 specificity=0.9998 p_obs=0.0040 Hhat=0.0038 ci_lower=0.0018 ci_upper=0.0043 bootstrap_mean=0.0032 bootstrap_std=0.0007 bootstrap_reps=2000
+== test_bytes=268435456 ==
+  # result tau_ticks=74.0000 sensitivity=0.9952 specificity=0.9999 p_obs=0.0011 Hhat=0.0009 ci_lower=0.0006 ci_upper=0.0020 bootstrap_mean=0.0011 bootstrap_std=0.0004 bootstrap_reps=2000
+== test_bytes=536870912 ==
+  # result tau_ticks=73.0000 sensitivity=0.9953 specificity=0.9997 p_obs=0.0003 Hhat=0.0000 ci_lower=0.0000 ci_upper=0.0002 bootstrap_mean=0.0000 bootstrap_std=0.0001 bootstrap_reps=2000
+wrote 15 rows -> data_raw/crux/software_hit_rate/hit_rate_sweep_20260914T123738Z.csv
+-- generating plots --
+wrote data_processed/crux/software_hit_rate/plots/calibration_distributions.{png,pdf}
+wrote data_processed/crux/software_hit_rate/plots/hit_rate_sweep.{png,pdf}
+-- compressing raw per-access CSVs --
+
+== done ==
+== summary: data_raw/crux/software_hit_rate/hit_rate_sweep_20260914T123738Z.csv ==
+== record in data_raw/crux/README.md: core=5, seed=12345, timestamp=20260914T123738Z ==
+== full transcript saved to: data_raw/crux/software_hit_rate/run_software_hit_rate_sweep_20260914T123738Z.log ==
