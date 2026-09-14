@@ -2062,7 +2062,8 @@ that freeze will be fit from.
   estimator" bullet above — not a stub anymore, just incomplete).
 
 **Problem 8.4 (eight interesting performance counters across generations),
-item 1: started 2026-09-14, Sunbird, Thunderbird, and Skylark done (3 of 8 machines).**
+item 1: started 2026-09-14, Sunbird, Thunderbird, Skylark, and Artemisia
+done (4 of 8 machines).**
 New pipeline
 `scripts/run_standardized_benchmarks.sh` + `scripts/summarize_eight_counters.py`
 runs the same `--experiment hit_latency --load-mode dependent --pattern
@@ -2146,8 +2147,29 @@ differs), same base+2-reproducibility-repeat convention.
   the whole session — not further investigated. `dtlb_load_misses` climbs
   cleanly monotonic across all 3 benchmarks (~691 → ~2,905 → ~10,901).
   Full detail: `data_raw/skylark/README.md`'s `eight_counters/` section.
-- **3 of 8 machines done (Sunbird, Thunderbird, Skylark); 5 remaining**
-  (Artemisia, Charnwood, Crux, Ookay, Upgrade). Each needs the same command
+- **Artemisia** (`data_raw/artemisia/eight_counters/`, core 7,
+  base_seed=12345, timestamp `20260914T053053Z`). All 8 event names are
+  genuinely listed by `perf list` on this machine (unlike Skylark's 5-of-8
+  or Thunderbird's ARM gaps) — no substitutions needed. `L1_resident`≈6.2,
+  `beyond_LLC`≈304.3-304.9 ticks/access, the latter an almost exact match to
+  this machine's own already-documented ≈305.58-tick DRAM latency and the
+  tightest cross-repeat agreement (≤0.5 ticks) of any benchmark this
+  session. **`LLC_random`≈194.7 ticks/access is a THIRD different value for
+  this exact footprint across this machine's 3 sessions so far** (Phase I's
+  original quiet-session ≈94.4, `pmu/`'s own contention-affected re-run
+  ≈237.7) — this time with a concrete, `ps`-confirmed cause: another
+  student's own `cache_bench_x86 --exp nextlevel --evict_kb 220000`
+  benchmark (itself deliberately LLC/bandwidth-heavy) was active on the
+  same socket/LLC domain throughout, alongside the already-documented
+  `incl_pmu` process, even though this run's own core (7) stayed idle the
+  whole time — the same "idle core doesn't insulate from chip-shared
+  contention" pattern as Sunbird's, Thunderbird's, and Ookay's own
+  `beyond_LLC`/PMU anomalies, now hitting this machine's `LLC_random`
+  specifically instead. `dtlb_load_misses` climbs cleanly monotonic across
+  all 3 benchmarks (~1.7K → ~11.1M → ~251M). Full detail:
+  `data_raw/artemisia/README.md`'s `eight_counters/` section.
+- **4 of 8 machines done (Sunbird, Thunderbird, Skylark, Artemisia); 4
+  remaining** (Charnwood, Crux, Ookay, Upgrade). Each needs the same command
   (`./scripts/run_standardized_benchmarks.sh <machine> <core>
   L1_resident:<L1_bytes>,LLC_random:<LLC_bytes>,beyond_LLC:536870912`) with
   its own `FINAL_CACHE_TABLE.md` L1/LLC values. Items 2-4 of 8.4 cannot be

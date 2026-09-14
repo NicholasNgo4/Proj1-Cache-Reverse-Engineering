@@ -1,0 +1,63 @@
+== run_standardized_benchmarks: machine=artemisia core=7 base_seed=12345 ==
+== timestamp=20260914T053053Z ==
+
+== benchmark L1_resident: footprint_bytes=49152 ==
+-- base (seed=12345) --
+  group=cache -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_cache_base_20260914T053053Z.csv
+  group=l1 -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_l1_base_20260914T053053Z.csv
+  group=llc -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_llc_base_20260914T053053Z.csv
+  group=tlb -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_tlb_base_20260914T053053Z.csv
+-- rep1 (seed=12346) --
+  group=cache -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_cache_rep1_20260914T053053Z.csv
+  group=l1 -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_l1_rep1_20260914T053053Z.csv
+  group=llc -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_llc_rep1_20260914T053053Z.csv
+  group=tlb -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_tlb_rep1_20260914T053053Z.csv
+-- rep2 (seed=12347) --
+  group=cache -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_cache_rep2_20260914T053053Z.csv
+  group=l1 -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_l1_rep2_20260914T053053Z.csv
+  group=llc -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_llc_rep2_20260914T053053Z.csv
+  group=tlb -> data_raw/artemisia/eight_counters/L1_resident/L1_resident_perfstat_tlb_rep2_20260914T053053Z.csv
+Wrote 4 rows (incl. median) to data_processed/artemisia/eight_counters/L1_resident/eight_counters_summary_20260914T053053Z.csv
+-- wrote data_processed/artemisia/eight_counters/L1_resident/eight_counters_summary_20260914T053053Z.csv --
+
+== benchmark LLC_random: footprint_bytes=31457280 ==
+-- base (seed=12345) --
+  group=cache -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_cache_base_20260914T053053Z.csv
+  group=l1 -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_l1_base_20260914T053053Z.csv
+  group=llc -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_llc_base_20260914T053053Z.csv
+  group=tlb -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_tlb_base_20260914T053053Z.csv
+-- rep1 (seed=12346) --
+  group=cache -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_cache_rep1_20260914T053053Z.csv
+  group=l1 -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_l1_rep1_20260914T053053Z.csv
+  group=llc -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_llc_rep1_20260914T053053Z.csv
+  group=tlb -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_tlb_rep1_20260914T053053Z.csv
+-- rep2 (seed=12347) --
+  group=cache -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_cache_rep2_20260914T053053Z.csv
+  group=l1 -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_l1_rep2_20260914T053053Z.csv
+  group=llc -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_llc_rep2_20260914T053053Z.csv
+  group=tlb -> data_raw/artemisia/eight_counters/LLC_random/LLC_random_perfstat_tlb_rep2_20260914T053053Z.csv
+Wrote 4 rows (incl. median) to data_processed/artemisia/eight_counters/LLC_random/eight_counters_summary_20260914T053053Z.csv
+-- wrote data_processed/artemisia/eight_counters/LLC_random/eight_counters_summary_20260914T053053Z.csv --
+
+== benchmark beyond_LLC: footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  group=cache -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_cache_base_20260914T053053Z.csv
+  group=l1 -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_l1_base_20260914T053053Z.csv
+  group=llc -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_llc_base_20260914T053053Z.csv
+  group=tlb -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_tlb_base_20260914T053053Z.csv
+-- rep1 (seed=12346) --
+  group=cache -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_cache_rep1_20260914T053053Z.csv
+  group=l1 -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_l1_rep1_20260914T053053Z.csv
+  group=llc -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_llc_rep1_20260914T053053Z.csv
+  group=tlb -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_tlb_rep1_20260914T053053Z.csv
+-- rep2 (seed=12347) --
+  group=cache -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_cache_rep2_20260914T053053Z.csv
+  group=l1 -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_l1_rep2_20260914T053053Z.csv
+  group=llc -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_llc_rep2_20260914T053053Z.csv
+  group=tlb -> data_raw/artemisia/eight_counters/beyond_LLC/beyond_LLC_perfstat_tlb_rep2_20260914T053053Z.csv
+Wrote 4 rows (incl. median) to data_processed/artemisia/eight_counters/beyond_LLC/eight_counters_summary_20260914T053053Z.csv
+-- wrote data_processed/artemisia/eight_counters/beyond_LLC/eight_counters_summary_20260914T053053Z.csv --
+
+== done ==
+== record in data_raw/artemisia/README.md eight_counters/ section: core=7, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260914T053053Z ==
+== full transcript saved to: data_raw/artemisia/eight_counters/run_standardized_benchmarks_20260914T053053Z.log ==

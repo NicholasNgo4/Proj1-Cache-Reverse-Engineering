@@ -995,6 +995,102 @@ section is the raw-data/reproduction-detail record.
     assuming, on any future machine, same as Sunbird/Thunderbird's own
     2-event ceiling was.
 
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+Ran `scripts/run_standardized_benchmarks.sh` (built by Sunbird's session,
+already reused by Thunderbird and Skylark) — the 3 standardized
+cross-machine microbenchmarks (`L1_resident`, `LLC_random`, `beyond_LLC`)
+each wrapped in `perf stat` to collect this pipeline's fixed 8-event set
+(`cache-references`, `cache-misses`, `L1-dcache-loads`,
+`L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`, `LLC-load-misses`,
+`dTLB-load-misses`) — distinct from `pmu/`'s own 8-event set (§8.3), which
+swaps the store/TLB pair for `cycles`/`instructions`.
+
+- `perf list` check (item 1's first requirement): all 8 event names are
+  listed on this machine's PMU as genuine `[Hardware event]`/`cpu/.../`
+  entries (`cache-references`, `cache-misses`, `L1-dcache-loads`,
+  `L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+  `LLC-load-misses`, `dTLB-load-misses`) — unlike Skylark (only 5 of 8
+  listed) or Thunderbird (`L1-dcache-stores` and both `LLC-*` events absent
+  from its ARM PMU's listing), this machine needed no substitutions.
+- Run command: `./scripts/run_standardized_benchmarks.sh artemisia 7
+  L1_resident:49152,LLC_random:31457280,beyond_LLC:536870912` — the first
+  two footprints are this machine's own `FINAL_CACHE_TABLE.md` L1/LLC
+  representative values (same ones used for `pmu/`'s §8.3 run), kept
+  as-is for cross-machine naming consistency even though §8.3's own results
+  since showed the real LLC is ~52.5 MiB, not ~30 MiB — `beyond_LLC` uses
+  the project's universal 536,870,912 B (512 MiB) constant. Core 7 (logical
+  CPUs 7 and 63, its SMT sibling) chosen after 3-4 `/proc/stat` idle-delta
+  samples ~3s apart showed it consistently ≥96% idle across every window,
+  unlike cores 0/2/4 (another student's `incl_pmu` benchmark bouncing
+  between CPUs 0/2, and a `champsim` simulation pinned to CPU 4, both still
+  active from the earlier `pmu/` session) — `ps` confirmed no user process
+  scheduled on CPU 7 or 63 at all, only kernel threads and idle
+  editor/language-server processes at 0.0% CPU. base_seed=12345 (repeats
+  use base_seed+index), samples=1,000,000/run, timestamp
+  `20260914T053053Z`. `L1_resident` and `LLC_random` each completed in
+  seconds; `beyond_LLC` (512 MiB, 3 warmup passes, random pattern) took
+  the bulk of the wall time, consistent with this project's documented
+  "long dense sweep" cost pattern — run in the background rather than
+  polled synchronously.
+- Raw output: `data_raw/artemisia/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` and `*_bench_*.csv.gz`, gzipped by hand.
+  Transcript: `data_raw/artemisia/eight_counters/
+  run_standardized_benchmarks_20260914T053053Z.log`.
+- Processed: `data_processed/artemisia/eight_counters/{L1_resident,
+  LLC_random,beyond_LLC}/eight_counters_summary_20260914T053053Z.csv` (one
+  row per run_tag + a median-of-3 row).
+- **Results**: all 8 counters collected cleanly at all 3 benchmarks, no
+  `<not counted>`/`<not supported>` events on this machine.
+  - `L1_resident` (49,152 B): bench median 6.2 ticks/access — close to this
+    machine's own already-documented L1 hit latency (~9.87 ticks from
+    `latency/`, ~5.7-10.4 from the earlier `pmu/` run; all three sessions
+    disagree with each other by roughly a factor of ~1.5-1.7x, an
+    unresolved session-to-session noise pattern already flagged in the
+    `pmu/` section above, not a new finding). `dtlb_load_misses` small and
+    sane (~1.7K).
+  - `LLC_random` (31,457,280 B, ~60% of this machine's real ~52.5 MiB LLC
+    per §8.3): bench median 194.7 ticks/access — a THIRD different value
+    for this exact footprint across this machine's 3 sessions so far
+    (Phase I's original quiet-session number ≈94.4, the `pmu/` section's
+    contention-affected re-run ≈237.7, now this run's 194.7). **Identified
+    a concrete, session-specific cause this time, not just a generic
+    "contention" attribution**: `ps` at the time of this run showed
+    another student's `cache_bench_x86 --exp nextlevel --cpu 4
+    --evict_kb 220000` process actively running on CPU 4 (a 220 MB
+    eviction-buffer benchmark, i.e. itself deliberately LLC/
+    memory-bandwidth-heavy) alongside the same `incl_pmu` process on CPUs
+    0/2 already flagged in the `pmu/` section — both on this run's own
+    socket/LLC domain (CPUs 0-27,56-83), even though core 7 itself stayed
+    idle throughout. `dtlb_load_misses` climbs to ~11.1M (vs.
+    `L1_resident`'s ~1.7K), as expected for a footprint spanning many more
+    pages. `cache_miss_rate` climbs to ~35-40% and `llc_miss_rate` to
+    ~30-34%, both a clear order-of-magnitude jump from `L1_resident`'s
+    ~0.14-0.23%/~0.06-0.10% — the capacity-crossing signal itself is
+    intact regardless of the contention-driven magnitude noise.
+  - `beyond_LLC` (536,870,912 B): bench median 304.3-304.9 ticks/access
+    across all 3 runs — **the tightest agreement of any benchmark this
+    session** (≤0.5 tick spread) and an almost exact match to this
+    machine's own already-documented ≈305.58-tick DRAM latency from
+    `FINAL_CACHE_TABLE.md`. Unlike `LLC_random`, this benchmark shows no
+    contention-driven anomaly, plausibly because every access here already
+    has to reach DRAM regardless of LLC occupancy pressure from other
+    processes, so shared-LLC contention has much less room to change the
+    outcome (the same reasoning Skylark's own `beyond_LLC` run — also
+    anomaly-free despite confirmed contention — was read against). `cache_
+    miss_rate`/`llc_miss_rate` both climb further still (~80%/~77%), and
+    `dtlb_load_misses` reaches ~251M, consistent with a working set far
+    larger than DTLB reach. `l1_dcache_stores` also climbs by roughly
+    1000x from `L1_resident` to `beyond_LLC` — almost certainly a
+    whole-process-lifetime dilution artifact (the untimed warmup passes
+    over a much larger buffer execute far more store instructions before
+    the timed region even starts), the same caveat already documented for
+    `cycles`/`instructions` in the `pmu/` section's PMU-overhead caveats,
+    not a new finding specific to this counter.
+- Items 2-4 of Problem 8.4 (normalization, ranked S-curves, Intel/AMD/Arm +
+  generation comparison) are cross-machine analyses that need all 8
+  machines' `eight_counters/` data first — not attempted here, per
+  `CLAUDE.md`'s own tracking of this problem.
+
 ## Final Inferred Cache Table (Artemisia, Phase I best guess, 2026-09-13)
 
 Lives at `data_processed/artemisia/FINAL_CACHE_TABLE.md`, alongside this
