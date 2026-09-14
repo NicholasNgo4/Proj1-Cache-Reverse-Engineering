@@ -1,0 +1,68 @@
+== run_hit_rate_pmu_validation: machine=skylark core=10 base_seed=12345 ==
+== timestamp=20260914T042323Z ==
+
+== level L1: capacity_results_bytes=32768 tested_footprint_bytes=16384 ==
+-- base (seed=12345) --
+  calibration: tau=96.0000 sensitivity=0.9915 specificity=0.9789 (-> data_raw/skylark/software_hit_rate/pmu/L1/L1_calibonly_base_20260914T042323Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/skylark/software_hit_rate/pmu/L1/L1_bench_base_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/L1/L1_perfstat_base_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/L1/L1_hitlatpmu_base_20260914T042323Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=96.0000 sensitivity=0.9914 specificity=0.9801 (-> data_raw/skylark/software_hit_rate/pmu/L1/L1_calibonly_rep1_20260914T042323Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/skylark/software_hit_rate/pmu/L1/L1_bench_rep1_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/L1/L1_perfstat_rep1_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/L1/L1_hitlatpmu_rep1_20260914T042323Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=96.0000 sensitivity=0.9932 specificity=0.9778 (-> data_raw/skylark/software_hit_rate/pmu/L1/L1_calibonly_rep2_20260914T042323Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/skylark/software_hit_rate/pmu/L1/L1_bench_rep2_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/L1/L1_perfstat_rep2_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/L1/L1_hitlatpmu_rep2_20260914T042323Z.csv
+
+== level L2: capacity_results_bytes=524288 tested_footprint_bytes=262144 ==
+-- base (seed=12345) --
+  calibration: tau=96.0000 sensitivity=0.9905 specificity=0.9791 (-> data_raw/skylark/software_hit_rate/pmu/L2/L2_calibonly_base_20260914T042323Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/skylark/software_hit_rate/pmu/L2/L2_bench_base_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/L2/L2_perfstat_base_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/L2/L2_hitlatpmu_base_20260914T042323Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=96.0000 sensitivity=0.9911 specificity=0.9787 (-> data_raw/skylark/software_hit_rate/pmu/L2/L2_calibonly_rep1_20260914T042323Z.csv)
+  Hhat (unwrapped): 0.9993 (-> data_raw/skylark/software_hit_rate/pmu/L2/L2_bench_rep1_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/L2/L2_perfstat_rep1_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/L2/L2_hitlatpmu_rep1_20260914T042323Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=96.0000 sensitivity=0.9906 specificity=0.9788 (-> data_raw/skylark/software_hit_rate/pmu/L2/L2_calibonly_rep2_20260914T042323Z.csv)
+  Hhat (unwrapped): 0.9993 (-> data_raw/skylark/software_hit_rate/pmu/L2/L2_bench_rep2_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/L2/L2_perfstat_rep2_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/L2/L2_hitlatpmu_rep2_20260914T042323Z.csv
+
+== level LLC: capacity_results_bytes=8388608 tested_footprint_bytes=4194304 ==
+-- base (seed=12345) --
+  calibration: tau=96.0000 sensitivity=0.9912 specificity=0.9783 (-> data_raw/skylark/software_hit_rate/pmu/LLC/LLC_calibonly_base_20260914T042323Z.csv)
+  Hhat (unwrapped): 0.7940 (-> data_raw/skylark/software_hit_rate/pmu/LLC/LLC_bench_base_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/LLC/LLC_perfstat_base_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/LLC/LLC_hitlatpmu_base_20260914T042323Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=96.0000 sensitivity=0.9911 specificity=0.9782 (-> data_raw/skylark/software_hit_rate/pmu/LLC/LLC_calibonly_rep1_20260914T042323Z.csv)
+  Hhat (unwrapped): 0.9223 (-> data_raw/skylark/software_hit_rate/pmu/LLC/LLC_bench_rep1_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/LLC/LLC_perfstat_rep1_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/LLC/LLC_hitlatpmu_rep1_20260914T042323Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=96.0000 sensitivity=0.9921 specificity=0.9779 (-> data_raw/skylark/software_hit_rate/pmu/LLC/LLC_calibonly_rep2_20260914T042323Z.csv)
+  Hhat (unwrapped): 0.8775 (-> data_raw/skylark/software_hit_rate/pmu/LLC/LLC_bench_rep2_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/LLC/LLC_perfstat_rep2_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/LLC/LLC_hitlatpmu_rep2_20260914T042323Z.csv
+
+== level DRAM: capacity_results_bytes=536870912 tested_footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  calibration: tau=96.0000 sensitivity=0.9909 specificity=0.9799 (-> data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_calibonly_base_20260914T042323Z.csv)
+  Hhat (unwrapped): 0.0001 (-> data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_bench_base_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_perfstat_base_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_base_20260914T042323Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=96.0000 sensitivity=0.9901 specificity=0.9786 (-> data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_calibonly_rep1_20260914T042323Z.csv)
+  Hhat (unwrapped): 0.0015 (-> data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_bench_rep1_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_perfstat_rep1_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_rep1_20260914T042323Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=96.0000 sensitivity=0.9932 specificity=0.9774 (-> data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_calibonly_rep2_20260914T042323Z.csv)
+  Hhat (unwrapped): 0.0000 (-> data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_bench_rep2_20260914T042323Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_perfstat_rep2_20260914T042323Z.csv / data_raw/skylark/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_rep2_20260914T042323Z.csv
+wrote 12 run rows + 4 level summaries -> data_processed/skylark/software_hit_rate/pmu_validation_20260914T042323Z.csv
+  L1 (footprint=16384): Hhat=1.0 H_pmu=0.6758087715448938 abs_error=0.3241912284551062 rel_error_pct=47.970852422351285 (n_valid=3/3)
+  L2 (footprint=262144): Hhat=0.9993 H_pmu=0.9915807931353978 abs_error=0.007745991363332538 rel_error_pct=0.7806460136125164 (n_valid=3/3)
+  LLC (footprint=4194304): Hhat=0.8775 H_pmu=0.5532111311822867 abs_error=0.3217625316500021 rel_error_pct=57.898297303099845 (n_valid=3/3)
+  DRAM (footprint=536870912): Hhat=0.0001 H_pmu=0.5092621781779001 abs_error=0.5091621781779001 rel_error_pct=99.98036374891264 (n_valid=3/3)
+-- wrote data_processed/skylark/software_hit_rate/pmu_validation_20260914T042323Z.csv --
+
+== done ==
+== record in data_raw/skylark/README.md software_hit_rate/ section: core=10, base_seed=12345 (repeats use base_seed+index), timestamp=20260914T042323Z ==
+== full transcript saved to: data_raw/skylark/software_hit_rate/pmu/run_hit_rate_pmu_validation_20260914T042323Z.log ==
