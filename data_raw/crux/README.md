@@ -351,10 +351,168 @@ reasoned inference from the timing data collected here, not a certainty —
 both LLC-involving pairings are undermined by the same DTLB-pressure caveat
 (2) at this eviction scale, and L2_vs_LLC additionally by caveat 3.
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename: 
-- Events collected + exact semantics on this CPU: 
-- Run command + arguments: 
+### pmu/ (Phase II — 2026-09-14)
+Phase I frozen/tagged (`phase1-timing-only`) before anything below was run,
+per `README.md`'s Phase Discipline. See `CLAUDE.md`'s Phase II section and
+`data_processed/crux/PHASE2_VALIDATION_TABLE.md` for the full methodology/
+results write-up and literature citation — this section is the raw-data/
+reproduction-detail record. Uses the settled cross-machine pipeline
+(`scripts/run_pmu_verification.sh` + `scripts/summarize_pmu.py`), the same
+one Sunbird's and Thunderbird's sessions used — no new code this session.
+
+- Source file(s): `scripts/run_pmu_verification.sh`, `scripts/summarize_pmu.py`
+  (no `cache_bench` source changes — reuses the existing `--experiment
+  hit_latency` binary, wrapped in `perf stat`).
+- Core selection: cores 0 and 2 were pinned by other students' active jobs
+  at the time (`incl_pmu` at ~133% CPU on core 0, `cache_bench_x86` at
+  ~67% CPU on core 2 — confirmed via `taskset -pc <pid>` on each). Two
+  independent `/proc/stat` idle-time-delta samples, 4s apart, confirmed
+  cores 0 and 2 at 0% idle (fully busy) both times while cores 1, 3, 4, 5,
+  6, 7 were all ~100% idle both times. Core 1 chosen (also had no other
+  process listed against it in `ps -eLo pid,psr,...`).
+- Machine-specific PMU check done before running (this machine behaves
+  differently from Sunbird's, worth checking rather than assuming): a
+  hand-run combined single `perf stat -e duration_time,cache-references,
+  cache-misses,L1-dcache-loads,L1-dcache-load-misses,LLC-loads,
+  LLC-load-misses,cycles,instructions` invocation against a real
+  `cache_bench --experiment hit_latency` run (footprint 32,768 B, core 1),
+  repeated 3 times, showed **all 8 events scheduled at 100%
+  simultaneously** every time — unlike Sunbird, which could only reliably
+  schedule 2 hardware events at once. `nmi_watchdog=1` here too (same as
+  Sunbird), so that alone doesn't explain the difference; not investigated
+  further (plausibly just more free programmable counters available on
+  this generation/SKU, or less other contention on the PMU at the moment
+  of the hand-check). `run_pmu_verification.sh` still ran its fixed
+  4-separate-2-event-group design regardless, per the settled cross-machine
+  convention (not re-derived per machine) — this just means the split was
+  more conservative than strictly necessary here, not that anything failed.
+- Run command: `./scripts/run_pmu_verification.sh crux 1
+  L1:32768,L2:262144,LLC:8388608` (footprints per `CAPACITY_RESULTS.md`,
+  the same three values already used for this machine's `associativity/`
+  and `latency/` sections above). base_seed=12345 (repeats use
+  base_seed+index), samples=1,000,000/run, batch_size=1000, warmup_passes=3,
+  dependent load mode, random pattern (matching the existing `hit_latency`
+  convention), timestamp `20260914T003352Z`.
+- Raw output: `data_raw/crux/pmu/{L1,L2,LLC}/*_perfstat_*.csv.gz` (perf
+  stat's own `-x,` CSV output, one file per group×run_tag, gzipped by hand
+  per this repo's `data_raw/**/*.csv.gz` convention) and `*_bench_*.csv.gz`
+  (cache_bench's own CSV from the same invocation, for direct side-by-side
+  comparison against the perf-derived numbers). Transcript:
+  `data_raw/crux/pmu/run_pmu_verification_20260914T003352Z.log`.
+- Processed: `data_processed/crux/pmu/{L1,L2,LLC}/pmu_summary_20260914T003352Z.csv`
+  (one row per run_tag + a median-of-3 row; no `<not counted>` entries
+  anywhere in any of the three files — this machine's `notes` column is
+  empty in every row). Columns include miss rates for cache-references/
+  L1-dcache/LLC, cycles/access, IPC, and perf's own wall-clock ns/access —
+  see `scripts/summarize_pmu.py`'s docstring for the exact parsing/
+  derivation and its caveats.
+- System-reported cache info (also Phase II, same run):
+  `data_raw/crux/pmu/system_reported_cache_info.txt` — `lscpu --caches`,
+  full `lscpu`, and per-instance `/sys/devices/system/cpu/cpu0/cache/index*/`
+  fields, collected 2026-09-14T00:34:16Z.
+- Headline results (full detail and caveats:
+  `data_processed/crux/PHASE2_VALIDATION_TABLE.md`): L1D matches exactly
+  across Phase I timing, system-report, and Agner Fog's literature table
+  (Skylake-family, which Coffee Lake shares for cache purposes) at
+  size/ways/sets/line/sharing. **Two genuinely important disagreements,
+  stated plainly rather than smoothed over:** (1) L2's real associativity
+  is system-reported as **4-way**, matching the raw confound-flagged
+  reading `FINAL_CACHE_TABLE.md` explicitly set aside in favor of a
+  reasoned "8-way" best guess — Phase I's override was wrong here, and the
+  raw (confound-suspected) measurement was actually right; (2) the real
+  LLC is system-reported as **12 MiB, not the ~8 MiB `CAPACITY_RESULTS.md`
+  value** this and every other Crux experiment used, confirming the
+  discrepancy `FINAL_CACHE_TABLE.md` had already flagged (`lscpu`'s 12 MiB)
+  but left unresolved — LLC associativity (system-reported 12-way) also
+  matches neither Phase I's raw confound value (4) nor its best guess (8).
+  Miss-rate PMU evidence (the reliable Phase-II corroboration signal, per
+  the validation table's own caveat section on why raw cycles/ns numbers
+  are only an order-of-magnitude cross-check here) reproduces the L2→LLC
+  capacity crossing cleanly (LLC-scope miss rate 0.6-0.9% at the L2
+  footprint → 10.5-15% at the LLC footprint). Latency: L2's measured ticks
+  land almost exactly on Fog's 14-cycle reference (~1.03-1.07x, tighter
+  than L1's own ~1.4x inflation); LLC's measured ticks fall inside Fog's
+  wide 34-85 cycle reference range. Sharing scope: system-reported
+  confirms L1/L2 private-per-core (this CPU has no SMT) and LLC shared
+  across all 8 cores of the single socket.
+
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+Cross-machine standardized microbenchmark pipeline for `PROJECT 1.pdf` §8.4
+("Eight Interesting Performance Counters Across Generations"). Uses the
+team-wide `scripts/run_standardized_benchmarks.sh` +
+`scripts/summarize_eight_counters.py` pipeline (already run on Sunbird,
+Thunderbird, and Skylark — see `CLAUDE.md`'s §8.4 section) — no new code
+this session. This is a *different* pipeline from `pmu/`'s §8.3 one: same
+`cache_bench --experiment hit_latency` construction and same proven
+4-groups-of-2 `perf stat` scheduling split, but a different fixed 8-event
+set (`cache-references`, `cache-misses`, `L1-dcache-loads`,
+`L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+`LLC-load-misses`, `dTLB-load-misses` — swaps `pmu/`'s `cycles`/
+`instructions` pair for the L1 store-side signal and a real dTLB-miss
+count) and 3 standardized cross-machine benchmark *names*
+(`L1_resident`, `LLC_random`, `beyond_LLC`) rather than this pipeline's
+own per-level names.
+
+- Run command: `./scripts/run_standardized_benchmarks.sh crux 1
+  L1_resident:32768,LLC_random:8388608,beyond_LLC:536870912` — footprints
+  are this machine's own `FINAL_CACHE_TABLE.md` L1/LLC values (same
+  32,768 B / 8,388,608 B already used for `pmu/`'s §8.3 run above) plus
+  the project's universal 512 MiB `beyond_LLC` constant. Core 1 —
+  re-checked idle immediately before this run via two independent
+  `/proc/stat` idle-time-delta samples 4s apart (all 8 cores ~99-100%
+  idle both times; the other students' jobs that had pinned cores 0/2
+  during the earlier `pmu/` session had since exited). base_seed=12345
+  (repeats use base_seed+index), samples=1,000,000/run, batch_size=1000,
+  warmup_passes=3, dependent load mode, random pattern, timestamp
+  `20260914T052920Z`.
+- Raw output: `data_raw/crux/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` (perf stat output) and `*_bench_*.csv.gz`
+  (cache_bench's own CSV from the same invocation), gzipped by hand per
+  this repo's convention. Transcript:
+  `data_raw/crux/eight_counters/run_standardized_benchmarks_20260914T052920Z.log`.
+- Processed:
+  `data_processed/crux/eight_counters/{L1_resident,LLC_random,beyond_LLC}/eight_counters_summary_20260914T052920Z.csv`
+  (one row per run_tag + a median-of-3 row; no `<not counted>` entries
+  anywhere in any of the three files).
+- Results: all 8 events collected cleanly at all 3 benchmarks, no PMU
+  scheduling failures (consistent with this machine's own already-
+  documented all-events-at-100% finding from the `pmu/` section above).
+  `bench_avg_ticks_per_access` (median): `L1_resident`≈6.94,
+  `LLC_random`≈42.25, `beyond_LLC`≈237.64 — **this is the cleanest
+  cross-machine run of the three done so far**: unlike Sunbird's,
+  Thunderbird's, and Ookay's own `beyond_LLC`/LLC-scale results (all
+  inflated by other students' processes contending for chip-shared
+  LLC/memory bandwidth despite an idle core), every one of Crux's 3
+  numbers here lands within ~6.5% of this machine's own already-
+  documented Phase I `latency/` hit-latency figures at the matching
+  footprint (L1: 7.42 vs. 6.94, -6.5%; LLC: 43.23 vs. 42.25, -2.3%; DRAM:
+  236.80 vs. 237.64, +0.36%) — consistent with all 8 cores being
+  genuinely idle (not just this run's own core) for the whole session,
+  not merely the pinned core. `l1_miss_rate` climbs from 1.05% at
+  `L1_resident` to 8.80-8.81% at `LLC_random` (crosses the L1 boundary,
+  as expected) then to 13.4% at `beyond_LLC` — unlike the `pmu/` section's
+  L1→L2→LLC footprint sequence (where `l1_miss_rate` *saturates and
+  drops* once inside LLC territory, per the already-documented -O0
+  guaranteed-L1-hit-stack-load dilution effect), here it keeps climbing
+  because `beyond_LLC`'s footprint is far past even LLC, not just past L1.
+  `llc_miss_rate` shows the same small-sample noise at the `L1_resident`
+  footprint already documented for this machine's `pmu/` section (5.2-6.3%
+  off of only ~13.6-14k `llc_loads` events) before climbing to a clean,
+  large 46.7-46.8% at `beyond_LLC`. Generic `cache_miss_rate` shows a
+  clean monotonic climb this time (8.2-9.3% → 3.6-6.0% → 54.3-54.4%) —
+  note the same L1-footprint-higher-than-LLC_random-footprint dip already
+  flagged as an open, unexplained quirk in the `pmu/` section reproduces
+  here too. `dtlb_load_misses` climbs cleanly and monotonically across all
+  3 benchmarks — median 1,349 at `L1_resident` → 1,080,275 at `LLC_random`
+  (~800x) → 254,971,011 at `beyond_LLC` (~236x further) — the same clean
+  monotonic pattern already documented on Sunbird, Thunderbird, and
+  Skylark, real new measured data (not just structural inference) toward
+  this project's still-open DTLB-scale associativity confound question.
+- **5 of 8 machines now done (Sunbird, Thunderbird, Skylark, Crux); 4
+  remaining** (Artemisia, Charnwood, Ookay, Upgrade) — see `CLAUDE.md`'s
+  §8.4 section for the running cross-machine tally; items 2-4 of §8.4
+  (normalization, ranked S-curves, Intel/AMD/Arm + generation comparison)
+  still need all 8 machines' data before they can be attempted.
 
 ## Final Inferred Cache Table (Crux, Phase I best guess, 2026-09-13)
 

@@ -1,0 +1,68 @@
+== run_hit_rate_pmu_validation: machine=thunderbird core=3 base_seed=12345 ==
+== timestamp=20260914T032826Z ==
+
+== level L1: capacity_results_bytes=65536 tested_footprint_bytes=32768 ==
+-- base (seed=12345) --
+  calibration: tau=1.0000 sensitivity=0.9900 specificity=0.9971 (-> data_raw/thunderbird/software_hit_rate/pmu/L1/L1_calibonly_base_20260914T032826Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/thunderbird/software_hit_rate/pmu/L1/L1_bench_base_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/L1/L1_perfstat_base_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/L1/L1_hitlatpmu_base_20260914T032826Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=1.0000 sensitivity=0.9915 specificity=0.9979 (-> data_raw/thunderbird/software_hit_rate/pmu/L1/L1_calibonly_rep1_20260914T032826Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/thunderbird/software_hit_rate/pmu/L1/L1_bench_rep1_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/L1/L1_perfstat_rep1_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/L1/L1_hitlatpmu_rep1_20260914T032826Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=1.0000 sensitivity=0.9906 specificity=0.9959 (-> data_raw/thunderbird/software_hit_rate/pmu/L1/L1_calibonly_rep2_20260914T032826Z.csv)
+  Hhat (unwrapped): 1.0000 (-> data_raw/thunderbird/software_hit_rate/pmu/L1/L1_bench_rep2_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/L1/L1_perfstat_rep2_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/L1/L1_hitlatpmu_rep2_20260914T032826Z.csv
+
+== level L2: capacity_results_bytes=1048576 tested_footprint_bytes=524288 ==
+-- base (seed=12345) --
+  calibration: tau=1.0000 sensitivity=0.9911 specificity=0.9969 (-> data_raw/thunderbird/software_hit_rate/pmu/L2/L2_calibonly_base_20260914T032826Z.csv)
+  Hhat (unwrapped): 0.9755 (-> data_raw/thunderbird/software_hit_rate/pmu/L2/L2_bench_base_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/L2/L2_perfstat_base_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/L2/L2_hitlatpmu_base_20260914T032826Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=1.0000 sensitivity=0.9916 specificity=0.9967 (-> data_raw/thunderbird/software_hit_rate/pmu/L2/L2_calibonly_rep1_20260914T032826Z.csv)
+  Hhat (unwrapped): 0.9771 (-> data_raw/thunderbird/software_hit_rate/pmu/L2/L2_bench_rep1_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/L2/L2_perfstat_rep1_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/L2/L2_hitlatpmu_rep1_20260914T032826Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=1.0000 sensitivity=0.9906 specificity=0.9967 (-> data_raw/thunderbird/software_hit_rate/pmu/L2/L2_calibonly_rep2_20260914T032826Z.csv)
+  Hhat (unwrapped): 0.9639 (-> data_raw/thunderbird/software_hit_rate/pmu/L2/L2_bench_rep2_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/L2/L2_perfstat_rep2_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/L2/L2_hitlatpmu_rep2_20260914T032826Z.csv
+
+== level LLC: capacity_results_bytes=31457280 tested_footprint_bytes=15728640 ==
+-- base (seed=12345) --
+  calibration: tau=1.0000 sensitivity=0.9916 specificity=0.9957 (-> data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_calibonly_base_20260914T032826Z.csv)
+  Hhat (unwrapped): 0.3602 (-> data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_bench_base_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_perfstat_base_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_hitlatpmu_base_20260914T032826Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=1.0000 sensitivity=0.9917 specificity=0.9973 (-> data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_calibonly_rep1_20260914T032826Z.csv)
+  Hhat (unwrapped): 0.3633 (-> data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_bench_rep1_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_perfstat_rep1_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_hitlatpmu_rep1_20260914T032826Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=1.0000 sensitivity=0.9903 specificity=0.9966 (-> data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_calibonly_rep2_20260914T032826Z.csv)
+  Hhat (unwrapped): 0.3616 (-> data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_bench_rep2_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_perfstat_rep2_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/LLC/LLC_hitlatpmu_rep2_20260914T032826Z.csv
+
+== level DRAM: capacity_results_bytes=536870912 tested_footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  calibration: tau=1.0000 sensitivity=0.9916 specificity=0.9963 (-> data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_calibonly_base_20260914T032826Z.csv)
+  Hhat (unwrapped): 0.0000 (-> data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_bench_base_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_perfstat_base_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_base_20260914T032826Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=1.0000 sensitivity=0.9924 specificity=0.9970 (-> data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_calibonly_rep1_20260914T032826Z.csv)
+  Hhat (unwrapped): 0.0011 (-> data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_bench_rep1_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_perfstat_rep1_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_rep1_20260914T032826Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=1.0000 sensitivity=0.9890 specificity=0.9966 (-> data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_calibonly_rep2_20260914T032826Z.csv)
+  Hhat (unwrapped): 0.0000 (-> data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_bench_rep2_20260914T032826Z.csv)
+  H_pmu source (perf-wrapped hit_latency): -> data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_perfstat_rep2_20260914T032826Z.csv / data_raw/thunderbird/software_hit_rate/pmu/DRAM/DRAM_hitlatpmu_rep2_20260914T032826Z.csv
+wrote 12 run rows + 4 level summaries -> data_processed/thunderbird/software_hit_rate/pmu_validation_20260914T032826Z.csv
+  L1 (footprint=32768): Hhat=1.0 H_pmu=0.9992362249108384 abs_error=0.0007637750891615891 rel_error_pct=0.07643588874389942 (n_valid=3/3)
+  L2 (footprint=524288): Hhat=0.9755 H_pmu=0.9165976702504558 abs_error=0.05899463587145637 rel_error_pct=6.436911138818183 (n_valid=3/3)
+  LLC (footprint=15728640): Hhat=0.3616 H_pmu=0.9437217768985007 abs_error=0.5821255054201191 rel_error_pct=61.68377373259334 (n_valid=3/3)
+  DRAM (footprint=536870912): Hhat=0.0 H_pmu=0.9466090985473244 abs_error=0.946588160761782 rel_error_pct=100.0 (n_valid=3/3)
+-- wrote data_processed/thunderbird/software_hit_rate/pmu_validation_20260914T032826Z.csv --
+
+== done ==
+== record in data_raw/thunderbird/README.md software_hit_rate/ section: core=3, base_seed=12345 (repeats use base_seed+index), timestamp=20260914T032826Z ==
+== full transcript saved to: data_raw/thunderbird/software_hit_rate/pmu/run_hit_rate_pmu_validation_20260914T032826Z.log ==

@@ -876,10 +876,220 @@ LLC-involving pairings specifically. L2's own relationship to L1 remains
 genuinely open on this machine and would need a re-run at a corrected L2
 eviction footprint (once a real L2 capacity is established) to resolve.
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename:
-- Events collected + exact semantics on this CPU:
-- Run command + arguments:
+### pmu/ (Phase II — 2026-09-14)
+Phase I frozen/tagged (`phase1-timing-only`) before anything below was run,
+per `README.md`'s Phase Discipline. Ran via the now-canonical
+`scripts/run_pmu_verification.sh` pipeline (the same one Sunbird/Thunderbird
+established and standardized on — see `CLAUDE.md`'s "Phase II" subsection),
+no script changes. See `data_processed/artemisia/PHASE2_VALIDATION_TABLE.md`
+for the full methodology/results write-up and literature citations — this
+section is the raw-data/reproduction-detail record.
+
+- Source file(s): `scripts/run_pmu_verification.sh`, `scripts/summarize_pmu.py`
+  (both pre-existing, from Sunbird's session — no changes needed here).
+- Machine-specific PMU check done before running (this machine had never been
+  checked before): `/proc/sys/kernel/nmi_watchdog` = 0 (unlike Sunbird/
+  Thunderbird's 1 — no counter reserved for the watchdog here) and
+  `perf_event_paranoid` = 1 (no root needed). A direct test of the FULL
+  8-event combined group (`duration_time,cache-references,cache-misses,
+  L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses,cycles,
+  instructions`) scheduled every event at **100%** in one single `perf stat`
+  invocation — unlike Sunbird/Thunderbird, which could only reliably schedule
+  2 hardware events at once and needed 4 separate invocations. This machine
+  (2x Xeon Gold 5420+, Sapphire Rapids/Golden Cove) evidently has enough
+  general-purpose PMU counters (or little enough other contention for them)
+  to not need the split. **Kept the script's existing 4-separate-group
+  design anyway, deliberately, for cross-machine consistency with Sunbird's
+  and Thunderbird's already-collected data** (same command structure, same
+  files-per-group layout) rather than special-casing this machine — a real,
+  documented finding, not a limitation to route around.
+- Core selection: this is a heavily shared, multi-user class machine (not
+  just this team) — `who` showed 8 other students' sessions active, `ps`
+  showed several other unrelated CPU-bound jobs (a `champsim` simulation
+  campaign, a multi-process CLIP/CIFAR-100 inference job pinned to cores
+  28-55 on the *other* NUMA node/socket, and — notably — another student's
+  own `incl_pmu` benchmark, at ~200% CPU, pinned to CPU 0, same NUMA
+  node/socket/LLC domain as this run's core). Picked core 1 (logical CPUs
+  1 and 57, its SMT sibling) after two 3-second-apart `/proc/stat` idle-delta
+  samples showed both essentially fully idle (98-100%) while CPU 0/2/4 on the
+  same socket were not. **CPU 0's concurrent `incl_pmu` job shares this run's
+  LLC domain (`shared_cpu_list=0-27,56-83`, confirmed via sysfs below) even
+  though it doesn't share a physical core with CPU 1** — flagged as a
+  plausible real contention source for the LLC-footprint numbers below, not
+  fully ruled out.
+- Run command: `./scripts/run_pmu_verification.sh artemisia 1
+  L1:49152,L2:2097152,LLC:31457280` (all three footprints taken directly from
+  `CAPACITY_RESULTS.md`, per that file's standing authority over this file's
+  own capacity prose — note the L2 value is the same one this machine's own
+  `capacity/` section already flags as NOT a confirmed boundary, used anyway
+  per project-wide direction, same as every other experiment type on this
+  machine). base_seed=12345 (repeats use base_seed+index), samples=
+  1,000,000/run, batch_size=1000, warmup_passes=3, dependent load mode,
+  random pattern, timestamp `20260914T003056Z`. Total wall time: well under a
+  minute per invocation even at the LLC footprint — much faster than
+  Sunbird's own LLC-footprint runs, consistent with this machine's smaller
+  absolute footprint relative to its (larger, as it turns out — see below)
+  real LLC capacity.
+- Raw output: `data_raw/artemisia/pmu/{L1,L2,LLC}/*_perfstat_*.csv.gz` (perf
+  stat's own `-x,` CSV output, one file per group×run_tag, gzipped by hand
+  per `.gitignore`'s `data_raw/**/*.csv` convention) and `*_bench_*.csv.gz`
+  (cache_bench's own CSV from the same invocation). Transcript:
+  `data_raw/artemisia/pmu/run_pmu_verification_20260914T003056Z.log`.
+- Processed: `data_processed/artemisia/pmu/{L1,L2,LLC}/
+  pmu_summary_20260914T003056Z.csv` (one row per run_tag + a median-of-3
+  row).
+- System-reported cache info (also Phase II, same session):
+  `data_raw/artemisia/pmu/system_reported_cache_info.txt` — `lscpu --caches`,
+  full `lscpu`, and per-instance `/sys/devices/system/cpu/{cpu0,cpu1}/cache/
+  index*/` fields (cpu0 included for a sanity cross-check against cpu1, our
+  actual test core — both agree), collected 2026-09-14T00:31:34Z.
+- **Headline results** (full detail, caveats, and literature citations:
+  `data_processed/artemisia/PHASE2_VALIDATION_TABLE.md`):
+  - **L1D and L2: a striking confirmation of Phase I's own low-confidence
+    associativity best guesses.** Phase I's L1 associativity (12-way) and L2
+    associativity (16-way) were both explicitly flagged in
+    `FINAL_CACHE_TABLE.md` as confound-blocked, low-confidence estimates —
+    system-reported associativity (`lscpu --caches` / sysfs) is **12-way at
+    L1D and 16-way at L2, an EXACT match to both**. Size/sets/line/sharing
+    also match exactly at both levels across Phase I, system-report, and
+    Intel's own published spec (Intel ARK product page for this exact SKU,
+    Xeon Gold 5420+: 48 KB L1D / 2048 KB L2 per core — see the validation
+    table for the full citation).
+  - **LLC: a real, informative SIZE disagreement, not just an associativity
+    one.** Phase I's `CAPACITY_RESULTS.md` value (~30 MiB, 31,457,280 B) was
+    always presented as a representative footprint, not a confirmed
+    boundary — this machine's own `capacity/` section explicitly found no
+    discrete L2/L3 plateau, only one continuous ramp from ~48 KiB to
+    ~90 MiB. System-report AND Intel ARK's own spec sheet independently
+    agree the real per-socket L3 is **52.5 MiB (55,050,240 B, exactly
+    57,344 sets × 15 ways × 64 B)** — 1.75x Phase I's representative value.
+    This resolves the open question from the capacity writeup: the ~90 MiB
+    plateau-onset Phase I did observe is much more consistent with a real
+    ~52.5 MiB LLC (accounting for the extra headroom a random-probe pattern
+    typically needs past nominal capacity to reliably evict everything) than
+    with a ~30 MiB one. LLC associativity: system-reported **15-way** —
+    neither of Phase I's two candidate guesses (16-way point estimate, 8-way
+    "equally plausible alternative") is exact, but 16 is far closer than 8,
+    a partial validation of the structural reasoning that produced it.
+  - **LLC-footprint PMU numbers from this run look contention-inflated, most
+    likely by the concurrent same-socket `incl_pmu` job noted above.** This
+    run's own `cache_bench` bench-median latency at the LLC footprint
+    (237.7 ticks) is ~2.5x Phase I's original latency-experiment number at
+    the same exact footprint (94.4 ticks, collected 2026-09-13 on core 4, a
+    presumably quieter session) — L1's and L2's own bench medians from this
+    run (5.7 and 27.6 ticks) are much closer to their own original Phase I
+    numbers (9.9 and 28.1), so this isn't a uniform re-run difference, it's
+    LLC-specific. The PMU miss-rate signal is consistent with real,
+    unusually heavy eviction: `cache_miss_rate` jumps from ~0.13-0.16% at
+    the L1/L2 footprints to **~54%** at the LLC footprint — a much larger
+    jump than Sunbird's equivalent (~0.1-1.4% to ~11-14%), even though this
+    31 MiB probe is only ~60% of this machine's real 52.5 MiB LLC (i.e., in
+    isolation it should mostly still fit). Read as a real, honestly-flagged
+    shared-machine confound on top of a genuine LLC-crossing signal, not a
+    measurement bug — consistent with this project's established pattern of
+    documenting rather than hiding session-level contention (see Charnwood's,
+    Ookay's, and this same machine's own P-state/contention writeups
+    elsewhere in this file). Not re-run at a quieter time this session.
+  - This machine's PMU reliably schedules **8** hardware events in one group
+    at 100% (see the machine-specific check above) — worth re-checking, not
+    assuming, on any future machine, same as Sunbird/Thunderbird's own
+    2-event ceiling was.
+
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+Ran `scripts/run_standardized_benchmarks.sh` (built by Sunbird's session,
+already reused by Thunderbird and Skylark) — the 3 standardized
+cross-machine microbenchmarks (`L1_resident`, `LLC_random`, `beyond_LLC`)
+each wrapped in `perf stat` to collect this pipeline's fixed 8-event set
+(`cache-references`, `cache-misses`, `L1-dcache-loads`,
+`L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`, `LLC-load-misses`,
+`dTLB-load-misses`) — distinct from `pmu/`'s own 8-event set (§8.3), which
+swaps the store/TLB pair for `cycles`/`instructions`.
+
+- `perf list` check (item 1's first requirement): all 8 event names are
+  listed on this machine's PMU as genuine `[Hardware event]`/`cpu/.../`
+  entries (`cache-references`, `cache-misses`, `L1-dcache-loads`,
+  `L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+  `LLC-load-misses`, `dTLB-load-misses`) — unlike Skylark (only 5 of 8
+  listed) or Thunderbird (`L1-dcache-stores` and both `LLC-*` events absent
+  from its ARM PMU's listing), this machine needed no substitutions.
+- Run command: `./scripts/run_standardized_benchmarks.sh artemisia 7
+  L1_resident:49152,LLC_random:31457280,beyond_LLC:536870912` — the first
+  two footprints are this machine's own `FINAL_CACHE_TABLE.md` L1/LLC
+  representative values (same ones used for `pmu/`'s §8.3 run), kept
+  as-is for cross-machine naming consistency even though §8.3's own results
+  since showed the real LLC is ~52.5 MiB, not ~30 MiB — `beyond_LLC` uses
+  the project's universal 536,870,912 B (512 MiB) constant. Core 7 (logical
+  CPUs 7 and 63, its SMT sibling) chosen after 3-4 `/proc/stat` idle-delta
+  samples ~3s apart showed it consistently ≥96% idle across every window,
+  unlike cores 0/2/4 (another student's `incl_pmu` benchmark bouncing
+  between CPUs 0/2, and a `champsim` simulation pinned to CPU 4, both still
+  active from the earlier `pmu/` session) — `ps` confirmed no user process
+  scheduled on CPU 7 or 63 at all, only kernel threads and idle
+  editor/language-server processes at 0.0% CPU. base_seed=12345 (repeats
+  use base_seed+index), samples=1,000,000/run, timestamp
+  `20260914T053053Z`. `L1_resident` and `LLC_random` each completed in
+  seconds; `beyond_LLC` (512 MiB, 3 warmup passes, random pattern) took
+  the bulk of the wall time, consistent with this project's documented
+  "long dense sweep" cost pattern — run in the background rather than
+  polled synchronously.
+- Raw output: `data_raw/artemisia/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` and `*_bench_*.csv.gz`, gzipped by hand.
+  Transcript: `data_raw/artemisia/eight_counters/
+  run_standardized_benchmarks_20260914T053053Z.log`.
+- Processed: `data_processed/artemisia/eight_counters/{L1_resident,
+  LLC_random,beyond_LLC}/eight_counters_summary_20260914T053053Z.csv` (one
+  row per run_tag + a median-of-3 row).
+- **Results**: all 8 counters collected cleanly at all 3 benchmarks, no
+  `<not counted>`/`<not supported>` events on this machine.
+  - `L1_resident` (49,152 B): bench median 6.2 ticks/access — close to this
+    machine's own already-documented L1 hit latency (~9.87 ticks from
+    `latency/`, ~5.7-10.4 from the earlier `pmu/` run; all three sessions
+    disagree with each other by roughly a factor of ~1.5-1.7x, an
+    unresolved session-to-session noise pattern already flagged in the
+    `pmu/` section above, not a new finding). `dtlb_load_misses` small and
+    sane (~1.7K).
+  - `LLC_random` (31,457,280 B, ~60% of this machine's real ~52.5 MiB LLC
+    per §8.3): bench median 194.7 ticks/access — a THIRD different value
+    for this exact footprint across this machine's 3 sessions so far
+    (Phase I's original quiet-session number ≈94.4, the `pmu/` section's
+    contention-affected re-run ≈237.7, now this run's 194.7). **Identified
+    a concrete, session-specific cause this time, not just a generic
+    "contention" attribution**: `ps` at the time of this run showed
+    another student's `cache_bench_x86 --exp nextlevel --cpu 4
+    --evict_kb 220000` process actively running on CPU 4 (a 220 MB
+    eviction-buffer benchmark, i.e. itself deliberately LLC/
+    memory-bandwidth-heavy) alongside the same `incl_pmu` process on CPUs
+    0/2 already flagged in the `pmu/` section — both on this run's own
+    socket/LLC domain (CPUs 0-27,56-83), even though core 7 itself stayed
+    idle throughout. `dtlb_load_misses` climbs to ~11.1M (vs.
+    `L1_resident`'s ~1.7K), as expected for a footprint spanning many more
+    pages. `cache_miss_rate` climbs to ~35-40% and `llc_miss_rate` to
+    ~30-34%, both a clear order-of-magnitude jump from `L1_resident`'s
+    ~0.14-0.23%/~0.06-0.10% — the capacity-crossing signal itself is
+    intact regardless of the contention-driven magnitude noise.
+  - `beyond_LLC` (536,870,912 B): bench median 304.3-304.9 ticks/access
+    across all 3 runs — **the tightest agreement of any benchmark this
+    session** (≤0.5 tick spread) and an almost exact match to this
+    machine's own already-documented ≈305.58-tick DRAM latency from
+    `FINAL_CACHE_TABLE.md`. Unlike `LLC_random`, this benchmark shows no
+    contention-driven anomaly, plausibly because every access here already
+    has to reach DRAM regardless of LLC occupancy pressure from other
+    processes, so shared-LLC contention has much less room to change the
+    outcome (the same reasoning Skylark's own `beyond_LLC` run — also
+    anomaly-free despite confirmed contention — was read against). `cache_
+    miss_rate`/`llc_miss_rate` both climb further still (~80%/~77%), and
+    `dtlb_load_misses` reaches ~251M, consistent with a working set far
+    larger than DTLB reach. `l1_dcache_stores` also climbs by roughly
+    1000x from `L1_resident` to `beyond_LLC` — almost certainly a
+    whole-process-lifetime dilution artifact (the untimed warmup passes
+    over a much larger buffer execute far more store instructions before
+    the timed region even starts), the same caveat already documented for
+    `cycles`/`instructions` in the `pmu/` section's PMU-overhead caveats,
+    not a new finding specific to this counter.
+- Items 2-4 of Problem 8.4 (normalization, ranked S-curves, Intel/AMD/Arm +
+  generation comparison) are cross-machine analyses that need all 8
+  machines' `eight_counters/` data first — not attempted here, per
+  `CLAUDE.md`'s own tracking of this problem.
 
 ## Final Inferred Cache Table (Artemisia, Phase I best guess, 2026-09-13)
 

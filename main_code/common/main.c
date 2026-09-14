@@ -8,6 +8,7 @@
 #include "inclusion_policy.h"
 #include "latency.h"
 #include "line_size.h"
+#include "../software_hit_rate/software_hit_rate.h"
 
 #define DEFAULT_SAMPLES        1000000ULL      /* total timed accesses per point */
 #define DEFAULT_BATCH_SIZE     1000ULL         /* dependent accesses per timed batch */
@@ -72,6 +73,17 @@
                                                 line size, deliberately different from
                                                 target/control's own offset (always 0) */
 
+#define DEFAULT_RESIDENT_BYTES    (16ULL << 10)  /* 16 KiB -- well inside a typical L1D;
+                                                      run_software_hit_rate_sweep.sh may
+                                                      override from a confirmed L1 boundary */
+#define DEFAULT_NONRESIDENT_BYTES (512ULL << 20) /* 512 MiB -- far past any confirmed LLC on
+                                                      this project's machines, matching the
+                                                      DRAM-plateau footprint hit_latency
+                                                      already uses (see CLAUDE.md) */
+#define DEFAULT_HR_CALIB_SAMPLES  20000ULL
+#define DEFAULT_HR_TEST_SAMPLES   50000ULL
+#define DEFAULT_BOOTSTRAP_REPS    2000ULL
+
 static void usage(const char *prog)
 {
     fprintf(stderr,
@@ -98,6 +110,11 @@ static void usage(const char *prog)
         "                    inclusion/exclusion measurement; classification against\n"
         "                    calibrated hit-latency classes happens downstream, see\n"
         "                    scripts/classify_inclusion_policy.py\n"
+        "  hit_rate          Problem 8.5: software-only, timing-derived cache hit rate\n"
+        "                    estimator (NO PMU access) -- self-calibrates against a\n"
+        "                    known-resident and a known-nonresident workload each run,\n"
+        "                    then estimates Hhat for --test-bytes with a reported\n"
+        "                    bootstrap confidence interval; see software_hit_rate.h\n"
         "\n"
         "Common options:\n"
         "  --samples N            total timed accesses per point (default %llu)\n"
@@ -179,6 +196,28 @@ static void usage(const char *prog)
         "  --evict-offset-bytes N fixed sub-page byte offset shared by every eviction\n"
         "                         node (default %llu); must be < --evict-stride-bytes\n"
         "\n"
+        "hit_rate options:\n"
+        "  --resident-bytes N     calibration \"known-resident\" footprint (default %llu);\n"
+        "                         caller's responsibility to keep well inside a real\n"
+        "                         cache level\n"
+        "  --nonresident-bytes N  calibration \"known-nonresident\" footprint (default\n"
+        "                         %llu); must exceed the true LLC capacity by a wide\n"
+        "                         margin\n"
+        "  --calib-samples N      single-shot trials per calibration class (default %llu)\n"
+        "  --test-bytes N         the working set whose Hhat is being estimated (default\n"
+        "                         %llu) -- the only footprint whose hit rate is actually\n"
+        "                         unknown to the estimator\n"
+        "  --test-samples N       single-shot trials on the test workload (default %llu)\n"
+        "  --bootstrap-reps N     nonparametric bootstrap replicate count (default %llu)\n"
+        "  --tau N --sensitivity N --specificity N   PMU VALIDATION MODE ONLY (must be\n"
+        "                         given all three together) -- skip self-calibration and\n"
+        "                         classify --test-bytes directly against these already-\n"
+        "                         computed values; used by\n"
+        "                         scripts/run_hit_rate_pmu_validation.sh so a perf-wrapped\n"
+        "                         run touches only the test buffer, never the large\n"
+        "                         nonresident calibration buffer -- see\n"
+        "                         software_hit_rate.h's \"PMU VALIDATION MODE\" note\n"
+        "\n"
         "  -h, --help             show this help\n",
         prog,
         (unsigned long long)DEFAULT_SAMPLES,
@@ -203,7 +242,13 @@ static void usage(const char *prog)
         (unsigned long long)DEFAULT_TARGET_BYTES,
         (unsigned long long)DEFAULT_EVICT_BYTES,
         (unsigned long long)DEFAULT_EVICT_STRIDE_BYTES,
-        (unsigned long long)DEFAULT_EVICT_OFFSET_BYTES);
+        (unsigned long long)DEFAULT_EVICT_OFFSET_BYTES,
+        (unsigned long long)DEFAULT_RESIDENT_BYTES,
+        (unsigned long long)DEFAULT_NONRESIDENT_BYTES,
+        (unsigned long long)DEFAULT_HR_CALIB_SAMPLES,
+        (unsigned long long)DEFAULT_FOOTPRINT_BYTES,
+        (unsigned long long)DEFAULT_HR_TEST_SAMPLES,
+        (unsigned long long)DEFAULT_BOOTSTRAP_REPS);
 }
 
 static int parse_u64(const char *s, uint64_t *out)
@@ -220,6 +265,7 @@ static int parse_u64(const char *s, uint64_t *out)
 int main(int argc, char **argv)
 {
     const char *experiment = "capacity";
+    int hr_tau_set = 0, hr_se_set = 0, hr_sp_set = 0;
     struct capacity_config cap_cfg = {
         .samples = DEFAULT_SAMPLES,
         .batch_size = DEFAULT_BATCH_SIZE,
@@ -293,6 +339,21 @@ int main(int argc, char **argv)
         .warmup_passes = DEFAULT_WARMUP_PASSES,
         .seed = DEFAULT_SEED,
         .pattern = ACCESS_PATTERN_RANDOM,
+    };
+    struct hit_rate_config hr_cfg = {
+        .resident_bytes = DEFAULT_RESIDENT_BYTES,
+        .nonresident_bytes = DEFAULT_NONRESIDENT_BYTES,
+        .calib_samples = DEFAULT_HR_CALIB_SAMPLES,
+        .test_bytes = DEFAULT_FOOTPRINT_BYTES,
+        .test_samples = DEFAULT_HR_TEST_SAMPLES,
+        .bootstrap_reps = DEFAULT_BOOTSTRAP_REPS,
+        .warmup_passes = DEFAULT_WARMUP_PASSES,
+        .seed = DEFAULT_SEED,
+        .pattern = ACCESS_PATTERN_RANDOM,
+        .has_fixed_calibration = 0,
+        .fixed_tau = 0.0,
+        .fixed_sensitivity = 0.0,
+        .fixed_specificity = 0.0,
     };
 
     for (int i = 1; i < argc; i++) {
@@ -368,6 +429,27 @@ int main(int argc, char **argv)
             if (parse_u64(argv[++i], &incl_cfg.evict_stride_bytes) != 0) { usage(argv[0]); return 1; }
         } else if (strcmp(argv[i], "--evict-offset-bytes") == 0 && i + 1 < argc) {
             if (parse_u64(argv[++i], &incl_cfg.evict_offset_bytes) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--resident-bytes") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &hr_cfg.resident_bytes) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--nonresident-bytes") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &hr_cfg.nonresident_bytes) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--calib-samples") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &hr_cfg.calib_samples) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--test-bytes") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &hr_cfg.test_bytes) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--test-samples") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &hr_cfg.test_samples) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--bootstrap-reps") == 0 && i + 1 < argc) {
+            if (parse_u64(argv[++i], &hr_cfg.bootstrap_reps) != 0) { usage(argv[0]); return 1; }
+        } else if (strcmp(argv[i], "--tau") == 0 && i + 1 < argc) {
+            hr_cfg.fixed_tau = atof(argv[++i]);
+            hr_tau_set = 1;
+        } else if (strcmp(argv[i], "--sensitivity") == 0 && i + 1 < argc) {
+            hr_cfg.fixed_sensitivity = atof(argv[++i]);
+            hr_se_set = 1;
+        } else if (strcmp(argv[i], "--specificity") == 0 && i + 1 < argc) {
+            hr_cfg.fixed_specificity = atof(argv[++i]);
+            hr_sp_set = 1;
         } else if (strcmp(argv[i], "--warmup-passes") == 0 && i + 1 < argc) {
             cap_cfg.warmup_passes = atoi(argv[++i]);
             ls_cfg.warmup_passes = cap_cfg.warmup_passes;
@@ -376,6 +458,7 @@ int main(int argc, char **argv)
             hl_cfg.warmup_passes = cap_cfg.warmup_passes;
             ml_cfg.warmup_passes = cap_cfg.warmup_passes;
             incl_cfg.warmup_passes = cap_cfg.warmup_passes;
+            hr_cfg.warmup_passes = cap_cfg.warmup_passes;
         } else if (strcmp(argv[i], "--seed") == 0 && i + 1 < argc) {
             uint64_t s;
             if (parse_u64(argv[++i], &s) != 0) { usage(argv[0]); return 1; }
@@ -386,6 +469,7 @@ int main(int argc, char **argv)
             hl_cfg.seed = cap_cfg.seed;
             ml_cfg.seed = cap_cfg.seed;
             incl_cfg.seed = cap_cfg.seed;
+            hr_cfg.seed = cap_cfg.seed;
         } else if (strcmp(argv[i], "--pattern") == 0 && i + 1 < argc) {
             const char *p = argv[++i];
             if (strcmp(p, "random") == 0) {
@@ -403,6 +487,7 @@ int main(int argc, char **argv)
             hl_cfg.pattern = cap_cfg.pattern;
             ml_cfg.pattern = cap_cfg.pattern;
             incl_cfg.pattern = cap_cfg.pattern;
+            hr_cfg.pattern = cap_cfg.pattern;
         } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             usage(argv[0]);
             return 0;
@@ -472,6 +557,29 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    if (hr_cfg.resident_bytes < 1 || hr_cfg.nonresident_bytes < 1 ||
+        hr_cfg.calib_samples < 100 || hr_cfg.test_bytes < 1 ||
+        hr_cfg.test_samples < 100 || hr_cfg.bootstrap_reps < 10 ||
+        hr_cfg.warmup_passes < 0) {
+        fprintf(stderr, "Invalid hit_rate parameter values "
+                        "(--calib-samples/--test-samples must be >= 100, "
+                        "--bootstrap-reps must be >= 10)\n");
+        return 1;
+    }
+    if (hr_tau_set || hr_se_set || hr_sp_set) {
+        if (!(hr_tau_set && hr_se_set && hr_sp_set)) {
+            fprintf(stderr, "--tau, --sensitivity, and --specificity (PMU validation mode) "
+                            "must all be given together, or not at all\n");
+            return 1;
+        }
+        if (hr_cfg.fixed_sensitivity <= 0.0 || hr_cfg.fixed_sensitivity > 1.0 ||
+            hr_cfg.fixed_specificity <= 0.0 || hr_cfg.fixed_specificity > 1.0) {
+            fprintf(stderr, "--sensitivity/--specificity must be in (0, 1]\n");
+            return 1;
+        }
+        hr_cfg.has_fixed_calibration = 1;
+    }
+
     if (strcmp(experiment, "capacity") == 0) {
         return run_capacity_experiment(&cap_cfg);
     }
@@ -493,11 +601,14 @@ int main(int argc, char **argv)
     if (strcmp(experiment, "inclusion_policy") == 0) {
         return run_inclusion_policy_experiment(&incl_cfg);
     }
+    if (strcmp(experiment, "hit_rate") == 0) {
+        return run_hit_rate_experiment(&hr_cfg);
+    }
 
     fprintf(stderr,
             "Unsupported --experiment '%s' (only 'capacity', 'line_size', "
             "'line_size_family', 'associativity', 'hit_latency', "
-            "'miss_latency', and 'inclusion_policy' are implemented so far)\n",
+            "'miss_latency', 'inclusion_policy', and 'hit_rate' are implemented so far)\n",
             experiment);
     return 1;
 }

@@ -1,0 +1,1875 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\renewcommand{\arraystretch}{1.2}
+
+\definecolor{codegray}{gray}{0.95}
+\lstdefinestyle{cstyle}{
+    language=C,
+    backgroundcolor=\color{codegray},
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue!60!black}\bfseries,
+    commentstyle=\color{green!35!black}\itshape,
+    stringstyle=\color{orange!70!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=6pt,
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false,
+    frame=single,
+    tabsize=4,
+    columns=fullflexible,
+    captionpos=b,
+}
+\lstdefinestyle{makestyle}{
+    language=make,
+    backgroundcolor=\color{codegray},
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    showstringspaces=false,
+    frame=single,
+    tabsize=4,
+    columns=fullflexible,
+    captionpos=b,
+}
+\lstset{style=cstyle}
+
+\title{Predicting Cache Evolution: The Growing Capacity and Latency Cost of CPU Caching}
+\author{Nick Ngo, Kevin Chen}
+\date{August 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\textbf{GitHub repository:} \url{https://github.com/NicholasNgo4/Proj1-Cache-Reverse-Engineering}\\
+\textbf{Overleaf project:} \url{https://www.overleaf.com/project/6a933c98d84565980e9e4385}
+\end{center}
+
+\section{Introduction}
+
+The goal of this project is to reverse engineer the CPU cache hierarchy using controlled software microbenchmarks and timing measurements. The project compares cache behavior across multiple Intel, AMD, and Arm microarchitectures and CPU generations.
+
+\section{Experimental Platforms and Architecture Research}
+
+Table~\ref{tab:machines} summarizes the ECE/Ajorpaz lab machines used during the timing-only phase.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{ECE/Ajorpaz Lab Machines and Architecture Research}
+\label{tab:machines}
+
+\begin{tabularx}{\textwidth}{|l|X|l|l|l|l|l|}
+\hline
+\textbf{Machine} &
+\textbf{ISA} &
+\textbf{Vendor} &
+\textbf{CPU Model} &
+\textbf{Microarchitecture} &
+\textbf{Year} &
+\textbf{Node} \\
+\hline
+
+Sunbird &
+x86-64 &
+Intel &
+2x Xeon E5-2680 v3 &
+Haswell &
+2014 &
+22 nm\\
+\hline
+
+Thunderbird &
+AArch64 &
+Ampere &
+Ampere Q80-30 &
+ARM Neoverse N1 &
+2020 &
+7 nm\\
+\hline
+
+Skylark &
+x86-64 &
+AMD &
+2x AMD EPYC 7532 &
+Zen 2 &
+2019 &
+7 nm \\
+\hline
+
+Artemisia &
+x86-64 &
+Intel &
+2x Xeon Gold 5420+ &
+Sapphire Rapids &
+2023 &
+10 nm, Intel 7\\
+\hline
+
+Charnwood &
+x86-64 &
+Intel &
+Core i7-6700 &
+Skylake &
+2015 &
+14 nm\\
+\hline
+
+Crux &
+x86-64 &
+Intel &
+Core i7-9700 &
+Coffee Lake &
+2019 &
+14 nm\\
+\hline
+
+Ookay &
+x86-64 &
+Intel &
+Core i7-7700 &
+Kaby Lake &
+2017 &
+14 nm\\
+\hline
+
+Upgrade &
+x86-64 &
+Intel &
+Core i7-8700 &
+Coffee Lake &
+2017 &
+14 nm\\
+\hline
+
+\end{tabularx}
+
+\end{table}
+
+\section{Experimental Methodology}
+
+\subsection{Part 1 -- Cache Benchmarks}
+
+Every timing-only reverse-engineering target in this project -- cache-level/capacity
+discovery, line size, associativity, hit latency, miss/next-level latency, and
+inclusion/exclusion behavior (Section~\ref{sec:phase1}) -- is built from one shared
+measurement primitive implemented once in \texttt{main\_code/common/} and compiled into a
+single portable command-line tool, \texttt{cache\_bench}
+(\texttt{main\_code/common/main.c}). Every experiment differs only in \emph{which}
+parameter it sweeps and how it lays out the pointer-chase graph; the load, timing, and
+batching machinery underneath is identical across all six targets and is described once
+here so later subsections can point back to a listing number instead of repeating it, per
+the reused-common-code convention required for this report.
+
+\subsubsection{Dependent Pointer-Chase Primitive}
+
+Every measurement in this codebase is built around a single dependent load chain: a
+singly-linked cycle of fixed-size nodes, each holding only a \texttt{next} pointer, laid
+out over a working-set buffer of controlled size and node spacing. Because the address of
+load $i+1$ is the \emph{value} produced by load $i$, the CPU cannot issue, prefetch, or
+reorder load $i+1$ before load $i$ completes -- this is what isolates true load-to-use
+cache/TLB latency instead of memory bandwidth or issue-width effects. Listing~\ref{lst:pchase}
+shows the whole primitive; it is architecture-independent and is reused, unmodified, by
+every experiment in Section~\ref{sec:phase1}.
+
+\begin{lstlisting}[caption={Dependent pointer-chase primitive (portable, all architectures). File: \texttt{main\_code/common/pointer\_chase.h} / \texttt{pointer\_chase.c}, commit \texttt{e0f2538}.},label={lst:pchase}]
+#ifndef POINTER_CHASE_H
+#define POINTER_CHASE_H
+
+#include <stdint.h>
+
+struct node {
+    struct node *next;
+};
+
+void chase(struct node *p, uint64_t steps);
+
+#endif
+
+/* ---- pointer_chase.c ---- */
+#include "pointer_chase.h"
+
+static volatile struct node *sink_node;
+
+void chase(struct node *p, uint64_t steps) {
+    for (uint64_t i = 0; i < steps; i++) {
+        p = p->next; /* next address depends on previous load */
+    }
+    sink_node = p; /* keep the final result observable */
+}
+\end{lstlisting}
+
+The result of the final load is stashed in a \texttt{volatile} sink so the compiler cannot
+prove the whole loop is dead and eliminate it -- necessary discipline even at the
+\texttt{-O0} baseline used throughout this project (Section~\ref{sec:build}).
+
+\subsubsection{Timing: Serialized Cycle Counters (x86-64 and AArch64)}
+
+Every experiment measures elapsed time in raw CPU cycles ("ticks") via a portable
+\texttt{timer\_start()}/\texttt{timer\_stop()} pair that dispatches, at compile time, to an
+architecture-specific implementation (Listing~\ref{lst:timer}). This is the \emph{only}
+architecture-specific code in the entire codebase -- every experiment-specific file
+(Section~\ref{sec:phase1}) calls only the portable \texttt{timer.h} interface and requires
+zero changes to run on Sunbird/Skylark/Crux/Ookay/Upgrade/Charnwood/Artemisia (x86-64) or
+Thunderbird (AArch64).
+
+\begin{lstlisting}[caption={Portable timer dispatch. File: \texttt{main\_code/common/timer.h}, commit \texttt{e0f2538}.},label={lst:timer}]
+#ifndef TIMER_H
+#define TIMER_H
+
+#include <stdint.h>
+
+#if defined(__x86_64__) || defined(__i386__)
+
+#include "../x86_64/timer_x86.h"
+
+static inline uint64_t timer_start(void){
+    return x86_tsc_start();
+}
+
+static inline uint64_t timer_stop(void){
+    return x86_tsc_stop();
+}
+
+#elif defined(__aarch64__)
+
+#include "../aarch64/timer_arm.h"
+
+static inline uint64_t timer_start(void){
+    return arm_counter_start();
+}
+
+static inline uint64_t timer_stop(void){
+    return arm_counter_stop();
+}
+
+#else
+
+#error "Unsupported architecture"
+
+#endif
+
+#endif
+\end{lstlisting}
+
+On x86-64 (Listing~\ref{lst:timerx86}), \texttt{timer\_start()} issues \texttt{LFENCE}
+before \texttt{RDTSC} to drain in-flight instructions so the cycle read is not reordered
+ahead of the code it is meant to time, and \texttt{timer\_stop()} uses the partially
+self-serializing \texttt{RDTSCP} (which also drains prior instructions before reading the
+counter) followed by a further \texttt{LFENCE} to prevent the \emph{next} region's
+instructions from being reordered backward into the timed window.
+
+\begin{lstlisting}[caption={x86-64 serialized TSC timer. File: \texttt{main\_code/x86\_64/timer\_x86.h}, commit \texttt{e0f2538}. Target architecture: x86-64.},label={lst:timerx86}]
+#include <stdint.h>
+#include <x86intrin.h>
+
+static inline uint64_t x86_tsc_start(void) {
+    _mm_lfence();
+    uint64_t t = __rdtsc();
+    _mm_lfence();
+    return t;
+}
+
+static inline uint64_t x86_tsc_stop(void) {
+    unsigned aux;
+    uint64_t t = __rdtscp(&aux);
+    _mm_lfence();
+    return t;
+}
+
+static inline uint64_t time_one_load(volatile const uint64_t *p) {
+    uint64_t t0 = x86_tsc_start();
+    uint64_t value = *p;
+    uint64_t t1 = x86_tsc_stop();
+    __asm__ __volatile__("" : "+r"(value) :: "memory");
+    return t1 - t0;
+}
+\end{lstlisting}
+
+On AArch64 (Listing~\ref{lst:timerarm}), the free-running virtual counter
+\texttt{CNTVCT\_EL0} is read between \texttt{DSB SY}/\texttt{ISB} barrier pairs, which
+serialize the instruction stream in the same role \texttt{LFENCE} plays on x86. A real
+resolution limitation surfaced on Thunderbird (Ampere Q80-30, Neoverse N1):
+\texttt{CNTFRQ\_EL0} reports only 25\,MHz, so ticks/access for the whole 1\,KiB--1\,GiB
+capacity range span roughly 0.08--2.4 -- below the x86-calibrated automatic boundary/knee
+detectors' default absolute-tick thresholds (Sections~\ref{sec:capacity} and
+\ref{sec:assoc}), which had to be rescaled per-machine on this ISA rather than reused
+as-is.
+
+\begin{lstlisting}[caption={AArch64 serialized virtual-counter timer. File: \texttt{main\_code/aarch64/timer\_arm.h}, commit \texttt{e0f2538}. Target architecture: AArch64.},label={lst:timerarm}]
+#include <stdint.h>
+static inline uint64_t arm_counter_start(void) {
+    uint64_t t;
+    __asm__ __volatile__(
+        "dsb sy\n\t"
+        "isb\n\t"
+        "mrs %0, cntvct_el0\n\t"
+        "isb\n\t"
+        : "=r"(t) :: "memory");
+    return t;
+}
+
+static inline uint64_t arm_counter_stop(void) {
+    uint64_t t;
+    __asm__ __volatile__(
+        "dsb sy\n\t"
+        "isb\n\t"
+        "mrs %0, cntvct_el0\n\t"
+        "isb\n\t"
+        : "=r"(t) :: "memory");
+return t;
+}
+
+static inline uint64_t arm_counter_freq(void) {
+    uint64_t f;
+    __asm__ __volatile__("mrs %0, cntfrq_el0" : "=r"(f));
+    return f;
+}
+\end{lstlisting}
+
+\subsubsection{Batched Measurement and Statistical Discipline}
+\label{sec:batching}
+
+A single \texttt{timer\_start()}/\texttt{timer\_stop()} pair carries tens of ticks of fixed
+overhead (quantified directly in Section~\ref{sec:misslatency}), so every experiment except
+miss/inclusion latency (which are inherently single-shot, Sections~\ref{sec:misslatency}
+and~\ref{sec:inclusion}) times a \emph{batch} of $B$ back-to-back dependent accesses as one
+region and reports the batch average, amortizing that fixed cost across $B{=}1000$
+accesses by default. Batching this way -- rather than reporting one grand mean per
+working-set size -- preserves the per-batch distribution, which downstream repeat-run and
+box-plot analysis (Sections~\ref{sec:capacity}--\ref{sec:inclusion}) depends on to tell a
+genuine cache-level transition apart from run-to-run system noise. The
+\texttt{>= 1{,}000{,}000} timed-access-per-point requirement is enforced structurally, not
+by convention: \texttt{num\_batches} is computed by ceiling division of
+\texttt{samples}/\texttt{batch\_size}, and untimed warm-up passes never write into the
+latency array that is later printed, so a warm-up access can never be miscounted as a timed
+sample. Listing~\ref{lst:benchmark} also shows the required independent-load control used
+by the hit-latency experiment (Section~\ref{sec:hitlatency}): each load's address is drawn
+from a precomputed permutation instead of the previous load's result, which exposes
+memory-level parallelism (MLP) and is expected to read \emph{faster} than the dependent
+chain at the same footprint -- this is the mechanism the assignment's MLP sanity check
+relies on.
+
+\begin{lstlisting}[caption={Batched dependent and independent load timers (portable). File: \texttt{main\_code/common/benchmark.h} / \texttt{benchmark.c}, commit \texttt{e343732}.},label={lst:benchmark}]
+void measure_dependency_chain_batched(struct node *start,
+                                       uint64_t batch_size,
+                                       size_t num_batches,
+                                       double *out_latencies);
+
+void measure_independent_loads_batched(struct node *nodes,
+                                        const size_t *order,
+                                        size_t order_len,
+                                        uint64_t batch_size,
+                                        size_t num_batches,
+                                        double *out_latencies);
+
+/* ---- benchmark.c ---- */
+static volatile struct node *bench_sink;
+
+void measure_dependency_chain_batched(struct node *start,
+                                       uint64_t batch_size,
+                                       size_t num_batches,
+                                       double *out_latencies)
+{
+    struct node *p = start;
+
+    for (size_t b = 0; b < num_batches; b++) {
+        uint64_t t0 = timer_start();
+        for (uint64_t i = 0; i < batch_size; i++) {
+            p = p->next; /* next address depends on previous load */
+        }
+        uint64_t t1 = timer_stop();
+        out_latencies[b] = (double)(t1 - t0) / (double)batch_size;
+    }
+
+    bench_sink = p; /* keep the final result observable */
+}
+
+void measure_independent_loads_batched(struct node *nodes,
+                                        const size_t *order,
+                                        size_t order_len,
+                                        uint64_t batch_size,
+                                        size_t num_batches,
+                                        double *out_latencies)
+{
+    struct node *last = NULL;
+    size_t idx = 0;
+
+    for (size_t b = 0; b < num_batches; b++) {
+        uint64_t t0 = timer_start();
+        for (uint64_t i = 0; i < batch_size; i++) {
+            /* Address comes from the caller-supplied permutation, not from
+             * the value just loaded -- unlike measure_dependency_chain_batched(),
+             * nothing here forces one load to wait on the previous one. */
+            last = nodes[order[idx]].next;
+            idx++;
+            if (idx == order_len) {
+                idx = 0;
+            }
+        }
+        uint64_t t1 = timer_stop();
+        out_latencies[b] = (double)(t1 - t0) / (double)batch_size;
+    }
+
+    bench_sink = last; /* keep the final result observable */
+}
+\end{lstlisting}
+
+\subsubsection{Access-Pattern Construction: Randomized vs.\ Sequential Control}
+
+Every experiment builds its dependent cycle one of two ways (Listing~\ref{lst:random}):
+\texttt{make\_random\_cycle\_strided()} performs a seeded Fisher--Yates shuffle (using a
+32-bit xorshift PRNG) over the node indices and links them in that shuffled order, so
+consecutive accesses land at pseudo-random offsets a hardware stride prefetcher cannot
+predict; \texttt{make\_sequential\_cycle\_strided()} links nodes in plain array order, a
+fully stride-predictable control. Every capacity, line-size, and associativity sweep in
+this project (Section~\ref{sec:phase1}) is run at \emph{both} patterns over the same swept
+range: if a detected transition also appears, unchanged, on the sequential control, it is
+a prefetcher or fixed-overhead artifact rather than a genuine cache-capacity/line-size/
+associativity effect, and is discounted. The \emph{strided} variants generalize node
+spacing beyond \texttt{sizeof(struct node)}, which is what lets the same construction be
+reused unmodified for line size (spacing = candidate line size, Section~\ref{sec:linesize})
+and associativity (spacing = a cache level's own confirmed capacity,
+Section~\ref{sec:assoc}).
+
+\begin{lstlisting}[caption={PRNG, shuffle, and cycle construction (portable). File: \texttt{main\_code/common/random.h} / \texttt{random.c}, commit \texttt{e343732}.},label={lst:random}]
+uint32_t xorshift32(uint32_t *state) {
+    uint32_t x = *state;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    return *state = x;
+}
+
+static struct node *node_at(void *base, size_t i, size_t stride) {
+    return (struct node *)((uint8_t *)base + i * stride);
+}
+
+void make_random_cycle_strided(void *base, size_t n, size_t stride, uint32_t seed) {
+    size_t *order = malloc(n * sizeof(*order));
+    if (!order || n < 2) exit(1);
+    for (size_t i = 0; i < n; i++) order[i] = i;
+
+    uint32_t state = seed ? seed : 1u;
+    for (size_t i = n - 1; i > 0; i--) {
+        size_t j = (size_t)(xorshift32(&state) % (uint32_t)(i + 1));
+        size_t tmp = order[i];
+        order[i] = order[j];
+        order[j] = tmp;
+    }
+    for (size_t i = 0; i < n; i++)
+        node_at(base, order[i], stride)->next = node_at(base, order[(i + 1) % n], stride);
+    free(order);
+}
+
+void make_sequential_cycle_strided(void *base, size_t n, size_t stride) {
+    if (n < 2) exit(1);
+    for (size_t i = 0; i < n; i++)
+        node_at(base, i, stride)->next = node_at(base, (i + 1) % n, stride);
+}
+
+void make_random_cycle(struct node *nodes, size_t n, uint32_t seed) {
+    make_random_cycle_strided(nodes, n, sizeof(struct node), seed);
+}
+
+void make_sequential_cycle(struct node *nodes, size_t n) {
+    make_sequential_cycle_strided(nodes, n, sizeof(struct node));
+}
+
+size_t *make_shuffled_indices(size_t n, uint32_t seed) {
+    size_t *order = malloc(n * sizeof(*order));
+    if (!order || n < 1) exit(1);
+    for (size_t i = 0; i < n; i++) order[i] = i;
+
+    uint32_t state = seed ? seed : 1u;
+    for (size_t i = n - 1; i > 0; i--) {
+        size_t j = (size_t)(xorshift32(&state) % (uint32_t)(i + 1));
+        size_t tmp = order[i];
+        order[i] = order[j];
+        order[j] = tmp;
+    }
+    return order;
+}
+\end{lstlisting}
+
+\subsubsection{Build Configuration and the \texttt{cache\_bench} Driver}
+\label{sec:build}
+
+All six experiments are compiled with one fixed baseline (Listing~\ref{lst:makefile}):
+\texttt{-O0 -g -std=c11 -Wall -Wextra -fno-omit-frame-pointer}. \texttt{-O0} is deliberate,
+not just conservative -- the entire method depends on the compiler emitting one genuine
+load per loop iteration in \texttt{chase()} / \texttt{measure\_dependency\_chain\_batched()}
+(Listings~\ref{lst:pchase},~\ref{lst:benchmark}); any optimization pass that hoisted,
+vectorized, or reordered those loads would silently break the intentional dependency the
+whole technique relies on. \texttt{-g}/\texttt{-fno-omit-frame-pointer} are kept so the
+emitted code can be inspected in a disassembly listing as evidence that the dependency
+survives compilation -- a check flagged as still outstanding on Sunbird as of this
+writing (see \texttt{data\_raw/sunbird/README.md}).
+
+\begin{lstlisting}[style=makestyle,caption={Build configuration (\texttt{Makefile}, commit \texttt{7be6dac}).},label={lst:makefile}]
+CC = gcc
+
+CFLAGS = -O0 -g -std=c11 -Wall -Wextra -fno-omit-frame-pointer
+LDLIBS = -lm
+
+TARGET = cache_bench
+
+COMMON_DIR = main_code/common
+
+SOURCES = \
+	$(COMMON_DIR)/main.c \
+	$(COMMON_DIR)/benchmark.c \
+	$(COMMON_DIR)/pointer_chase.c \
+	$(COMMON_DIR)/random.c \
+	$(COMMON_DIR)/capacity.c \
+	$(COMMON_DIR)/line_size.c \
+	$(COMMON_DIR)/associativity.c \
+	$(COMMON_DIR)/latency.c \
+	$(COMMON_DIR)/inclusion_policy.c
+
+OBJECTS = $(SOURCES:.c=.o)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(TARGET) $(OBJECTS)
+
+.PHONY: all clean
+\end{lstlisting}
+
+\texttt{cache\_bench} is a single binary; a \texttt{--experiment} flag selects which of the
+six sweep configurations (each documented by its own header in
+\texttt{main\_code/common/}, shown per-target in Section~\ref{sec:phase1}) to run, and every
+common option (\texttt{--samples}, \texttt{--batch-size}, \texttt{--seed},
+\texttt{--warmup-passes}, \texttt{--pattern}) threads through to whichever config struct is
+active. Listing~\ref{lst:maindispatch} shows the final dispatch step; the full CLI argument
+grammar and per-experiment defaults are in \texttt{main\_code/common/main.c} (commit
+\texttt{7be6dac}) and the \texttt{Build \& Run} section of the repository \texttt{README.md}.
+
+\begin{lstlisting}[caption={\texttt{cache\_bench} experiment dispatch, excerpted. File: \texttt{main\_code/common/main.c} (lines 475--503), commit \texttt{7be6dac}.},label={lst:maindispatch}]
+    if (strcmp(experiment, "capacity") == 0) {
+        return run_capacity_experiment(&cap_cfg);
+    }
+    if (strcmp(experiment, "line_size") == 0) {
+        return run_line_size_experiment(&ls_cfg);
+    }
+    if (strcmp(experiment, "line_size_family") == 0) {
+        return run_line_size_family_experiment(&fam_cfg);
+    }
+    if (strcmp(experiment, "associativity") == 0) {
+        return run_associativity_experiment(&assoc_cfg);
+    }
+    if (strcmp(experiment, "hit_latency") == 0) {
+        return run_hit_latency_experiment(&hl_cfg);
+    }
+    if (strcmp(experiment, "miss_latency") == 0) {
+        return run_miss_latency_experiment(&ml_cfg);
+    }
+    if (strcmp(experiment, "inclusion_policy") == 0) {
+        return run_inclusion_policy_experiment(&incl_cfg);
+    }
+\end{lstlisting}
+
+\subsection{Machine Access, Core Pinning, and Phase Discipline}
+\label{sec:phasediscipline}
+
+Every \texttt{cache\_bench} invocation is pinned to a single physical core with
+\texttt{taskset -c <core>} on the ECE lab machines, or \texttt{srun --cpu-bind=cores} on
+the Hazel HPC cluster (Section~\ref{sec:hazel}). Before pinning, \texttt{Cpus\_allowed\_list}
+and \texttt{lscpu -e=CPU,CORE,SOCKET,NODE} were checked to identify a full physical core
+(both SMT siblings) actually available to the session, and \texttt{ps}/other-user activity
+was checked to avoid a core another student was actively using. A single point-in-time
+\texttt{ps} snapshot was found to be insufficient on at least one shared machine (Artemisia)
+-- per-core load moved visibly across three consecutive 6-second sampling windows taken
+seconds apart -- so idle-core selection there was instead based on \texttt{/proc/stat}
+idle-time deltas sampled over multiple windows.
+
+Long dense sweeps (working sets of $\gtrsim$100\,MiB at the random pattern) cost real wall
+time, since random-pattern latency at that scale is dominated by genuine uncached DRAM
+access; a full sweep at the default sample count can take on the order of an hour. Any run
+in this range was launched inside a detached \texttt{tmux} session so it would survive the
+driving terminal session disconnecting, with a second \texttt{tmux} session used purely to
+poll for completion when needed -- a background-task watcher tied to an interactive session
+does not itself survive that session ending, only a process actually backgrounded on the
+machine (via \texttt{tmux}) does. Raw per-batch CSVs are gzip-compressed before being
+committed (\texttt{data\_raw/<machine>/<experiment>/*.csv.gz}) to keep the repository size
+tractable across eight machines' worth of million-sample sweeps.
+
+One further methodological pitfall, confirmed on Sunbird, is worth stating explicitly: a
+dense sweep started exactly at the left edge of the working-set range of interest can show
+a spurious plateau caused by CPU frequency/P-state ramp-up (the first several points run
+before the core reaches steady-state turbo clock), which decays over the first few dozen
+points and is not a cache effect. Every dense sweep in this project accordingly starts
+meaningfully below its region of actual interest rather than exactly at its boundary.
+
+Finally, this project follows a strict three-phase discipline, stated in full in the
+repository \texttt{README.md} and enforced by a frozen, tagged commit
+(\texttt{phase1-timing-only}) before Phase II may begin:
+\begin{itemize}
+    \item \textbf{Phase I -- timing only} (this section and Section~\ref{sec:phase1}): no
+    \texttt{perf}, no PMU, no cache-topology files, no vendor cache tables or published
+    specifications used to \emph{derive} an inferred value -- every boundary, line size,
+    associativity, and latency number reported in Section~\ref{sec:phase1} is inferred from
+    timing measurements alone.
+    \item \textbf{Phase II -- counter and literature verification} (Section~\ref{sec:pmu}):
+    only entered after Phase I is tagged.
+    \item \textbf{Phase III -- Hazel} (Section~\ref{sec:hazel}): a lab-only prediction is
+    frozen and committed \emph{before} any cache experiment is run on Hazel.
+\end{itemize}
+Every experiment's exact build command, run command, compiler flags, core affinity, timer
+method, sample count, seed, and raw-output filenames are recorded per machine in
+\texttt{data\_raw/<machine>/README.md}, and every reduction step from raw CSV to processed
+summary to plot is a checked-in script under \texttt{scripts/} (Section~\ref{sec:phase1}
+lists the one used per target) -- together these are sufficient to reproduce every result
+in Section~\ref{sec:phase1} from the raw data alone.
+
+\section{Timing-Only Cache Reverse Engineering}
+\label{sec:phase1}
+
+Each subsection below follows the same chain: the access pattern and swept parameter
+(built from the common code in Section~\ref{sec:build}) $\rightarrow$ the controlled sweep
+$\rightarrow$ the measured distribution/plot $\rightarrow$ the inference rule applied to it
+$\rightarrow$ its current Phase-II validation status. Full per-machine numeric results
+(all eight machines) are tabulated in Section~\ref{sec:evolution} and in each machine's own
+\texttt{data\_processed/<machine>/FINAL\_CACHE\_TABLE.md}; this section illustrates the
+method itself, using Sunbird (the most complete single-machine dataset) as the running
+example unless noted otherwise.
+
+\subsection{Cache Hierarchy and Capacity}
+\label{sec:capacity}
+
+\textbf{What is varied:} working-set footprint $N$, log-spaced (8 points/octave by
+default) from 1\,KiB up to a coarse ceiling (64\,MiB by default, extended manually to
+1\,GiB when the topmost region has not yet plateaued). \textbf{What is held constant:}
+node size, batch size, seed, warm-up passes, core pinning. \textbf{What is measured:}
+median ticks/access per footprint, at both the random and sequential access patterns.
+Listing~\ref{lst:capacity} is the complete implementation: for each swept size it builds a
+fresh dependent cycle sized to exactly fill that footprint, runs the required warm-up
+passes untimed, then times \texttt{num\_batches} batches via
+\texttt{measure\_dependency\_chain\_batched()} (Listing~\ref{lst:benchmark}) and prints one
+raw CSV row per (size, batch).
+
+\begin{lstlisting}[caption={Cache-level/capacity discovery. Target property: cache-level boundaries (L1/L2/LLC/DRAM). Architecture: portable common code (compiled for both x86-64 and AArch64 via Listing~\ref{lst:timer}). File: \texttt{main\_code/common/capacity.c}, commit \texttt{8fb1467}.},label={lst:capacity}]
+int run_capacity_experiment(const struct capacity_config *cfg)
+{
+    uint64_t min_bytes = cfg->min_bytes;
+    if (min_bytes < sizeof(struct node) * 2) {
+        min_bytes = sizeof(struct node) * 2;
+    }
+
+    uint64_t num_batches = (cfg->samples + cfg->batch_size - 1) / cfg->batch_size;
+    if (num_batches < 1) {
+        num_batches = 1;
+    }
+    uint64_t achieved_samples = num_batches * cfg->batch_size;
+
+    double *batch_latencies = malloc(num_batches * sizeof(double));
+    if (batch_latencies == NULL) {
+        fprintf(stderr, "allocation failed for %" PRIu64 " batch samples\n", num_batches);
+        return 1;
+    }
+
+    const char *pattern_name =
+        (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) ? "sequential" : "random";
+
+    printf("size_bytes,num_nodes,pattern,batch_index,avg_ticks_per_access\n");
+
+    size_t last_num_nodes = 0;
+    double step = 1.0 / (double)cfg->points_per_octave;
+    double log2_min = log2((double)min_bytes);
+    double log2_max = log2((double)cfg->max_bytes);
+
+    for (double exp = log2_min; exp <= log2_max + 1e-9; exp += step) {
+        uint64_t bytes = (uint64_t)(pow(2.0, exp) + 0.5);
+        size_t num_nodes = (size_t)(bytes / sizeof(struct node));
+        if (num_nodes < 2) num_nodes = 2;
+        if (num_nodes == last_num_nodes) continue;
+        last_num_nodes = num_nodes;
+
+        struct node *nodes = malloc(num_nodes * sizeof(struct node));
+        if (nodes == NULL) { free(batch_latencies); return 1; }
+
+        if (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) {
+            make_sequential_cycle(nodes, num_nodes);
+        } else {
+            make_random_cycle(nodes, num_nodes, cfg->seed);
+        }
+
+        /* Untimed pass(es): fault in pages and settle steady-state
+         * residency for this working-set size before timing starts. */
+        for (int w = 0; w < cfg->warmup_passes; w++) {
+            chase(nodes, (uint64_t)num_nodes);
+        }
+
+        measure_dependency_chain_batched(nodes, cfg->batch_size, num_batches,
+                                          batch_latencies);
+
+        uint64_t size_bytes = (uint64_t)num_nodes * sizeof(struct node);
+        for (uint64_t b = 0; b < num_batches; b++) {
+            printf("%" PRIu64 ",%zu,%s,%" PRIu64 ",%.4f\n",
+                   size_bytes, num_nodes, pattern_name, b, batch_latencies[b]);
+        }
+        fflush(stdout);
+        free(nodes);
+    }
+    free(batch_latencies);
+    return 0;
+}
+\end{lstlisting}
+
+Raw per-batch CSVs are reduced by \texttt{scripts/summarize\_raw.py} into one
+distribution-stats row per (size, pattern), then \texttt{scripts/detect\_cache\_hierarchy.py}
+scans consecutive size points for a sustained tick jump exceeding both an absolute and a
+relative threshold to flag a boundary, and \texttt{scripts/plot\_capacity.py} renders the
+curve. \texttt{scripts/run\_capacity\_full.sh <machine> <core>} chains coarse sweep
+$\rightarrow$ automatic boundary detection $\rightarrow$ per-boundary dense sweep
+$\rightarrow$ reproducibility repeats $\rightarrow$ tail-extension sweep $\rightarrow$
+plots into one command.
+
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox[c][2.2in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- methodology-logic flow chart for capacity/cache-level discovery:\\[4pt]
+sweep footprint $N$ (log$_2$-spaced) $\rightarrow$ build dependent cycle of $N$ bytes,
+random \emph{and} sequential $\rightarrow$ batched avg.\ ticks/access $\rightarrow$
+compare consecutive size points $\rightarrow$ sustained jump exceeding threshold?
+$\rightarrow$ \textbf{yes}: record a cache-level boundary; \textbf{no}: continue sweep.
+}}
+\caption{Methodology logic for cache-level/capacity discovery. Measured quantity: median
+ticks/access (y) vs.\ working-set footprint in bytes (x, log scale). Expected signature: a
+sustained step in the random-pattern curve, absent (or at a different location) in the
+sequential-pattern control. Inference rule: the smallest footprint where a step
+exceeding both the absolute and relative thresholds is reproduced across repeats marks a
+cache-level boundary.}
+\label{fig:capacity-flow}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=\textwidth]{../../plots/sunbird_capacity_curve.pdf}
+\fbox{\parbox[c][2.2in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- Sunbird capacity curve\\
+(\texttt{data\_processed/sunbird/capacity/plots/}): median ticks/access (y-axis, linear)
+vs.\ working-set footprint in bytes (x-axis, log$_2$ scale), random and sequential
+patterns overlaid, detected boundaries annotated with vertical lines.
+}}
+\caption{Capacity sweep, Sunbird (2x Intel Xeon E5-2680 v3, Haswell), core pinned via
+\texttt{taskset}, 1{,}000{,}000 timed accesses/point, 8 points/octave, 1\,KiB--1\,GiB.
+Units: ticks/access (TSC cycles, y-axis) vs.\ bytes (x-axis, log scale). \textbf{Boundary
+values shown here are illustrative of the method only; the authoritative, hand-reconciled
+per-machine L1/L2/LLC boundary values used in every downstream experiment are in
+\texttt{CAPACITY\_RESULTS.md}}, not this plot in isolation. Interpretation: three
+flat/ramp transitions are visible across the swept range, each confirmed via an
+independent repeat run and cross-checked against the sequential-pattern control.}
+\label{fig:capacity-plot}
+\end{figure}
+
+\textbf{Inference rule:} a reproducible, sustained step in median ticks/access at a
+working-set size in the random-pattern curve -- confirmed not to be a frequency-ramp or
+session-contention artifact (Section~\ref{sec:phasediscipline}) and not present at the same
+location in the sequential-pattern control -- marks the boundary between one cache level's
+occupancy and the next.
+
+\textbf{Phase-II validation:} not yet performed on any machine; PMU-based verification
+(Section~\ref{sec:pmu}) has not started for any experiment as of this writing, since Phase I
+must be frozen and tagged first (Section~\ref{sec:phasediscipline}). Several machines'
+automatically detected boundaries required a dense manual follow-up sweep to confirm or
+retract (documented per machine in \texttt{data\_raw/<machine>/README.md}); the
+consolidated, hand-verified result for every machine is \texttt{CAPACITY\_RESULTS.md}.
+
+\subsection{Cache Line Size}
+\label{sec:linesize}
+
+\textbf{What is varied:} either the byte stride between nodes at a fixed footprint
+(single-curve method), or the working-set footprint at one fixed candidate stride,
+repeated once per candidate stride (family-of-curves method, PROJECT 1.pdf Figure 3 /
+"Example B"). \textbf{What is held constant:} in each method, the parameter not being
+swept, plus buffer base alignment (recorded, not swept, in the single-curve method; also
+swept as a sub-line \texttt{offset\_bytes} cross-check in the family method).
+\textbf{What is measured:} median ticks/access at each stride or footprint point, random
+and sequential. Listing~\ref{lst:linesize} implements both methods in one file.
+
+\begin{lstlisting}[caption={Cache line size, both independent methods. Target property: cache line size. Architecture: portable common code. File: \texttt{main\_code/common/line\_size.c}, commit \texttt{1689b22}.},label={lst:linesize}]
+/* ---- single-curve method: fixed footprint, stride swept ---- */
+int run_line_size_experiment(const struct line_size_config *cfg)
+{
+    uint64_t min_stride = cfg->min_stride;
+    if (min_stride < sizeof(struct node)) min_stride = sizeof(struct node);
+
+    uint64_t num_batches = (cfg->samples + cfg->batch_size - 1) / cfg->batch_size;
+    if (num_batches < 1) num_batches = 1;
+
+    double *batch_latencies = malloc(num_batches * sizeof(double));
+    if (batch_latencies == NULL) return 1;
+
+    const char *pattern_name =
+        (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) ? "sequential" : "random";
+
+    printf("stride_bytes,num_nodes,footprint_bytes,align_bytes,pattern,batch_index,avg_ticks_per_access\n");
+
+    for (uint64_t stride = min_stride; stride <= cfg->max_stride; stride += cfg->stride_step) {
+        size_t num_nodes = (size_t)(cfg->footprint_bytes / stride);
+        if (num_nodes < 2) { continue; } /* stride too large for this footprint */
+
+        uint64_t buffer_bytes = (uint64_t)(num_nodes - 1) * stride + sizeof(struct node);
+        void *base = NULL;
+        if (posix_memalign(&base, (size_t)cfg->align_bytes, (size_t)buffer_bytes) != 0) {
+            free(batch_latencies); return 1;
+        }
+
+        if (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) {
+            make_sequential_cycle_strided(base, num_nodes, (size_t)stride);
+        } else {
+            make_random_cycle_strided(base, num_nodes, (size_t)stride, cfg->seed);
+        }
+
+        for (int w = 0; w < cfg->warmup_passes; w++) chase(base, (uint64_t)num_nodes);
+        measure_dependency_chain_batched(base, cfg->batch_size, num_batches, batch_latencies);
+
+        for (uint64_t b = 0; b < num_batches; b++) {
+            printf("%" PRIu64 ",%zu,%" PRIu64 ",%" PRIu64 ",%s,%" PRIu64 ",%.4f\n",
+                   stride, num_nodes, cfg->footprint_bytes, cfg->align_bytes,
+                   pattern_name, b, batch_latencies[b]);
+        }
+        fflush(stdout);
+        free(base);
+    }
+    free(batch_latencies);
+    return 0;
+}
+
+/* ---- family-of-curves method: fixed stride, footprint swept ----
+ * Curves for stride <= true line size coincide (multiple nodes legitimately
+ * share a line, so pressure depends only on total footprint); curves for
+ * stride > true line size separate from that shared baseline, since each
+ * node now occupies its own line. The smallest stride whose curve visibly
+ * separates is the line-size estimate. See run_line_size_family_experiment()
+ * in main_code/common/line_size.c for the full sweep loop (identical shape
+ * to run_capacity_experiment() in Listing 8, at an arbitrary node stride
+ * instead of sizeof(struct node), with an added offset_bytes cross-check). */
+\end{lstlisting}
+
+\texttt{scripts/run\_line\_size.sh <machine> <core> <boundaries\_csv>} runs the single-curve
+sweep and the family-of-curves sweep (once per candidate stride, at least two
+\texttt{offset\_bytes} values) per cache-level footprint taken from that machine's own
+\texttt{CAPACITY\_RESULTS.md} boundary, then reports whether the two independently-designed
+methods agree.
+
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox[c][2.0in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- methodology-logic flow chart for line-size inference (both methods
+side by side): \\[4pt]
+\emph{Single-curve:} fix footprint just above a capacity boundary $\rightarrow$ sweep
+stride linearly $\rightarrow$ ticks/access ramps then saturates $\rightarrow$ saturation
+stride = line size.\\
+\emph{Family-of-curves:} fix candidate stride $s$ $\rightarrow$ sweep footprint
+$\rightarrow$ overlay curves for several $s$ $\rightarrow$ smallest $s$ whose curve
+separates from the shared baseline = line size.
+}}
+\caption{Methodology logic for cache line-size inference. Expected signature: a
+ramp-to-plateau elbow (single-curve) or a baseline-separation point (family-of-curves).
+Inference rule: smallest stride at which the tested signature first appears.}
+\label{fig:linesize-flow}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=0.48\textwidth]{../../plots/PLACEHOLDER_linesize_single.pdf}
+% \includegraphics[width=0.48\textwidth]{../../plots/PLACEHOLDER_linesize_family.pdf}
+\fbox{\parbox[c][2.0in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- Sunbird single-curve stride sweep (left) and family-of-curves footprint
+overlay (right), at the confirmed L1 footprint. Units: ticks/access (y) vs.\ stride or
+footprint in bytes (x).
+}}
+\caption{Line-size sweep, Sunbird L1 (32{,}768\,B footprint), both methods.
+Interpretation: both independently-designed methods agree at 64\,B for this level,
+confirmed with an offset cross-check.}
+\label{fig:linesize-plot}
+\end{figure}
+
+\textbf{Inference rule:} single-curve -- the smallest stride at which ticks/access stops
+climbing (saturates), since a larger stride beyond the true line size no longer changes how
+many distinct lines are touched; family-of-curves -- the smallest candidate stride whose
+footprint-vs-latency curve visibly separates from the shared low-stride baseline.
+
+\textbf{Phase-II validation:} agreement between the two independently-designed methods
+(and, for the family method, across independently repeated \texttt{offset\_bytes} values)
+is treated as the internal cross-check for this target; PMU/literature comparison is
+deferred to Section~\ref{sec:pmu}, not yet performed.
+
+\subsection{Cache Associativity}
+\label{sec:assoc}
+
+\textbf{What is varied:} the number of same-set nodes chased in one dependent cycle
+(\texttt{num\_ways}), from \texttt{min\_ways} to \texttt{max\_ways}. \textbf{What is held
+constant:} the node-to-node stride, fixed at \texttt{cache\_bytes} -- the target cache
+level's own confirmed capacity from \texttt{CAPACITY\_RESULTS.md} -- so every probed node
+lands in the same cache set by construction, but carries a distinct tag.
+\textbf{What is measured:} median ticks/access per \texttt{num\_ways}.
+
+\begin{lstlisting}[caption={Cache associativity (way count per set), including the huge-page DTLB-control diagnostic. Target property: associativity. Architecture: portable common code. File: \texttt{main\_code/common/associativity.c}, commit \texttt{22104d6}.},label={lst:assoc}]
+int run_associativity_experiment(const struct associativity_config *cfg)
+{
+    uint64_t min_ways = cfg->min_ways < 2 ? 2 : cfg->min_ways;
+    uint64_t num_batches = (cfg->samples + cfg->batch_size - 1) / cfg->batch_size;
+    if (num_batches < 1) num_batches = 1;
+
+    double *batch_latencies = malloc(num_batches * sizeof(double));
+    if (batch_latencies == NULL) return 1;
+
+    const char *pattern_name =
+        (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) ? "sequential" : "random";
+
+    printf("num_ways_probed,cache_bytes,pattern,batch_index,avg_ticks_per_access\n");
+
+    for (uint64_t num_ways = min_ways; num_ways <= cfg->max_ways; num_ways += cfg->way_step) {
+        /* Every node is cfg->cache_bytes apart, so the touched address range
+         * spans (num_ways - 1) strides plus one node. */
+        uint64_t buffer_bytes = (num_ways - 1) * cfg->cache_bytes + sizeof(struct node);
+
+        void *base = NULL;
+        if (cfg->huge_pages) {
+            /* 2 MiB-align via mmap(), madvise(MADV_HUGEPAGE), fault in every
+             * 4 KiB page -- collapses the whole probe buffer onto a SINGLE
+             * TLB entry regardless of num_ways, directly testing whether an
+             * observed knee is a TLB/page-boundary artifact rather than a
+             * real cache-set limit. Actual backing achieved is confirmed
+             * from /proc/self/smaps's AnonHugePages field, not assumed from
+             * a successful madvise() call. See report_huge_page_backing()
+             * in main_code/common/associativity.c for the full diagnostic. */
+            base = alloc_huge_page_aligned(buffer_bytes); /* see full source */
+        } else {
+            base = malloc((size_t)buffer_bytes);
+        }
+        if (base == NULL) { free(batch_latencies); return 1; }
+
+        if (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) {
+            make_sequential_cycle_strided(base, (size_t)num_ways, (size_t)cfg->cache_bytes);
+        } else {
+            make_random_cycle_strided(base, (size_t)num_ways, (size_t)cfg->cache_bytes, cfg->seed);
+        }
+
+        for (int w = 0; w < cfg->warmup_passes; w++) chase(base, num_ways);
+        measure_dependency_chain_batched(base, cfg->batch_size, num_batches, batch_latencies);
+
+        for (uint64_t b = 0; b < num_batches; b++) {
+            printf("%" PRIu64 ",%" PRIu64 ",%s,%" PRIu64 ",%.4f\n",
+                   num_ways, cfg->cache_bytes, pattern_name, b, batch_latencies[b]);
+        }
+        fflush(stdout);
+        free_probe_buffer(base, cfg->huge_pages);
+    }
+    free(batch_latencies);
+    return 0;
+}
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox[c][2.0in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- methodology-logic flow chart for associativity:\\[4pt]
+fix stride = level's own confirmed capacity (every probed node $\rightarrow$ same set,
+distinct tag) $\rightarrow$ sweep num\_ways $\rightarrow$ flat latency while
+num\_ways $\le$ true associativity $\rightarrow$ sharp jump once exceeded (LRU/PLRU set
+thrashes) $\rightarrow$ knee = associativity.
+}}
+\caption{Methodology logic for associativity inference. Expected signature: a flat
+hit-latency shelf followed by a sharp, sustained jump at \texttt{num\_ways = A+1}.
+Inference rule: reported associativity $A$ = the last \texttt{num\_ways} on the flat
+shelf before the jump.}
+\label{fig:assoc-flow}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=\textwidth]{../../plots/sunbird_associativity_L1.pdf}
+\fbox{\parbox[c][2.0in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- Sunbird L1 associativity curve (\texttt{cache\_bytes}=32{,}768\,B):
+ticks/access (y) vs.\ \texttt{num\_ways\_probed} (x), 3 independent-seed repeats overlaid.
+}}
+\caption{Associativity sweep, Sunbird L1. Units: ticks/access (y) vs.\ num\_ways probed
+(x). Interpretation: flat $\approx$6.0--6.2 ticks/access through \texttt{num\_ways=8},
+sharp jump at 9, 0\% run-to-run spread across 3 seeded repeats $\rightarrow$ L1 = 8-way.}
+\label{fig:assoc-plot}
+\end{figure}
+
+\textbf{Inference rule:} $A = $ \texttt{num\_ways} at the last flat point immediately
+before the first sustained latency jump.
+
+\textbf{Phase-II validation and an honest negative result:} L1 associativity is confirmed
+cleanly this way on every machine attempted -- 8-way on three x86 machines spanning two
+vendors/generations (Sunbird, Upgrade, Charnwood), 4-way on Thunderbird (AArch64,
+Neoverse~N1), and a less-certain 12-way on Artemisia's larger 48\,KiB L1D. \textbf{L2 and
+LLC associativity are not resolved by this method.} On every one of five machines tried,
+byte-capacity candidates spanning up to a 32x range at the same nominal cache level break
+at the \emph{same} small \texttt{num\_ways} (typically 9--12) regardless of the actual
+byte capacity tested, and in two cases (Charnwood, Artemisia) the L2 and LLC curves are
+numerically indistinguishable at every \texttt{num\_ways} despite a 32x--15x difference in
+candidate capacity -- direct, on-machine evidence that a shared, capacity-independent
+structure (leading hypothesis: DTLB aliasing, since every probed node lives on its own
+4\,KiB page; a sliced-LLC hash function is a second, not-yet-ruled-out candidate) is what
+these attempts actually measure, not the real cache level. The \texttt{--huge-pages}
+control shown in Listing~\ref{lst:assoc} exists specifically to test the DTLB hypothesis by
+collapsing the whole probe buffer onto one TLB entry, but has not yet been exercised on any
+machine -- flagged here as the concrete next step, not attempted this cycle. A
+derived-stride-scan technique (\texttt{scripts/run\_associativity\_stride\_scan.sh}) shows
+more promise (self-consistent across several stride divisors on Upgrade's known-good L1)
+but remains inconclusive at L2/LLC. No L2 or LLC associativity number in this report should
+be read as machine-confirmed; see \texttt{CAPACITY\_RESULTS.md} and each machine's own
+README for the full negative-result writeup.
+
+\subsection{Cache Hit Latency}
+\label{sec:hitlatency}
+
+\textbf{What is varied:} load mode only (\texttt{dependent} vs.\ \texttt{independent}) at
+one fixed footprint. \textbf{What is held constant:} the footprint itself, which must
+already be confirmed (via Section~\ref{sec:capacity}'s boundaries) to sit entirely inside
+one cache level -- this experiment infers nothing about capacity itself.
+\textbf{What is measured:} median ticks/access, both load modes, both patterns.
+Listing~\ref{lst:latency} implements this together with miss/next-level latency
+(Section~\ref{sec:misslatency}), since both live in one file and are shown once here per
+the reused-code convention.
+
+\begin{lstlisting}[caption={Cache hit latency (this listing) and miss/next-level latency (Section~\ref{sec:misslatency} reuses this same file). Target properties: hit latency; miss/next-level latency. Architecture: portable common code. File: \texttt{main\_code/common/latency.c}, commit \texttt{e343732}.},label={lst:latency}]
+int run_hit_latency_experiment(const struct hit_latency_config *cfg)
+{
+    size_t num_nodes = (size_t)(cfg->footprint_bytes / sizeof(struct node));
+    if (num_nodes < 2) num_nodes = 2;
+
+    uint64_t num_batches = (cfg->samples + cfg->batch_size - 1) / cfg->batch_size;
+    if (num_batches < 1) num_batches = 1;
+
+    double *batch_latencies = malloc(num_batches * sizeof(double));
+    struct node *nodes = malloc(num_nodes * sizeof(struct node));
+    if (batch_latencies == NULL || nodes == NULL) return 1;
+
+    const char *pattern_name =
+        (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) ? "sequential" : "random";
+    const char *mode_name =
+        (cfg->load_mode == LOAD_MODE_INDEPENDENT) ? "independent" : "dependent";
+
+    if (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) {
+        make_sequential_cycle(nodes, num_nodes);
+    } else {
+        make_random_cycle(nodes, num_nodes, cfg->seed);
+    }
+    /* Warm-up always via the dependent chain, regardless of the timed mode,
+     * so both modes start from the same warmed-up residency. */
+    for (int w = 0; w < cfg->warmup_passes; w++) chase(nodes, (uint64_t)num_nodes);
+
+    printf("footprint_bytes,load_mode,pattern,batch_index,avg_ticks_per_access\n");
+
+    if (cfg->load_mode == LOAD_MODE_INDEPENDENT) {
+        size_t *order = (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL)
+            ? NULL /* identity order, built inline -- see full source */
+            : make_shuffled_indices(num_nodes, cfg->seed);
+        measure_independent_loads_batched(nodes, order, num_nodes, cfg->batch_size,
+                                           num_batches, batch_latencies);
+    } else {
+        measure_dependency_chain_batched(nodes, cfg->batch_size, num_batches, batch_latencies);
+    }
+
+    for (uint64_t b = 0; b < num_batches; b++) {
+        printf("%" PRIu64 ",%s,%s,%" PRIu64 ",%.4f\n",
+               cfg->footprint_bytes, mode_name, pattern_name, b, batch_latencies[b]);
+    }
+    fflush(stdout);
+    free(nodes); free(batch_latencies);
+    return 0;
+}
+
+int run_miss_latency_experiment(const struct miss_latency_config *cfg)
+{
+    size_t target_nodes = (size_t)(cfg->target_bytes / sizeof(struct node));
+    size_t evict_nodes = (size_t)(cfg->evict_bytes / sizeof(struct node));
+    if (target_nodes < 2) target_nodes = 2;
+    if (evict_nodes < 2) evict_nodes = 2;
+
+    struct node *target = malloc(target_nodes * sizeof(struct node));
+    struct node *evict = malloc(evict_nodes * sizeof(struct node));
+    if (target == NULL || evict == NULL) return 1;
+
+    const char *pattern_name =
+        (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) ? "sequential" : "random";
+
+    if (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) {
+        make_sequential_cycle(target, target_nodes);
+        make_sequential_cycle(evict, evict_nodes);
+    } else {
+        make_random_cycle(target, target_nodes, cfg->seed);
+        make_random_cycle(evict, evict_nodes, cfg->seed + 1u);
+    }
+    for (int w = 0; w < cfg->warmup_passes; w++) {
+        chase(target, (uint64_t)target_nodes);
+        chase(evict, (uint64_t)evict_nodes);
+    }
+
+    printf("target_bytes,evict_bytes,pattern,trial_index,ticks\n");
+
+    for (uint64_t trial = 0; trial < cfg->samples; trial++) {
+        /* Untimed: re-establish target residency, then displace it by
+         * walking the eviction-set cycle (evict_bytes must exceed the
+         * source level's real capacity -- this is the ONLY eviction
+         * mechanism in this codebase; there is no clflush anywhere). */
+        chase(target, (uint64_t)target_nodes);
+        chase(evict, (uint64_t)evict_nodes);
+
+        /* Timed: exactly one dependent reload of the target line. */
+        uint64_t t0 = timer_start();
+        struct node *reloaded = target->next;
+        uint64_t t1 = timer_stop();
+        (void)reloaded;
+
+        printf("%" PRIu64 ",%" PRIu64 ",%s,%" PRIu64 ",%" PRIu64 "\n",
+               cfg->target_bytes, cfg->evict_bytes, pattern_name, trial,
+               (uint64_t)(t1 - t0));
+    }
+    fflush(stdout);
+    free(evict); free(target);
+    return 0;
+}
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox[c][1.8in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- methodology-logic flow chart for hit latency:\\[4pt]
+fix footprint inside one confirmed level $\rightarrow$ run BOTH dependent and
+independent-load batched timers $\rightarrow$ independent reads faster (MLP exposed,
+confirms the dependent timer is genuinely serializing) $\rightarrow$ report the
+\emph{dependent}, random-pattern median as that level's hit latency.
+}}
+\caption{Methodology logic for hit-latency inference. Inference rule: dependent/random
+median at a confirmed single-level footprint is the reported hit latency, valid only if
+paired independent-load control reads faster at the same footprint.}
+\label{fig:hitlat-flow}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=\textwidth]{../../plots/sunbird_hit_latency_ladder.pdf}
+\fbox{\parbox[c][1.8in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- Sunbird 4-tier hit-latency ladder: L1/L2/LLC/DRAM (x) vs.\ median
+ticks/access (y), dependent vs.\ independent load mode grouped per level.
+}}
+\caption{Hit-latency sweep, Sunbird, footprints 32{,}768 / 262{,}144 / 31{,}457{,}280 /
+536{,}870{,}912\,B (L1/L2/LLC/DRAM per \texttt{CAPACITY\_RESULTS.md}). Units: ticks/access
+(TSC cycles). Interpretation: a clean, monotonic 4-tier ladder
+(L1$\approx$10.4, L2$\approx$26.8, LLC$\approx$58.4, DRAM$\approx$207 ticks, dependent,
+random, median); the independent-load control reads faster than dependent at every level
+and pattern, confirming MLP was correctly exposed rather than hidden.}
+\label{fig:hitlat-plot}
+\end{figure}
+
+\textbf{Phase-II validation:} not yet performed; Section~\ref{sec:pmu} will cross-check
+these absolute cycle counts against hardware performance counters once Phase I is frozen.
+
+\subsection{Miss and Next-Level Latency}
+\label{sec:misslatency}
+
+\textbf{What is varied:} nothing within a trial -- each trial is a single timed reload;
+what varies \emph{across} the sweep is which source/next-level transition is being
+measured (L1$\to$L2, L2$\to$LLC, LLC$\to$DRAM), each a separate invocation.
+\textbf{What is held constant:} \texttt{target\_bytes} (places the target inside the SOURCE
+level) and \texttt{evict\_bytes} (an eviction-set walk sized past the source level's real
+capacity but inside the next level's, per \texttt{CAPACITY\_RESULTS.md}).
+\textbf{What is measured:} single-shot reload ticks per trial (not batched, since the
+measurement is inherently one dependent load). The complete implementation,
+\texttt{run\_miss\_latency\_experiment()}, is shown in full in Listing~\ref{lst:latency}
+above (Section~\ref{sec:hitlatency}) alongside the hit-latency implementation, since both
+share one source file, \texttt{main\_code/common/latency.c} (commit \texttt{e343732}); it
+is not repeated here.
+
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox[c][1.8in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- methodology-logic flow chart for miss/next-level latency:\\[4pt]
+untimed re-touch of target (source-level residency restored) $\rightarrow$ untimed
+eviction walk (size $>$ source capacity, $<$ next-level capacity) $\rightarrow$ ONE timed
+dependent reload $\rightarrow$ record ticks (single-shot, per trial).
+}}
+\caption{Methodology logic for miss/next-level-latency inference. Inference rule: raw
+single-shot reload latency at a transition = true reload latency + a fixed, per-machine
+single-shot measurement overhead (isolated separately via a deliberately
+non-colliding control eviction set, Section~\ref{sec:misslatency}).}
+\label{fig:misslat-flow}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=\textwidth]{../../plots/sunbird_miss_latency.pdf}
+\fbox{\parbox[c][1.8in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- Sunbird miss/next-level latency: L1$\to$L2 / L2$\to$LLC / LLC$\to$DRAM (x)
+vs.\ median single-shot reload ticks (y), with the fixed single-shot overhead band
+annotated.
+}}
+\caption{Miss/next-level latency, Sunbird. Units: ticks (single-shot TSC delta) per
+transition. Interpretation: an increasing 124/284/622-tick sequence (random pattern,
+median) -- but a dedicated control run (a deliberately non-colliding, tiny eviction set)
+isolated a $\approx$64--85 tick \emph{fixed} single-shot measurement overhead on this
+machine, so these numbers should be read as ``true reload latency + fixed overhead,''
+not a clean incremental-penalty number.}
+\label{fig:misslat-plot}
+\end{figure}
+
+\textbf{Known limitation (stated directly in the source, quoted here rather than
+smoothed over):} single-shot timing carries measurement overhead -- timer serialization
+and post-\texttt{chase()} pipeline state cost far more when timed once than when amortized
+across the $\ge$1000-access batches every other experiment uses (Section~\ref{sec:batching})
+-- so a raw miss-latency median is \emph{not} directly comparable to a batched hit-latency
+plateau (Section~\ref{sec:hitlatency}) without first subtracting this fixed, per-machine
+overhead, which was isolated on Sunbird ($\approx$64--85 ticks) and Skylark
+($\approx$65.8 ticks) via a deliberately-too-small eviction-set control but is not yet
+subtracted automatically by this codebase.
+
+\textbf{Phase-II validation:} a PMU cycle-accurate cross-check would directly resolve how
+much of the raw single-shot number is fixed overhead versus real reload latency; not yet
+performed.
+
+\subsection{Inclusion and Exclusion Behavior}
+\label{sec:inclusion}
+
+\textbf{What is varied:} nothing within a trial; the sweep is across level \emph{pairings}
+(e.g.\ L1 vs.\ L2, L1 vs.\ LLC, L2 vs.\ LLC). \textbf{What is held constant:}
+\texttt{target\_bytes} (a small, densely-packed set confirmed inside the UPPER level) and
+an untouched \texttt{control} line at the identical sub-page offset (0); the eviction walk
+uses a page-multiple stride (\texttt{evict\_stride\_bytes}, a multiple of 4096) so every
+eviction node shares one fixed sub-page offset (\texttt{evict\_offset\_bytes}, default
+2048) different from the target/control's own offset -- this is what lets the walk
+structurally avoid the target's own upper-level set while still spanning enough distinct
+pages to pressure the bigger LOWER level. \textbf{What is measured:} per-trial single-shot
+reload latency for both the target and the control channel.
+
+\begin{lstlisting}[caption={Inclusion/exclusion behavior. Target property: inclusion policy between an upper (inner) and lower (outer) cache level. Architecture: portable common code. File: \texttt{main\_code/common/inclusion\_policy.c}, commit \texttt{7be6dac}.},label={lst:inclusion}]
+int run_inclusion_policy_experiment(const struct inclusion_policy_config *cfg)
+{
+    size_t target_nodes = (size_t)(cfg->target_bytes / sizeof(struct node));
+    size_t evict_nodes = (size_t)(cfg->evict_bytes / cfg->evict_stride_bytes);
+    if (target_nodes < 2) target_nodes = 2;
+    if (evict_nodes < 2) evict_nodes = 2;
+
+    /* Target and control: densely packed, page-aligned (offset 0), two
+     * independent buffers so control's residency can never be disturbed
+     * by anything done to target's own memory. */
+    struct node *target = NULL, *control = NULL;
+    posix_memalign((void **)&target, 4096u, target_nodes * sizeof(struct node));
+    posix_memalign((void **)&control, 4096u, target_nodes * sizeof(struct node));
+    if (target == NULL || control == NULL) return 1;
+
+    /* Eviction buffer: one node every evict_stride_bytes (a page multiple),
+     * offset evict_offset_bytes past a fresh page-aligned allocation, so
+     * every eviction node shares a fixed sub-page byte position different
+     * from target/control's own (0) -- structurally avoids the target's own
+     * set PROVIDED the upper level's index fits within one page (true for
+     * a typical L1; not for an L2-or-bigger target). */
+    uint64_t evict_buffer_bytes =
+        (uint64_t)(evict_nodes - 1) * cfg->evict_stride_bytes + sizeof(struct node);
+    uint64_t evict_alloc_bytes = evict_buffer_bytes + cfg->evict_offset_bytes;
+    void *evict_alloc = NULL;
+    posix_memalign(&evict_alloc, 4096u, (size_t)evict_alloc_bytes);
+    if (evict_alloc == NULL) { free(control); free(target); return 1; }
+    void *evict_base = (void *)((uint8_t *)evict_alloc + cfg->evict_offset_bytes);
+
+    const char *pattern_name =
+        (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) ? "sequential" : "random";
+
+    if (cfg->pattern == ACCESS_PATTERN_SEQUENTIAL) {
+        make_sequential_cycle(target, target_nodes);
+        make_sequential_cycle(control, target_nodes);
+        make_sequential_cycle_strided(evict_base, evict_nodes, (size_t)cfg->evict_stride_bytes);
+    } else {
+        make_random_cycle(target, target_nodes, cfg->seed);
+        make_random_cycle(control, target_nodes, cfg->seed + 1u);
+        make_random_cycle_strided(evict_base, evict_nodes, (size_t)cfg->evict_stride_bytes,
+                                   cfg->seed + 2u);
+    }
+    for (int w = 0; w < cfg->warmup_passes; w++) {
+        chase(target, (uint64_t)target_nodes);
+        chase(control, (uint64_t)target_nodes);
+        chase(evict_base, (uint64_t)evict_nodes);
+    }
+
+    printf("target_bytes,evict_bytes,evict_stride_bytes,evict_offset_bytes,pattern,channel,trial_index,ticks\n");
+
+    for (uint64_t trial = 0; trial < cfg->samples; trial++) {
+        /* Untimed: refresh target/control residency, displace via the
+         * page-offset eviction walk (only eviction mechanism -- no clflush). */
+        chase(target, (uint64_t)target_nodes);
+        chase(control, (uint64_t)target_nodes);
+        chase(evict_base, (uint64_t)evict_nodes);
+
+        /* Timed: exactly one dependent reload of each. */
+        uint64_t t0 = timer_start();
+        struct node *r_target = target->next;
+        uint64_t t1 = timer_stop();
+        uint64_t t2 = timer_start();
+        struct node *r_control = control->next;
+        uint64_t t3 = timer_stop();
+        (void)r_target; (void)r_control;
+
+        printf("%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%s,target,%" PRIu64 ",%" PRIu64 "\n",
+               cfg->target_bytes, cfg->evict_bytes, cfg->evict_stride_bytes,
+               cfg->evict_offset_bytes, pattern_name, trial, (uint64_t)(t1 - t0));
+        printf("%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%s,control,%" PRIu64 ",%" PRIu64 "\n",
+               cfg->target_bytes, cfg->evict_bytes, cfg->evict_stride_bytes,
+               cfg->evict_offset_bytes, pattern_name, trial, (uint64_t)(t3 - t2));
+    }
+    fflush(stdout);
+    free(evict_alloc); free(control); free(target);
+    return 0;
+}
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox[c][2.1in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- methodology-logic flow chart for inclusion/exclusion:\\[4pt]
+touch target \& control (upper level) $\rightarrow$ page-offset eviction walk (lower
+level, structurally avoids target's own set) $\rightarrow$ reload target \& control
+$\rightarrow$ classify each vs.\ calibrated survived/invalidated latency classes
+(Section~\ref{sec:hitlatency}/\ref{sec:misslatency}) $\rightarrow$ target invalidated
+\& control survived $\Rightarrow$ inclusive; both survived $\Rightarrow$
+exclusive/non-inclusive.
+}}
+\caption{Methodology logic for inclusion/exclusion inference. Inference rule: $\ge$80\%
+of target trials classified invalidated-like $\Rightarrow$ inclusive; $\ge$80\%
+survived-like $\Rightarrow$ exclusive/non-inclusive; otherwise uncertain. Control channel
+must itself read survived-like on nearly every trial or the avoidance construction is not
+holding for that pairing.}
+\label{fig:inclusion-flow}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=\textwidth]{../../plots/sunbird_inclusion_L1_vs_L2.pdf}
+\fbox{\parbox[c][2.1in][c]{0.85\textwidth}{\centering
+PLACEHOLDER -- Sunbird L1\_vs\_L2 per-trial reload-latency distribution: target vs.\
+control channel boxplots/histograms, with survived/invalidated calibration lines
+overlaid.
+}}
+\caption{Inclusion/exclusion, Sunbird, L1\_vs\_L2 pairing (target=L1, 32{,}768\,B;
+eviction past L2, 262{,}144\,B). Units: ticks (single-shot reload). Interpretation: target
+90.0\% survived-like (median 84 ticks), control 92.0\% survived-like (median 68) $\Rightarrow$
+L1 is EXCLUSIVE/NON-INCLUSIVE with respect to L2, the cleanest and least caveat-exposed of
+the three pairings tested on this machine. This figure illustrates the method on a single
+machine; \texttt{run\_inclusion\_policy\_full.sh} has since been run for all three level
+pairings on all eight lab machines (Table~\ref{tab:inclusion-crossmachine}), and the
+full per-machine classifier output lives in each machine's own
+\texttt{data\_processed/<machine>/FINAL\_CACHE\_TABLE.md}.}
+\label{fig:inclusion-plot}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Inclusion/exclusion verdict by machine and level pairing, all eight lab machines
+(\texttt{scripts/classify\_inclusion\_policy.py} output, one run per machine, 2026-09-13).
+NI = non-inclusive/exclusive, INC = inclusive, UNC = uncertain (classifier fell short of
+the 80\% threshold either way); a parenthetical lean is given for UNC verdicts where the
+target/control gap still favors a direction. L2\_vs\_LLC uses an L2 target and therefore
+carries the least confidence on every machine (Section~\ref{sec:inclusion}, caveat 3).}
+\label{tab:inclusion-crossmachine}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{Machine} & \textbf{ISA/Vendor} & \textbf{L1\_vs\_L2} & \textbf{L2\_vs\_LLC} & \textbf{L1\_vs\_LLC (skip-level)} \\
+\hline
+Sunbird     & x86-64/Intel  & NI  & UNC (lean INC) & UNC (lean INC) \\
+Artemisia   & x86-64/Intel  & UNC (footprint-confounded) & INC & INC \\
+Thunderbird & AArch64/Ampere& NI  & UNC (lean INC) & NI (opposite lean from Sunbird) \\
+Skylark     & x86-64/AMD    & UNC (weak lean NI) & NI  & NI \\
+Upgrade     & x86-64/Intel  & NI  & NI (lean)       & UNC (lean NI) \\
+Ookay       & x86-64/Intel  & NI  & UNC (lean INC) & UNC (lean INC) \\
+Crux        & x86-64/Intel  & NI  & NI (lean)       & UNC (barely lean NI) \\
+Charnwood   & x86-64/Intel  & NI  & UNC (lean INC) & UNC (lean INC, moderate) \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Known limitation, stated directly in the source:} the avoidance guarantee (the
+eviction walk structurally cannot land on the target's own set) is proven to hold only when
+the upper level's entire set-index fits within one 4\,KiB page -- true for a typical
+32--64\,KiB, 8-way L1 (confirmed to fit exactly, e.g.\ Sunbird's 64 sets $\times$ 64\,B
+lines = 12 index+offset bits), only \emph{approximately} true for a larger L1 with more
+index bits (Thunderbird's 65{,}536\,B/4-way/256-set L1 needs 14 bits, 2 more than one page
+holds), and essentially never true for an L2-or-bigger target. Pairings that use an L2
+target (L2\_vs\_LLC) therefore carry the least confidence of any pairing on every machine
+and are reported as leans, not firm calls. A second, independently discovered failure mode
+surfaced once all eight machines were run: on Charnwood, both LLC-scale pairings' own
+\emph{control} channel -- which is never touched by the eviction walk and should read
+hit-speed on nearly every trial regardless of this machine's real inclusion policy --
+itself showed 54.0\% and 40.0\% invalidated-like trials, direct on-machine evidence that
+the large-footprint DTLB-pressure caveat (Section~\ref{sec:inclusion}'s caveat 2) can
+contaminate the control channel and not just the target, something no single-machine run
+had exposed. \textbf{Cross-machine summary (Table~\ref{tab:inclusion-crossmachine}):}
+L1\_vs\_L2 is the one pairing that reproduces consistently -- non-inclusive/exclusive on
+6 of 8 machines, with the remaining two (Artemisia, Skylark) landing UNCERTAIN rather than
+disagreeing outright, one of them attributable to a known footprint-scaling confound
+(Artemisia's L2 candidate is itself an unconfirmed capacity boundary). The two
+LLC-involving pairings show no fleet-wide agreement at all: Artemisia reads confidently
+INCLUSIVE at both, Skylark/Upgrade/Crux lean NON-INCLUSIVE at both, and
+Sunbird/Thunderbird/Ookay/Charnwood land UNCERTAIN with leans that split in both
+directions even between machines of the same vendor (e.g.\ Sunbird vs.\ Upgrade, both
+Intel). Because the method's own structural guarantee is weakest for exactly these two
+pairings, this spread is at least as consistent with the L2-target avoidance failure and
+the DTLB/large-footprint confound as with genuine cross-vendor differences in LLC
+inclusion policy -- this report does not claim the latter without Phase-II corroboration,
+and the full per-machine reasoning (including each machine's own best-guess synthesis) is
+in \texttt{data\_processed/<machine>/FINAL\_CACHE\_TABLE.md} and referenced again in
+Section~\ref{sec:evolution}.
+
+\textbf{Phase-II validation:} not yet attempted for this target on any machine.
+
+\section{Performance Counter Verification}
+\label{sec:pmu}
+
+\section{Eight Performance Counters Across Generations}
+
+\section{Software-Only Cache Metric}
+
+\section{Chronological Cache Evolution Analysis}
+\label{sec:evolution}
+
+\section{Cache Evolution Prediction}
+
+\section{Hazel HPC Validation}
+\label{sec:hazel}
+
+\section{Discussion}
+
+\section{Conclusion}
+
+\newpage
+
+% ============================================================
+% MANDATORY TEAM CONTRIBUTION APPENDIX
+% ============================================================
+
+% Force the next section to be Section 16.
+% Do NOT use \appendix because that would make the section
+% number change from 16 to A.
+\setcounter{section}{12}
+\renewcommand{\thesection}{\arabic{section}}
+
+% Make subsections use letters A, B, C, ..., I.
+\setcounter{subsection}{0}
+\renewcommand{\thesubsection}{\Alph{subsection}}
+
+\section{Mandatory Team Contribution Appendix}
+
+\subsection{Team Members and GitHub Accounts}
+
+\begin{table}[htbp]
+\centering
+\caption{Team-member identification and GitHub accounts for the mandatory contribution appendix.}
+\label{tab:team-members}
+
+\begin{tabular}{|p{4cm}|p{4cm}|p{5cm}|}
+\hline
+\textbf{Member Name} &
+\textbf{Unity ID} &
+\textbf{GitHub Username} \\
+\hline
+
+Member 1 &
+nsngo &
+NicholasNgo4 \\
+\hline
+
+Member 2 &
+krchen &
+krchen1 \\
+\hline
+
+\end{tabular}
+
+\end{table}
+
+
+\subsection{Result / Data-Point Attribution}
+
+For every result shown in the paper---including each final table entry, plotted machine/generation point, prediction point, PMU comparison, and major derived quantity---identify who produced the underlying measurement and who checked/processed it.
+
+Mechanically repeated points from one identical sweep may be grouped as one row. For example, ``L1 capacity sweep on Sunbird, all working-set sizes.'' However, no reported result should be unattributed.
+
+\begin{longtable}{|p{1.2cm}|p{4cm}|p{2.5cm}|p{2.5cm}|p{3cm}|}
+\caption{Result/data-point attribution for every reported result.}
+\label{tab:result-attribution} \\
+
+\hline
+\textbf{Result / Data ID} &
+\textbf{Result, figure, table, machine, or data series} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} &
+\textbf{Raw-data / script / commit reference} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Result / Data ID} &
+\textbf{Result, figure, table, machine, or data series} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} &
+\textbf{Raw-data / script / commit reference} \\
+\hline
+\endhead
+
+R1 & & & & \\
+\hline
+R2 & & & & \\
+\hline
+R3 & & & & \\
+\hline
+R4 & & & & \\
+\hline
+R5 & & & & \\
+\hline
+R6 & & & & \\
+\hline
+R7 & & & & \\
+\hline
+R8 & & & & \\
+\hline
+R9 & & & & \\
+\hline
+R10 & & & & \\
+\hline
+R11 & & & & \\
+\hline
+R12 & & & & \\
+\hline
+
+\end{longtable}
+
+Add rows as needed. Your report may require substantially more than 12 rows.
+
+
+\subsection{Team Meeting Log}
+
+Record project meetings or substantial synchronous work sessions, if any. Include who attended and a concise summary of decisions, work completed, unresolved issues, and next steps.
+
+\begin{longtable}{|p{2.5cm}|p{3cm}|p{2cm}|p{2cm}|p{5cm}|}
+\caption{Team meeting and synchronous-work log.}
+\label{tab:meeting-log} \\
+
+\hline
+\textbf{Date / Time} &
+\textbf{Purpose} &
+\textbf{Member 1 attended?} &
+\textbf{Member 2 attended?} &
+\textbf{Summary / decisions / next steps} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Date / Time} &
+\textbf{Purpose} &
+\textbf{Member 1 attended?} &
+\textbf{Member 2 attended?} &
+\textbf{Summary / decisions / next steps} \\
+\hline
+\endhead
+
+29Aug2026, 3pm &
+Meet Team Members, start on project &
+Yes &
+Yes &
+Github + overleaf report created, tested access to machines, filled out Table 1, begin building micro benchmark\\
+\hline
+
+& & & & \\
+\hline
+
+& & & & \\
+\hline
+
+& & & & \\
+\hline
+
+\end{longtable}
+
+Add rows as needed. If the team had no formal meetings, state that explicitly and describe how coordination occurred.
+
+
+\subsection{Code Contribution}
+
+List the code components, scripts, benchmark modules, build files, and infrastructure each member created, modified, reviewed, or debugged. Include Git commit hashes or pull-request references where useful.
+
+\begin{longtable}{|p{4cm}|p{3.5cm}|p{3.5cm}|p{3cm}|}
+\caption{Code, script, build, and infrastructure contributions.}
+\label{tab:code-contributions} \\
+
+\hline
+\textbf{Code component / file / module} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} &
+\textbf{Git reference} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Code component / file / module} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} &
+\textbf{Git reference} \\
+\hline
+\endhead
+
+& & & \\
+\hline
+
+& & & \\
+\hline
+
+& & & \\
+\hline
+
+& & & \\
+\hline
+
+& & & \\
+\hline
+
+\end{longtable}
+
+
+\subsubsection*{Required GitHub Contribution-Plot Screenshot}
+
+Immediately after the code-contribution table, insert a screenshot of the GitHub repository's contributor/contribution plot.
+
+\begin{figure}[htbp]
+\centering
+
+% Uncomment after adding the screenshot:
+% \includegraphics[width=\textwidth]{github_contributions.png}
+
+\fbox{
+\parbox[c][3in][c]{0.85\textwidth}{
+\centering
+Insert GitHub contributor/contribution plot screenshot here.
+
+Show both student accounts; caption with full name and GitHub username mapping.
+}
+}
+
+\caption{GitHub contributor/contribution evidence.}
+\label{fig:github-contributions}
+
+\end{figure}
+
+
+\subsection{Experimental-Running Contribution}
+
+Document who actually ran each major experiment. Include the machine/generation and enough information to connect the work to the raw-data files.
+
+\begin{longtable}{|p{4.5cm}|p{3cm}|p{4cm}|p{4cm}|}
+\caption{Experimental-running contribution by machine/generation.}
+\label{tab:experimental-contributions} \\
+
+\hline
+\textbf{Experiment / machine / generation} &
+\textbf{Run date(s)} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Experiment / machine / generation} &
+\textbf{Run date(s)} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} \\
+\hline
+\endhead
+
+& & & \\
+\hline
+
+& & & \\
+\hline
+
+& & & \\
+\hline
+
+& & & \\
+\hline
+
+& & & \\
+\hline
+
+\end{longtable}
+
+
+\subsection{Plotting and Writing Contribution}
+
+List each major figure/table and each major paper section. State who generated/checked the plots, who drafted the text, and who revised it.
+
+\begin{longtable}{|p{5cm}|p{4.5cm}|p{4.5cm}|}
+\caption{Plotting, table, and report-writing contributions.}
+\label{tab:plotting-writing-contributions} \\
+
+\hline
+\textbf{Figure / table / report section} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Figure / table / report section} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} \\
+\hline
+\endhead
+
+& & \\
+\hline
+
+& & \\
+\hline
+
+& & \\
+\hline
+
+& & \\
+\hline
+
+& & \\
+\hline
+
+\end{longtable}
+
+
+\subsection{Analysis Contribution}
+
+Document the reasoning work separately from running experiments and making plots.
+
+\begin{longtable}{|p{5cm}|p{4.5cm}|p{4.5cm}|}
+\caption{Analysis and interpretation contributions.}
+\label{tab:analysis-contributions} \\
+
+\hline
+\textbf{Analysis question / conclusion} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Analysis question / conclusion} &
+\textbf{Member 1 contribution} &
+\textbf{Member 2 contribution} \\
+\hline
+\endhead
+
+& & \\
+\hline
+
+& & \\
+\hline
+
+& & \\
+\hline
+
+& & \\
+\hline
+
+& & \\
+\hline
+
+\end{longtable}
+
+
+\subsection{AI / LLM Assistance Disclosure}
+
+Complete this table if any AI/LLM tool was used. Add rows as needed. If no AI was used, write ``None.''
+
+\begin{longtable}{|p{3cm}|p{3.5cm}|p{4cm}|p{4.5cm}|}
+\caption{AI/LLM assistance disclosure.}
+\label{tab:ai-disclosure} \\
+
+\hline
+\textbf{Tool} &
+\textbf{Task / artifact} &
+\textbf{Type of help received} &
+\textbf{What the team verified and can explain} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Tool} &
+\textbf{Task / artifact} &
+\textbf{Type of help received} &
+\textbf{What the team verified and can explain} \\
+\hline
+\endhead
+
+Claude &
+GitHub Structure and Necessary Folders &
+Content Creation - Created Github Infrastructure containing required folders/files &
+The content creation is purely administrative. The populated folders and files did not contain any technical content and were created based off what the project specifications required. The team verified the repository by examining the contents inside it.\\
+\hline
+
+ChatGPT &
+Overleaf LaTeX Report
+& Content Creation - Populated report section headers and fixed syntax issues
+& The team verified by examining the LaTeX file, ensuring the file compiles, and content matches the project requirements.\\
+\hline
+
+Claude &
+Report Sections 3--4 (Experimental Methodology; Timing-Only Cache Reverse Engineering) &
+Content Creation -- drafted methodology prose, inserted verified source-code listings copied verbatim from \texttt{main\_code/common/} with file/commit citations, and added methodology-logic/plot figure placeholders &
+The team verified every code listing against the actual repository source at the cited commit, confirmed the described method matches each header's own docstring and each machine's \texttt{data\_raw/<machine>/README.md}, and can explain the pointer-chase/timing/batching/access-pattern design and every stated caveat (e.g.\ the unresolved L2/LLC associativity confound, the single-shot miss-latency overhead) independently of the AI-drafted text.\\
+\hline
+
+\end{longtable}
+
+\noindent
+\textbf{AI accountability statement:} Both students are responsible for understanding every submitted artifact, including AI-assisted code and analysis.
+
+
+\subsection{Final Contribution Confirmation}
+
+Both members must review the completed appendix before submission and complete Table 14.
+
+\begin{table}[htbp]
+\centering
+\caption{Final contribution-appendix confirmation by both team members.}
+\label{tab:final-confirmation}
+
+\begin{tabular}{|p{6cm}|p{8cm}|}
+\hline
+\textbf{Member Name} &
+\textbf{Confirmation / Date} \\
+\hline
+
+Member 1 & \\
+\hline
+
+Member 2 & \\
+\hline
+
+\end{tabular}
+
+\end{table}
+
+\end{document}

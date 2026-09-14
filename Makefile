@@ -6,6 +6,7 @@ LDLIBS = -lm
 TARGET = cache_bench
 
 COMMON_DIR = main_code/common
+HIT_RATE_DIR = main_code/software_hit_rate
 
 SOURCES = \
 	$(COMMON_DIR)/main.c \
@@ -16,7 +17,8 @@ SOURCES = \
 	$(COMMON_DIR)/line_size.c \
 	$(COMMON_DIR)/associativity.c \
 	$(COMMON_DIR)/latency.c \
-	$(COMMON_DIR)/inclusion_policy.c
+	$(COMMON_DIR)/inclusion_policy.c \
+	$(HIT_RATE_DIR)/software_hit_rate.c
 
 OBJECTS = $(SOURCES:.c=.o)
 

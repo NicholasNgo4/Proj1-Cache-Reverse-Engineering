@@ -230,10 +230,118 @@ rationale (this section assumes that background and doesn't re-derive it).
   - **L2 vs LLC: UNCERTAIN, leaning INVALIDATED/inclusive-like with low confidence** — smallest target-vs-control separation, and the one pairing where BOTH the DTLB caveat and the index-size caveat apply simultaneously; the least trustworthy directional read of the three, but not a non-answer.
   - **Put together:** the same qualitative pattern Sunbird found — non-inclusive at the L1-L2 hop, leaning inclusive at both LLC-involving hops — reproduces here, with lower confidence at the LLC-involving pairings due to confirmed control-channel contamination that Sunbird's own run didn't show. This is consistent with (not independent proof of) an LLC that behaves inclusively toward what's cached above it, alongside a non-inclusive L2, the same design pattern this team has now seen suggested on multiple machines.
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename: 
-- Events collected + exact semantics on this CPU: 
-- Run command + arguments: 
+### pmu/ (Phase II, 2026-09-14 — Phase I was frozen/tagged `phase1-timing-only` before this ran)
+
+Follows the canonical `scripts/run_pmu_verification.sh` convention Sunbird's
+and Thunderbird's sessions established (see `CLAUDE.md`'s Phase II section)
+— full detail, agreement table, and caveats live in
+`data_processed/charnwood/PHASE2_VALIDATION_TABLE.md`; this section is a
+run-log summary, not a duplicate of that analysis.
+
+- Source file(s): `scripts/run_pmu_verification.sh`, `scripts/summarize_pmu.py`, reusing `main_code/common/latency.c` (`--experiment hit_latency`) unchanged.
+- Idle-core check immediately before running: `mpstat -P 3,7` across 3 sampling windows ~2s apart, all showing 98-100% idle on both logical CPUs of physical core 3 — same core used for every prior experiment on this machine. **Not a fully quiet machine overall**, though: `ps`/`taskset -cp` confirmed two other logged-in users' processes active on *different* physical cores for the run's entire duration — `dsengup2`'s `incl_pmu` (PID 1812516) pinned to physical core 0, `msabap`'s `cache_bench_x86` (PID 1807870) pinned to physical core 2. Neither shares a physical core with this run's pinned core 3, but see the PMU validation table's caveat section for evidence this still measurably affected results via package-level turbo-budget suppression (`scaling_governor=powersave`, core 3's own `scaling_cur_freq` reading ~2.70 GHz — well under this CPU's 3.4 GHz base — while both other cores were near 100% busy).
+- `perf` version: `perf version 6.8.12`. `perf_event_paranoid = -1` (unrestricted), `nmi_watchdog = 1` (one hardware counter reserved, consistent with the script's "2 generic counters reliably schedulable" design — confirmed true here too: all 4 two-event groups scheduled at 100% for every (level, run_tag), no `<not counted>` anywhere).
+- Events collected (4 separate `perf stat -e duration_time,<pair>` invocations per level/run_tag, per the script's own design): `{cache-references,cache-misses}`, `{L1-dcache-loads,L1-dcache-load-misses}`, `{LLC-loads,LLC-load-misses}`, `{cycles,instructions}` — all confirmed available via `perf list` on this CPU (Skylake client, standard generic hardware + kernel PMU events, no ARM-style `<not supported>` issue).
+- Run command + arguments: `./scripts/run_pmu_verification.sh charnwood 3 L1:32768,L2:262144,LLC:8388608` (core 3; footprints are this machine's own `CAPACITY_RESULTS.md`-sourced L1/L2/LLC values, identical to the ones already used for this machine's `associativity/`, `latency/`, and `inclusion_policy/` sections above). base_seed=12345, 2 reproducibility repeats (seeds 12346/12347), 1,000,000 samples/run, batch-size 1000, 3 warmup passes, `--load-mode dependent --pattern random` (matching Phase I's own hit_latency convention). Timestamp `20260914T003212Z`. Full transcript: `data_raw/charnwood/pmu/run_pmu_verification_20260914T003212Z.log`.
+- Raw output: `data_raw/charnwood/pmu/{L1,L2,LLC}/*_perfstat_*_20260914T003212Z.csv.gz` (perf's own `-x,` CSV) and `*_bench_*_20260914T003212Z.csv.gz` (cache_bench's own CSV from the same invocation) — gzipped by hand per `.gitignore`'s `data_raw/**/*.csv` rule.
+- Processed: `scripts/summarize_pmu.py --level <L> <perfstat csvs> -o data_processed/charnwood/pmu/<L>/pmu_summary_20260914T003212Z.csv`, one file per level (base/rep1/rep2/median rows each).
+- System-reported cache info: `lscpu --caches`, full `lscpu`, and per-logical-CPU sysfs (`/sys/devices/system/cpu/cpu{0,1,2,3}/cache/index*/*`) collected 2026-09-14T00:33:11Z, saved to `data_raw/charnwood/pmu/system_reported_cache_info.txt`. Headline numbers: L1D 32,768 B/8-way/64 sets/64 B line/`shared_cpu_list=3,7` (identical across all 4 cores checked); L2 262,144 B/**4-way**/1,024 sets/64 B line/private per physical core; L3 8,388,608 B/**16-way**/8,192 sets/64 B line/`shared_cpu_list=0-7` (whole socket).
+- **Headline findings (full reasoning in `PHASE2_VALIDATION_TABLE.md`):** L1D matches Phase I exactly on every structural field (size/ways/sets/line/sharing). **L2 and LLC associativity were both real disagreements** — Phase I's confound-blocked best guesses (8-way for both, per `FINAL_CACHE_TABLE.md`) turned out wrong in both cases: system-reported L2 is **4-way** (half the guess) and LLC is **16-way** (double the guess) — resolved in favor of the system-reported values. Literature (Agner Fog Table 11.2, Skylake) independently corroborates L2's 4-way as sitting at the low end of its own quoted "4-16 way" range and matches the 1,024-set count exactly, but does not give a specific ways figure for L3 at all in this table, so LLC's 16-way has no 3rd-source arbitration. Miss-rate ratios (the caveat-robust PMU signal) cleanly reproduce Phase I's own L1→L2→LLC boundary placement via order-of-magnitude jumps in the LLC-scope miss rate exactly at the LLC footprint.
+- Literature source: Agner Fog, *The microarchitecture of Intel, AMD and VIA CPUs* (`www.agner.org/optimize/microarchitecture.pdf`, last updated 2026-05-23), §11.12 "Cache and memory access", Table 11.2 "Cache sizes on Skylake", p. 160 — this machine's i7-6700 is Skylake client, the exact microarchitecture this table covers.
+
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+The 3 standardized cross-machine microbenchmarks required by problem 8.4 —
+(i) L1-resident dependent accesses, (ii) LLC-sized randomized accesses, (iii)
+a working set larger than LLC — run identically to every other machine in
+this pipeline, collecting the assignment's fixed 8-event counter set. Phase
+II already frozen (`phase1-timing-only`), so this reuses the same
+`perf`-wrapping discipline as `pmu/` above, just a different benchmark set
+and a different 4th event pair (see rationale below).
+
+- Source file(s): `scripts/run_standardized_benchmarks.sh`,
+  `scripts/summarize_eight_counters.py` (both pulled from `origin/main`
+  this session — no `cache_bench` source changes; same `--experiment
+  hit_latency --load-mode dependent --pattern random` construction as
+  every other latency/PMU pipeline on this machine, differing only in
+  `--footprint-bytes` and the perf event set).
+- **8 counters** (assignment-literal set, not `pmu/`'s own set): all 3
+  benchmarks collect `cache-references`, `cache-misses`, `L1-dcache-loads`,
+  `L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+  `LLC-load-misses`, `dTLB-load-misses` — swapping out the `pmu/`
+  pipeline's `cycles`/`instructions` pair for the L1 store-side signal and
+  a real dTLB-miss count (all confirmed available on this Skylake PMU per
+  the `pmu/` section's own `perf list` check above). Same 4-groups-of-2
+  perf-scheduling discipline as `pmu/` (3 of the 4 groups — `cache`, `l1`,
+  `llc` — are byte-identical invocations to that pipeline's; only the 4th
+  group differs: `L1-dcache-stores,dTLB-load-misses` instead of
+  `cycles,instructions`). All 4 groups scheduled at 100% for every
+  (benchmark, run_tag) — no `<not counted>` anywhere, same clean PMU
+  scheduling as the `pmu/` run above.
+- Idle-core check before running: `mpstat -P 3,7` across 3 sampling windows
+  ~1.5s apart, all showing 97-100% idle — the two other students' processes
+  documented in the `pmu/` section above (`incl_pmu` on core 0,
+  `cache_bench_x86` on core 2) had both since exited; `ps --sort=-pcpu`
+  showed no process above ~2% CPU machine-wide at run time. **This is a
+  materially quieter session than every other experiment on this machine**
+  (all of which shared the machine with at least one other student's
+  active process) — worth noting because the results below match Phase I's
+  own `latency/` numbers unusually tightly, more tightly than any other
+  machine's `eight_counters`/`pmu` cross-check run in this project so far.
+- Run command: `./scripts/run_standardized_benchmarks.sh charnwood 3
+  L1_resident:32768,LLC_random:8388608,beyond_LLC:536870912` (core 3, same
+  core as every other Charnwood experiment; footprints are this machine's
+  own `CAPACITY_RESULTS.md`/`FINAL_CACHE_TABLE.md` L1/LLC values plus the
+  project's universal 536,870,912 B / 512 MiB DRAM-scale constant for
+  `beyond_LLC`). base_seed=12345 (repeats use base_seed+index),
+  samples=1,000,000/run, batch_size=1000, warmup_passes=3, dependent load
+  mode, random pattern (identical construction across all 3 benchmarks,
+  differing only in `--footprint-bytes`), timestamp `20260914T052928Z`.
+- Raw output: `data_raw/charnwood/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` and `*_bench_*.csv.gz` (gzipped by hand
+  post-run, same `.gitignore` convention as every other experiment).
+  Transcript: `data_raw/charnwood/eight_counters/
+  run_standardized_benchmarks_20260914T052928Z.log`.
+- Processed: `data_processed/charnwood/eight_counters/{L1_resident,
+  LLC_random,beyond_LLC}/eight_counters_summary_20260914T052928Z.csv` (one
+  row per run_tag + a median-of-3 row each; raw counts and miss-rate ratios
+  only — problem 8.4's actual per-access/per-1000-iteration normalization,
+  ranking/S-curves, and cross-generation comparison (items 2-4) are
+  explicitly NOT attempted here; they need all 8 machines' data first).
+- **Results (median-of-3, all 3 benchmarks; all 8 events present, no
+  scheduling failures):**
+  - `bench_avg_ticks_per_access_median`: **L1_resident ≈8.016**,
+    **LLC_random ≈106.185**, **beyond_LLC ≈394.551** ticks/access — a
+    clean, monotonically increasing ladder that matches this machine's own
+    already-documented Phase I `latency/` hit-latency numbers (≈7.98 /
+    ≈106.9-109.1 / ≈394.6-394.8 ticks) to within ~0.5%, ~1%, and ~0.06%
+    respectively — the tightest agreement of any machine's PMU/eight-
+    counters re-measurement in this project so far, consistent with this
+    session's unusually quiet idle-core check above (every other machine's
+    equivalent run had a documented, contention-driven divergence from its
+    own Phase I baseline at one or more benchmarks).
+  - `l1_miss_rate`: 1.08% (L1_resident) → 8.83% (LLC_random) → 13.42%
+    (beyond_LLC) — monotonically increasing as expected, though (per the
+    same `-O0` stack-load dilution effect documented in `pmu/` above) it
+    only rises modestly between the last two footprints rather than
+    tracking capacity 1:1.
+  - `llc_miss_rate`: 14.0% (L1_resident, base/rep1/rep2: 11.9/14.0/19.3% —
+    the noisiest of the three benchmarks, plausibly because so few
+    LLC-scope events occur at this footprint that the ratio's denominator
+    is small) → 15.9% (LLC_random) → 47.5% (beyond_LLC) — the expected
+    order-of-magnitude jump lands at `beyond_LLC`, corroborating the LLC
+    boundary the same way `pmu/`'s own miss-rate signal did.
+  - `dtlb_load_misses` (raw count, not yet normalized per item 2): 2,025 →
+    1,096,978 → 253,582,411 — a clean, large monotonic climb across the 3
+    benchmarks (~540x from L1_resident to LLC_random, then a further
+    ~231x to beyond_LLC), the first directly-measured dTLB-miss data this
+    project has collected on this machine (as opposed to only the
+    structural/inferential DTLB-confound evidence from the associativity
+    investigation).
+- Not yet attempted on this machine: problem 8.4 items 2-4 (per-access
+  normalization already computable from the raw counts above via
+  `samples_achieved`, but not yet written up; ranking/S-curve; Intel vs.
+  AMD vs. Arm and generation comparison) — these need all 8 machines' data
+  first, per `CLAUDE.md`'s 8.4 status.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: 

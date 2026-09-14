@@ -708,6 +708,272 @@ raw-data/reproduction-detail record.
   rate jumps from ~0.1-1.4% at the L1/L2 footprints to ~11-14% exactly at
   the LLC footprint.
 
+### software_hit_rate/ (Problem 8.5 — 2026-09-14)
+Software-only, timing-derived cache hit-rate estimator
+(`main_code/software_hit_rate/`, no PMU access anywhere in that file) plus
+its Phase-II PMU validation. See `main_code/software_hit_rate/software_hit_rate.h`'s
+module doc comment for the full method (calibration -> ROC threshold
+selection -> Rogan-Gladen prevalence correction -> bootstrap CI).
+
+#### Sweep (parts 1-3, standalone, no perf)
+- Source file(s): `main_code/software_hit_rate/software_hit_rate.{c,h}`,
+  `scripts/run_software_hit_rate_sweep.sh`,
+  `scripts/summarize_software_hit_rate.py`, `scripts/plot_software_hit_rate.py`.
+- Run command: `./scripts/run_software_hit_rate_sweep.sh sunbird 1` (default
+  15-point sweep, 4 KiB-512 MiB, anchored to this machine's own confirmed
+  L1/L2/LLC/DRAM boundaries from `data_processed/sunbird/FINAL_CACHE_TABLE.md`).
+  core=1, seed=12345, resident_bytes=16384, nonresident_bytes=536870912,
+  calib_samples=20000, test_samples=50000, bootstrap_reps=2000, pattern=random,
+  timestamp `20260914T015025Z`.
+- Raw output: `data_raw/sunbird/software_hit_rate/raw/hit_rate_<bytes>_20260914T015025Z.csv.gz`
+  (full per-access CSV per point). Transcript:
+  `data_raw/sunbird/software_hit_rate/run_software_hit_rate_sweep_20260914T015025Z.log`.
+- Processed: `data_raw/sunbird/software_hit_rate/hit_rate_sweep_20260914T015025Z.csv`
+  (one row per footprint); plots:
+  `data_processed/sunbird/software_hit_rate/plots/{hit_rate_sweep,calibration_distributions}.{png,pdf}`.
+- Headline results: Hhat≈1.0 for every footprint safely inside L1 (4096,
+  16384 B) and, notably, also through L2-scale footprints (65536, 131072 B)
+  — expected, since this estimator's "hit" is defined as "served by ANY
+  cache level, not DRAM," not L1-specifically. **Right at the exact L1
+  capacity boundary (32768 B) Hhat drops to 0.8664**, not ~1.0 — a genuine,
+  reproducible dip from real conflict/associativity effects at exactly-full
+  capacity (a real cache is not fully associative; a random cyclic address
+  stream sized to exactly fill a level does not evenly fill every set).
+  This dip turned out to matter a lot for the PMU validation below. Hhat
+  falls off through L2/LLC-scale footprints (262144 B: 0.7404; 1-16 MiB:
+  0.19 down to 0.011) and reads near-zero at and past the ~30 MiB LLC
+  boundary (0.0064 at 31,457,280 B) through 512 MiB DRAM (0.0001) — the
+  gradual falloff starting well below the real ~30 MiB LLC edge is the
+  single-threshold classifier's own documented limitation showing up here
+  too (see below), not a capacity misestimate.
+
+#### PMU validation (part 4) — REDESIGNED 2026-09-14 after the original design was found invalid
+- Source file(s): `scripts/run_hit_rate_pmu_validation.sh`,
+  `scripts/compare_hit_rate_pmu.py`. Both footprint values come from
+  `CAPACITY_RESULTS.md` per this project's usual discipline; see below for
+  why L1/L2/LLC are tested at HALF that value here specifically, not the
+  boundary itself.
+
+**Original design (timestamp `20260914T022938Z`, NOT trustworthy, kept only
+as evidence for the writeup below) and what was wrong with it:** the first
+version of this script perf-wrapped a SECOND `cache_bench --experiment
+hit_rate` invocation directly, in PMU validation mode
+(`--tau/--sensitivity/--specificity` fixed from a first, unwrapped
+calibration-only invocation), so Hhat and H_pmu would come from literally
+identical timed accesses. It ran to completion cleanly but produced
+unusable numbers: rel_error_pct was 100.0/100.0/99.37/99.96 at
+L1/L2/LLC/DRAM respectively (`data_processed/sunbird/software_hit_rate/
+pmu_validation_20260914T022938Z.csv`), including L1 reading Hhat=0.0 (i.e.
+"0% hit rate") for a footprint that fits entirely inside L1.
+
+Root-caused via a controlled A/B replay (same binary, same CLI args, same
+seed, ONLY difference is presence/absence of the `perf stat` wrapper) — two
+independent, compounding problems, not one:
+
+1. **Exact-capacity-boundary footprint is inherently fragile, even with no
+   perf involved.** The harness tested each level at its EXACT
+   `CAPACITY_RESULTS.md` boundary (e.g. L1 at exactly 32768 B) rather than a
+   safely-inside point. The sweep above already showed this dips to
+   Hhat=0.8664 (not ~1.0) at exactly 32768 B; a further reseed check (no
+   perf) showed the SAME 32768 B footprint swinging from Hhat=0.368 to
+   0.996 seed-to-seed — real conflict-miss noise at the exact edge, not
+   measurement error.
+2. **`perf stat` itself reproducibly and severely distorts hit_rate's own
+   single-shot timing loop.** `time_single_shot_chain()` in
+   `software_hit_rate.c` times each access individually with one
+   `lfence+rdtsc ... rdtscp+lfence` pair (50,000 times per run) — unlike
+   this project's `hit_latency` experiment (already perf-wrapped cleanly on
+   every team machine via `run_pmu_verification.sh`), which uses BATCHED
+   timing (one timer pair around a whole batch of accesses). A same-seed,
+   same-footprint (32768 B) A/B pair: unwrapped p_obs=0.998 (Hhat≈1.0,
+   correct); perf-wrapped p_obs=0.317 (Hhat≈0.32) and wall time inflated
+   from an expected ~2 ms to **2.9 seconds**. Repeated at 3 more seeds, the
+   same direction held every time (e.g. seed=2: unwrapped p_obs=0.996 ->
+   perf-wrapped p_obs=0.000). A bare `perf stat -- /bin/true` control only
+   took 14 ms, ruling out a simple fixed perf-startup constant as the
+   explanation. Leading hypothesis (not exhaustively root-caused further,
+   Phase-I/II-appropriate timing-only investigation): `/proc/sys/kernel/
+   nmi_watchdog` = 1 is confirmed active on this machine (already
+   documented in this README's `pmu/` section as pinning one PMU counter
+   here) and its periodic NMI is a plausible source of the kind of
+   fine-grained stalls that would corrupt a tight per-access RDTSC-pair
+   loop without similarly disrupting `hit_latency`'s coarser batched one;
+   `systemd-detect-virt` reports "none" (bare metal), ruling out a VM-trap
+   explanation for RDTSC/RDTSCP. The inflated wall time also explains the
+   PMU counts directly: L1's run recorded ~56 million `cache-references`
+   for only 50,000 intended accesses — orders of magnitude too many to be
+   the timed loop itself, consistent with `perf`'s aggregate counters
+   mostly reflecting whatever is causing that ~1.7-2.9s of extra wall time,
+   not the intended 50,000-access signal.
+
+**Fix, implemented in the current `run_hit_rate_pmu_validation.sh`:**
+   1. L1/L2/LLC are now tested at HALF their `CAPACITY_RESULTS.md` value
+      (a safely-inside-the-level point — the same "boundary's midpoint"
+      convention `run_hit_latency_full.sh`'s own docstring already uses),
+      not the exact edge. DRAM is left as given (536,870,912 B) — not a
+      capacity edge in the same sense.
+   2. Hhat and H_pmu no longer come from the same invocation. Hhat now
+      comes from an UNWRAPPED `hit_rate` run (clean single-shot timing,
+      tau/Se/Sp still fixed from a first calibration-only invocation).
+      H_pmu now comes from a SEPARATE perf-wrapped `--experiment
+      hit_latency` run (batched timing, `--load-mode dependent --pattern
+      random`, samples/batch/warmup identical to
+      `run_pmu_verification.sh`'s already-proven-clean values on this
+      machine) at the same footprint/seed — decoupled sources, not
+      identical timed accesses, but each individually trustworthy where
+      the combined approach was not. PMU-reading code still never appears
+      inside `software_hit_rate.c` itself — only the harness decides which
+      of two existing, ordinary CLI-argument experiments/modes to invoke.
+
+- Run command (redesigned): `./scripts/run_hit_rate_pmu_validation.sh
+  sunbird 1 L1:32768,L2:262144,LLC:31457280,DRAM:536870912` (core 1,
+  confirmed idle via `/proc/stat` idle-time deltas immediately before
+  running). Tested footprints after the /2 halving: L1=16384, L2=131072,
+  LLC=15728640, DRAM=536870912 (unchanged). base_seed=12345 (repeats use
+  base_seed+index), timestamp `20260914T025929Z`.
+- Raw output: `data_raw/sunbird/software_hit_rate/pmu/{L1,L2,LLC,DRAM}/
+  *_{calibonly,bench,hitlatpmu,perfstat}_{base,rep1,rep2}_20260914T025929Z.csv.gz`
+  (`bench` = unwrapped hit_rate CSV, Hhat source; `hitlatpmu` = hit_latency's
+  own CSV from the perf-wrapped run, supplementary; `perfstat` = raw `perf
+  stat -x,` output, H_pmu source). Transcript:
+  `data_raw/sunbird/software_hit_rate/pmu/run_hit_rate_pmu_validation_20260914T025929Z.log`.
+- Processed: `data_processed/sunbird/software_hit_rate/pmu_validation_20260914T025929Z.csv`.
+- Headline results (median of base+2 repeats):
+
+  | Level | Tested footprint | Hhat | H_pmu | rel. error |
+  |---|---|---|---|---|
+  | L1  | 16,384 B     | 1.0000 | 0.7684 | 30.1% |
+  | L2  | 131,072 B    | 0.9564 | 0.8509 | 12.4% |
+  | LLC | 15,728,640 B | 0.0127 | 0.9775 | 98.7% |
+  | DRAM | 536,870,912 B | 0.0001 | 0.1443 | 99.9% |
+
+  No more literal 0.0/1.0 flips and no more multi-second durations for a
+  workload that should finish in low single-digit milliseconds — both
+  fixes measurably worked (L1/L2 error dropped from ~100% to 30%/12%).
+
+  **The remaining LLC/DRAM disagreement is real and expected, not a bug to
+  chase with further harness changes.** It is exactly
+  `software_hit_rate.h`'s own documented classifier limitation: a SINGLE
+  global latency threshold (tau≈80-84 ticks here) separates "resident" from
+  "far/DRAM." A genuine LLC hit's true single-shot latency (LLC hit
+  latency, ~58 ticks per this machine's own `latency/` section, plus this
+  machine's own documented ~64-85 tick single-shot fixed overhead) lands
+  well ABOVE tau — so the estimator systematically classifies genuine LLC
+  hits as "miss" even though its own definition of "hit" (served by ANY
+  cache level) says they should count. H_pmu is the honest ground truth
+  here: ~98% hit at the LLC footprint (it does fit, and mostly hits) is
+  correct; Hhat structurally cannot see that. DRAM's H_pmu=0.144 (vs.
+  Hhat's correct near-zero) reflects the same generic
+  `cache-references`/`cache-misses` counter-semantics gap already
+  documented elsewhere in this project (Phase II PMU sections above; these
+  events are not a clean 1:1 per-access hit/miss signal at DRAM scale on
+  every machine). **Conclusion for the report: this estimator reliably
+  detects L1-scale (and, by its own construction, only L1-scale) cache
+  residency; it is not a general "served by any cache level" detector in
+  practice, despite that being its intended definition** — a real,
+  citable finding, not a broken measurement.
+
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+The 3 standardized cross-machine microbenchmarks required by problem 8.4 —
+(i) L1-resident dependent accesses, (ii) LLC-sized randomized accesses, (iii)
+a working set larger than LLC — run identically to every other machine that
+will eventually run this pipeline, collecting a fixed 8-event counter set.
+Phase II already frozen (`phase1-timing-only`), so this reuses the same
+`perf`-wrapping discipline as `pmu/` above, just a different benchmark set
+and a different 8th/9th event pair (see rationale below).
+
+- Source file(s): `scripts/run_standardized_benchmarks.sh`,
+  `scripts/summarize_eight_counters.py` (both new this session; no
+  `cache_bench` source changes — same `--experiment hit_latency
+  --load-mode dependent --pattern random` construction as every other
+  latency/PMU pipeline in this project, differing only in
+  `--footprint-bytes` and the perf event set).
+- **8 counters** (assignment-literal set, not `pmu/`'s own set): all 3
+  benchmarks collect `cache-references`, `cache-misses`, `L1-dcache-loads`,
+  `L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+  `LLC-load-misses`, `dTLB-load-misses` — swapping out the `pmu/`
+  pipeline's `cycles`/`instructions` pair for the L1 store-side signal and
+  a real dTLB-miss count (all 8 confirmed present via `perf list` before
+  writing the script). Chosen specifically because per-access
+  normalization (problem 8.4 item 2, not attempted this session) doesn't
+  need an instructions counter, and dTLB-load-misses gives real
+  measured data toward this project's still-open DTLB-scale confound
+  question from the associativity investigation (see `CLAUDE.md`'s
+  associativity section) — this pipeline is the first to actually count
+  dTLB misses directly rather than only inferring the confound
+  structurally. Same 4-groups-of-2 perf-scheduling discipline as `pmu/`
+  (3 of the 4 groups — `cache`, `l1`, `llc` — are byte-identical
+  invocations to that pipeline's; only the 4th group differs:
+  `L1-dcache-stores,dTLB-load-misses` instead of `cycles,instructions`).
+- Idle-core check before running: `/proc/stat` idle-tick deltas sampled
+  across 3 windows ~2s apart for cores 1/3/4/5 — core 4 showed a flat,
+  non-incrementing idle counter (100% busy, matches `ps` showing another
+  student's `cache_bench_x86` pinned there via `taskset`); core 1 (used by
+  every prior Sunbird PMU run) confirmed idle (~99% idle across all 3
+  samples) and used again here.
+- Run command: `./scripts/run_standardized_benchmarks.sh sunbird 1
+  L1_resident:32768,LLC_random:31457280,beyond_LLC:536870912` (core 1;
+  footprints are this machine's own hand-confirmed
+  `FINAL_CACHE_TABLE.md` L1/LLC values plus the project's universal
+  536,870,912 B / 512 MiB DRAM-scale constant for `beyond_LLC`, safely
+  above every team machine's LLC). base_seed=12345 (repeats use
+  base_seed+index), samples=1,000,000/run, batch_size=1000,
+  warmup_passes=3, dependent load mode, random pattern (identical
+  construction across all 3 benchmarks, differing only in
+  `--footprint-bytes`), timestamp `20260914T041517Z`.
+- Raw output: `data_raw/sunbird/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` and `*_bench_*.csv.gz` (gzipped by hand
+  post-run, same `.gitignore` convention as every other experiment).
+  Transcript: `data_raw/sunbird/eight_counters/
+  run_standardized_benchmarks_20260914T041517Z.log`.
+- Processed: `data_processed/sunbird/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/eight_counters_summary_20260914T041517Z.csv` (one row per
+  run_tag + a median-of-3 row each; raw counts and miss-rate ratios only —
+  problem 8.4's actual per-access/per-1000-iteration normalization,
+  ranking/S-curves, and cross-generation comparison (items 2-4) are
+  explicitly NOT attempted this session; they need all 8 machines' data
+  first).
+- **Headline numbers (median row, all 3 benchmarks) — internally
+  consistent, no re-investigation needed:**
+  - `L1_resident` (32,768 B): ≈14.4 ticks/access (matches this machine's
+    own already-documented ≈10.35-tick L1 hit latency reasonably given
+    this run's own base-vs-repeat P-state-style elevation — base read
+    16.1 vs. rep1/rep2's 14.4/14.4, the same first-invocation-of-a-session
+    elevation pattern documented elsewhere in this project, e.g.
+    Charnwood's latency/ section); `l1_miss_rate` ≈0.6%, `llc_miss_rate`
+    ≈2.7%, `dtlb_load_misses` tiny (~502-516) — as expected for a dataset
+    that fits entirely in L1 and touches very few distinct pages.
+  - `LLC_random` (31,457,280 B): ≈57.7-59.5 ticks/access, matching this
+    machine's own documented ≈58.42-tick LLC hit latency almost exactly;
+    `l1_miss_rate` jumps to ≈7.5% (the working set no longer fits in L1,
+    as expected), `cache_miss_rate` ≈9-10%, `dtlb_load_misses` ≈880-1060
+    (an order of magnitude above `L1_resident`, tracking the much larger
+    page count touched).
+  - `beyond_LLC` (536,870,912 B): ≈254-258 ticks/access — noticeably
+    higher than this machine's own previously-documented ≈207-tick DRAM
+    hit latency (`data_processed/sunbird/FINAL_CACHE_TABLE.md`); most
+    likely contention from the same other student's `cache_bench_x86`
+    process confirmed pinned on core 4 for the whole session (a shared
+    memory-bandwidth/LLC resource, not insulated by this run's own idle
+    *core*, the same "idle core doesn't insulate from chip-shared
+    contention" finding this project already documented for Ookay's PMU
+    run) — flagged here, not smoothed over, and not re-run this session.
+    `cache_miss_rate`/`llc_miss_rate` both ≈49-55%, `dtlb_load_misses` is
+    3-4 orders of magnitude above the other two benchmarks (≈2-2.2×10^8),
+    consistent with streaming through far more distinct pages than the
+    DTLB can hold.
+  - Across all 3 benchmarks: ticks/access, `l1_miss_rate`, and
+    `dtlb_load_misses` all climb monotonically with footprint, exactly the
+    expected shape — no anomaly requiring further investigation this
+    session.
+- **Not yet run on any other machine.** Remaining 7 (Thunderbird, Skylark,
+  Artemisia, Charnwood, Crux, Ookay, Upgrade) need the same command with
+  their own `FINAL_CACHE_TABLE.md` L1/LLC byte values (Thunderbird also
+  needs the same `LLC-loads`/`LLC-load-misses` `<not supported>` tolerance
+  already documented for its ARM PMU in `pmu/` above) before problem 8.4
+  items 2-4 (normalization, per-benchmark ranked S-curves, and the
+  Intel/AMD/Arm and older/newer generation comparison) can be attempted.
+
 ## Final Inferred Cache Table (Sunbird, Phase I best guess, 2026-09-13)
 
 Moved to `data_processed/sunbird/FINAL_CACHE_TABLE.md` (2026-09-13) so it sits

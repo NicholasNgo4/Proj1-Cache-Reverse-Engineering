@@ -662,10 +662,357 @@ pairings carry the added capacity-estimate caveat above, so "strongly"
 here means "the classifier's numbers are clean," not "high confidence in
 the absolute claim").
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename: 
-- Events collected + exact semantics on this CPU: 
-- Run command + arguments: 
+### pmu/ (Phase II — 2026-09-14)
+Phase I frozen/tagged (`phase1-timing-only`) before anything below was run,
+per `README.md`'s Phase Discipline. See `CLAUDE.md`'s "Phase II" subsection
+and `data_processed/skylark/PHASE2_VALIDATION_TABLE.md` for the full
+methodology/results write-up and literature citation — this section is the
+raw-data/reproduction-detail record, same convention as Sunbird's and
+Thunderbird's.
+
+- Used the existing, now-canonical pipeline (`scripts/run_pmu_verification.sh`
+  + `scripts/summarize_pmu.py`, built by Sunbird's session) unmodified — no
+  new code this session.
+- Core selection: session's `Cpus_allowed_list` was `0-31`. `mpstat -P ALL`
+  showed cores 0 (65% busy), 2 (98%), and 3 (100%) pinned by other students'
+  processes (`incl_pmu`, `cache_bench_x86 --exp nextlevel`, `latency_bench`,
+  confirmed via `taskset -pc <pid>`); core 5 read 0% busy across two
+  `mpstat` samples taken a few seconds apart. Core 5 used.
+- Machine-specific PMU check done before the full run: this AMD Zen 2 PMU
+  (`AuthenticAMD`, EPYC 7532) reliably schedules the `cache-references,
+  cache-misses`, `L1-dcache-loads,L1-dcache-load-misses`, and
+  `cycles,instructions` 2-event groups at 100%. **`LLC-loads`/
+  `LLC-load-misses` come back `<not supported>` (not `<not counted>`) at
+  every level** — a harder failure than a scheduling conflict: this PMU has
+  no LLC-scoped generic-event alias perf can map to on this CPU. Also
+  hand-checked: AMD's own raw uncore L3 events (`l3_accesses`, `l3_misses`,
+  PMU unit `amd_l3`, found via `perf list`) fail identically, even
+  system-wide (`perf stat -a`) — consistent with `perf_event_paranoid=2`
+  blocking unprivileged access to the socket-scoped uncore PMU; no `sudo`
+  available to check whether root access resolves it.
+- Run command: `./scripts/run_pmu_verification.sh skylark 5
+  L1:32768,L2:524288,LLC:8388608` (footprints from `CAPACITY_RESULTS.md`,
+  same three values already used for this machine's `latency/` and
+  `inclusion_policy/` runs). base_seed=12345 (repeats use base_seed+index),
+  samples=1,000,000/run, batch_size=1000, warmup_passes=3, dependent load
+  mode, random pattern, timestamp `20260914T002932Z`.
+- Raw output: `data_raw/skylark/pmu/{L1,L2,LLC}/*_perfstat_*.csv.gz` (perf
+  stat's own `-x,` CSV output, one file per group×run_tag) and
+  `*_bench_*.csv.gz` (cache_bench's own CSV from the same invocation).
+  Transcript: `data_raw/skylark/pmu/run_pmu_verification_20260914T002932Z.log`.
+- Processed: `data_processed/skylark/pmu/{L1,L2,LLC}/pmu_summary_20260914T002932Z.csv`
+  (one row per run_tag + a median-of-3 row).
+- System-reported cache info (same run): `data_raw/skylark/pmu/
+  system_reported_cache_info.txt` — `lscpu --caches`, full `lscpu`, and
+  per-instance `/sys/devices/system/cpu/cpu5/cache/index*/` fields
+  (core 5), plus a spot-check of cores 0/4/6/8/12's L3 `shared_cpu_list` to
+  confirm the sharing pattern was machine-wide, not core-5-specific.
+- Headline results (full detail and caveats:
+  `data_processed/skylark/PHASE2_VALIDATION_TABLE.md`): size/ways/sets/line
+  match exactly across Phase I timing, system-report, AND Agner Fog's Zen 2
+  literature table (Table 22.3, p. 237) at L1D and L2 — system-reported L2
+  associativity independently confirms Phase I's confound-blocked 8-way
+  best guess, same story as Sunbird's L2 row. **LLC size: system-reported
+  16,777,216 B (16 MiB) confirms Phase I's own suspicion that its
+  8 MiB `CAPACITY_RESULTS.md` value was an underestimate**, landing almost
+  exactly at the bottom of Phase I's ~16.8-21.8 MiB re-look bracket.
+  **LLC associativity disagrees (Phase I best-guess 8-way vs.
+  system-reported 16-way)**, same confound-resolution pattern as Sunbird's
+  and Thunderbird's LLC/L2 rows. **Line size disagrees**: Phase I confirmed
+  128 B at the LLC-region transition by two independent methods, but
+  system-report says 64 B uniformly at every level — flagged as an open
+  question (leading hypothesis: Zen 2's adjacent-line/stream prefetcher
+  creating an apparent 128 B granularity for a stride-based probe once the
+  working set spills past L2, not a real doubled physical line — not
+  confirmed this phase). **Sharing scope is the standout finding**: this
+  LLC is shared by only 2 logical cores per instance (`shared_cpu_list`
+  e.g. `4-5`), not the whole socket as Phase I guessed — resolved via AMD's
+  published EPYC 7532 spec (8 CCDs × 2 CCX/CCD × 16 MiB/CCX = 256 MiB total
+  L3 per socket, this SKU's known "cache-doubled" binning that runs only 2
+  of 4 possible cores per CCX while granting each CCX its full L3), not a
+  measurement artifact.
+
+### software_hit_rate/ (Problem 8.5 — 2026-09-14)
+Software-only, timing-derived cache hit-rate estimator
+(`main_code/software_hit_rate/`, no PMU access anywhere in that file) plus
+its Phase-II PMU validation, same pipeline and redesigned harness used on
+Sunbird and Thunderbird (see `data_raw/sunbird/README.md`'s and
+`data_raw/thunderbird/README.md`'s own `software_hit_rate/` sections for the
+original design, the invalid first attempt, and the 2026-09-14 redesign
+that fixed it — none of that history is re-derived here). See
+`main_code/software_hit_rate/software_hit_rate.h`'s module doc comment for
+the full method (calibration -> ROC threshold selection -> Rogan-Gladen
+prevalence correction -> bootstrap CI).
+
+#### Sweep (parts 1-3, standalone, no perf)
+- Source file(s): `main_code/software_hit_rate/software_hit_rate.{c,h}`,
+  `scripts/run_software_hit_rate_sweep.sh`,
+  `scripts/summarize_software_hit_rate.py`, `scripts/plot_software_hit_rate.py`.
+- Run command: `./scripts/run_software_hit_rate_sweep.sh skylark 10
+  4096,16384,32768,65536,131072,262144,524288,1048576,4194304,8388608,16777216,31457280,67108864,134217728,268435456,536870912`
+  — core=10 (same core as this machine's capacity/associativity runs;
+  confirmed idle via two `mpstat -P 10` samples a few seconds apart
+  immediately before running, both 100% idle), seed=12345,
+  calib_samples=20000, test_samples=50000, bootstrap_reps=2000,
+  pattern=random, timestamp `20260914T041244Z`. Footprint list is the
+  script's own default sweep with **524,288 B (this machine's own L2
+  boundary) inserted** — the unmodified default only contains Sunbird's L2
+  value (262,144 B), not Skylark's, and this project's explicit-only
+  discipline says not to reuse another machine's boundary silently.
+- **Bug found and fixed in `run_software_hit_rate_sweep.sh` itself, not just
+  worked around**: at the time this run started, the script unconditionally
+  hardcoded `--boundary L1:32768 --boundary L2:262144 --boundary
+  LLC:31457280 --boundary DRAM:536870912` (Sunbird's own values) into its
+  `plot_software_hit_rate.py` call — a latent bug for any non-Sunbird
+  machine (L1 happened to match Skylark's own boundary by coincidence, both
+  machines having a 32 KiB L1, but L2/LLC did not: Skylark is 524,288 B /
+  8,388,608 B, not 262,144 B / 31,457,280 B). This run's own plots were
+  first regenerated by hand with the correct markers (the underlying
+  data/CSV was never affected, only the reference lines drawn on top of
+  it): `python3 scripts/plot_software_hit_rate.py --summary
+  data_raw/skylark/software_hit_rate/hit_rate_sweep_20260914T041244Z.csv
+  --calib-raw data_raw/skylark/software_hit_rate/raw/hit_rate_536870912_20260914T041244Z.csv.gz
+  --boundary L1:32768 --boundary L2:524288 --boundary LLC:8388608 --boundary
+  DRAM:536870912 -o data_processed/skylark/software_hit_rate/plots --machine
+  skylark`. The script itself was then fixed the same session: it now takes
+  an optional 4th `boundary_spec` argument (`L1:<bytes>,L2:<bytes>,
+  LLC:<bytes>,DRAM:<bytes>`, same `<level>:<bytes>` format
+  `run_hit_rate_pmu_validation.sh` already uses) and builds its
+  `--boundary` flags from that instead of the hardcoded values, defaulting
+  to Sunbird's own boundaries only when the argument is omitted (preserving
+  the script's prior default behavior for a bare Sunbird re-run). A future
+  run on any other machine should pass this argument explicitly rather than
+  relying on the default, same explicit-only discipline as the footprint
+  list itself.
+- Raw output: `data_raw/skylark/software_hit_rate/raw/hit_rate_<bytes>_20260914T041244Z.csv.gz`
+  (full per-access CSV per point). Transcript:
+  `data_raw/skylark/software_hit_rate/run_software_hit_rate_sweep_20260914T041244Z.log`.
+- Processed: `data_raw/skylark/software_hit_rate/hit_rate_sweep_20260914T041244Z.csv.gz`
+  (one row per footprint, gzipped by hand after the plot regeneration below
+  consumed it — see the `.gitignore` note under the PMU validation
+  subsection); plots (regenerated with correct boundaries, see
+  above): `data_processed/skylark/software_hit_rate/plots/{hit_rate_sweep,calibration_distributions}.{png,pdf}`.
+- Headline results: Hhat=1.0000 for every footprint through 131,072 B,
+  i.e. **including this machine's own 32,768 B L1 boundary itself** — unlike
+  Sunbird, whose Hhat dipped to 0.8664 right at its own exact L1 boundary,
+  Skylark shows no such dip at 32,768 B. Falls off gradually and
+  monotonically from there: 262,144 B->0.9958, 524,288 B (L2
+  boundary)->0.9396, 1,048,576 B->0.8017.
+  **Non-monotonic anomaly, not smoothed over**: Hhat partially *recovers*
+  above that dip — 4,194,304 B->0.9202 and 8,388,608 B (this machine's
+  `CAPACITY_RESULTS.md` LLC value, itself already flagged elsewhere in this
+  README as a likely underestimate)->0.9198 — both higher than the
+  1,048,576 B point, before resuming its fall at 16,777,216 B (this
+  machine's Phase-II system-reported *true* LLC capacity)->0.8538,
+  31,457,280 B->0.4408, and on down to 0.0000 at the 536,870,912 B DRAM
+  reference point. Not re-investigated further this session (Phase I
+  timing-only, no capacity/associativity re-run triggered by this), but a
+  plausible reading given the deep hierarchy anomalies already documented
+  elsewhere in this file: 1,048,576 B sits inside the same broad,
+  PROVISIONAL-WEAK ~4-16.8 MiB "one continuous ramp, no confirmed shelf"
+  candidate region this machine's own `capacity/` section already flags as
+  unresolved (see that section above) — a genuinely noisy, not-yet-settled
+  part of this machine's own capacity curve, not obviously a software_hit_rate-specific
+  artifact.
+
+#### PMU validation (part 4)
+- Source file(s): `scripts/run_hit_rate_pmu_validation.sh`,
+  `scripts/compare_hit_rate_pmu.py` (unmodified from Sunbird's/Thunderbird's
+  redesigned version — no Skylark-specific code path exists or was needed).
+- Run command: `./scripts/run_hit_rate_pmu_validation.sh skylark 10
+  L1:32768,L2:524288,LLC:8388608,DRAM:536870912` (core 10, re-confirmed idle
+  via `mpstat -P 10` immediately before running — same core as the sweep
+  above and this machine's capacity/associativity runs). Footprint values
+  are this machine's own `CAPACITY_RESULTS.md` numbers, same three L1/L2/LLC
+  values already used for this machine's `latency/`, `inclusion_policy/`,
+  and `pmu/` sections. Tested footprints after the script's own L1/L2/LLC
+  halving (a "safely inside the level" point, not the exact edge — see
+  Sunbird's writeup for why): L1=16384, L2=262144, LLC=4194304,
+  DRAM=536870912 (unchanged). base_seed=12345 (repeats use base_seed+index),
+  timestamp `20260914T042323Z`.
+- Raw output: `data_raw/skylark/software_hit_rate/pmu/{L1,L2,LLC,DRAM}/
+  *_{calibonly,bench,hitlatpmu,perfstat}_{base,rep1,rep2}_20260914T042323Z.csv.gz`
+  (gzipped by hand after the run — `run_hit_rate_pmu_validation.sh` does not
+  compress its own output the way `run_software_hit_rate_sweep.sh` does;
+  `.gitignore` only tracks `data_raw/**/*.csv.gz`, not bare `.csv`, so this
+  step is required before committing, same as every other machine's raw
+  data here). Transcript:
+  `data_raw/skylark/software_hit_rate/pmu/run_hit_rate_pmu_validation_20260914T042323Z.log`.
+- Processed: `data_processed/skylark/software_hit_rate/pmu_validation_20260914T042323Z.csv`.
+- Headline results (median of base+2 repeats):
+
+  | Level | Tested footprint | Hhat | H_pmu | rel. error |
+  |---|---|---|---|---|
+  | L1  | 16,384 B    | 1.0000 | 0.6758 | 48.0% |
+  | L2  | 262,144 B   | 0.9993 | 0.9916 | 0.78% |
+  | LLC | 4,194,304 B | 0.8775 | 0.5532 | 57.9% |
+  | DRAM | 536,870,912 B | 0.0001 | 0.5093 | 99.98% |
+
+  **L2's agreement is the tightest of any machine/level yet tested in this
+  investigation (0.78%, vs. Sunbird's 12.4% and Thunderbird's 6.4% at their
+  own L2 rows)** — a clean corroboration on this machine specifically.
+
+  **L1's 48.0% disagreement is worse than either prior machine (Sunbird
+  30.1%, Thunderbird 0.08%) and is best explained by a limitation this
+  machine's own Phase II PMU work already documented, not a new bug.**
+  `data_processed/skylark/PHASE2_VALIDATION_TABLE.md`'s PMU caveats already
+  flag that this AMD Zen 2 PMU's generic `cache-references`/`cache-misses`
+  alias is unreliable at L1 scale specifically: at an L1-resident footprint
+  it recorded only ~69,146 `cache-references` against ~7.6 million
+  `L1-dcache-loads` in the same earlier run (a ~110x gap), suggesting the
+  generic alias tracks something closer to L2-scope request traffic than
+  true L1 traffic on this CPU, so its miss-rate ratio is unstable at the
+  small absolute counts an L1 footprint produces. This run's own raw counts
+  reproduce exactly that signature: only 41,019-43,916 `cache-references`
+  per run at the L1 footprint (same order of magnitude as the earlier
+  ~69,146), with `cache-misses` at 13,298-14,251 of those — a ~31-33% "miss"
+  rate that is very plausibly this same small-sample AMD-generic-counter
+  noise, not a real ~32% L1 miss rate for a footprint that fits entirely in
+  L1. Hhat=1.0000 (from the unwrapped, non-PMU measurement) is the more
+  trustworthy number here, consistent with every other machine's clean L1
+  result.
+
+  **LLC's 57.9% disagreement carries an extra caveat specific to this
+  machine, on top of the usual single-threshold-classifier limitation
+  documented on Sunbird/Thunderbird**: the *tested* footprint here
+  (4,194,304 B, i.e. half of this machine's `CAPACITY_RESULTS.md` LLC value)
+  is only 4 MiB, but this README's `pmu/` section above already established
+  that Skylark's `CAPACITY_RESULTS.md` LLC value (8 MiB) is itself a
+  documented underestimate — the Phase-II system-reported true LLC capacity
+  is 16 MiB. Half of the *true* boundary would be 8 MiB, not 4 MiB, so this
+  "LLC" row is actually testing a footprint that sits in the tail of the
+  L2-to-LLC transition rather than safely inside the real LLC — consistent
+  with Hhat=0.8775 (still fairly high, not yet DRAM-like) and the
+  intermediate, disagreeing-with-itself H_pmu media (0.5443-0.5557 across
+  the 3 runs) rather than a clean, confidently-classified LLC-scale result.
+  Not re-run at a corrected 8,388,608 B (half of 16,777,216 B) this
+  session — flagged as the natural follow-up rather than done here, to keep
+  this run's footprint choice traceable to the same `CAPACITY_RESULTS.md`
+  values already used for every other Skylark experiment.
+
+  **DRAM's near-total disagreement (99.98%) is the same expected,
+  already-documented generic-counter-semantics limitation as Sunbird's
+  (99.9%) and Thunderbird's (100%) DRAM rows** — this machine's raw
+  `DRAM_perfstat` output shows `cache-misses`/`cache-references` ratios
+  implying roughly a ~49-51% "hit" rate for a fully random 512 MiB working
+  set that should almost never hit, the same generic-alias-does-not-mean-
+  any-cache-vs-DRAM finding this project has now reproduced on all 3
+  machines tested. Hhat's near-zero (0.0000-0.0015 across 3 runs) is the
+  trustworthy number; H_pmu is not, at this footprint, on this PMU.
+
+  **Overall reading, consistent with both prior machines**: this estimator
+  reliably detects L1/L2-scale residency (L2's 0.78% error is this
+  investigation's cleanest result yet) but cannot be validated as a general
+  "any cache level" detector at LLC/DRAM scale — partly the classifier's own
+  single-threshold design (documented on Sunbird/Thunderbird), and on this
+  machine specifically also compounded by the generic AMD PMU counter's own
+  L1-scale and LLC-scope limitations already flagged in this machine's
+  `pmu/` section above. `nmi_watchdog=1` and `systemd-detect-virt: none`
+  (bare metal) were both re-checked and match Sunbird's own environment —
+  ruled out as an explanation for anything specific to this machine's
+  numbers.
+
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+The 3 standardized cross-machine microbenchmarks required by problem 8.4 —
+(i) L1-resident dependent accesses, (ii) LLC-sized randomized accesses,
+(iii) a working set larger than LLC — run via the same pipeline Sunbird's
+session built and Thunderbird's reused, collecting a fixed 8-event counter
+set. Phase I already frozen (`phase1-timing-only`), so this reuses the
+same `perf`-wrapping discipline as `pmu/` above, just a different
+benchmark set and a different 4th event-group pair.
+
+- Source file(s): `scripts/run_standardized_benchmarks.sh`,
+  `scripts/summarize_eight_counters.py` (both from Sunbird's session, used
+  unmodified — same `--experiment hit_latency --load-mode dependent
+  --pattern random` construction as every other latency/PMU pipeline in
+  this project, differing only in `--footprint-bytes` and the perf event
+  set).
+- **8 counters** (assignment-literal set, not `pmu/`'s own set):
+  `cache-references`, `cache-misses`, `L1-dcache-loads`,
+  `L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+  `LLC-load-misses`, `dTLB-load-misses`. **Only 5 of these 8 are actually
+  listed by `perf list` on this AMD Zen 2 PMU** — checked explicitly
+  before running (`perf list | grep -iE '^\s*(cache-references|
+  cache-misses|L1-dcache-loads\b|L1-dcache-load-misses|L1-dcache-stores|
+  LLC-loads|LLC-load-misses|dTLB-load-misses)\b'`): `L1-dcache-stores`,
+  `LLC-loads`, and `LLC-load-misses` are absent from the listing entirely,
+  not merely present-but-unsupported. At runtime all three still come back
+  `<not supported>` (exit 0, no crash), consistent with `pmu/`'s
+  already-documented `LLC-loads`/`LLC-load-misses` finding — `perf
+  list`'s absence and the runtime `<not supported>` value agree, which
+  Sunbird's own run (where all 8 names were listed) had no occasion to
+  cross-check. `dTLB-load-misses` counts cleanly. Same 4-groups-of-2
+  perf-scheduling discipline as `pmu/` (3 of the 4 groups — `cache`, `l1`,
+  `llc` — byte-identical invocations to that pipeline's; only the 4th
+  group differs: `L1-dcache-stores,dTLB-load-misses` instead of
+  `cycles,instructions`).
+- Idle-core check before running: `mpstat -P ALL 1 1`, sampled twice a few
+  seconds apart — only core 3 was busy (another student's `cache_bench_x86
+  --exp nextlevel` process, confirmed via `ps`/`taskset -pc`); core 5
+  (used for this machine's `pmu/` run above) confirmed idle both times and
+  reused for consistency.
+- Run command: `./scripts/run_standardized_benchmarks.sh skylark 5
+  L1_resident:32768,LLC_random:8388608,beyond_LLC:536870912` (core 5;
+  footprints are this machine's own `FINAL_CACHE_TABLE.md` L1/LLC values
+  — the same 8 MiB LLC value already used for `pmu/`, `latency/`, and
+  `inclusion_policy/`, despite that value being flagged elsewhere as a
+  likely underestimate of the true ~16 MiB LLC — plus the project's
+  universal 536,870,912 B / 512 MiB DRAM-scale constant for `beyond_LLC`).
+  base_seed=12345 (repeats use base_seed+index), samples=1,000,000/run,
+  batch_size=1000, warmup_passes=3, dependent load mode, random pattern,
+  timestamp `20260914T051608Z`. The `beyond_LLC` benchmark alone took
+  ≈30s per single invocation (×4 groups ×3 run_tags ≈ 6 min just for that
+  benchmark) — genuine uncached DRAM access at 1,000,000 samples, no
+  script issue.
+- Raw output: `data_raw/skylark/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` and `*_bench_*.csv.gz` (gzipped by hand
+  post-run). Transcript: `data_raw/skylark/eight_counters/
+  run_standardized_benchmarks_20260914T051608Z.log`.
+- Processed: `data_processed/skylark/eight_counters/{L1_resident,
+  LLC_random,beyond_LLC}/eight_counters_summary_20260914T051608Z.csv`
+  (one row per run_tag + a median-of-3 row each; raw counts and miss-rate
+  ratios only — problem 8.4's normalization/ranking/cross-generation
+  comparison, items 2-4, still need all 8 machines' data first).
+- **Headline numbers (median row, all 3 benchmarks) — internally
+  consistent, no re-investigation needed, and notably cleaner than
+  Sunbird's/Ookay's own `beyond_LLC` results:**
+  - `L1_resident` (32,768 B): ≈6.264 ticks/access — matches this
+    machine's own already-documented ≈6.2-6.24-tick L1 hit latency (both
+    Phase I's `latency/` result and this session's own `pmu/` run)
+    almost exactly, no base-vs-repeat elevation this time. `l1_miss_rate`
+    ≈0.44%, `cache_miss_rate` ≈19.5% (same small-sample-noise caveat on
+    this metric already documented in `pmu/` above — very low absolute
+    `cache_references` counts at this footprint), `dtlb_load_misses`
+    tiny (~691).
+  - `LLC_random` (8,388,608 B): ≈27.24 ticks/access — matches this
+    machine's own documented ≈27.22-27.26-tick LLC hit latency (Phase I
+    `latency/` and this session's `pmu/` run) almost exactly.
+    `l1_miss_rate` jumps to ≈6.13% (working set no longer fits L1),
+    `cache_miss_rate` ≈46.7%, `dtlb_load_misses` ≈2,905 (up ~4.2x from
+    `L1_resident`, tracking the larger page count touched).
+  - `beyond_LLC` (536,870,912 B): ≈274.87 ticks/access — matches this
+    machine's own previously-documented ≈274.87-tick DRAM hit latency
+    (`data_processed/skylark/FINAL_CACHE_TABLE.md`) essentially exactly.
+    **Unlike Sunbird's and Ookay's own `beyond_LLC` runs (both inflated by
+    other students' processes contending for chip-shared LLC/memory
+    bandwidth despite an idle core), this run shows no such anomaly** —
+    core 3's contending process (`cache_bench_x86 --exp nextlevel`)
+    apparently didn't create enough shared-resource pressure to move this
+    result, or got lucky timing-wise; not further investigated.
+    `cache_miss_rate`/`l1_miss_rate` ≈49.1%/5.5% (the latter's dip below
+    `LLC_random`'s 6.13% is the same known `-O0` stack-load dilution
+    effect already documented, not new). `dtlb_load_misses` ≈10,901 (up
+    ~3.75x from `LLC_random`), consistent with streaming through many
+    more distinct pages.
+  - Across all 3 benchmarks: ticks/access and `dtlb_load_misses` climb
+    monotonically with footprint, exactly the expected shape — no anomaly
+    requiring further investigation this session.
+- **3 of 8 machines done (Sunbird, Thunderbird, Skylark); 5 remaining**
+  (Artemisia, Charnwood, Crux, Ookay, Upgrade). Each needs the same
+  command with its own `FINAL_CACHE_TABLE.md` L1/LLC byte values before
+  problem 8.4 items 2-4 (normalization, per-benchmark ranked S-curves, and
+  the Intel/AMD/Arm and older/newer generation comparison) can be
+  attempted.
 
 ## Final Inferred Cache Table (Skylark, Phase I best guess, 2026-09-13)
 
