@@ -578,6 +578,56 @@ changes needed).
   Flagged plainly, not re-run this session — see the validation table's
   caveat section for the full reasoning and per-run numbers.
 
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+Uses `scripts/run_standardized_benchmarks.sh` + `scripts/summarize_eight_counters.py`
+(the pipeline Sunbird/Thunderbird/Skylark's sessions already used — no
+script changes needed). Same underlying `cache_bench --experiment
+hit_latency --load-mode dependent --pattern random` construction as every
+other experiment on this machine, just 3 standardized footprint choices
+and a different fixed 8-event set (`cache-references`, `cache-misses`,
+`L1-dcache-loads`, `L1-dcache-load-misses`, `L1-dcache-stores`,
+`LLC-loads`, `LLC-load-misses`, `dTLB-load-misses`) than `pmu/`'s own.
+
+- Idle-core check immediately before running: 3 `mpstat -P ALL` samples
+  ~3s apart, cores 2-7 all 100% idle (the two other students' processes
+  from this morning's `pmu/` run had since finished). Reused core 3 for
+  consistency with that earlier run.
+- Run command: `./scripts/run_standardized_benchmarks.sh ookay 3
+  L1_resident:32768,LLC_random:8388608,beyond_LLC:536870912` (L1/LLC bytes
+  from `CAPACITY_RESULTS.md`/`FINAL_CACHE_TABLE.md`; `beyond_LLC` is the
+  project's universal 512 MiB constant). base_seed=12345 (repeats use
+  base_seed+index), samples=1,000,000/run, batch_size=1000, warmup_passes=3,
+  timestamp `20260914T052901Z`. All 4 perf groups scheduled at 100% for
+  every benchmark/run_tag, no `<not counted>` anywhere.
+- Raw: `data_raw/ookay/eight_counters/{L1_resident,LLC_random,beyond_LLC}/
+  *_{perfstat,bench}_*.csv.gz`. Transcript:
+  `data_raw/ookay/eight_counters/run_standardized_benchmarks_20260914T052901Z.log`.
+  Processed: `data_processed/ookay/eight_counters/<benchmark>/
+  eight_counters_summary_20260914T052901Z.csv`.
+- **Headline results**: ticks/access climb monotonically as expected
+  (`L1_resident`≈7.60, `LLC_random`≈80.24, `beyond_LLC`≈287.44) and closely
+  match this machine's own already-documented Phase I numbers (≈7.49 /
+  ≈74.78 / ≈284.45). Notably, `LLC_random`'s ≈80.24 sits much closer to the
+  original ≈74.78 than this morning's `pmu/` run's contended LLC footprint
+  reading (≈128.42) did — corroborating that run's own hypothesis that its
+  inflated number came from two other students' processes contending for
+  chip-shared LLC/memory bandwidth, not from anything wrong with the
+  measurement itself; this run's machine was independently confirmed
+  quiet on every core.
+- `l1_miss_rate` climbs cleanly monotonic (0.96% → 8.79% → 13.36%,
+  saturating at the top like every other machine's own L1-dcache signal).
+  `llc_miss_rate` and the generic `cache_miss_rate` both climb monotonically
+  too this time (11.04%/13.84% → 16.33%/18.04% → 47.79%/55.41%) — unlike
+  this morning's `pmu/` run, which showed a non-monotonic dip at its L2
+  footprint, plausibly for the same contention-related reason noted above
+  (though the footprint sets aren't directly comparable: L1/L2/LLC there
+  vs. L1_resident/LLC_random/beyond_LLC here).
+- `dtlb_load_misses` climbs cleanly across all 3 orders of magnitude
+  (1,838 → 1,091,713 → 252,964,812) — real, hardware-counter-based data
+  toward the still-open DTLB-scale-confound question from the
+  associativity investigation, not yet interpreted further (items 2-4 of
+  Problem 8.4 need all 8 machines' data first, per `CLAUDE.md`).
+
 ## Final Inferred Cache Table (Ookay, Phase I best guess, 2026-09-13)
 
 Lives at `data_processed/ookay/FINAL_CACHE_TABLE.md` (2026-09-13), alongside

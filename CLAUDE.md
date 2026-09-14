@@ -2062,8 +2062,8 @@ that freeze will be fit from.
   estimator" bullet above — not a stub anymore, just incomplete).
 
 **Problem 8.4 (eight interesting performance counters across generations),
-item 1: started 2026-09-14, Sunbird, Thunderbird, Skylark, and Artemisia
-done (4 of 8 machines).**
+item 1: started AND FINISHED 2026-09-14 — all 8 machines done (Sunbird,
+Thunderbird, Skylark, Charnwood, Crux, Ookay, Upgrade, Artemisia).**
 New pipeline
 `scripts/run_standardized_benchmarks.sh` + `scripts/summarize_eight_counters.py`
 runs the same `--experiment hit_latency --load-mode dependent --pattern
@@ -2168,12 +2168,103 @@ differs), same base+2-reproducibility-repeat convention.
   specifically instead. `dtlb_load_misses` climbs cleanly monotonic across
   all 3 benchmarks (~1.7K → ~11.1M → ~251M). Full detail:
   `data_raw/artemisia/README.md`'s `eight_counters/` section.
-- **4 of 8 machines done (Sunbird, Thunderbird, Skylark, Artemisia); 4
-  remaining** (Charnwood, Crux, Ookay, Upgrade). Each needs the same command
-  (`./scripts/run_standardized_benchmarks.sh <machine> <core>
-  L1_resident:<L1_bytes>,LLC_random:<LLC_bytes>,beyond_LLC:536870912`) with
-  its own `FINAL_CACHE_TABLE.md` L1/LLC values. Items 2-4 of 8.4 cannot be
-  attempted until all 8 machines have this data.
+- **Charnwood** (`data_raw/charnwood/eight_counters/`, core 3,
+  base_seed=12345, timestamp `20260914T052928Z`). All 4 perf groups
+  scheduled at 100% for every (benchmark, run_tag) — no `<not counted>`
+  anywhere. **The cleanest cross-check of any machine's `eight_counters`/
+  `pmu` run so far**: this session's idle-core check found the machine
+  fully quiet (the two other students' processes documented in this
+  machine's `pmu/` section had both since exited), and the resulting
+  `bench_avg_ticks_per_access_median` ladder (`L1_resident`≈8.016,
+  `LLC_random`≈106.185, `beyond_LLC`≈394.551) matches this machine's own
+  already-documented Phase I `latency/` numbers (≈7.98 / ≈106.9-109.1 /
+  ≈394.6-394.8) to within ~0.5%, ~1%, and ~0.06% respectively — unlike
+  Sunbird's, Thunderbird's, and Ookay's own `beyond_LLC`/PMU runs, none of
+  which had a comparably quiet session and all of which showed a
+  contention-driven divergence from their own Phase I baseline. `l1_miss_rate`
+  (1.08%→8.83%→13.42%) and `llc_miss_rate` (14.0%→15.9%→47.5%, the last a
+  clean order-of-magnitude jump exactly at `beyond_LLC`) both climb as
+  expected. `dtlb_load_misses` climbs cleanly monotonic across all 3
+  benchmarks (2,025 → 1,096,978 → 253,582,411). Full detail:
+  `data_raw/charnwood/README.md`'s `eight_counters/` section.
+- **Upgrade** (`data_raw/upgrade/eight_counters/`, core 5, base_seed=12345,
+  timestamp `20260914T053025Z`, machine confirmed fully quiet — unlike this
+  same session's earlier `pmu/` run, which had 2 cores pinned by another
+  student). All 8 counters scheduled and counted cleanly (verified via
+  `grep` across every raw perfstat CSV — zero `<not counted>`/`<not
+  supported>` hits, this Intel Coffee Lake PMU handles the full 8-event set
+  without the gaps Thunderbird's/Skylark's PMUs showed).
+  `beyond_LLC`≈251.60 ticks/access matches this machine's own
+  already-documented ≈251.56-tick DRAM latency almost exactly (clean,
+  uncontended run). **`LLC_random`≈78.43 ticks/access is notably LOWER
+  than both this machine's originally-documented ≈155.05-tick LLC latency
+  AND this same session's own earlier contended `pmu/` run at the
+  identical footprint (≈121.47 ticks)** — a monotonic decrease across 3
+  separate sessions that contention alone cannot explain (this run was the
+  *quietest* of the three, yet reads lowest) — flagged as a genuinely
+  unresolved anomaly, not explained away; this run's perf group set has no
+  `cycles` counter, so the `cycles÷duration_time` frequency check used
+  elsewhere isn't available to investigate it further here. `l1_miss_rate`,
+  `cache_miss_rate`, `llc_miss_rate`, and `dtlb_load_misses` all climb
+  monotonically across all 3 benchmarks as expected; `L1_resident`'s own
+  generic-event miss-rate columns read noisy (small absolute counts), the
+  same small-sample artifact already documented on Skylark's/Ookay's own
+  L1-footprint runs. Full detail: `data_raw/upgrade/README.md`'s
+  `eight_counters/` section.
+- **Crux** (`data_raw/crux/eight_counters/`, core 1, base_seed=12345,
+  timestamp `20260914T052920Z`; footprints `L1_resident:32768,
+  LLC_random:8388608` per this machine's own `FINAL_CACHE_TABLE.md`,
+  `beyond_LLC:536870912` universal). Core re-verified idle via two
+  `/proc/stat` idle-delta samples 4s apart immediately before this run
+  (the other students' jobs that had pinned cores 0/2 during this
+  machine's earlier `pmu/` §8.3 session had since exited — all 8 cores
+  ~99-100% idle this time). **The cleanest of the four runs done so far**:
+  `L1_resident`≈6.94, `LLC_random`≈42.25, `beyond_LLC`≈237.64 ticks/access,
+  each within ~6.5% of this machine's own already-documented Phase I
+  `latency/` hit-latency numbers at the matching footprint (7.42/43.23/
+  236.80) — no contention-driven `beyond_LLC` inflation the way Sunbird's,
+  Thunderbird's, and (in the §8.3 pipeline) Ookay's runs all showed, most
+  likely because every core (not just the pinned one) was genuinely idle
+  this time, not only the run's own core. `l1_miss_rate` climbs cleanly
+  monotonically across all 3 benchmarks (1.05% → 8.80% → 13.4%) — unlike
+  this machine's own `pmu/` section, where the ratio saturates and drops
+  once past L1 into L2/LLC territory, here it keeps climbing because
+  `beyond_LLC` goes past LLC entirely, not just past L1. `dtlb_load_misses`
+  climbs cleanly and monotonically (median 1,349 → 1,080,275 → 254,971,011),
+  consistent with Sunbird/Thunderbird/Skylark's own pattern. Full detail:
+  `data_raw/crux/README.md`'s `eight_counters/` section.
+- **Ookay** (`data_raw/ookay/eight_counters/`, core 3, base_seed=12345,
+  timestamp `20260914T052901Z`; machine independently confirmed idle on
+  every core via 3 `mpstat` samples before running — the two other
+  students' processes from this machine's earlier `pmu/` run had since
+  finished). All 3 benchmarks + all 8 counters collected cleanly, no
+  `<not counted>` anywhere. Ticks/access climb monotonically as expected
+  (`L1_resident`≈7.60, `LLC_random`≈80.24, `beyond_LLC`≈287.44), closely
+  matching this machine's own Phase I numbers (≈7.49/≈74.78/≈284.45).
+  Notably, `LLC_random`'s ≈80.24 sits much closer to Phase I's ≈74.78 than
+  this same machine's earlier (contended) `pmu/` run's LLC reading
+  (≈128.42) did — corroborating that run's own hypothesis that its
+  inflation came from other students' processes contending for
+  chip-shared LLC/memory bandwidth, not a measurement problem, since this
+  run's machine was confirmed quiet throughout. `l1_miss_rate` climbs
+  cleanly monotonic (0.96% → 8.79% → 13.36%); unlike this morning's
+  `pmu/` run, the generic `cache_miss_rate` and `llc_miss_rate` also climb
+  monotonically here rather than dipping at the middle footprint,
+  plausibly for the same quiet-machine reason (footprints aren't directly
+  comparable between the two pipelines, so not conclusive).
+  `dtlb_load_misses` climbs cleanly across 3 orders of magnitude (1,838 →
+  1,091,713 → 252,964,812) — real hardware data toward the DTLB-confound
+  question, not yet interpreted (needs all 8 machines first). Full detail:
+  `data_raw/ookay/README.md`'s `eight_counters/` section.
+- **All 8 of 8 machines now done.** Item 1 of Problem 8.4 is complete.
+  Items 2-4 (normalization, ranked S-curves, and the Intel/AMD/Arm +
+  generation comparison) can now be attempted — not started yet by any
+  session as of this writing; whoever picks this up should pull every
+  machine's `data_processed/<machine>/eight_counters/{L1_resident,
+  LLC_random,beyond_LLC}/eight_counters_summary_*.csv` (using each
+  machine's median-of-3 row) into one cross-machine table before doing
+  anything else, since items 2-4 are explicitly cross-machine analyses,
+  not per-machine data collection.
 
 ## Known constraints from prior sessions
 
