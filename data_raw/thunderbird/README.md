@@ -240,6 +240,100 @@ one.
   "SLC is invisible to this core's PMU/OS reporting" finding above — see the
   validation table's supplementary section for the full writeup.
 
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+The 3 standardized cross-machine microbenchmarks required by problem 8.4 —
+(i) L1-resident dependent accesses, (ii) LLC-sized randomized accesses, (iii)
+a working set larger than LLC — second machine after Sunbird to run this
+pipeline. Same benchmark construction and 8-counter set as Sunbird's own
+`eight_counters/` section (see that machine's README and `CLAUDE.md`'s 8.4
+bullet for the full rationale) — reused here unmodified except for this
+machine's own hand-confirmed L1/LLC footprint values.
+
+- Source file(s): `scripts/run_standardized_benchmarks.sh`,
+  `scripts/summarize_eight_counters.py` (copied over via `scp`, same as the
+  earlier Phase II PMU scripts — this machine's git remote has no cached
+  GitHub credentials, a pre-existing condition already noted in `pmu/`
+  above/`CLAUDE.md`; this machine's local checkout also has its own
+  in-progress uncommitted `software_hit_rate` work, left untouched).
+- **8 counters** (assignment-literal set, same as Sunbird):
+  `cache-references`, `cache-misses`, `L1-dcache-loads`,
+  `L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+  `LLC-load-misses`, `dTLB-load-misses`. Machine-specific check done before
+  running: `perf list` has NO `L1-dcache-stores` entry at all on this
+  `armv8_pmuv3_0` PMU (unlike Sunbird's x86 PMU), and `LLC-loads`/
+  `LLC-load-misses` are already documented as `<not supported>` here (see
+  `pmu/` above). A standalone test (`perf stat -x, -e
+  duration_time,L1-dcache-stores,dTLB-load-misses -- /bin/true`) confirmed
+  graceful degradation, not a hard failure: `L1-dcache-stores` comes back
+  `<not supported>` (exit code 0), `dTLB-load-misses` counts normally.
+  `summarize_eight_counters.py`'s existing non-numeric-value handling
+  (shared with `summarize_pmu.py`, catches any unparseable value string, not
+  just the literal `<not counted>`) records this correctly with no script
+  changes needed.
+- Idle-core check before running: `/proc/stat` idle-tick deltas sampled
+  across 3 windows ~2s apart for cores 0-3 — cores 0 and 2 showed flat,
+  non-incrementing idle counters (100% busy; `ps` showed another student's
+  `incl_pmu` process on core 0 and a different student's `cache_bench_arm`
+  on core 2); core 3 (same core as every other Thunderbird experiment)
+  confirmed idle and used again here.
+- Run command: `./scripts/run_standardized_benchmarks.sh thunderbird 3
+  L1_resident:65536,LLC_random:31457280,beyond_LLC:536870912` (core 3;
+  footprints are this machine's own hand-confirmed `FINAL_CACHE_TABLE.md`
+  L1/LLC values plus the project's universal 536,870,912 B / 512 MiB
+  DRAM-scale constant for `beyond_LLC`, the same value already used for this
+  machine's own DRAM row elsewhere). base_seed=12345 (repeats use
+  base_seed+index), samples=1,000,000/run, batch_size=1000, warmup_passes=3,
+  dependent load mode, random pattern, timestamp `20260914T043110Z`.
+- Raw output: `data_raw/thunderbird/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` and `*_bench_*.csv.gz` (gzipped by hand
+  post-run). Transcript: `data_raw/thunderbird/eight_counters/
+  run_standardized_benchmarks_20260914T043110Z.log`.
+- Processed: `data_processed/thunderbird/eight_counters/{L1_resident,
+  LLC_random,beyond_LLC}/eight_counters_summary_20260914T043110Z.csv`.
+- **Headline numbers (median row, all 3 benchmarks):**
+  - `L1_resident` (65,536 B): ≈0.085 ticks/access, `cache_miss_rate`≈0.20%,
+    `l1_miss_rate`≈0.19%, `dtlb_load_misses`≈1530-1624 (small) — sane and
+    consistent with an entirely L1-resident working set.
+  - `LLC_random` (31,457,280 B): ≈2.158-2.161 ticks/access (tight, <0.15%
+    spread across all 3 seeds), `dtlb_load_misses`≈1.14M-1.77M (3 orders of
+    magnitude above `L1_resident`, as expected). **Flagged, not smoothed
+    over: this is noticeably higher than this machine's own
+    previously-documented ≈0.907-tick LLC hit latency**
+    (`FINAL_CACHE_TABLE.md`) — most likely explained by the same two other
+    students' processes (`incl_pmu` on core 0, `cache_bench_arm` on core 2)
+    confirmed active for this entire run, contending for the
+    chip-shared LLC/memory bandwidth even though core 3 itself stayed idle
+    (the same "idle core doesn't insulate from chip-shared contention"
+    finding already documented for Ookay's PMU run and Sunbird's own
+    `beyond_LLC` result above) — not re-run this session.
+  - `beyond_LLC` (536,870,912 B): ≈2.44-2.446 ticks/access, close to (only
+    ~4-5% above) this machine's own previously-documented ≈2.336-tick DRAM
+    hit latency — within the same contention-noise range as every other
+    multi-run experiment on this project's shared machines.
+    `dtlb_load_misses`≈255.6M-256.0M, ~150x above `LLC_random`, consistent.
+  - **Net effect of the above**: the LLC-to-DRAM tick gap is much more
+    compressed in this run (≈2.16 to ≈2.44, only ~1.13x) than this
+    machine's own previously-documented values (≈0.907 to ≈2.336, ~2.6x) —
+    consistent with `LLC_random` specifically being inflated toward
+    DRAM-like latency by contention, rather than `beyond_LLC` being
+    suppressed.
+  - Confirms an already-documented ARM PMU quirk in this new counter set
+    too: `cache_miss_rate` and `l1_miss_rate` are nearly identical at every
+    footprint (0.20%≈0.19% at L1_resident; 5.46%≈5.46% at LLC_random;
+    5.33%≈5.34% at beyond_LLC) — this machine's generic
+    `cache-references`/`cache-misses` alias tracks L1-scope traffic, not a
+    true any-cache-vs-DRAM signal, exactly as already found in this
+    machine's Phase II PMU section above and its `software_hit_rate/`
+    validation work.
+  - `dtlb_load_misses` is the one counter that behaves as expected
+    throughout: monotonic, multi-order-of-magnitude increase with
+    footprint, unaffected by the generic-counter limitation above.
+- **2 of 8 machines done (Sunbird, Thunderbird).** Remaining 6 (Skylark,
+  Artemisia, Charnwood, Crux, Ookay, Upgrade) need the same command with
+  their own `FINAL_CACHE_TABLE.md` L1/LLC values before problem 8.4 items
+  2-4 (normalization, per-benchmark ranked S-curves, and the Intel/AMD/Arm
+  and older/newer generation comparison) can be attempted.
+
 ## Reservation Log (if applicable)
 - Reserved core/package: core 3 (of `Cpus_allowed_list: 0-4` granted to this session)
 - Time window: 2026-09-08 ~20:14 UTC - ~23:14 UTC
