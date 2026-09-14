@@ -13,6 +13,106 @@ authoritative — see the note at the top of "Current status" below.**
 
 ## Current status (update this section as work progresses)
 
+**Phase III: Hazel HPC status (2026-09-14) -- READ THIS FIRST if picking up work on Hazel.**
+We are on NC State's Hazel cluster (`login02.hpc.ncsu.edu`, working dir
+`/gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering`), a different
+environment from the 8 ECE lab machines the rest of this file describes -- Hazel is a
+SHARED GPFS filesystem (unlike each lab machine's own separate, non-shared `/home`), no
+sudo/PMU access, and Slurm-scheduled. `predictions-frozen` tag exists (commit `b4bf2a3`,
+2026-09-14 18:23 UTC) -- see `PREDICTION_FREEZE.md` for the frozen lab-only prediction
+table and the two Team Cache Laws. This gates all real Hazel cache-experiment runs
+(access-checking was allowed and done first, per `README.md`'s Phase Discipline).
+
+- **Infrastructure built, all committed:**
+  - `hpc_slurm/hw1_<constraint>.sh` -- one access/build-check pilot per Table-4 generation
+    (haswell, broadwell, skylake, cascadelake, icelake_6326, icelake_8358, sapphirerapids,
+    genoa, turin). **All 9 ran successfully**, correct CPU models confirmed against NC
+    State's own Table 4 mapping (see each `data_raw/hazel_<gen>/README.md`'s Machine
+    Identification section). Two bugs found/fixed here, still relevant to any new Hazel
+    script: (1) `git tag --points-at HEAD` is an exact-match check, breaks the moment HEAD
+    moves past the tag -- use `git merge-base --is-ancestor predictions-frozen HEAD`
+    instead; (2) concurrent jobs building directly in this shared checkout race (`make
+    clean && make` from 2+ simultaneous jobs corrupts/deletes each other's `.o` files) --
+    every script here isolates its build into `hazel_build/$SLURM_JOB_ID/` instead (see
+    `HAZEL_MODE=1` below). Turin's nodes are `n0405`/`n0406` specifically, NOT the
+    `gpu35-39` nodes that also carry the `turin` feature flag (those are mostly down/idle
+    GPU-partition nodes) -- confirmed via `sinfo -N -o "%N|%f"`.
+  - `scripts/run_{capacity_full,line_size,associativity_full,hit_latency_full,
+    miss_latency_full,inclusion_policy_full,software_hit_rate_sweep}.sh` all now accept
+    `HAZEL_MODE=1`: isolated per-job build (see above) + `srun --cpu-bind=cores` instead of
+    `taskset -c "$CORE"`. `HAZEL_MODE=0`/unset is unchanged lab-machine behavior -- verify
+    this if editing any of these scripts further. PMU scripts
+    (`run_pmu_verification.sh`, `run_standardized_benchmarks.sh`,
+    `run_hit_rate_pmu_validation.sh`) were deliberately NOT touched -- no PMU access on
+    Hazel per the assignment.
+  - `hpc_slurm/hazel_python_env.sh` -- `source` this before any `scripts/*.py` call on
+    Hazel. Hazel's default `python3` (3.9.25) lacks matplotlib, and `pip install --user`
+    fails outright (home directory quota already exceeded -- confirmed via a failed
+    install into `/home/krchen/.local`). matplotlib+numpy are installed instead into
+    `/gpfs_common/share01/titan/krchen/pylibs` (`--target=`, outside the git repo, not
+    committed) -- this script sets `PYTHONPATH`/`MPLCONFIGDIR` to use it.
+  - `compute_partners` is the partition that has every Table-4 generation (`compute` only
+    has haswell/broadwell/cascadelake). This account's only QOS on `compute_partners` is
+    `short`, capped at **2h wall time** (`sacctmgr show qos`) -- this is why full-suite
+    jobs are split one-experiment-type-per-job rather than one job per generation.
+
+- **haswell: capacity, associativity, line_size, hit_latency all done and committed.
+  miss_latency IN PROGRESS -- see the explicit next-step below, don't skip it.**
+  Boundaries used throughout (see `data_raw/hazel_haswell/README.md`'s capacity/ section
+  for the full reasoning): **L1=32,768 B (confirmed by timing)**, **L2=262,144 B
+  (reasoned/provisional -- NOT independently confirmed, no visible knee in the capacity
+  sweep)**, **LLC=25,165,824 B / 24 MiB (provisional edge -- where the LLC-to-DRAM climb
+  first clearly departs the plateau; the true DRAM plateau was never reached even after a
+  4x tail extension to 256 MiB)**. Per explicit user direction: proceeded with these
+  best-guess values rather than blocking on a follow-up capacity sweep to sharpen L2/LLC.
+  - capacity (job 833680, 1h19m): L1 confirmed 32,768 B. L2 NOT resolved (one continuous
+    ramp, no second knee). LLC-to-DRAM begins ~22-24 MiB, never plateaus by 256 MiB.
+  - associativity (job 834509, 33s): L1=8-way (matches frozen prediction, fully
+    reproducible). L2 UNRESOLVED (base=3, repeats=4/4, pipeline's own disagreement flag).
+    L3_LLC=9-way, fully reproducible but this is the SAME ~9-10-way DTLB-scale confound
+    documented across every lab machine -- not a real LLC associativity number, just
+    confirmation the same confound exists on Hazel hardware too.
+  - line_size (job 834508, 2m33s): only L1's Method B produced an estimate, 64 B (matches
+    frozen prediction). L2/LLC's Method B found no transition (consistent with their
+    provisional boundaries).
+  - hit_latency (job 834510, 3m35s): clean monotonic ladder, L1=8.46 / L2=16.74 /
+    LLC=53.79 / DRAM=206.18 ticks (dependent, random, median). No `[UNEXPECTED]` flags.
+  - **miss_latency (job 834511) TIMED OUT after 1h** -- L1_to_L2 and L2_to_LLC transitions
+    completed cleanly, but the LLC_to_DRAM transition's 512 MiB eviction (the expensive
+    stage, same as documented on several lab machines) only got through base+rep1 before
+    being killed mid-rep2. **Fix already applied and committed**:
+    `hpc_slurm/hw1_haswell_miss_latency.sh`'s `--time` bumped from `01:00:00` to
+    `01:55:00`. **NOT YET RESUBMITTED as of this note** -- the very next action on this
+    machine should be `sbatch hpc_slurm/hw1_haswell_miss_latency.sh`, then wait for it,
+    then fill in `data_raw/hazel_haswell/README.md`'s miss_latency portion of the
+    latency/ section (the hit_latency portion is already filled in) and commit.
+  - **inclusion_policy: NOT STARTED, no job script written yet.** Needs
+    `hpc_slurm/hw1_haswell_inclusion_policy.sh` (mirror the other `hw1_haswell_*.sh`
+    scripts, `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh hazel_haswell <core>
+    <spec>`) and MUST run after miss_latency completes (its calibration reads
+    miss_latency's own raw output for the matching transition -- see
+    `run_inclusion_policy_full.sh`'s header comment). Suggested pairings/specs, matching
+    this project's established convention: `L1_vs_L2:32768:262144:L1_to_L2`,
+    `L2_vs_LLC:262144:25165824:L2_to_LLC`, `L1_vs_LLC:32768:25165824:LLC_to_DRAM`.
+
+- **Other 8 generations (broadwell, skylake, cascadelake, icelake_6326, icelake_8358,
+  sapphirerapids, genoa, turin): only the access-check pilot has run on each. No capacity
+  or any other real experiment has been attempted yet.** Once haswell's full suite is
+  complete and reviewed, the natural next step is repeating the same experiment sequence
+  (capacity first, then line_size/associativity/hit_latency/miss_latency in parallel using
+  capacity's confirmed boundaries, then inclusion_policy) for each remaining generation --
+  mechanically the same as haswell's `hw1_haswell_*.sh` scripts, just with a different
+  `--constraint` and that generation's own boundary values once its own capacity run
+  exists. At minimum 5 distinct generations are required for the assignment, spanning
+  oldest-to-newest and including an AMD generation -- haswell (oldest) + genoa or turin
+  (AMD) + 3 more Intel generations would satisfy this.
+
+- **Every experiment run so far used explicit boundary values, never auto-detected/
+  power-of-two-rounded from a soft capacity knee** -- if resuming this work, keep using
+  hand-picked, documented byte values (see each generation's own capacity/ README section
+  once it exists), not `ASSOC_ALLOW_AUTO=1` or similar auto-detection shortcuts, per this
+  project's established discipline.
+
 **`CAPACITY_RESULTS.md` is the single source of truth for every machine's
 capacity boundaries (L1/L2/LLC) — read it, not the narrative below, before
 picking a boundary value for ANY downstream experiment (line size,
