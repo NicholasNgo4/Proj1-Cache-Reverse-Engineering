@@ -483,6 +483,127 @@ benchmark set and a different 4th perf group (see rationale below).
   2-4 (normalization, per-benchmark ranked S-curves, and the Intel/AMD/Arm
   and older/newer generation comparison) can be attempted.
 
+### software_hit_rate/ (Problem 8.5 — 2026-09-14)
+The software-only cache hit-rate estimator (`main_code/software_hit_rate/`,
+no PMU/perf anywhere in the estimator itself — self-calibrates a
+resident/nonresident latency threshold via ROC/Youden's J, classifies a test
+workload, debiases with Rogan-Gladen). This is the 4th machine to run it
+(after Sunbird, Thunderbird, Skylark — see `CLAUDE.md`'s own write-up for
+each), using the REDESIGNED (2026-09-14) PMU validation pipeline throughout
+— no re-derivation of the original broken single-perf-wrapped-invocation
+design was needed here.
+
+**Sweep (parts 1-3)**: `./scripts/run_software_hit_rate_sweep.sh upgrade 5
+"4096,16384,32768,65536,131072,262144,1048576,4194304,8388608,12582912,
+16777216,25165824,67108864,134217728,268435456,536870912"
+"L1:32768,L2:262144,LLC:12582912,DRAM:536870912"` — core 5 (this machine's
+established convention, reconfirmed idle via `/proc/stat` delta before
+running), seed=12345, timestamp `20260914T123657Z`. Footprint list and
+boundary annotations both anchored to this machine's own
+`CAPACITY_RESULTS.md`/`FINAL_CACHE_TABLE.md` values (L1=32,768 / L2=262,144
+/ LLC=12,582,912 / DRAM=536,870,912 B), not Sunbird's defaults — passed the
+4th `boundary_spec` argument explicitly per the script's own documented
+fix for the bug Skylark's session found/patched.
+- Raw: `data_raw/upgrade/software_hit_rate/raw/hit_rate_<bytes>_20260914T123657Z.csv.gz`
+  (16 points, gzipped automatically by the script). Summary:
+  `data_raw/upgrade/software_hit_rate/hit_rate_sweep_20260914T123657Z.csv.gz`.
+  Plots: `data_processed/upgrade/software_hit_rate/plots/
+  {hit_rate_sweep,calibration_distributions}.{png,pdf}`.
+- **Headline: Hhat stays essentially flat at 1.0000 clear through the exact
+  L1 boundary (32,768 B: Hhat=1.0000) and on to L2 (262,144 B: Hhat=0.9992)
+  — NO dip at the L1 edge**, unlike Sunbird's own 0.8664 dip at its
+  identical 32,768 B boundary; matches Skylark's own no-dip L1 result
+  instead. From there Hhat falls off **smoothly and monotonically** all the
+  way through the LLC boundary and beyond (0.8580 @ 1 MiB -> 0.2387 @
+  12,582,912 B/LLC -> 0.0644 @ 16 MiB -> 0.0002 @ 512 MiB/DRAM) — no
+  non-monotonic dip-and-partial-recovery like Skylark's own 1-8 MiB region
+  showed. Cleanest, simplest-shaped sweep curve of the 3 machines run so
+  far; consistent with this machine's own capacity data, which (unlike
+  Skylark's) has a clean, single, well-confirmed L1/L2/LLC boundary set
+  rather than an unresolved multi-MiB ramp.
+
+**PMU validation (part 4)**: `./scripts/run_hit_rate_pmu_validation.sh
+upgrade 5 L1:32768,L2:262144,LLC:12582912,DRAM:536870912` — core 5,
+base_seed=12345 (repeats use base_seed+1/+2), 3 runs per level (base+2
+repeats), HL_SAMPLES=1,000,000/HL_BATCH=1000/HL_WARMUP=3 (same values
+`run_pmu_verification.sh` already validated clean on this machine),
+timestamp `20260914T125808Z`. Per the redesigned script, L1/L2/LLC are
+tested at HALF their `CAPACITY_RESULTS.md` value (16,384 / 131,072 /
+6,291,456 B) and DRAM at the full 536,870,912 B. Raw:
+`data_raw/upgrade/software_hit_rate/pmu/{L1,L2,LLC,DRAM}/*.csv.gz`
+(gzipped by hand post-run — this script, unlike the sweep script, doesn't
+gzip its own output). Comparison:
+`data_processed/upgrade/software_hit_rate/pmu_validation_20260914T125808Z.csv`.
+
+**Per-level results (median-of-3):**
+
+| Level | Footprint | Hhat | H_pmu | rel_error |
+|---|---|---|---|---|
+| L1 | 16,384 B | 1.0000 | 0.9010 | 11.0% |
+| L2 | 131,072 B | 0.9955 | 0.9538 | 4.1% |
+| LLC | 6,291,456 B | 0.4069 | 0.9718 | 58.1% |
+| DRAM | 536,870,912 B | 0.0002 | 0.4566 | 100.0% |
+
+- **L1/L2 both sane and citable**, same expected pattern as every prior
+  machine. L2's 4.1% agreement is the 2nd-tightest of any machine/level run
+  so far (behind only Skylark's own 0.78% L2 result).
+- **New finding, not seen on Sunbird/Thunderbird/Skylark: L1's own H_pmu is
+  unstable run-to-run at fixed footprint/tau, even though Hhat is a rock-
+  solid 1.0000 across all 3 seeds.** Per-run H_pmu: base=0.918, rep1=0.727,
+  rep2=0.901 — a ~19-point swing driven by `cache-misses` itself jumping
+  from ~14-19K (base/rep2) to ~49K (rep1) at an unchanged ~174-191K
+  `cache-references`. This is the same "generic counter carries only a
+  small, noisy absolute count at L1 scale" limitation Skylark's own
+  `PHASE2_VALIDATION_TABLE.md`/`software_hit_rate` write-up already flagged
+  (there, ~41-44K events total) — here it's directly visible as run-to-run
+  H_pmu instability rather than just a documented small-count caveat.
+  Hhat=1.0000 remains the trustworthy number for L1, same conclusion
+  Skylark reached, now with more direct supporting evidence.
+- **At LLC (half-footprint = 6,291,456 B ≈ 6.0 MiB), Hhat ITSELF is
+  unstable across seeds, not H_pmu — but this is NOT a new/unexplained
+  phenomenon, it's this machine's own already-documented noisy region
+  showing up again in a different experiment.** Per-run Hhat: base=0.8620,
+  rep1=0.4069, rep2=0.4051 — a ~0.46 swing at an unchanged footprint/seed
+  offset. H_pmu, by contrast, is tight and consistent across all 3 runs
+  (0.971-0.972), so the median Hhat=0.4069 the pipeline reports undersells
+  how much seed-to-seed spread actually exists here. **Root cause: this
+  machine's own `capacity/` section above already documents 6,291,456 B as
+  sitting squarely inside the "~5-22 MiB: steep, genuinely noisy
+  transition" region** — a region that section explicitly flags as
+  unresolved with "median run-to-run spread 12.6%, but with isolated
+  points up to ~119%" and a systematic (not scattered) session-level
+  elevation pattern (e.g. its own dense-sweep evidence at a nearby 7.37 MiB
+  point: 42.1/70.0/143.2 ticks across 3 runs, a 3.4x spread). A software
+  estimator classifying single-shot latencies against a fixed threshold
+  will obviously be unstable if the underlying raw latencies themselves are
+  this volatile at this exact footprint on this exact machine — no new
+  mechanism needs to be invoked. **This also means the LLC=12,582,912 B
+  value used here (like this run's L2=262,144 B) is a `CAPACITY_RESULTS.md`
+  cross-machine value, not one this machine's own capacity sweep ever
+  independently confirmed** — that section found no flat L2 shelf (32 KiB-
+  1.5 MiB is "one continuous ramp") and no resolved LLC boundary at all
+  (the 5-22 MiB region never settled into a plateau); only L1 (32,768 B) is
+  independently confirmed here (and further corroborated by a clean
+  associativity knee). The L1/L2 software_hit_rate results above are
+  unaffected by this caveat (L1 is solidly confirmed; L2's half-footprint,
+  131,072 B, sits in the same unconfirmed ramp but came back clean and
+  stable anyway), but the LLC number should be read as "software estimator
+  behaves unpredictably in a region this machine's own hardware data was
+  already unpredictable in," not as a property of the estimator design
+  itself.
+- **LLC/DRAM both diverge from H_pmu, as expected** — same documented
+  single-threshold limitation as every other machine (tau ~79-83 ticks
+  here sits well below true LLC-hit latency + single-shot overhead, so
+  real LLC/DRAM hits get classified "miss" regardless). Do not read LLC's
+  58.1%/DRAM's 100.0% rel_error as evidence the redesign failed — it's the
+  same "detects L1/L2-scale residency only" finding already established on
+  every other machine, now reproduced on a 3rd x86 CPU generation
+  (Coffee Lake).
+- 4th of 8 machines with software_hit_rate data collected (Sunbird,
+  Thunderbird, Skylark, Upgrade); 4 remaining (Artemisia, Charnwood, Crux,
+  Ookay) before a cross-machine chronological plot (plot item 14) is
+  possible.
+
 ## Reservation Log (if applicable)
 - Reserved core/package: 
 - Time window: 

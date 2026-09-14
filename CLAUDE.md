@@ -1816,10 +1816,11 @@ counters on Sunbird/Thunderbird; all 7-8 events at once on Crux/Artemisia/
 Upgrade) — worth hand-checking fresh on any future machine rather than
 assuming either extreme.
 
-**Software-only cache hit-rate estimator (Problem 8.5): implemented on
-Sunbird, now also run on Thunderbird and Skylark (2026-09-14) — read this
-before running the PMU validation piece on another machine, it has already
-been through one invalid design.** `main_code/software_hit_rate/software_hit_rate.{c,h}`
+**Software-only cache hit-rate estimator (Problem 8.5): implemented
+2026-09-14, now run on 5 of 8 machines (Sunbird, Thunderbird, Skylark,
+Crux, Upgrade) — read this before running the PMU validation piece on
+another machine, it has already been through one invalid design.**
+`main_code/software_hit_rate/software_hit_rate.{c,h}`
 (no PMU/perf access anywhere in that file) self-calibrates a resident-vs-
 nonresident latency threshold (ROC/Youden's J), classifies a test
 workload's single-shot access latencies against it, and debiases the raw
@@ -2010,6 +2011,74 @@ hit — this is not hypothetical, see the PMU validation results below).
   is-not-an-any-cache-vs-DRAM-signal finding already seen on both other
   machines. Full writeup: `data_raw/skylark/README.md`'s
   `software_hit_rate/` section.
+- **Crux (x86/Intel Coffee Lake, 2026-09-14): full flow run (both the sweep
+  and PMU validation), added via a separate concurrent session — not yet
+  reflected anywhere else in this status file besides this bullet, so check
+  `data_raw/crux/README.md`'s own `software_hit_rate/` section for anything
+  not summarized here.** Core 5 (confirmed idle via `/proc/stat` deltas +
+  `ps`), sweep timestamp `20260914T123738Z`, boundaries
+  L1=32,768/L2=262,144/LLC=8,388,608/DRAM=536,870,912 B (this machine's own
+  `CAPACITY_RESULTS.md` values). **Sweep is non-monotonic, not smoothed
+  over**: Hhat=1.0 through 131,072 B (no dip at the exact L1 boundary,
+  matching Skylark/Upgrade, unlike Sunbird), falls to 0.9824/0.6978/0.3633
+  at 262,144/1,048,576/4,194,304 B, then **rises back up** to 0.4643 at
+  8,388,608 B (the nominal LLC candidate) before resuming its fall —
+  directly attributed (not just guessed) to two already-documented facts
+  about this machine: `CLAUDE.md`'s own Crux capacity bullet already flags
+  ~89% run-to-run spread in the ~4-64 MiB region, and
+  `PHASE2_VALIDATION_TABLE.md` establishes this machine's REAL LLC is
+  12,582,912 B (12 MiB), not the 8,388,608 B `CAPACITY_RESULTS.md` value
+  used to anchor the sweep — so every point from 1-8 MiB sits inside one
+  messy, still-growing real transition, not past a clean edge. PMU
+  validation timestamp `20260914T125809Z`, half-footprint for L1/L2/LLC
+  (16,384/131,072/4,194,304 B), full DRAM. **L1/L2 sane** (rel_error
+  10.8%/6.3%, same ballpark as every other machine). **LLC: Hhat unstable
+  across seeds (0.12-0.87) while H_pmu stays stable (~0.98)** — the same
+  "software estimator inherits instability from an already-noisy real
+  capacity region" pattern this session independently found on Upgrade
+  (see that machine's own bullet below) via a different mechanism (wrong
+  nominal LLC value vs. a genuinely unresolved boundary), not a
+  coincidence — two machines now show the same shape of failure for two
+  different underlying reasons. DRAM diverges as expected. Full writeup:
+  `data_raw/crux/README.md`'s `software_hit_rate/` section.
+- **Upgrade (x86/Intel Coffee Lake, 2026-09-14): full flow run (both the
+  sweep and PMU validation), 5th machine done.** Core 5 (this machine's
+  established convention). Sweep timestamp `20260914T123657Z`,
+  boundaries L1=32,768/L2=262,144/LLC=12,582,912/DRAM=536,870,912 B (this
+  machine's own `CAPACITY_RESULTS.md` values, passed explicitly per the
+  boundary-spec fix Skylark's session made). **Cleanest sweep curve of the
+  4 machines with sweep data**: Hhat=1.0 with no dip at the exact L1
+  boundary (unlike Sunbird's 0.8664 dip; matches Skylark's own no-dip
+  result), then falls off smoothly and *monotonically* all the way through
+  LLC and beyond — no non-monotonic dip-and-recovery the way Skylark's own
+  1-8 MiB region showed. PMU validation timestamp `20260914T125808Z`,
+  tested at half-boundary for L1/L2/LLC (16,384/131,072/6,291,456 B) and
+  full DRAM (536,870,912 B), 3 seeded runs/level. **L1/L2 sane and
+  citable** (rel_error 11.0%/4.1% — L2 is the 2nd-tightest agreement of any
+  machine/level so far, after Skylark's own 0.78%). **Two new findings not
+  seen on Sunbird/Thunderbird/Skylark (finding 2 below turns out to have an
+  independent echo in Crux's own concurrent run — see that bullet above)**:
+  (1) L1's H_pmu itself swings
+  0.727-0.918 across seeds at an unchanged footprint/tau (Hhat stays a
+  rock-solid 1.0000 throughout) — traced to `cache-misses` jumping from
+  ~14-19K to ~49K run-to-run at L1's small absolute event counts, the same
+  "noisy generic counter at L1 scale" limitation Skylark's own Phase II
+  write-up already flagged, now directly visible as instability rather
+  than just a documented small-count caveat; (2) at LLC (half-footprint =
+  6,291,456 B), Hhat ITSELF swings 0.4051-0.8620 across seeds while H_pmu
+  stays tight (0.971-0.972) — but this is NOT a mysterious new artifact:
+  this machine's OWN `capacity/` section already documents 6,291,456 B as
+  sitting inside its unresolved "~5-22 MiB: steep, genuinely noisy
+  transition" region (up to 119% run-to-run spread already measured there
+  directly in raw ticks/access), and Upgrade's own capacity data never
+  actually confirmed an L2 or LLC boundary at all — the 262,144/12,582,912 B
+  values used throughout this machine's §8.5 (and hit_latency/associativity/
+  inclusion_policy) work are `CAPACITY_RESULTS.md` cross-machine values, not
+  independently verified on Upgrade. The classifier is simply unstable
+  where the underlying hardware latency already was. LLC/DRAM otherwise
+  diverge from H_pmu as expected (same single-threshold limitation as
+  every other machine, now on a 3rd x86 generation). Full writeup:
+  `data_raw/upgrade/README.md`'s `software_hit_rate/` section.
 
 **Moore-style chronological master table + cross-generation plots: done
 (2026-09-14), the first concrete step of Phase III/§9 — but this is
@@ -2072,9 +2141,9 @@ that freeze will be fit from.
   file's own "Software-only cache hit-rate estimator" bullet above)**: the
   estimator (`PROJECT 1.pdf` §8.5, `main_code/software_hit_rate/`) is no
   longer an empty stub — it's implemented and has PMU-validated results on
-  Sunbird, Thunderbird, and now Skylark — but a cross-machine chronological
-  plot needs data from all 8 machines, and only 3 of 8 have any
-  `software_hit_rate` data collected so far. Still a known gap, just a
+  Sunbird, Thunderbird, Skylark, Crux, and now Upgrade — but a cross-machine
+  chronological plot needs data from all 8 machines, and only 5 of 8 have
+  any `software_hit_rate` data collected so far. Still a known gap, just a
   narrower one than "the code doesn't exist yet."
 - **Still open before Hazel can be touched at all**: fit the actual
   quantitative trend models/doubling-times from this data, formulate and
@@ -2086,7 +2155,7 @@ that freeze will be fit from.
   dedicated bullet just below, but items 2-4 (normalization, ranked
   S-curves, and the Intel/AMD/Arm + generation comparison) still need all
   8 machines' data first; and finishing §8.5's software-only hit-rate
-  estimator's cross-machine coverage (implemented and validated on 3 of 8
+  estimator's cross-machine coverage (implemented and validated on 5 of 8
   machines so far — see this file's own "Software-only cache hit-rate
   estimator" bullet above — not a stub anymore, just incomplete).
 
