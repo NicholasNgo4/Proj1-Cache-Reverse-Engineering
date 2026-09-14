@@ -376,6 +376,113 @@ Thunderbird's session originally tried and later migrated away from).
   I's own `CAPACITY_RESULTS.md`-adjacent finding that Upgrade's own
   capacity sweep never resolved a clean LLC edge in this size region.
 
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+The 3 standardized cross-machine microbenchmarks required by problem 8.4 —
+(i) L1-resident dependent accesses, (ii) LLC-sized randomized accesses, (iii)
+a working set larger than LLC — run identically to Sunbird's/Thunderbird's/
+Skylark's own eight_counters/ runs, collecting the same fixed 8-event
+counter set. Phase I already frozen (`phase1-timing-only`), so this reuses
+the same `perf`-wrapping discipline as `pmu/` above, just a different
+benchmark set and a different 4th perf group (see rationale below).
+
+- Source file(s): `scripts/run_standardized_benchmarks.sh`,
+  `scripts/summarize_eight_counters.py` (already present in this checkout
+  from Sunbird's/Skylark's sessions; no changes needed — same
+  `--experiment hit_latency --load-mode dependent --pattern random`
+  construction as every other latency/PMU pipeline in this project,
+  differing only in `--footprint-bytes` and the perf event set).
+- **8 counters** (assignment-literal set, not `pmu/`'s own set): all 3
+  benchmarks collect `cache-references`, `cache-misses`, `L1-dcache-loads`,
+  `L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+  `LLC-load-misses`, `dTLB-load-misses` — swapping out the `pmu/`
+  pipeline's `cycles`/`instructions` pair for the L1 store-side signal and
+  a real dTLB-miss count. Same 4-groups-of-2 perf-scheduling discipline as
+  `pmu/` (3 of the 4 groups — `cache`, `l1`, `llc` — are byte-identical
+  invocations to that pipeline's; only the 4th group differs:
+  `L1-dcache-stores,dTLB-load-misses` instead of `cycles,instructions`).
+  Verified via `grep -i "not counted\|not supported"` across every raw
+  perfstat CSV: zero hits — all 8 events counted cleanly on this machine's
+  PMU (same clean scheduling behavior as this machine's own `pmu/` run).
+- Idle-core check before running: `/proc/stat` idle-tick deltas sampled
+  across 3 windows ~2s apart, all 12 logical CPUs — unlike this same
+  session's earlier `pmu/` run (cores 0/2 pinned by another student's
+  job), the **whole machine was quiet this time** (every core ≤2% busy in
+  all 3 samples); core 5 (this machine's established convention) used
+  again for consistency.
+- Run command: `./scripts/run_standardized_benchmarks.sh upgrade 5
+  L1_resident:32768,LLC_random:12582912,beyond_LLC:536870912` (core 5;
+  footprints are this machine's own hand-confirmed
+  `FINAL_CACHE_TABLE.md`/`CAPACITY_RESULTS.md` L1/LLC values plus the
+  project's universal 536,870,912 B / 512 MiB DRAM-scale constant for
+  `beyond_LLC`). base_seed=12345 (repeats use base_seed+index),
+  samples=1,000,000/run, batch_size=1000, warmup_passes=3, dependent load
+  mode, random pattern, timestamp `20260914T053025Z`.
+- Raw output: `data_raw/upgrade/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` and `*_bench_*.csv.gz` (gzipped by hand
+  post-run, same `.gitignore` convention as every other experiment).
+  Transcript: `data_raw/upgrade/eight_counters/
+  run_standardized_benchmarks_20260914T053025Z.log`.
+- Processed: `data_processed/upgrade/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/eight_counters_summary_20260914T053025Z.csv` (one row per
+  run_tag + a median-of-3 row each; raw counts and miss-rate ratios only —
+  problem 8.4's actual per-access/per-1000-iteration normalization,
+  ranking/S-curves, and cross-generation comparison (items 2-4) are
+  explicitly NOT attempted this session; they need all 8 machines' data
+  first).
+- **Headline numbers (median row, all 3 benchmarks):**
+  - `L1_resident` (32,768 B): ≈8.90 ticks/access — same order of magnitude
+    as, but noticeably higher than, this machine's own already-documented
+    ≈6.17-tick L1 hit latency; `l1_miss_rate` ≈0.94% (low, as expected for
+    a dataset that fits entirely in L1); `cache_miss_rate` ≈10.5% and
+    `llc_miss_rate` ≈8.8% both read elevated for an L1-resident workload,
+    but the underlying absolute `cache-references`/`LLC-loads` counts are
+    tiny (~185K/~14K) — the same small-sample-count noise already
+    documented for this generic-event ratio at the L1 footprint on
+    Skylark's/Ookay's own eight_counters/PMU runs, not new signal;
+    `dtlb_load_misses` ≈1,813, small as expected (32 KiB / 4096 B page =
+    8 pages touched).
+  - `LLC_random` (12,582,912 B): ≈78.43 ticks/access — **notably LOWER
+    than both this machine's own originally-documented ≈155.05-tick LLC
+    hit latency (`FINAL_CACHE_TABLE.md`) AND this same session's earlier
+    `pmu/` run at the identical footprint (≈121.47 ticks, itself already
+    below the original) — a monotonic decrease across 3 separate
+    measurement sessions on this exact footprint, flagged plainly rather
+    than explained away.** The earlier `pmu/` run was contended (cores 0/2
+    pinned by another student) while this run's machine was confirmed
+    fully quiet — the opposite of what contention-based slowdown would
+    predict if contention explained the gap, so "contention" alone does
+    NOT account for this pattern. This run's own perf group set doesn't
+    include `cycles`, so the `cycles÷duration_time` frequency sanity check
+    used in `pmu/` above cannot be repeated here to check for a turbo/
+    scaling explanation. Genuinely unresolved — worth a dedicated,
+    isolated re-run (ideally with a `cycles` counter alongside) if this
+    number needs to be cited precisely. `l1_miss_rate` ≈9.52%,
+    `llc_miss_rate` ≈18.75%, `cache_miss_rate` ≈21.65% — all read sensibly
+    elevated vs. `L1_resident`, no anomaly in the ratios themselves;
+    `dtlb_load_misses` ≈3.09M, 3 orders of magnitude above `L1_resident`
+    (12 MiB / 4096 B = 3,072 pages touched per pass, consistent).
+  - `beyond_LLC` (536,870,912 B): ≈251.60 ticks/access — **matches this
+    machine's own originally-documented ≈251.56-tick DRAM hit latency
+    almost exactly** (within 0.04 ticks), unlike Sunbird's/Ookay's own
+    `beyond_LLC` runs, which both read inflated vs. their documented DRAM
+    numbers from confirmed other-student contention — this run's machine
+    was quiet throughout, consistent with a clean, uncontended
+    measurement. `l1_miss_rate` ≈13.36%, `llc_miss_rate` ≈47.05%,
+    `cache_miss_rate` ≈54.64% (all comfortably the highest of the 3
+    benchmarks, as expected); `dtlb_load_misses` ≈256.1M, 2 further orders
+    of magnitude above `LLC_random`, consistent with streaming through far
+    more distinct pages than the DTLB can hold.
+  - Across all 3 benchmarks: ticks/access, `l1_miss_rate`,
+    `cache_miss_rate`, `llc_miss_rate`, and `dtlb_load_misses` all climb
+    monotonically with footprint — the expected overall shape, the
+    `LLC_random` absolute-latency anomaly above notwithstanding (that
+    anomaly is in the value relative to *other sessions*, not in this
+    run's own internal monotonicity, which is intact).
+- 4th of 8 machines done (Sunbird, Thunderbird, Skylark, Upgrade); 4
+  remaining (Artemisia, Charnwood, Crux, Ookay) before problem 8.4 items
+  2-4 (normalization, per-benchmark ranked S-curves, and the Intel/AMD/Arm
+  and older/newer generation comparison) can be attempted.
+
 ## Reservation Log (if applicable)
 - Reserved core/package: 
 - Time window: 

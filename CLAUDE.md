@@ -2063,7 +2063,7 @@ that freeze will be fit from.
 
 **Problem 8.4 (eight interesting performance counters across generations),
 item 1: started 2026-09-14, Sunbird, Thunderbird, Skylark, Charnwood, Crux,
-and Ookay done (6 of 8 machines).**
+Ookay, and Upgrade done (7 of 8 machines).**
 New pipeline
 `scripts/run_standardized_benchmarks.sh` + `scripts/summarize_eight_counters.py`
 runs the same `--experiment hit_latency --load-mode dependent --pattern
@@ -2166,6 +2166,30 @@ differs), same base+2-reproducibility-repeat convention.
   expected. `dtlb_load_misses` climbs cleanly monotonic across all 3
   benchmarks (2,025 → 1,096,978 → 253,582,411). Full detail:
   `data_raw/charnwood/README.md`'s `eight_counters/` section.
+- **Upgrade** (`data_raw/upgrade/eight_counters/`, core 5, base_seed=12345,
+  timestamp `20260914T053025Z`, machine confirmed fully quiet — unlike this
+  same session's earlier `pmu/` run, which had 2 cores pinned by another
+  student). All 8 counters scheduled and counted cleanly (verified via
+  `grep` across every raw perfstat CSV — zero `<not counted>`/`<not
+  supported>` hits, this Intel Coffee Lake PMU handles the full 8-event set
+  without the gaps Thunderbird's/Skylark's PMUs showed).
+  `beyond_LLC`≈251.60 ticks/access matches this machine's own
+  already-documented ≈251.56-tick DRAM latency almost exactly (clean,
+  uncontended run). **`LLC_random`≈78.43 ticks/access is notably LOWER
+  than both this machine's originally-documented ≈155.05-tick LLC latency
+  AND this same session's own earlier contended `pmu/` run at the
+  identical footprint (≈121.47 ticks)** — a monotonic decrease across 3
+  separate sessions that contention alone cannot explain (this run was the
+  *quietest* of the three, yet reads lowest) — flagged as a genuinely
+  unresolved anomaly, not explained away; this run's perf group set has no
+  `cycles` counter, so the `cycles÷duration_time` frequency check used
+  elsewhere isn't available to investigate it further here. `l1_miss_rate`,
+  `cache_miss_rate`, `llc_miss_rate`, and `dtlb_load_misses` all climb
+  monotonically across all 3 benchmarks as expected; `L1_resident`'s own
+  generic-event miss-rate columns read noisy (small absolute counts), the
+  same small-sample artifact already documented on Skylark's/Ookay's own
+  L1-footprint runs. Full detail: `data_raw/upgrade/README.md`'s
+  `eight_counters/` section.
 - **Crux** (`data_raw/crux/eight_counters/`, core 1, base_seed=12345,
   timestamp `20260914T052920Z`; footprints `L1_resident:32768,
   LLC_random:8388608` per this machine's own `FINAL_CACHE_TABLE.md`,
@@ -2211,8 +2235,8 @@ differs), same base+2-reproducibility-repeat convention.
   1,091,713 → 252,964,812) — real hardware data toward the DTLB-confound
   question, not yet interpreted (needs all 8 machines first). Full detail:
   `data_raw/ookay/README.md`'s `eight_counters/` section.
-- **6 of 8 machines done (Sunbird, Thunderbird, Skylark, Charnwood, Crux,
-  Ookay); 2 remaining** (Artemisia, Upgrade). Each needs the same command
+- **7 of 8 machines done (Sunbird, Thunderbird, Skylark, Charnwood, Crux,
+  Ookay, Upgrade); 1 remaining (Artemisia).** Needs the same command
   (`./scripts/run_standardized_benchmarks.sh <machine> <core>
   L1_resident:<L1_bytes>,LLC_random:<LLC_bytes>,beyond_LLC:536870912`) with
   its own `FINAL_CACHE_TABLE.md` L1/LLC values. Items 2-4 of 8.4 cannot be
