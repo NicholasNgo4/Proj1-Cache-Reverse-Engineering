@@ -2079,6 +2079,94 @@ hit — this is not hypothetical, see the PMU validation results below).
   diverge from H_pmu as expected (same single-threshold limitation as
   every other machine, now on a 3rd x86 generation). Full writeup:
   `data_raw/upgrade/README.md`'s `software_hit_rate/` section.
+- **Charnwood (x86/Intel Skylake client, 2026-09-14): full flow run (sweep +
+  PMU validation), and the first machine where LLC does NOT reproduce the
+  "always diverges" pattern above — read this before assuming that pattern
+  is universal.** Core 3 (confirmed idle, same core as every other Charnwood
+  experiment). Sweep: `./scripts/run_software_hit_rate_sweep.sh charnwood 3
+  <15-point list incl. this machine's own boundaries> "L1:32768,L2:262144,
+  LLC:8388608,DRAM:536870912"`, timestamp `20260914T123410Z`. No dip at the
+  exact L1 boundary (Hhat=1.0000, matching Skylark not Sunbird); a sharp
+  drop to 0.0991 exactly at the LLC boundary (8,388,608 B) followed by a
+  non-monotonic rebound-then-fall through 16.8/31.5 MiB, consistent with
+  this machine's own already-documented ~1.83-11.31 MiB contaminated
+  capacity region (see this file's Charnwood capacity bullet above), not a
+  new anomaly. **New caveat: this machine's per-invocation calibration
+  threshold (tau) is unusually noisy across the sweep's 15 fresh
+  invocations (all same seed=12345, same fixed calibration footprints) —
+  130-314 ticks, vs. Skylark's exactly-96.0-on-every-point and Sunbird's
+  76-116 cluster. Not root-caused; means a single sweep point's
+  classification cutoff is less trustworthy in isolation than its own
+  bootstrap CI alone suggests.** PMU validation:
+  `./scripts/run_hit_rate_pmu_validation.sh charnwood 3
+  L1:32768,L2:262144,LLC:8388608,DRAM:536870912`, timestamp
+  `20260914T125811Z`. L1/L2 disagree (16.4%/13.7% rel. error, same
+  generic-counter-noise-at-small-footprint cause already documented on
+  every machine; Hhat=1.0 remains the trustworthy number). **LLC agrees
+  closely (3.7% rel. error, median-of-3) — a new result, different in kind
+  from Sunbird's 98.7%/Thunderbird's/Skylark's partial divergence at this
+  level, but by a modest margin, not a comfortable one — see the corrected
+  comparison below (an earlier version of this bullet compared batched and
+  single-shot timing directly, which is not apples-to-apples).**
+  `latency/`'s ≈106.9-109.1 tick LLC hit-latency is BATCHED timing;
+  `software_hit_rate.c`'s calibration is SINGLE-SHOT timing, which this
+  machine's own `miss_latency` control already measured at ≈62 fixed
+  overhead ticks above the batched number. Adjusted, LLC's real
+  single-shot latency (≈169-171 ticks) sits only ≈11-12% below this run's
+  calibrated tau (≈190-194 ticks) — unlike Sunbird, where tau (~80-84)
+  sits below the true LLC hit latency by a much larger margin (in the
+  other direction — misclassifying essentially every LLC hit). **Direct
+  evidence the margin is narrow**: LLC is the only level where Hhat itself
+  varies across the 3 repeats (0.9637/0.9998/0.9999 — L1, L2, and DRAM
+  each report Hhat within 0.0001 across all 3 repeats), consistent with
+  ordinary timing noise occasionally pushing LLC accesses across tau. **The
+  "LLC-speed hits get misclassified" limitation documented above is
+  therefore machine-dependent (on where tau lands relative to that
+  machine's own LLC hit latency), not universal — but Charnwood's own
+  result sits close to that failure mode, not safely clear of it; do not
+  describe this level's agreement as robust on a future machine without
+  checking that machine's own tau vs. single-shot-adjusted LLC hit-latency
+  numbers first.** DRAM's 100% disagreement reproduces the
+  same generic-counter-is-not-an-any-cache-vs-DRAM-signal finding already
+  seen on every other machine (checked directly: cache-misses/cache-
+  references ≈55.1% even at 512 MiB). Full writeup:
+  `data_raw/charnwood/README.md`'s `software_hit_rate/` section.
+- **Ookay (x86/Intel Kaby Lake, 2026-09-14): full flow run (sweep + PMU
+  validation), added via a separate concurrent session — this bullet was
+  missing from this status file even though the data/plots/README writeup
+  already existed; added when a later session verified all 8 machines'
+  §8.5 coverage and found the gap.** Core 2 (confirmed idle via two
+  `/proc/stat` idle-delta samples). Sweep timestamp `20260914T123827Z`,
+  boundaries L1=32,768/L2=262,144/LLC=8,388,608/DRAM=536,870,912 B (this
+  machine's own `CAPACITY_RESULTS.md` values). Hhat=1.0000 through
+  131,072 B (past L1 into L2-scale, as expected); **first dip at the L2
+  boundary itself (262,144 B: Hhat=0.9613)**, unlike Sunbird (dips at L1)
+  or Charnwood/Skylark/Upgrade (no dip at either); a highly unstable
+  1-4 MiB region (Hhat 0.71-0.996 with bootstrap_std up to 0.27, an order
+  of magnitude above every other point) that turned out to foreshadow the
+  same root cause found in the PMU run below; falls off from the LLC
+  boundary onward as expected. PMU validation timestamp `20260914T125828Z`,
+  half-footprint for L1/L2/LLC, full DRAM. **L1/L2 sane** (rel_error
+  16.8%/14.9%, same generic-counter-noise cause as every machine; Hhat=1.0
+  correct, independently corroborated against this machine's own separate
+  Phase-II PMU run at the full L1 footprint). **LLC: the most unstable
+  single result of any machine's PMU run so far — Hhat swings
+  0.7886/0.1702/0.9990 across the 3 seeds at an UNCHANGED footprint — but
+  root-caused, not just flagged: rep2's calibration threshold jumped to
+  tau=266 (vs. base/rep1's ~88-94) because of a sparse high-tail
+  contamination in the resident-calibration distribution (only 63/20,000
+  samples exceeded 266 ticks, plausibly a page-fault/scheduler artifact on
+  the freshly-mapped calibration buffer), not a second real latency
+  population — the ROC/Youden threshold selection is evidently sensitive
+  to thin outlier tails.** This is a distinct failure mode from every
+  other machine's LLC divergence (which is about tau landing on the wrong
+  side of LLC's real latency) — here the calibration step itself is
+  occasionally fragile, a mechanism that could in principle hit ANY
+  level's run, not something LLC-scale-specific; the sweep's own 15 tau
+  values (90-104 ticks, no outliers) show it did not recur elsewhere this
+  session. DRAM's 99.96% disagreement reproduces the same generic-counter
+  limitation seen on every other machine. Full writeup:
+  `data_raw/ookay/README.md`'s `software_hit_rate/` section.
 
 **Moore-style chronological master table + cross-generation plots: done
 (2026-09-14), the first concrete step of Phase III/§9 — but this is
@@ -2141,9 +2229,26 @@ that freeze will be fit from.
   file's own "Software-only cache hit-rate estimator" bullet above)**: the
   estimator (`PROJECT 1.pdf` §8.5, `main_code/software_hit_rate/`) is no
   longer an empty stub — it's implemented and has PMU-validated results on
-  Sunbird, Thunderbird, Skylark, Crux, and now Upgrade — but a cross-machine
-  chronological plot needs data from all 8 machines, and only 5 of 8 have
-  any `software_hit_rate` data collected so far. Still a known gap, just a
+  Sunbird, Thunderbird, Skylark, Crux, Upgrade, Charnwood, and Ookay — 7 of
+  8 machines, only Artemisia outstanding. **Verified 2026-09-14 by a
+  dedicated audit pass (checked every machine's actual committed files,
+  not just this file's prose)**: two of those 7 (Sunbird, Ookay) are
+  missing their top-level `hit_rate_sweep_<ts>.csv` sweep-summary file from
+  git — the per-point raw CSVs, the run log, AND the derived plots are all
+  committed and correct (the plots were evidently generated before the
+  summary file was lost/never staged), but the summary table itself isn't
+  in the repo for either machine. Likely cause: `.gitignore`'s
+  `data_raw/**/*.csv` rule silently excludes an uncompressed CSV unless
+  someone manually gzips + force-adds it (the convention every other
+  machine's session followed, e.g. Charnwood's 2026-09-14 session did this
+  by hand) — that step was apparently skipped for these two. Not
+  re-derivable from what's in THIS repo clone (each lab machine has its
+  own non-shared `/home`, so the file may still exist locally on Sunbird's
+  or Ookay's own machine if a future session logs into one of them and
+  checks before it's cleaned up — otherwise it would need to be
+  regenerated from the still-present raw per-point CSVs via
+  `scripts/summarize_software_hit_rate.py`). A cross-machine chronological
+  plot still needs all 8 machines regardless. Still a known gap, just a
   narrower one than "the code doesn't exist yet."
 - **Still open before Hazel can be touched at all**: fit the actual
   quantitative trend models/doubling-times from this data, formulate and
@@ -2155,9 +2260,11 @@ that freeze will be fit from.
   dedicated bullet just below, but items 2-4 (normalization, ranked
   S-curves, and the Intel/AMD/Arm + generation comparison) still need all
   8 machines' data first; and finishing §8.5's software-only hit-rate
-  estimator's cross-machine coverage (implemented and validated on 5 of 8
+  estimator's cross-machine coverage (implemented and validated on 7 of 8
   machines so far — see this file's own "Software-only cache hit-rate
-  estimator" bullet above — not a stub anymore, just incomplete).
+  estimator" bullet above — not a stub anymore, just incomplete; 2 of
+  those 7 are also missing their sweep-summary CSV from git, see that
+  bullet).
 
 **Problem 8.4 (eight interesting performance counters across generations),
 item 1: started AND FINISHED 2026-09-14 — all 8 machines done (Sunbird,
