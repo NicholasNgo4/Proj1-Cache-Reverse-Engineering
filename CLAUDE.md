@@ -1366,7 +1366,8 @@ check that machine's own `data_raw/<machine>/README.md` and recent git log
 status, since this file lags active work in progress.
 
 **Phase II (counter- and literature-based verification): started
-2026-09-13, two machines done (Sunbird, Thunderbird), 6 outstanding.**
+2026-09-13, six machines done (Sunbird, Thunderbird, Charnwood, Skylark,
+Ookay, Artemisia), 2 outstanding (Crux, Upgrade).**
 `phase1-timing-only` tagged at commit `7be6dac` — **two sessions tagged it
 independently and concurrently (both at this same commit, so the tags
 should be identical objects pointing to the same target); verify with
@@ -1452,7 +1453,11 @@ open decision.**
   what was required except load-use latency in cycles, which neither
   publishes, and the TRM doesn't cover the SLC at all (outside a per-core
   manual's scope) — Thunderbird's LLC row rests on the Ampere datasheet
-  alone, one source, unlike its L1D/L2 rows.
+  alone, one source, unlike its L1D/L2 rows. **Charnwood now done**: Fog's
+  manual §11.12, Table 11.2 "Cache sizes on Skylake", p. 160 — the first
+  machine on this team where Fog's table is a direct hit for the exact
+  microarchitecture (Skylake client) rather than a same-family stand-in;
+  cited in full in `data_processed/charnwood/PHASE2_VALIDATION_TABLE.md`.
 - **Deliverable**: a single `data_processed/<machine>/
   PHASE2_VALIDATION_TABLE.md` per machine (separate file from
   `FINAL_CACHE_TABLE.md`, never edits it) — `PROJECT 1.pdf`'s Table 2
@@ -1539,47 +1544,277 @@ open decision.**
   third independent piece of evidence for "this SoC's SLC is invisible to
   per-core PMU/OS reporting," alongside sysfs's missing L3 entry and finding
   (2) above.
-- **Upgrade (2026-09-14): Phase II PMU verification complete — 3rd machine
-  done, 2nd x86 machine after Sunbird.** Ran `scripts/run_pmu_verification.sh
-  upgrade 5 L1:32768,L2:262144,LLC:12582912` (core 5, idle-checked via 3
-  `/proc/stat` sampling windows despite another student's job pinning cores
-  0/2 at 100% the whole session; base_seed=12345 + 2 repeats, 1,000,000
-  samples/run, timestamp `20260914T003134Z`). Literature: Agner Fog's
-  Skylake-family table (§11.12, Table 11.2, p.160 — Coffee Lake is
-  explicitly named in that chapter as sharing Skylake's design) plus
-  uops.info's per-SKU Coffee Lake (i7-8700K) cache table as a second source,
-  needed because Agner Fog's Skylake table gives no L3 associativity figure
-  at all (only a family-wide size/latency range) — see
-  `data_processed/upgrade/PHASE2_VALIDATION_TABLE.md`. **L1D: exact match,
-  all 3 sources + literature** (8-way), the cleanest row, same pattern as
-  Sunbird's/Thunderbird's own L1 rows. **L2 AND LLC associativity both
-  disagree with Phase I's confound-flagged 8-way-at-both-levels best guess —
-  system-reported gives L2=4-way/LLC=16-way, and literature (both Agner Fog
-  and uops.info) independently agrees with both** — the strongest
-  literature-corroborated confound-resolution result of the 3 machines done
-  so far (2 independent literature sources agreeing with system-report at
-  BOTH disputed levels, not just one). All 4 perf event groups scheduled at
-  100% in every run — this machine never hit the 2-generic-counter
-  scheduling limit Sunbird's PMU had. Notable finding: LLC-footprint
+- **Crux results (full detail:
+  `data_processed/crux/PHASE2_VALIDATION_TABLE.md`)**: run via
+  `scripts/run_pmu_verification.sh crux 1 L1:32768,L2:262144,LLC:8388608`,
+  core 1 (cores 0/2 were pinned by other students' jobs at the time —
+  confirmed via two `/proc/stat` idle-delta samples 4s apart, not just a
+  `ps` snapshot), timestamp `20260914T003352Z`. Literature: Agner Fog's
+  manual, §11.12/Table 11.2 "Cache sizes on Skylake" (Coffee Lake shares
+  this family for cache purposes per Fog's own §11.15 title) — same source
+  category CLAUDE.md's pipeline note above already assigned to
+  Crux/Ookay/Upgrade. **Machine-specific PMU finding, opposite of
+  Sunbird's**: a hand-checked combined single `perf stat` invocation
+  scheduled all 7 hardware events + `duration_time` at 100% simultaneously
+  (3/3 repeats) — this PMU does not share Sunbird's 2-counter-at-once
+  ceiling, though the script still ran its standard 4-group split
+  regardless (no `<not counted>` anywhere in the output either way).
+  **L1D: exact match, all 3 sources** (size/ways/sets/line/sharing) —
+  same clean pattern as Sunbird's and Thunderbird's own L1D rows.
+  **Two genuine, stated-plainly disagreements, both informative:**
+  (1) **L2 associativity — Phase I's reasoned override was simply wrong.**
+  `FINAL_CACHE_TABLE.md` explicitly set aside the raw detector's "4-way"
+  reading as the cross-machine DTLB-scale confound and reasoned to an
+  8-way best guess (anchoring to L1, plus a clean S=C/(A·B) integer
+  argument). System-report says **4-way** — the discarded raw reading was
+  the real answer all along, and sits exactly at the low end of Fog's
+  quoted 4-16-way Skylake-family range. A concrete example of the
+  confound heuristic (validated repeatedly elsewhere on this team) failing
+  in the other direction on this specific machine. (2) **LLC size — the
+  `CAPACITY_RESULTS.md` ~8 MiB value used for every Crux experiment so far
+  is measurably wrong; the real LLC is 12 MiB**, confirming the conflict
+  `FINAL_CACHE_TABLE.md` had already flagged (`lscpu`'s reported 12 MiB)
+  but left unresolved during Phase I. LLC associativity (system-reported
+  12-way) matches neither Phase I's raw confound value (4) nor its 8-way
+  best guess. Latency: L2's measured ticks (~14.3-14.9) land almost
+  exactly on Fog's 14-cycle figure; LLC's (~43-59 ticks) fall inside Fog's
+  34-85 cycle range. Sharing scope confirmed by `shared_cpu_list`: L1/L2
+  private per logical CPU (no SMT on this part), LLC shared across all 8
+  cores of the one socket.
+- **Charnwood results (full detail:
+  `data_processed/charnwood/PHASE2_VALIDATION_TABLE.md`)**: run via
+  `scripts/run_pmu_verification.sh charnwood 3
+  L1:32768,L2:262144,LLC:8388608`, core 3, timestamp `20260914T003212Z`.
+  Literature source: Agner Fog's manual §11.12, Table 11.2 "Cache sizes on
+  Skylake", p. 160 — the first machine on the team where Fog's table covers
+  this exact microarchitecture (Skylake client) rather than a related one.
+  **L1D: exact match, all 3 sources** (size/ways/sets/line/sharing), same
+  clean pattern as Sunbird's and Thunderbird's L1D rows. **Both L2 and LLC
+  associativity were real disagreements, in opposite directions**: Phase
+  I's confound-blocked best guess was 8-way for both (see
+  `FINAL_CACHE_TABLE.md`'s associativity reasoning); system-reported came
+  back **L2 = 4-way** (half the guess, and literature's Table 11.2
+  independently corroborates 4-way as the low end of its own quoted
+  "4-16 way" range, plus an exact 1,024-set match) and **LLC = 16-way**
+  (double the guess; no literature ways figure exists for L3 in this table
+  to arbitrate a 3rd way — an honest gap in the source, not a discrepancy).
+  This is now the 3rd team machine (after Sunbird's LLC and Thunderbird's
+  L2) where Phase II unlocked a real correction to a confound-blocked Phase
+  I guess — the direction isn't consistent across machines (too high on
+  some, too low on others), reinforcing that the underlying confound isn't
+  systematically biased in one direction, just unreliable. **New finding
+  not present on Sunbird/Thunderbird's PMU runs**: this run's own PMU
+  counters caught a real *confirmed* multi-tenant interference effect even
+  though the two other students' processes were pinned to different
+  physical cores than this run's core 3 — `cycles/duration_time_ns` computed
+  from this run's own counters showed core 3 running at only ~2.4-2.7 GHz
+  (vs. this CPU's 3.4 GHz base), while two other physical cores sat near
+  100% busy the whole time; independently corroborated via
+  `scaling_cur_freq`/`scaling_governor`. Leading hypothesis: package-level
+  turbo-budget suppression, not direct resource contention — a different
+  interference mechanism than the same-core or shared-LLC contention this
+  project has documented elsewhere, since here the contending processes
+  shared neither a physical core nor (as far as tested) a demonstrated LLC
+  conflict with the pinned core. This tracks with a fairly uniform ~30-36%
+  inflation in this run's own `bench_avg_ticks_per_access_median` relative
+  to Phase I's own (quieter-session) hit_latency numbers at all 3 levels —
+  worth checking for on any future machine's PMU run where "different
+  physical core, still not fully quiet" was the best idle-core check
+  achievable at the time.
+- **Skylark (2026-09-14): third machine done, first AMD/Zen 2 result — full
+  detail: `data_processed/skylark/PHASE2_VALIDATION_TABLE.md`.** Ran
+  `scripts/run_pmu_verification.sh skylark 5 L1:32768,L2:524288,LLC:8388608`
+  (core 5, confirmed idle via two `mpstat` samples — cores 0/2/3 were busy
+  with other students' processes at the time), timestamp
+  `20260914T002932Z`, literature source Agner Fog's manual, Ch. 22 §22.16,
+  Table 22.3 "Cache sizes on AMD Zen 2", p. 237.
+  - **L1D and L2: exact match across Phase I timing, Phase II
+    system-report, AND literature** (size/ways/sets/line) — system-reported
+    L2 associativity (8-way) independently confirms Phase I's
+    confound-blocked best guess, the same pattern as Sunbird's L2 row.
+  - **LLC size: system-reported 16,777,216 B (16 MiB) confirms Phase I's
+    own already-documented suspicion that its 8 MiB `CAPACITY_RESULTS.md`
+    value was an underestimate** — lands almost exactly at the bottom of
+    Skylark's own `FINAL_CACHE_TABLE.md`-flagged ~16.8-21.8 MiB re-look
+    bracket, a clean resolution rather than a new puzzle.
+  - **LLC associativity: Phase I's confound-blocked best guess (8-way) vs.
+    system-reported 16-way — resolved in favor of the system-reported
+    value**, the same confound-confirmation pattern as Sunbird's (9→20) and
+    Thunderbird's L2 (12→8) rows; 16-way also sits at the low end of Fog's
+    quoted 16-24-way range for this generation.
+  - **Line size: a genuine, unresolved disagreement, not yet seen on
+    Sunbird or Thunderbird.** Phase I independently confirmed 128 B
+    specifically at the LLC-region transition via two methods (2x this
+    machine's own L1/L2 line size); system-report and literature both say
+    64 B uniformly at every level. Leading hypothesis (NOT confirmed —
+    no dedicated follow-up run this phase): Zen 2's documented
+    adjacent-line/stream prefetcher creating an apparent 128 B granularity
+    for a stride-based line-size probe once the working set spills past
+    L2, without the physical line actually being wider. Left open.
+  - **Sharing scope: the standout finding on this machine.** Phase I had
+    guessed "shared across cores/socket" for the LLC (architecturally
+    typical, untested). System-reported `shared_cpu_list` shows this LLC
+    is shared by only **2** logical cores per instance (spot-checked
+    machine-wide across 5 other cores, not just core 5) — resolved via AMD's
+    published EPYC 7532 spec: 8 CCDs x 2 CCX/CCD x 16 MiB/CCX = 256 MiB
+    total L3 per socket, this exact SKU's known "cache-doubled" Rome
+    binning (only 2 of 4 possible cores active per CCX, each CCX still
+    granted its full 16 MiB), not a measurement artifact and not a
+    contradiction of Fog's own microarchitecture-generic "one L3 per 4
+    cores" figure (Table 22.3 states a generation-wide default, not a
+    per-SKU guarantee — the same "don't assume one number applies to every
+    SKU" lesson Sunbird's LLC-associativity finding already produced).
+  - **This AMD PMU has no working LLC-scope perf event for an unprivileged
+    user at all** — `LLC-loads`/`LLC-load-misses` return `<not supported>`
+    (a harder failure than Sunbird's clean scheduling, and unlike
+    Thunderbird's ARM PMU, also true of AMD's own raw uncore L3 events
+    `l3_accesses`/`l3_misses`, blocked by this session's
+    `perf_event_paranoid=2` even system-wide). The generic
+    `cache-references`/`cache-misses` group's miss rate is also not a
+    clean monotonic LLC-scope signal here (19.34% at L1 footprint → 11.32%
+    at L2 → 46.59% at LLC — a dip, not a steady climb), most likely because
+    this generic AMD alias tracks something closer to L2-request traffic
+    than Intel's LLC-scope mapping does (very low absolute event counts at
+    the L1 footprint support this); the LLC footprint's own sharp jump is
+    still a clean, trustworthy boundary confirmation regardless.
+- **Ookay results (full detail:
+  `data_processed/ookay/PHASE2_VALIDATION_TABLE.md`)**: run via
+  `scripts/run_pmu_verification.sh ookay 3 L1:32768,L2:262144,LLC:8388608`,
+  core 3 (checked idle via 3 `mpstat` samples ~3s apart — cores 0/2 were
+  each 100% busy with other students' `incl_pmu`/`cache_bench_x86`
+  processes the entire session; core 3's own both SMT threads were
+  independently idle throughout), timestamp `20260914T003308Z`. Literature:
+  Agner Fog's Table 11.2 "Cache sizes on Skylake" (Kaby Lake is covered by
+  Fog's own "Skylake and other Lakes are quite similar" framing), per this
+  section's pre-existing Skylake-family assignment for Ookay/Crux/Upgrade.
+  **L1D: exact match, all 3 sources** (size/ways/sets/line), same clean
+  pattern as Sunbird's and Thunderbird's L1D rows, and notably the same
+  `-O0` latency-inflation ratio (~3.43x vs. Fog's 4-cycle reference) as
+  Sunbird's own L1 (~3.40x) despite a different CPU generation. **Both L2
+  and LLC associativity disagree with Phase I's confound-blocked best guess
+  (8-way at both levels, per `FINAL_CACHE_TABLE.md`'s reasoning) —
+  system-reported is 4-way at L2 and 16-way at LLC**, each resolved in
+  favor of the system-reported value — the same resolution pattern as
+  Sunbird's LLC row and Thunderbird's L2 row, now with BOTH non-L1 levels
+  disagreeing on the same machine, reinforcing that Phase I's repeated "8"
+  above L1 was the shared small-structure confound, not real signal. LLC
+  size matches Phase I's ~8 MiB estimate to the exact byte (8,388,608 B).
+  **New finding, not seen on Sunbird/Thunderbird: the LLC-footprint run's
+  own bench latency diverged +71.7% from Phase I's original hit_latency
+  result** (≈128.42 vs. ≈74.78 ticks), coinciding with an unstable implied
+  clock frequency across repeats (2.32-4.80 GHz, computed from `cycles ÷
+  duration_time` — briefly exceeding this CPU's own 4.2 GHz max turbo) even
+  though the run's own core (3) was independently confirmed idle
+  throughout via `mpstat` before/during/after — attributed to
+  shared-LLC/memory-bandwidth contention and per-package Turbo Boost
+  power-budget sharing from two other students' processes pinned at 100%
+  on cores 0 and 2 the entire session: an idle *core* doesn't insulate a
+  benchmark from contention on *chip-shared* resources (LLC, package power
+  budget) the way it does for private per-core L1/L2. A second, milder
+  anomaly: the generic `cache-references` and `LLC-loads`-specific miss
+  ratios both came back non-monotonic (higher at the small L1 footprint
+  than at L2, before climbing again at LLC) — reproducible across all 3
+  repeats at each level, attributed to the L1 footprint's very short timed
+  loop (~3.3-4.6 ms) letting fixed one-time setup cost (fork/exec, warmup,
+  permutation construction) dominate that ratio's denominator; the
+  L1-dcache-specific miss rate doesn't show this artifact and climbs
+  monotonically as expected, and was used as the more trustworthy per-level
+  indicator instead. Neither anomaly was re-run this session — flagged
+  plainly, not smoothed over, consistent with this project's practice
+  elsewhere. Also worth reusing: this session's shell had a default
+  `Cpus_allowed_list: 0-1`, but `taskset -c <core>` still successfully
+  retargeted to any of the machine's 8 logical CPUs (verified before
+  relying on it) — not a hard cgroup restriction, just an inherited
+  default affinity.
+- **Artemisia results (full detail:
+  `data_processed/artemisia/PHASE2_VALIDATION_TABLE.md`)**: run via
+  `scripts/run_pmu_verification.sh artemisia 1
+  L1:49152,L2:2097152,LLC:31457280`, core 1, timestamp `20260914T003056Z`.
+  This machine's CPU (2x Xeon Gold 5420+, Sapphire Rapids) postdates Agner
+  Fog's published table, so literature came from Intel ARK's own SKU page
+  (size only) plus two Chips and Cheese articles for latency-in-cycles
+  numbers not published by Intel, per this section's existing "use vendor
+  docs... supplemented by WikiChip/Chips and Cheese" guidance.
+  **L1D and L2 both show an exact associativity match between Phase I's own
+  explicitly-low-confidence, confound-blocked best guesses (12-way and
+  16-way, respectively) and Phase II system-report** — a stronger
+  confirmation story than Sunbird's or Thunderbird's, where at least one
+  level's Phase I guess was wrong (Sunbird's LLC 9-way vs. real 20-way;
+  Thunderbird's L2 12-way vs. real 8-way). Size/sets/line/sharing also match
+  exactly at both levels, including Intel's own SKU-specific spec sheet.
+  **LLC is the one real disagreement, and unlike Sunbird/Thunderbird it's a
+  SIZE disagreement, not just associativity**: Phase I's `CAPACITY_RESULTS.md`
+  value (~30 MiB) was always flagged as a representative, unconfirmed
+  footprint (this machine's own capacity data found no discrete L2/L3
+  plateau at all); system-report AND Intel ARK independently agree the real
+  per-socket L3 is 52.5 MiB (55,050,240 B) — 1.75x Phase I's value. This
+  directly explains why the capacity sweep never found a clean edge near
+  30 MiB (deep inside the ramp, not at it) and is consistent with the
+  ~90 MiB plateau onset that sweep did find. LLC associativity:
+  system-reported 15-way, closer to Phase I's 16-way point estimate than to
+  its own "equally plausible" 8-way alternative, but not an exact match
+  either way. **This run's own LLC-footprint PMU numbers look
+  contention-inflated** by another student's concurrently-running `incl_pmu`
+  benchmark sharing this run's socket/LLC domain (confirmed via `ps`) — bench
+  latency at the LLC footprint came back ~2.5x this machine's own original
+  Phase I latency-experiment number at the identical footprint, while L1's
+  and L2's re-measurements stayed much closer to their original numbers;
+  documented as likely real contention on top of a genuine signal, not
+  papered over. This machine's PMU schedules all 8 requested hardware events
+  in one single group at 100% (unlike Sunbird's/Thunderbird's 2-event
+  ceiling) — the script's existing 4-group design was kept anyway for
+  cross-machine file-layout consistency, not because this machine needed it.
+- **Upgrade (2026-09-14): Phase II PMU verification complete — the 8th and
+  last machine, closing out this section.** Ran
+  `scripts/run_pmu_verification.sh upgrade 5
+  L1:32768,L2:262144,LLC:12582912` (core 5, idle-checked via 3 `/proc/stat`
+  sampling windows despite another student's `incl_pmu`/`cache_bench_x86`
+  job pinning cores 0/2 at 100% the whole session — the same contention
+  signature Ookay's own bullet above independently documented on its own
+  machine; base_seed=12345 + 2 repeats, 1,000,000 samples/run, timestamp
+  `20260914T003134Z`). Literature: Agner Fog's Skylake-family table
+  (§11.12, Table 11.2, p.160 — Coffee Lake is explicitly named in that
+  chapter as sharing Skylake's design) plus uops.info's per-SKU Coffee Lake
+  (i7-8700K) cache table as a second source, needed because Fog's family
+  table gives no L3 associativity figure at all (only a size/latency
+  range) — see `data_processed/upgrade/PHASE2_VALIDATION_TABLE.md`.
+  **L1D: exact match, all 3 sources + literature** (8-way), the cleanest
+  row, same pattern as every other machine's L1D row so far. **L2 AND LLC
+  associativity both disagree with Phase I's confound-flagged
+  8-way-at-both-levels best guess — system-reported gives L2=4-way/
+  LLC=16-way, and both literature sources independently agree with both**
+  — the same resolution pattern as Charnwood's and Ookay's own L2/LLC rows
+  (4-way/16-way), and now cross-checked by 2 independent literature
+  sources rather than system-report alone. All 4 perf event groups
+  scheduled at 100% in every run — this machine never hit the
+  2-generic-counter scheduling limit Sunbird's/Thunderbird's PMU had (same
+  as Crux's/Artemisia's own finding). Notable finding: LLC-footprint
   miss-rate metrics showed high run-to-run spread (32.7-57.8%), plausibly
   from the confirmed cross-core contention (this machine's LLC is shared
-  across all 12 threads, and 2 of them were pinned busy by another
-  student's job) — read as corroborating, not contradicting, Phase I's own
-  finding that this machine's capacity sweep never resolved a clean LLC
-  edge in this size region. Full detail:
+  across all 12 threads) — read as corroborating, not contradicting, Phase
+  I's own finding that this machine's capacity sweep never resolved a
+  clean LLC edge in this size region. Full detail:
   `data_raw/upgrade/README.md`'s pmu/ section.
-- **Not yet done on the other 5 machines (Skylark, Artemisia, Charnwood,
-  Crux, Ookay).** Whoever picks up the next one should use
-  `scripts/run_pmu_verification.sh` (now the settled convention, see above)
-  and read the Sunbird, Thunderbird, and Upgrade writeups + their respective
-  output files before choosing a literature source for that machine's own
-  CPU — an ARM machine should also expect (and not be alarmed by) the
-  `LLC-loads` `<not supported>` limitation documented above. If a family-wide
-  literature table (like Agner Fog's) doesn't give an L3 associativity
-  figure for that CPU's family, Upgrade's session found `uops.info`'s
-  per-microarchitecture cache table (`https://uops.info/cache.html`) a
-  useful, independent supplementary source with exact per-SKU ways/latency
-  numbers.
+
+**Phase II PMU verification is now complete on all 8 team machines**
+(Sunbird, Thunderbird, Crux, Charnwood, Skylark, Ookay, Artemisia,
+Upgrade). **Running tally, cross-machine:** every x86 machine tested
+reproduces the same L2/LLC-associativity confound-resolution pattern
+Sunbird's LLC row first surfaced — Phase I's confound-blocked "8-way at
+both levels" guess (the common fallback when the associativity method's
+DTLB-scale confound blocked direct measurement) was wrong on every machine
+that got a system-reported cross-check, most commonly resolving to 4-way
+at L2 and 16-way at LLC (Charnwood, Ookay, Upgrade all show this exact
+pair; Skylark's own L2 stayed at 8-way but LLC still corrected 8→16;
+Crux's L2 also corrected to 4-way; Artemisia's is the one exception, where
+both L1/L2 guesses were independently confirmed correct and only LLC
+*size*, not associativity, needed correcting). L1D matched across every
+source on every machine except Artemisia's (12-way, not independently
+re-confirmed by PMU — see its own bullet). No single machine's PMU
+counter-scheduling ceiling generalized to the whole team (2 generic
+counters on Sunbird/Thunderbird; all 7-8 events at once on Crux/Artemisia/
+Upgrade) — worth hand-checking fresh on any future machine rather than
+assuming either extreme.
 
 ## Known constraints from prior sessions
 
