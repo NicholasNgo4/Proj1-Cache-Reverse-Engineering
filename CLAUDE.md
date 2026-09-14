@@ -1366,7 +1366,8 @@ check that machine's own `data_raw/<machine>/README.md` and recent git log
 status, since this file lags active work in progress.
 
 **Phase II (counter- and literature-based verification): started
-2026-09-13, two machines done (Sunbird, Thunderbird), 6 outstanding.**
+2026-09-13, three machines done (Sunbird, Thunderbird, Artemisia), 5
+outstanding.**
 `phase1-timing-only` tagged at commit `7be6dac` — **two sessions tagged it
 independently and concurrently (both at this same commit, so the tags
 should be identical objects pointing to the same target); verify with
@@ -1539,13 +1540,54 @@ open decision.**
   third independent piece of evidence for "this SoC's SLC is invisible to
   per-core PMU/OS reporting," alongside sysfs's missing L3 entry and finding
   (2) above.
-- **Not yet done on the other 6 machines (Skylark, Artemisia, Charnwood,
-  Crux, Ookay, Upgrade).** Whoever picks up the next one should use
+- **Artemisia results (full detail:
+  `data_processed/artemisia/PHASE2_VALIDATION_TABLE.md`)**: run via
+  `scripts/run_pmu_verification.sh artemisia 1
+  L1:49152,L2:2097152,LLC:31457280`, core 1, timestamp `20260914T003056Z`.
+  This machine's CPU (2x Xeon Gold 5420+, Sapphire Rapids) postdates Agner
+  Fog's published table, so literature came from Intel ARK's own SKU page
+  (size only) plus two Chips and Cheese articles for latency-in-cycles
+  numbers not published by Intel, per this section's existing "use vendor
+  docs... supplemented by WikiChip/Chips and Cheese" guidance.
+  **L1D and L2 both show an exact associativity match between Phase I's own
+  explicitly-low-confidence, confound-blocked best guesses (12-way and
+  16-way, respectively) and Phase II system-report** — a stronger
+  confirmation story than Sunbird's or Thunderbird's, where at least one
+  level's Phase I guess was wrong (Sunbird's LLC 9-way vs. real 20-way;
+  Thunderbird's L2 12-way vs. real 8-way). Size/sets/line/sharing also match
+  exactly at both levels, including Intel's own SKU-specific spec sheet.
+  **LLC is the one real disagreement, and unlike Sunbird/Thunderbird it's a
+  SIZE disagreement, not just associativity**: Phase I's `CAPACITY_RESULTS.md`
+  value (~30 MiB) was always flagged as a representative, unconfirmed
+  footprint (this machine's own capacity data found no discrete L2/L3
+  plateau at all); system-report AND Intel ARK independently agree the real
+  per-socket L3 is 52.5 MiB (55,050,240 B) — 1.75x Phase I's value. This
+  directly explains why the capacity sweep never found a clean edge near
+  30 MiB (deep inside the ramp, not at it) and is consistent with the
+  ~90 MiB plateau onset that sweep did find. LLC associativity:
+  system-reported 15-way, closer to Phase I's 16-way point estimate than to
+  its own "equally plausible" 8-way alternative, but not an exact match
+  either way. **This run's own LLC-footprint PMU numbers look
+  contention-inflated** by another student's concurrently-running `incl_pmu`
+  benchmark sharing this run's socket/LLC domain (confirmed via `ps`) — bench
+  latency at the LLC footprint came back ~2.5x this machine's own original
+  Phase I latency-experiment number at the identical footprint, while L1's
+  and L2's re-measurements stayed much closer to their original numbers;
+  documented as likely real contention on top of a genuine signal, not
+  papered over. This machine's PMU schedules all 8 requested hardware events
+  in one single group at 100% (unlike Sunbird's/Thunderbird's 2-event
+  ceiling) — the script's existing 4-group design was kept anyway for
+  cross-machine file-layout consistency, not because this machine needed it.
+- **Not yet done on the other 5 machines (Skylark, Charnwood, Crux, Ookay,
+  Upgrade).** Whoever picks up the next one should use
   `scripts/run_pmu_verification.sh` (now the settled convention, see above)
-  and read both the Sunbird and Thunderbird writeups + their respective
-  output files before choosing a literature source for that machine's own
-  CPU — an ARM machine should also expect (and not be alarmed by) the
-  `LLC-loads` `<not supported>` limitation documented above.
+  and read the Sunbird, Thunderbird, and Artemisia writeups + their
+  respective output files before choosing a literature source for that
+  machine's own CPU — an ARM machine should also expect (and not be alarmed
+  by) the `LLC-loads` `<not supported>` limitation documented above, and any
+  machine should expect to re-check (not assume) how many hardware PMU
+  counters it can schedule at once before trusting the script's default
+  4-group split is even necessary.
 
 ## Known constraints from prior sessions
 
