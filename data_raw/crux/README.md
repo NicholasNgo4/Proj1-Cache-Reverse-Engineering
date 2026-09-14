@@ -436,6 +436,84 @@ one Sunbird's and Thunderbird's sessions used — no new code this session.
   confirms L1/L2 private-per-core (this CPU has no SMT) and LLC shared
   across all 8 cores of the single socket.
 
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+Cross-machine standardized microbenchmark pipeline for `PROJECT 1.pdf` §8.4
+("Eight Interesting Performance Counters Across Generations"). Uses the
+team-wide `scripts/run_standardized_benchmarks.sh` +
+`scripts/summarize_eight_counters.py` pipeline (already run on Sunbird,
+Thunderbird, and Skylark — see `CLAUDE.md`'s §8.4 section) — no new code
+this session. This is a *different* pipeline from `pmu/`'s §8.3 one: same
+`cache_bench --experiment hit_latency` construction and same proven
+4-groups-of-2 `perf stat` scheduling split, but a different fixed 8-event
+set (`cache-references`, `cache-misses`, `L1-dcache-loads`,
+`L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+`LLC-load-misses`, `dTLB-load-misses` — swaps `pmu/`'s `cycles`/
+`instructions` pair for the L1 store-side signal and a real dTLB-miss
+count) and 3 standardized cross-machine benchmark *names*
+(`L1_resident`, `LLC_random`, `beyond_LLC`) rather than this pipeline's
+own per-level names.
+
+- Run command: `./scripts/run_standardized_benchmarks.sh crux 1
+  L1_resident:32768,LLC_random:8388608,beyond_LLC:536870912` — footprints
+  are this machine's own `FINAL_CACHE_TABLE.md` L1/LLC values (same
+  32,768 B / 8,388,608 B already used for `pmu/`'s §8.3 run above) plus
+  the project's universal 512 MiB `beyond_LLC` constant. Core 1 —
+  re-checked idle immediately before this run via two independent
+  `/proc/stat` idle-time-delta samples 4s apart (all 8 cores ~99-100%
+  idle both times; the other students' jobs that had pinned cores 0/2
+  during the earlier `pmu/` session had since exited). base_seed=12345
+  (repeats use base_seed+index), samples=1,000,000/run, batch_size=1000,
+  warmup_passes=3, dependent load mode, random pattern, timestamp
+  `20260914T052920Z`.
+- Raw output: `data_raw/crux/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` (perf stat output) and `*_bench_*.csv.gz`
+  (cache_bench's own CSV from the same invocation), gzipped by hand per
+  this repo's convention. Transcript:
+  `data_raw/crux/eight_counters/run_standardized_benchmarks_20260914T052920Z.log`.
+- Processed:
+  `data_processed/crux/eight_counters/{L1_resident,LLC_random,beyond_LLC}/eight_counters_summary_20260914T052920Z.csv`
+  (one row per run_tag + a median-of-3 row; no `<not counted>` entries
+  anywhere in any of the three files).
+- Results: all 8 events collected cleanly at all 3 benchmarks, no PMU
+  scheduling failures (consistent with this machine's own already-
+  documented all-events-at-100% finding from the `pmu/` section above).
+  `bench_avg_ticks_per_access` (median): `L1_resident`≈6.94,
+  `LLC_random`≈42.25, `beyond_LLC`≈237.64 — **this is the cleanest
+  cross-machine run of the three done so far**: unlike Sunbird's,
+  Thunderbird's, and Ookay's own `beyond_LLC`/LLC-scale results (all
+  inflated by other students' processes contending for chip-shared
+  LLC/memory bandwidth despite an idle core), every one of Crux's 3
+  numbers here lands within ~6.5% of this machine's own already-
+  documented Phase I `latency/` hit-latency figures at the matching
+  footprint (L1: 7.42 vs. 6.94, -6.5%; LLC: 43.23 vs. 42.25, -2.3%; DRAM:
+  236.80 vs. 237.64, +0.36%) — consistent with all 8 cores being
+  genuinely idle (not just this run's own core) for the whole session,
+  not merely the pinned core. `l1_miss_rate` climbs from 1.05% at
+  `L1_resident` to 8.80-8.81% at `LLC_random` (crosses the L1 boundary,
+  as expected) then to 13.4% at `beyond_LLC` — unlike the `pmu/` section's
+  L1→L2→LLC footprint sequence (where `l1_miss_rate` *saturates and
+  drops* once inside LLC territory, per the already-documented -O0
+  guaranteed-L1-hit-stack-load dilution effect), here it keeps climbing
+  because `beyond_LLC`'s footprint is far past even LLC, not just past L1.
+  `llc_miss_rate` shows the same small-sample noise at the `L1_resident`
+  footprint already documented for this machine's `pmu/` section (5.2-6.3%
+  off of only ~13.6-14k `llc_loads` events) before climbing to a clean,
+  large 46.7-46.8% at `beyond_LLC`. Generic `cache_miss_rate` shows a
+  clean monotonic climb this time (8.2-9.3% → 3.6-6.0% → 54.3-54.4%) —
+  note the same L1-footprint-higher-than-LLC_random-footprint dip already
+  flagged as an open, unexplained quirk in the `pmu/` section reproduces
+  here too. `dtlb_load_misses` climbs cleanly and monotonically across all
+  3 benchmarks — median 1,349 at `L1_resident` → 1,080,275 at `LLC_random`
+  (~800x) → 254,971,011 at `beyond_LLC` (~236x further) — the same clean
+  monotonic pattern already documented on Sunbird, Thunderbird, and
+  Skylark, real new measured data (not just structural inference) toward
+  this project's still-open DTLB-scale associativity confound question.
+- **5 of 8 machines now done (Sunbird, Thunderbird, Skylark, Crux); 4
+  remaining** (Artemisia, Charnwood, Ookay, Upgrade) — see `CLAUDE.md`'s
+  §8.4 section for the running cross-machine tally; items 2-4 of §8.4
+  (normalization, ranked S-curves, Intel/AMD/Arm + generation comparison)
+  still need all 8 machines' data before they can be attempted.
+
 ## Final Inferred Cache Table (Crux, Phase I best guess, 2026-09-13)
 
 Lives at `data_processed/crux/FINAL_CACHE_TABLE.md`, alongside this machine's
