@@ -9,6 +9,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{hyperref}
 
 \renewcommand{\arraystretch}{1.2}
@@ -1449,7 +1450,101 @@ Section~\ref{sec:evolution}.
 \section{Chronological Cache Evolution Analysis}
 \label{sec:evolution}
 
+The consolidated chronological master table (\texttt{CHRONOLOGICAL\_MASTER\_TABLE.md}, backing
+data in \texttt{data\_processed/master/chronological\_master\_table.csv}) sorts all 8 machines by
+microarchitecture introduction year (2014--2023) and reports each cache-related quantity as its
+Phase I timing-only value, with Phase II (PMU/system-report/literature) shown as a separate
+verification flag rather than overwriting it. All 15 required plots are in \texttt{plots/}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{../../plots/chrono_05_l2_capacity.pdf}
+\caption{L2 capacity per core vs.\ year, log$_2$ y-axis. The clearest step-doubling trend of any
+quantity measured: flat at 256\,KiB from 2014--2019, then three jumps (512\,KiB, 1\,MiB, 2\,MiB)
+in quick succession through 2023.}
+\label{fig:chrono-l2cap}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{../../plots/chrono_09a_llc_capacity_domain.pdf}
+\caption{LLC capacity (sharing domain) vs.\ year, log$_2$ y-axis, Phase I value with an open
+Phase-II-resolved marker wherever they disagree. Driven far more by server-vs-desktop class than
+by year: the oldest machine (Sunbird, 2014, 2-socket Xeon) already exceeds every desktop part
+through 2019.}
+\label{fig:chrono-llccap}
+\end{figure}
+
+\textbf{Required interpretation and prediction} (item numbers match the assignment):
+
+\begin{enumerate}
+\item[1.] L1D line size is 64\,B on all 8 machines with no exceptions across the full 2014--2023
+span. L1D capacity (32\,KiB) and associativity (8-way) are likewise constant on 6 of 8 machines;
+Thunderbird (Arm) and Artemisia (48\,KiB/12-way) are the only deviations. L1-vs-L2 non-inclusion
+is stable across 6 of 8 machines with the remaining 2 leaning the same direction, the most
+consistent architectural finding in this dataset.
+
+\item[2.] L2 capacity per core is the one quantity with a clear, monotonic growth trend: 256\,KiB
+(2014--2019) to 512\,KiB (2019) to 1\,MiB (2020) to 2\,MiB (2023), an exact 8$\times$ increase
+over 9 years (Fig.~\ref{fig:chrono-l2cap}). The growth is stepwise, not smooth: five flat years
+followed by three rapid doublings, not a continuously compounding trend.
+
+\item[3.] LLC hit latency broadly grows with capacity (Ookay: 21\,ns at 8\,MiB; Sunbird: 23\,ns at
+30\,MiB; Artemisia: 47\,ns at 52.5\,MiB), consistent with the expected wire-delay/capacity
+tradeoff, but not cleanly monotonic across all 8: Upgrade reads 48\,ns at only 12\,MiB, higher
+than Artemisia's much larger cache, an inversion we do not smooth over. DRAM latency does not
+track CPU generation cleanly either: Artemisia (2023, dual-socket) is highest at 153\,ns, plausibly
+a NUMA/platform effect rather than a memory-technology one, since several older single-socket
+desktop parts (Sunbird, Ookay, Upgrade, Crux) all cluster tighter around 79--83\,ns despite being
+4--9 years older.
+
+\item[4.] Trends are better explained by server-vs-desktop class than by vendor or year alone.
+Sunbird (2014, server) already has a larger LLC than every desktop part measured through 2019.
+AMD's LLC sharing granularity (2 cores per CCX slice on Skylark) and Arm's LLC design (one SLC
+shared by all 80 SoC cores on Thunderbird) are vendor/ISA-specific chiplet or fabric choices, not
+points on a shared generational curve with the Intel parts.
+
+\item[5.] L2 capacity per core (Fig.~\ref{fig:chrono-l2cap}) most resembles Moore's style of
+trend: monotonic, an integer power-of-two multiple across the full span, and the only quantity
+this fleet's data supports fitting an exponential to. Fit as $C(t) = C_0 \cdot 2^{(t-t_0)/\tau}$
+using the 2014 and 2023 endpoints only ($C_0=256$\,KiB, $8\times$ over 9 years) gives a clean fit
+at those two points by construction; a least-squares fit across all 8 points would fit poorly
+because the trend is a step function, not smooth, so the exponential is an end-to-end summary, not
+a validated per-year model.
+
+\item[6.] Using the two endpoints above, L2 capacity per core has a doubling time of
+$9/\log_2(8) = 3$ years. No other measured quantity shows exponential growth clean enough to quote
+a doubling time; LLC capacity and associativity are better described as class-dependent step
+changes with no consistent per-year slope, and line size and L1D capacity/associativity are
+reported as constant (item 1), not growing.
+
+\item[8.] The evidence here is far weaker than Moore's original observation: Moore's trend held
+smoothly across many more generations and a single scaling technology (transistor count), while
+this fleet's 8 machines over 9 years show one plausible doubling trend (L2 capacity per core,
+step-like rather than smooth), several deliberately-constant quantities (L1D line size, largely
+L1D capacity/associativity), and several quantities dominated by non-chronological factors
+(LLC capacity and sharing domain, dominated by server/desktop class and vendor chiplet design).
+We do not claim a capacity-doubling law with Moore's original confidence; at most, a modest,
+step-wise L2-capacity growth claim is defensible from this data.
+\end{enumerate}
+
 \section{Cache Evolution Prediction}
+
+\textbf{Item 7 (held-out evaluation and 5-year-beyond prediction):} the first half of this item,
+evaluating the frozen lab-only prediction against held-out Hazel measurements, cannot be answered
+yet: per this project's phase discipline (Section~\ref{sec:hazel}), \texttt{PREDICTION\_FREEZE.md}
+must be filled in, committed, and tagged before any Hazel cache experiment runs, and that freeze
+has not happened as of this draft. This subsection will be completed once Hazel results exist.
+
+Using only the 8 lab machines, we extend the L2-capacity-per-core doubling model from
+item 6 ($\tau=3$ years) 5 years beyond the newest measured system (Artemisia, 2023) to
+$\sim$2028: $2\,\text{MiB} \times 2^{5/3} \approx 6.3$--$6.7$\,MiB per core. Given the trend is a
+step function rather than smooth (item 2), we report a wide uncertainty range of roughly
+4--10\,MiB per core rather than a tight interval around the point estimate. This prediction could
+fail if the next generation's core-count growth outpaces per-core cache scaling (a common
+tradeoff when die area is fixed), if a vendor shifts strategy toward a larger shared LLC instead
+of per-core L2, or if the sampled generation is a server part whose class-driven capacity (item 4)
+does not follow the desktop/server mix observed in this fleet.
 
 \section{Hazel HPC Validation}
 \label{sec:hazel}
