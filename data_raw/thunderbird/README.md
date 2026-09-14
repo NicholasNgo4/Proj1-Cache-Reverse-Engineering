@@ -334,15 +334,14 @@ machine's own hand-confirmed L1/LLC footprint values.
   2-4 (normalization, per-benchmark ranked S-curves, and the Intel/AMD/Arm
   and older/newer generation comparison) can be attempted.
 
-### software_hit_rate/ (Problem 8.5 — 2026-09-14)
-**Cross-architecture reproducibility check only** — this session ran just
-the PMU validation piece (part 4) on Thunderbird, to confirm the 2026-09-14
-redesign (see `CLAUDE.md`'s "Software-only cache hit-rate estimator"
-subsection and `data_raw/sunbird/README.md`'s `software_hit_rate/` section
-for the full original investigation) generalizes past Sunbird's x86 PMU to
-this machine's ARM/`armv8_pmuv3_0` PMU. **The standalone sweep (parts 1-3)
-has NOT been run on this machine yet** — only the PMU validation harness
-was exercised here.
+### software_hit_rate/ (Problem 8.5 — second machine after Sunbird, 2026-09-14)
+**Full flow, run across two sessions**: PMU validation (part 4) ran first,
+to confirm the 2026-09-14 redesign (see `CLAUDE.md`'s "Software-only cache
+hit-rate estimator" subsection and `data_raw/sunbird/README.md`'s
+`software_hit_rate/` section for the full original investigation)
+generalizes past Sunbird's x86 PMU to this machine's ARM/`armv8_pmuv3_0`
+PMU; the standalone sweep (parts 1-3) was run in a follow-up session (see
+below the PMU-validation writeup for that part).
 
 - Source file(s): `scripts/run_hit_rate_pmu_validation.sh`,
   `scripts/compare_hit_rate_pmu.py` (unchanged from Sunbird's redesigned
@@ -421,6 +420,69 @@ was exercised here.
   rel_error_pct=100% as evidence the redesign failed here; L1/L2's clean
   agreement plus the sane, size-proportional durations are the actual
   evidence the redesign is architecture-agnostic.
+
+**Part 1-3 (standalone sweep) — follow-up session, 2026-09-14.** The sweep
+had not yet been run on this machine, and a first attempt hit a real script
+bug: unlike the PMU validation script above, `run_software_hit_rate_sweep.sh`'s
+plotting call had its `--boundary` markers hardcoded to Sunbird's L1/L2
+values (32768/262144) with no way to override them — silently wrong for any
+machine whose L1/L2 differ, including this one (65536/1048576). The same bug
+was independently found and fixed on Skylark the same day (see that
+machine's own `software_hit_rate/` writeup); both fixes are functionally
+identical (an optional 4th boundary-spec argument to the script, still
+defaulting to Sunbird's values when omitted), and the version now in the
+repo is Skylark's (`boundary_spec`/`BOUNDARY_SPEC` naming).
+- **Re-run under the fixed script** (core 3, confirmed idle via a
+  `/proc/stat` delta sample — core 2 was 100% busy with another student's
+  `cache_bench_arm` process the entire time, `ps` shows it as
+  `--exp nextlevel --cpu 2`; cores 0/1/4 also idle), seed=12345, timestamp
+  `20260914T122246Z`, sweep footprints
+  `4096,16384,32768,65536,131072,262144,524288,1048576,2097152,4194304,
+  8388608,16777216,31457280,67108864,134217728,268435456,536870912` (a
+  log-spaced list anchored to this machine's own L1=65536/L2=1048576/
+  LLC=31457280/DRAM=536870912 boundaries, not Sunbird's), boundary markers
+  `L1:65536,L2:1048576,LLC:31457280,DRAM:536870912`.
+  - **New finding, genuinely different from Sunbird's sweep shape, not a
+    re-run of the same story with different numbers**: Sunbird's own sweep
+    stayed at Hhat≈1.0 through L2-and-LLC-scale footprints and only dropped
+    once the working set exceeded LLC (with one narrow dip right at the
+    exact L1 boundary). Thunderbird's Hhat instead starts declining well
+    *before* even reaching the L2 boundary and keeps declining smoothly all
+    the way through the LLC-scale region, never holding a flat ~1.0 plateau
+    above L1: Hhat=1.0 through 262144 B (L2/4), 0.968 at 524288 B (L2/2),
+    0.830 at the L2 boundary itself (1048576 B), 0.578 at 2097152 B, 0.385
+    at 8388608 B, and only 0.291 by the LLC boundary (31457280 B) — then
+    continuing down to 0.077/0.018/0.005/0.001 at 67108864/134217728/
+    268435456/536870912 B. Full per-point table:
+    `data_raw/thunderbird/software_hit_rate/hit_rate_sweep_20260914T122246Z.csv`;
+    plots: `data_processed/thunderbird/software_hit_rate/plots/
+    {hit_rate_sweep,calibration_distributions}.{png,pdf}`.
+  - **Root cause (reasoned from this machine's own already-documented timer
+    characteristics, not a new mystery): the 25 MHz `CNTVCT_EL0` counter is
+    too coarse for this estimator's single-shot classification once
+    footprint moves past L1.** `tau_ticks=1.0000` (the self-calibrated
+    resident/nonresident threshold) at every single point in the sweep —
+    at 40 ns/tick, this machine's own documented LLC hit latency
+    (≈0.907-0.925 ticks / ≈36.3 ns, `FINAL_CACHE_TABLE.md`) already sits
+    right at that 1-tick quantization boundary, so a growing fraction of
+    genuine LLC-scope hits round up to the same integer tick value as a
+    real miss and get classified "nonresident" as footprint grows — not a
+    gradual loss of *cache* residency (LLC/DRAM's inclusion/capacity
+    behavior isn't what's changing here) but a gradual loss of the
+    *estimator's ability to tell the difference*, given a fixed 1-tick
+    discriminator. This sharpens (doesn't contradict) the software_hit_rate
+    module's own already-documented Sunbird finding ("reliably detects
+    L1-scale residency only, despite its intended any-cache-level
+    definition") — on this machine, with this timer, even L2/LLC-scale
+    residency is only partially recoverable, not just LLC/DRAM.
+  - Consistent, not independent, cross-check against the part-4 PMU
+    validation numbers above at the same footprints: PMU validation's L2
+    point (524288 B = L2/2) got Hhat=0.976/0.977/0.964 across its 3 seeded
+    runs vs. this sweep's 0.968 at the identical footprint; PMU
+    validation's LLC point (15728640 B = LLC/2) got Hhat≈0.36 vs. this
+    sweep's neighboring points (0.357 at 16777216 B, 0.291 at 31457280 B)
+    bracketing that value — same underlying signal, two independent
+    invocations, no contradiction.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: core 3 (of `Cpus_allowed_list: 0-4` granted to this session)

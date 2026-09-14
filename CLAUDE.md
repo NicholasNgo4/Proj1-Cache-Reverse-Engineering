@@ -1816,10 +1816,10 @@ counters on Sunbird/Thunderbird; all 7-8 events at once on Crux/Artemisia/
 Upgrade) — worth hand-checking fresh on any future machine rather than
 assuming either extreme.
 
-**Software-only cache hit-rate estimator (Problem 8.5): implemented and run
-on Sunbird only so far (2026-09-14) — read this before running the PMU
-validation piece on another machine, it has already been through one
-invalid design.** `main_code/software_hit_rate/software_hit_rate.{c,h}`
+**Software-only cache hit-rate estimator (Problem 8.5): implemented on
+Sunbird, now also run on Thunderbird and Skylark (2026-09-14) — read this
+before running the PMU validation piece on another machine, it has already
+been through one invalid design.** `main_code/software_hit_rate/software_hit_rate.{c,h}`
 (no PMU/perf access anywhere in that file) self-calibrates a resident-vs-
 nonresident latency threshold (ROC/Youden's J), classifies a test
 workload's single-shot access latencies against it, and debiases the raw
@@ -1831,7 +1831,7 @@ distinguish an LLC-speed hit from a DRAM miss as cleanly as an L1-speed
 hit — this is not hypothetical, see the PMU validation results below).
 
 - **Sweep (parts 1-3, standalone)**: `scripts/run_software_hit_rate_sweep.sh
-  <machine> <core> [footprint_bytes_csv]` + `scripts/
+  <machine> <core> [footprint_bytes_csv] [boundary_spec]` + `scripts/
   summarize_software_hit_rate.py` + `scripts/plot_software_hit_rate.py`.
   No perf involved at all — safe to run on any machine at any time,
   independent of Phase discipline. Anchor the footprint list to that
@@ -1899,9 +1899,10 @@ hit — this is not hypothetical, see the PMU validation results below).
   redesign should try to eliminate. Full writeup, including the exact
   broken-run numbers kept as evidence:
   `data_raw/sunbird/README.md`'s `software_hit_rate/` section.
-- **Redesigned PMU validation confirmed cross-architecture on Thunderbird
-  (ARM, 2026-09-14) — PMU validation piece only, the sweep hasn't been run
-  on this machine yet.** `./scripts/run_hit_rate_pmu_validation.sh
+- **Thunderbird (ARM, 2026-09-14): full flow run (both the sweep AND the
+  PMU validation) — started as a PMU-validation-only cross-architecture
+  check, then extended to the sweep in a follow-up session.**
+  `./scripts/run_hit_rate_pmu_validation.sh
   thunderbird 3 L1:65536,L2:1048576,LLC:31457280,DRAM:536870912`, core 3,
   timestamp `20260914T032826Z`. **Mechanically, both fixes generalized with
   no changes needed**: no 0.0/1.0 classification flips, and perf-wrapped
@@ -1930,7 +1931,35 @@ hit — this is not hypothetical, see the PMU validation results below).
   has no cached GitHub credentials (`git fetch` fails, "could not read
   Username") — a pre-existing condition unrelated to this work; the
   redesigned scripts were copied over via `scp` instead of `git pull`.
-  Full writeup: `data_raw/thunderbird/README.md`'s `software_hit_rate/`
+  **Sweep (parts 1-3) run in a follow-up session, core 3, timestamp
+  `20260914T122246Z`, footprints and `--boundary` markers anchored to this
+  machine's own L1=65536/L2=1048576/LLC=31457280/DRAM=536870912
+  boundaries** — this also surfaced the same hardcoded-Sunbird-boundary
+  script bug independently found and fixed on Skylark (see that machine's
+  bullet just below for the fix itself; both fixes are functionally
+  identical, and the version now in the repo is Skylark's). **Genuinely
+  different sweep shape from Sunbird's, not just noisier**: instead of
+  holding flat at Hhat≈1.0 through L2/LLC-scale footprints and only
+  dropping past LLC (Sunbird's shape), Thunderbird's Hhat starts declining
+  well before the L2 boundary and keeps declining smoothly all the way
+  through the LLC-scale region (0.968 at L2/2, 0.830 at the L2 boundary,
+  0.578 at 2 MiB, 0.291 by the LLC boundary). Root cause, reasoned rather
+  than newly investigated: this machine's 25 MHz `CNTVCT_EL0` counter
+  (already documented elsewhere in this file as too coarse for
+  capacity/associativity threshold tuning) quantizes at 40 ns/tick, and
+  this machine's own already-measured LLC hit latency (≈36.3 ns) sits
+  right at that 1-tick boundary — `tau_ticks=1.0000` at every single sweep
+  point confirms the self-calibrated threshold is pinned at the coarsest
+  possible value — so a growing share of genuine LLC-scope hits round into
+  the same tick count as a real miss as footprint grows, well before LLC's
+  own real capacity edge. This sharpens, not contradicts, the
+  Sunbird-derived "L1-scale-only" finding above: on a coarse-timer machine,
+  even L2/LLC-scale residency is only partially recoverable, not just
+  LLC/DRAM. Consistent, not independent, cross-check against the PMU
+  validation numbers above at overlapping footprints (e.g. the PMU run's L2
+  point at 524,288 B got Hhat=0.976/0.977/0.964 across 3 seeds vs. this
+  sweep's 0.968 at the identical footprint). Full writeup, including the
+  per-point table: `data_raw/thunderbird/README.md`'s `software_hit_rate/`
   section.
 - **Skylark (x86/AMD Zen 2, 2026-09-14): full flow run (both the sweep AND
   the PMU validation, matching Sunbird's fuller coverage rather than
