@@ -2062,7 +2062,7 @@ that freeze will be fit from.
   estimator" bullet above — not a stub anymore, just incomplete).
 
 **Problem 8.4 (eight interesting performance counters across generations),
-item 1: started 2026-09-14, Sunbird and Thunderbird done (2 of 8 machines).**
+item 1: started 2026-09-14, Sunbird, Thunderbird, and Skylark done (3 of 8 machines).**
 New pipeline
 `scripts/run_standardized_benchmarks.sh` + `scripts/summarize_eight_counters.py`
 runs the same `--experiment hit_latency --load-mode dependent --pattern
@@ -2127,8 +2127,27 @@ differs), same base+2-reproducibility-repeat convention.
   monotonic across all 3 benchmarks (~1500 → ~1.1-1.8M → ~256M),
   unaffected by that limitation. Full detail:
   `data_raw/thunderbird/README.md`'s `eight_counters/` section.
-- **2 of 8 machines done (Sunbird, Thunderbird); 6 remaining** (Skylark,
-  Artemisia, Charnwood, Crux, Ookay, Upgrade). Each needs the same command
+- **Skylark** (`data_raw/skylark/eight_counters/`, core 5, base_seed=12345,
+  timestamp `20260914T051608Z`). Notably, **only 5 of the assignment's 8
+  event names are even listed by `perf list` on this AMD Zen 2 PMU**
+  (`L1-dcache-stores`, `LLC-loads`, and `LLC-load-misses` are absent from
+  the listing entirely, not merely present-but-unsupported) — a stronger,
+  cleaner version of the same AMD limitation already documented in this
+  machine's `pmu/` section (§8.3), now cross-checked against `perf list`
+  itself rather than only the runtime `<not supported>` value. All 3
+  benchmarks' ticks/access match this machine's own already-documented
+  Phase I `latency/` numbers almost exactly (`L1_resident`≈6.264,
+  `LLC_random`≈27.24, `beyond_LLC`≈274.87 — the last one matching the
+  documented ≈274.87-tick DRAM latency essentially exactly). **Unlike
+  Sunbird's and Ookay's own `beyond_LLC` runs (both inflated by other
+  students' processes contending for chip-shared LLC/memory bandwidth
+  despite an idle core), Skylark's `beyond_LLC` shows no such anomaly**,
+  even though another student's process was confirmed active on core 3
+  the whole session — not further investigated. `dtlb_load_misses` climbs
+  cleanly monotonic across all 3 benchmarks (~691 → ~2,905 → ~10,901).
+  Full detail: `data_raw/skylark/README.md`'s `eight_counters/` section.
+- **3 of 8 machines done (Sunbird, Thunderbird, Skylark); 5 remaining**
+  (Artemisia, Charnwood, Crux, Ookay, Upgrade). Each needs the same command
   (`./scripts/run_standardized_benchmarks.sh <machine> <core>
   L1_resident:<L1_bytes>,LLC_random:<LLC_bytes>,beyond_LLC:536870912`) with
   its own `FINAL_CACHE_TABLE.md` L1/LLC values. Items 2-4 of 8.4 cannot be
