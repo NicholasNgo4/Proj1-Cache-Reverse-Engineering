@@ -2062,7 +2062,7 @@ that freeze will be fit from.
   estimator" bullet above — not a stub anymore, just incomplete).
 
 **Problem 8.4 (eight interesting performance counters across generations),
-item 1: started 2026-09-14, Sunbird, Thunderbird, Skylark, and Crux done (4 of 8 machines).**
+item 1: started 2026-09-14, Sunbird, Thunderbird, Skylark, Crux, and Ookay done (5 of 8 machines).**
 New pipeline
 `scripts/run_standardized_benchmarks.sh` + `scripts/summarize_eight_counters.py`
 runs the same `--experiment hit_latency --load-mode dependent --pattern
@@ -2168,8 +2168,31 @@ differs), same base+2-reproducibility-repeat convention.
   climbs cleanly and monotonically (median 1,349 → 1,080,275 → 254,971,011),
   consistent with Sunbird/Thunderbird/Skylark's own pattern. Full detail:
   `data_raw/crux/README.md`'s `eight_counters/` section.
-- **4 of 8 machines done (Sunbird, Thunderbird, Skylark, Crux); 4 remaining**
-  (Artemisia, Charnwood, Ookay, Upgrade). Each needs the same command
+- **Ookay** (`data_raw/ookay/eight_counters/`, core 3, base_seed=12345,
+  timestamp `20260914T052901Z`; machine independently confirmed idle on
+  every core via 3 `mpstat` samples before running — the two other
+  students' processes from this machine's earlier `pmu/` run had since
+  finished). All 3 benchmarks + all 8 counters collected cleanly, no
+  `<not counted>` anywhere. Ticks/access climb monotonically as expected
+  (`L1_resident`≈7.60, `LLC_random`≈80.24, `beyond_LLC`≈287.44), closely
+  matching this machine's own Phase I numbers (≈7.49/≈74.78/≈284.45).
+  Notably, `LLC_random`'s ≈80.24 sits much closer to Phase I's ≈74.78 than
+  this same machine's earlier (contended) `pmu/` run's LLC reading
+  (≈128.42) did — corroborating that run's own hypothesis that its
+  inflation came from other students' processes contending for
+  chip-shared LLC/memory bandwidth, not a measurement problem, since this
+  run's machine was confirmed quiet throughout. `l1_miss_rate` climbs
+  cleanly monotonic (0.96% → 8.79% → 13.36%); unlike this morning's
+  `pmu/` run, the generic `cache_miss_rate` and `llc_miss_rate` also climb
+  monotonically here rather than dipping at the middle footprint,
+  plausibly for the same quiet-machine reason (footprints aren't directly
+  comparable between the two pipelines, so not conclusive).
+  `dtlb_load_misses` climbs cleanly across 3 orders of magnitude (1,838 →
+  1,091,713 → 252,964,812) — real hardware data toward the DTLB-confound
+  question, not yet interpreted (needs all 8 machines first). Full detail:
+  `data_raw/ookay/README.md`'s `eight_counters/` section.
+- **5 of 8 machines done (Sunbird, Thunderbird, Skylark, Crux, Ookay); 3
+  remaining** (Artemisia, Charnwood, Upgrade). Each needs the same command
   (`./scripts/run_standardized_benchmarks.sh <machine> <core>
   L1_resident:<L1_bytes>,LLC_random:<LLC_bytes>,beyond_LLC:536870912`) with
   its own `FINAL_CACHE_TABLE.md` L1/LLC values. Items 2-4 of 8.4 cannot be
