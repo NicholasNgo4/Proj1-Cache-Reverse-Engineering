@@ -1458,7 +1458,7 @@ verification flag rather than overwriting it. All 15 required plots are in \text
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{../../plots/chrono_05_l2_capacity.pdf}
+\includegraphics[width=\textwidth]{../figures/chrono_05_l2_capacity.pdf}
 \caption{L2 capacity per core vs.\ year, log$_2$ y-axis. The clearest step-doubling trend of any
 quantity measured: flat at 256\,KiB from 2014--2019, then three jumps (512\,KiB, 1\,MiB, 2\,MiB)
 in quick succession through 2023.}
@@ -1467,7 +1467,7 @@ in quick succession through 2023.}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{../../plots/chrono_09a_llc_capacity_domain.pdf}
+\includegraphics[width=\textwidth]{../figures/chrono_09a_llc_capacity_domain.pdf}
 \caption{LLC capacity (sharing domain) vs.\ year, log$_2$ y-axis, Phase I value with an open
 Phase-II-resolved marker wherever they disagree. Driven far more by server-vs-desktop class than
 by year: the oldest machine (Sunbird, 2014, 2-socket Xeon) already exceeds every desktop part
@@ -1518,6 +1518,20 @@ a doubling time; LLC capacity and associativity are better described as class-de
 changes with no consistent per-year slope, and line size and L1D capacity/associativity are
 reported as constant (item 1), not growing.
 
+\item[7.] Evaluating the frozen lab-only prediction against held-out Hazel measurements cannot be
+done yet: per this project's phase discipline (Section~\ref{sec:hazel}),
+\texttt{PREDICTION\_FREEZE.md} must be filled in, committed, and tagged before any Hazel cache
+experiment runs, and that freeze has not happened as of this draft; this item will be completed
+once Hazel results exist. Using only the 8 lab machines, we extend the L2-capacity-per-core
+doubling model from item 6 ($\tau=3$ years) 5 years beyond the newest measured system (Artemisia,
+2023) to $\sim$2028: $2\,\text{MiB} \times 2^{5/3} \approx 6.3$--$6.7$\,MiB per core. Given the
+trend is a step function rather than smooth (item 2), we report a wide uncertainty range of
+roughly 4--10\,MiB per core rather than a tight interval around the point estimate. This
+prediction could fail if the next generation's core-count growth outpaces per-core cache scaling
+(a common tradeoff when die area is fixed), if a vendor shifts strategy toward a larger shared LLC
+instead of per-core L2, or if the sampled generation is a server part whose class-driven capacity
+(item 4) does not follow the desktop/server mix observed in this fleet.
+
 \item[8.] The evidence here is far weaker than Moore's original observation: Moore's trend held
 smoothly across many more generations and a single scaling technology (transistor count), while
 this fleet's 8 machines over 9 years show one plausible doubling trend (L2 capacity per core,
@@ -1530,21 +1544,11 @@ step-wise L2-capacity growth claim is defensible from this data.
 
 \section{Cache Evolution Prediction}
 
-\textbf{Item 7 (held-out evaluation and 5-year-beyond prediction):} the first half of this item,
-evaluating the frozen lab-only prediction against held-out Hazel measurements, cannot be answered
-yet: per this project's phase discipline (Section~\ref{sec:hazel}), \texttt{PREDICTION\_FREEZE.md}
-must be filled in, committed, and tagged before any Hazel cache experiment runs, and that freeze
-has not happened as of this draft. This subsection will be completed once Hazel results exist.
-
-Using only the 8 lab machines, we extend the L2-capacity-per-core doubling model from
-item 6 ($\tau=3$ years) 5 years beyond the newest measured system (Artemisia, 2023) to
-$\sim$2028: $2\,\text{MiB} \times 2^{5/3} \approx 6.3$--$6.7$\,MiB per core. Given the trend is a
-step function rather than smooth (item 2), we report a wide uncertainty range of roughly
-4--10\,MiB per core rather than a tight interval around the point estimate. This prediction could
-fail if the next generation's core-count growth outpaces per-core cache scaling (a common
-tradeoff when die area is fixed), if a vendor shifts strategy toward a larger shared LLC instead
-of per-core L2, or if the sampled generation is a server part whose class-driven capacity (item 4)
-does not follow the desktop/server mix observed in this fleet.
+Item 7's forward-looking capacity prediction is derived and stated in full in
+Section~\ref{sec:evolution} above, alongside the rest of the Section 9 interpretation items, since
+it follows directly from the same doubling-time model (item 6). The held-out evaluation half of
+item 7 is pending Hazel data (see that item for the exact blocking condition) and will be added to
+this section once the prediction is frozen and Hazel measurements are collected.
 
 \section{Hazel HPC Validation}
 \label{sec:hazel}
