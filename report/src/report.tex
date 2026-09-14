@@ -1546,11 +1546,161 @@ step-wise L2-capacity growth claim is defensible from this data.
 
 \section{Cache Evolution Prediction}
 
-Item 7's forward-looking capacity prediction is derived and stated in full in
-Section~\ref{sec:evolution} above, alongside the rest of the Section 9 interpretation items, since
-it follows directly from the same doubling-time model (item 6). The held-out evaluation half of
-item 7 is pending Hazel data (see that item for the exact blocking condition) and will be added to
-this section once the prediction is frozen and Hazel measurements are collected.
+\subsection{9.1 Your Team's Cache Laws and Future Scaling Walls}
+\label{sec:cachelaws}
+
+Two named laws are formulated below, using both team members' surnames (Chen, Ngo) per the
+assignment's naming convention. Both are fit exclusively from Phase I, timing-only measurements on
+the team's 8 ECE lab machines (\texttt{CHRONOLOGICAL\_MASTER\_TABLE.md}; backing data
+\texttt{data\_processed/master/chronological\_master\_table.csv}) -- no Hazel data was used to fit
+either law. They concern two structurally different cache-related quantities, per the assignment's
+requirement: per-core L2 capacity (a growth law) and L1D capacity/associativity/line size (an
+approximate-constancy law). Both laws' parameters and their Hazel predictions were frozen together in
+\texttt{PREDICTION\_FREEZE.md} at commit \texttt{b7d98c0} (git tag \texttt{predictions-frozen},
+2026-09-14 18:23 UTC) \textbf{before} any Hazel cache experiment ran, satisfying this project's Phase
+Discipline (\S\ref{sec:phasediscipline}).
+
+\subsubsection*{Law 1: Chen--Ngo Cache Capacity Doubling Law}
+
+\textbf{Statement.} Per-core L2 cache capacity on the team's lab machines grows with processor
+introduction year via a step-doubling trend, doubling on average every 3 years across the 2014--2023
+span sampled.
+
+\textbf{Quantitative rule.} $C(t) = 256\,\text{KiB} \cdot 2^{(t - 2014)/\tau}$, with $\tau = 3$ years,
+fit from the dataset's two chronological endpoints (Sunbird, 2014, 256\,KiB $\to$ Artemisia, 2023,
+2\,MiB -- an exact $8\times$ increase over 9 years). The underlying data is a step function, not a
+smooth curve: flat at 256\,KiB for five years (2014--2019: Sunbird, Charnwood, Ookay, Upgrade, Crux),
+then three back-to-back doublings in four years (512\,KiB -- Skylark, 2019; 1\,MiB -- Thunderbird,
+2020; 2\,MiB -- Artemisia, 2023). The fitted $\tau$ is an end-to-end summary between two endpoints, not
+a per-year validated slope (see \S\ref{sec:evolution}, items 2, 5, 6, for the full derivation).
+
+\textbf{Scope/domain.} 8 machines, 2014--2023, pooled across vendor/ISA (6 Intel x86-64, 1 AMD
+x86-64 [Skylark], 1 Arm AArch64 [Thunderbird]) and pooled across desktop/server class. Not
+vendor-specific: the two fitted endpoints are both Intel, but the two intermediate step points come
+from AMD and Arm parts, so the doubling time is not read off a single vendor's roadmap alone. Does not
+imply the trend holds beyond 2023, outside this 8-machine sample, or for a machine class not
+represented in this fleet.
+
+\begin{figure}[htbp]
+\centering
+\fbox{
+\begin{minipage}[c][7cm][c]{0.92\textwidth}
+\centering
+\textbf{\large PLOT PLACEHOLDER --- TODO}
+
+\vspace{10pt}
+
+\itshape
+X-axis: processor introduction year (2014--2028). Y-axis: per-core L2 capacity, log$_2$(KiB).
+Solid points + solid line: the 8 lab machines, oldest (Sunbird, 2014) to newest (Artemisia, 2023),
+per \texttt{CHRONOLOGICAL\_MASTER\_TABLE.md}'s L2 table. Dashed line: the fitted model
+$C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/3}$ extrapolated forward to $\sim$2028 and evaluated at
+Hazel's \texttt{haswell} target generation ($t \approx 2014$).
+\end{minipage}
+}
+\caption{Evidence plot for the Chen--Ngo Cache Capacity Doubling Law -- at least 3 lab-machine
+observations as solid points/line, model extrapolation as a dashed line, Moore-style format.}
+\label{fig:law1-placeholder}
+\end{figure}
+
+\textbf{Frozen prediction.} Evaluated at Hazel's target \texttt{haswell} generation ($t \approx 2014$,
+the model's own lower fit endpoint): \textbf{256\,KiB} per core -- a same-era identity prediction, not
+a forward extrapolation, so it carries no extra uncertainty band beyond the step-function caveat
+above. Full frozen record: \texttt{PREDICTION\_FREEZE.md}, ``Team Cache Laws -- Frozen Predictions''
+table.
+
+\subsubsection*{Law 2: Chen--Ngo Cache Invariance Law}
+
+\textbf{Statement.} L1D cache capacity, associativity, and line size on the team's lab machines are
+approximately invariant across a decade of processor generations and three vendors/ISAs, rather than
+scaling with year the way L2 capacity does.
+
+\textbf{Quantitative rule.} Line size: 64\,B on 8 of 8 machines (2014--2023), zero exceptions. L1D
+capacity: 32,768\,B (32\,KiB) on 6 of 8 machines. L1D associativity: 8-way on 6 of 8 machines. The
+same two machines account for both deviations -- Thunderbird (Arm, 2020: 64\,KiB, 4-way) and Artemisia
+(Intel Sapphire Rapids, 2023: 48\,KiB, 12-way) -- and they deviate in different directions/magnitudes
+from each other despite Artemisia being the newer machine, i.e.\ the deviations themselves show no
+chronological trend.
+
+\textbf{Scope/domain.} Same 8-machine, 2014--2023, cross-vendor/ISA pool as Law 1. The invariance
+claim is majority-case (6 of 8), not universal, and is stated as approximate; it is known not to hold
+for the team's one Arm machine or its newest/largest-L1D Intel Xeon, and should not be assumed to hold
+for machine classes outside this fleet.
+
+\begin{figure}[htbp]
+\centering
+\fbox{
+\begin{minipage}[c][7cm][c]{0.92\textwidth}
+\centering
+\textbf{\large PLOT PLACEHOLDER --- TODO}
+
+\vspace{10pt}
+
+\itshape
+X-axis: processor introduction year (2014--2023). Y-axis: L1D capacity in KiB (left) and line size
+in bytes (right, or a second panel). Solid points: the 8 lab machines --- 6 clustered flat at
+32\,KiB/64\,B, with Thunderbird (2020, 64\,KiB) and Artemisia (2023, 48\,KiB) marked as labeled
+outliers. Dashed line: the constant-value prediction (32\,KiB / 8-way / 64\,B) held forward to
+Hazel's \texttt{haswell} target generation.
+\end{minipage}
+}
+\caption{Evidence plot for the Chen--Ngo Cache Invariance Law -- at least 3 lab-machine observations
+as solid points, the constant-value prediction as a dashed line.}
+\label{fig:law2-placeholder}
+\end{figure}
+
+\textbf{Frozen prediction.} At Hazel's \texttt{haswell} target: L1D capacity \textbf{32,768\,B},
+associativity \textbf{8-way}, line size \textbf{64\,B} -- chosen because \texttt{haswell} is an x86
+Xeon target, the exact class where this law's 6/8 majority held with no exceptions (both deviations
+are non-Haswell parts). Full frozen record: \texttt{PREDICTION\_FREEZE.md}.
+
+\subsubsection*{Future Scaling Walls}
+
+\textbf{Wall for Law 1 (capacity doubling).} The 3-year doubling time is fit from a fleet that was flat
+for 5 years and then doubled three times in 4 years -- i.e.\ the model is extrapolating a recent burst,
+not a long-observed steady rate, and two independent physical constraints could break it going
+forward. First, a \emph{latency wall}: \S\ref{sec:evolution} item 3 already shows LLC hit latency
+broadly growing with LLC capacity across this fleet; the same wire-delay/capacity tradeoff applies to
+L2, so continuing to double L2 capacity every 3 years would eventually push L2 hit latency toward
+today's LLC latency range, eroding the two-level (L2/LLC) split's purpose unless vendors insert an
+additional mid-level cache -- a redesign, not a continuation of the same curve. Second, a
+\emph{fabrication wall}: this project's own data cannot observe process-node effects directly (Phase I
+is timing-only), but the fitted doublings land almost entirely in the fleet's more recent, smaller-node
+machines (Skylark and Thunderbird at 7\,nm, Artemisia at 10\,nm/Intel~7), while SRAM cell density is
+publicly known to scale much more slowly than logic density below roughly 7\,nm -- a hard limit this
+project's data is consistent with but cannot independently confirm, flagged here as an external risk
+to the extrapolation rather than a lab finding. Third, a \emph{core-count wall}: per-core L2 capacity
+competes with core count for the same fixed die-area/power budget (already noted as a risk in
+\S\ref{sec:evolution} item 7); if future generations grow core counts faster than die area, per-core L2
+capacity could flatten or reverse even while total on-die SRAM keeps growing.
+
+\medskip
+
+\noindent\textbf{Wall for Law 2 (invariance).} Unlike Law 1, this law describes a quantity that appears to have
+\emph{already} hit its scaling wall rather than one that will hit it in the future: L1D capacity and
+associativity are bounded by a strict load-to-use latency budget (commonly $\leq$4 cycles in modern
+designs), and growing L1D physically increases wire delay and tag-comparator fan-in in a way that would
+violate that budget -- consistent with why L1D has not grown across 9 years and 3 vendors on 6 of 8
+machines even as transistor budgets elsewhere on the same dies have grown by orders of magnitude. The
+two deviations show the wall is soft, not absolute: a different microarchitectural latency budget
+(Arm's Neoverse~N1 core design; Intel's newest server core) can push through it by roughly
+50--100\,\%, but not by the multiplicative factors Law 1's L2 trend shows over the same span. The
+practical implication for future generations, including any that show a materially larger L1D than
+32\,KiB, is that this project's own timing-only method predicts it should also show a
+correspondingly \emph{higher} L1D hit-latency in ticks (not a free capacity increase) -- a testable,
+falsifiable consequence of this law that a future Hazel or successor-fleet measurement could check
+directly against the frozen 32,768\,B / 8-way / 64\,B prediction above.
+
+The held-out evaluation for both laws (measured Hazel value, error, and supported/weakened/falsified
+verdict) is recorded in \texttt{PREDICTION\_FREEZE.md}'s ``Held-Out Evaluation'' table once the Hazel
+cache-experiment suite has run; per that file's own rule, Hazel points are never used to refit either
+law above.
+
+Item 7's forward-looking capacity prediction (the general Section~\ref{sec:evolution} extrapolation,
+distinct from the two named laws above) is derived and stated in full in Section~\ref{sec:evolution}
+above, alongside the rest of the Section 9 interpretation items, since it follows directly from the
+same doubling-time model (item 6). The held-out evaluation half of item 7 is likewise pending Hazel
+data and will be added to that item once Hazel measurements are collected.
 
 \section{Hazel HPC Validation}
 \label{sec:hazel}
