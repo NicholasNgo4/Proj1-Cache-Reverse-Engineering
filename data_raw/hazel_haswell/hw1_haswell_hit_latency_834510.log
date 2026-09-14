@@ -167,3 +167,37 @@ Wrote 1 summary rows to data_processed/hazel_haswell/latency/hit/DRAM/rep1_depen
 /usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834510.c207n03.tmp.1977932: Disk quota exceeded
   wrote 1002 lines -> data_raw/hazel_haswell/latency/hit/DRAM/hit_latency_rep1_dependent_sequential_20260914T201700Z.csv (mode=dependent pattern=sequential seed=12346)
 Wrote 1 summary rows to data_processed/hazel_haswell/latency/hit/DRAM/rep1_dependent_sequential_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834510.c207n03.tmp.1978004: Disk quota exceeded
+  wrote 1002 lines -> data_raw/hazel_haswell/latency/hit/DRAM/hit_latency_rep1_independent_random_20260914T201700Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/hit/DRAM/rep1_independent_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834510.c207n03.tmp.1978048: Disk quota exceeded
+  wrote 1002 lines -> data_raw/hazel_haswell/latency/hit/DRAM/hit_latency_rep1_independent_sequential_20260914T201700Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/hit/DRAM/rep1_independent_sequential_summary_20260914T201700Z.csv
+-- rep2 (seed=12347) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834510.c207n03.tmp.1978406: Disk quota exceeded
+  wrote 1002 lines -> data_raw/hazel_haswell/latency/hit/DRAM/hit_latency_rep2_dependent_random_20260914T201700Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/hit/DRAM/rep2_dependent_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834510.c207n03.tmp.1978475: Disk quota exceeded
+  wrote 1002 lines -> data_raw/hazel_haswell/latency/hit/DRAM/hit_latency_rep2_dependent_sequential_20260914T201700Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/hit/DRAM/rep2_dependent_sequential_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834510.c207n03.tmp.1978929: Disk quota exceeded
+  wrote 1002 lines -> data_raw/hazel_haswell/latency/hit/DRAM/hit_latency_rep2_independent_random_20260914T201700Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/hit/DRAM/rep2_independent_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834510.c207n03.tmp.1979009: Disk quota exceeded
+  wrote 1002 lines -> data_raw/hazel_haswell/latency/hit/DRAM/hit_latency_rep2_independent_sequential_20260914T201700Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/hit/DRAM/rep2_independent_sequential_summary_20260914T201700Z.csv
+-- generating plots for DRAM --
+random: independent < dependent (36.86 vs 205.96 ticks) [expected]
+sequential: independent < dependent (6.62 vs 7.76 ticks) [expected]
+Wrote data_processed/hazel_haswell/latency/hit/DRAM/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for DRAM --
+
+== done ==
+== L1: footprint_bytes=32768 ==
+== L2: footprint_bytes=262144 ==
+== LLC: footprint_bytes=25165824 ==
+== DRAM: footprint_bytes=536870912 ==
+== record in data_raw/hazel_haswell/README.md: core=10, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260914T201700Z ==
+== full transcript saved to: data_raw/hazel_haswell/latency/run_hit_latency_full_20260914T201700Z.log ==
+
+=== Done ===

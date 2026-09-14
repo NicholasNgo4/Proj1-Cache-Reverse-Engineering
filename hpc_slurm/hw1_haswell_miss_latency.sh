@@ -17,7 +17,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
-#SBATCH --time=01:00:00
+#SBATCH --time=01:55:00
 #SBATCH --partition=compute_partners
 #SBATCH --constraint=haswell
 

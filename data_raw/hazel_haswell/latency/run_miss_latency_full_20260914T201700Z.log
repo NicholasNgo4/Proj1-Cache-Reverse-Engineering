@@ -59,3 +59,21 @@ Wrote data_processed/hazel_haswell/latency/miss/L2_to_LLC/plots/miss_latency_box
 
 == transition LLC_to_DRAM: target_bytes=25165824 evict_bytes=536870912 ==
 -- base (seed=12345) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.730826: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/LLC_to_DRAM/miss_latency_base_random_20260914T201700Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/LLC_to_DRAM/base_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.730914: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/LLC_to_DRAM/miss_latency_base_sequential_20260914T201700Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/LLC_to_DRAM/base_sequential_summary_20260914T201700Z.csv
+-- rep1 (seed=12346) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.736472: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/LLC_to_DRAM/miss_latency_rep1_random_20260914T201700Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/LLC_to_DRAM/rep1_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.736558: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/LLC_to_DRAM/miss_latency_rep1_sequential_20260914T201700Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/LLC_to_DRAM/rep1_sequential_summary_20260914T201700Z.csv
+-- rep2 (seed=12347) --
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+[2026-09-14T17:17:01.043] error: *** STEP 834511.16 ON c207n05 CANCELLED AT 2026-09-14T17:17:01 DUE TO TIME LIMIT ***
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.738302: Disk quota exceeded
+srun: error: c207n05: task 0: Terminated

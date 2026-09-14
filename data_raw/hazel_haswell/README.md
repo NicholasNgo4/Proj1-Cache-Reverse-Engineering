@@ -152,11 +152,29 @@ brevity, but confirmed matching for `c207n01` in this run's own log,
   size, and latency data exist too.
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 834508, hostname `c207n01`, logical CPU 10, elapsed 2m33s, exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Build command: isolated per-job `make -s` (see `HAZEL_MODE=1` in the script)
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_haswell 10
+  32768,262144,25165824` (default coarse strides 8,16,32,64,128,256; no
+  `candidate_overrides_csv` -- no prior run to pick a Method-A step-4 candidate from, so step 4
+  was skipped at every level, per the script's own no-auto-detection policy)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- Notes on alignment/candidate strides tested: 8/16/32/64/128/256 B (Method A, family of
+  curves, steps 1-3 only); Method B (single-curve ramp-saturation) at footprint=2x each
+  level's boundary, coarse stride 8-1024 B step 8.
+  - **L1 (32,768 B): Method B detected 64 B**, the only level/method this run produced a
+    citable estimate from. Matches the frozen prediction and every x86 lab machine's own
+    confirmed 64 B line size.
+  - **L2 (262,144 B) and L3_LLC (25,165,824 B): Method B found no transition** in its coarse
+    sweep (`-- detected line-size estimate (bytes): none --`) -- consistent with both levels'
+    own byte values being reasoned/provisional rather than confirmed capacity boundaries this
+    pass, not necessarily a real absence of a line-size signal.
+  - Method A's own per-stride "elbow" diagnostic for the LLC level is noisy/uninformative
+    (candidates ranging 39.9-56.5 MB, i.e. nowhere near a real line-size answer) -- expected,
+    since Method A step 4 (the actual confirmation step) never ran at any level.
+  - Final cross-level/method agreement: **64 B** (the only value any level/method produced).
 
 ### associativity/
 - Slurm job ID: 834509, hostname `c207n02`, logical CPU 10, elapsed 33s, exit 0.
@@ -186,10 +204,32 @@ brevity, but confirmed matching for `c207n01` in this run's own log,
     confound reproduces on Hazel hardware, not just the team's own lab machines.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 834510, hostname `c207n03`, logical CPU 14, elapsed 3m35s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh hazel_haswell 14
+  L1:32768,L2:262144,LLC:25165824,DRAM:536870912` (base_seed=12345, 2 repeats, 1,000,000
+  samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000 (this project's standard batched-timer convention)
+- Regular vs. randomized control included? Yes -- both dependent and independent load modes,
+  both random and sequential patterns, at every level; independent-load control read faster
+  than dependent at every level/pattern (`[expected]`, no `[UNEXPECTED]` flags) -- e.g. LLC
+  random: independent 29.30 vs dependent 50.91 ticks; DRAM random: independent 36.86 vs
+  dependent 205.96 ticks.
+- **Results (dependent, random, base-run median, ticks/access):** L1=8.46, L2=16.74,
+  LLC=53.79, DRAM=206.18 -- a clean, monotonic 4-tier ladder. L1's read (8.46) is consistent
+  with the capacity experiment's own independent L1 read (~8.3-8.5 median at 16-32 KiB
+  footprints), a same-run internal cross-check. L2 and LLC numbers are only as trustworthy as
+  their underlying (reasoned/provisional) footprint choices -- see capacity/'s findings above.
+
+**miss_latency (Slurm job 834511 TIMED OUT after 1h -- L1_to_L2 and L2_to_LLC transitions
+completed cleanly; LLC_to_DRAM's 512 MiB eviction, the expensive stage per this project's own
+documented lab-machine experience, got through base+rep1 before being killed mid-rep2.
+Job resubmitted with a longer walltime -- see below once it completes.):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh hazel_haswell 14
+  L1_to_L2:32768:262144,L2_to_LLC:262144:25165824,LLC_to_DRAM:25165824:536870912`
 
 ### inclusion_policy/
 - Source file(s): 
