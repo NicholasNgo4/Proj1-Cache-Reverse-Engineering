@@ -502,10 +502,81 @@ weakly, L2) — reached independently on a second machine, which is itself
 mild corroborating evidence for that pattern rather than a coincidence of
 one machine's noise.
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename:
-- Events collected + exact semantics on this CPU:
-- Run command + arguments:
+### pmu/ (Phase II — 2026-09-14)
+Phase I frozen/tagged (`phase1-timing-only`) before anything below was run,
+per `README.md`'s Phase Discipline. See `CLAUDE.md`'s "Phase II" subsection
+and `data_processed/ookay/PHASE2_VALIDATION_TABLE.md` for the full
+methodology/results write-up and literature citation — this section is the
+raw-data/reproduction-detail record. Uses the same reusable pipeline
+Sunbird's session built and Thunderbird's session migrated to (no script
+changes needed).
+
+- Source file(s): `scripts/run_pmu_verification.sh`, `scripts/summarize_pmu.py`
+  (both pre-existing, reused unmodified — wraps the existing `cache_bench
+  --experiment hit_latency` binary in `perf stat`).
+- PMU scheduling on this machine: all 4 two-hardware-event groups
+  (`cache-references,cache-misses` / `L1-dcache-loads,L1-dcache-load-misses`
+  / `LLC-loads,LLC-load-misses` / `cycles,instructions`, each also carrying
+  the software `duration_time` event) scheduled at 100% with no
+  `<not counted>` flags anywhere in this run — `LLC-loads`/`LLC-load-misses`
+  counted normally at every footprint (no ARM-style `<not supported>`
+  limitation here, unlike Thunderbird).
+- Core selection: this session's shell defaults to `Cpus_allowed_list: 0-1`,
+  but `taskset -c <core>` can still target any of this machine's 8 logical
+  CPUs (confirmed: a child process explicitly `taskset -c 2`'d shows
+  `Cpus_allowed_list: 2`, not clipped) — there is no cgroup cpuset actually
+  restricting the choice, just this shell's own inherited default. Checked
+  `mpstat -P ALL` across 3 samples ~3s apart before running: core 0 ~58%
+  busy (another student's `incl_pmu` process, confirmed via `ps -eLo
+  pid,psr,pcpu,comm`), core 1 partially busy (this session's own VS
+  Code/tooling processes), core 2 100% busy (another student's
+  `cache_bench_x86 --cpu 2`, confirmed via `ps`), cores 3–7 100% idle in
+  all 3 samples. Chose **core 3** (physical core 3, both SMT threads 3 and
+  7 idle) — a genuinely idle full physical core, not just one idle thread
+  of a partly-busy one.
+- Run command: `./scripts/run_pmu_verification.sh ookay 3
+  L1:32768,L2:262144,LLC:8388608` (footprints from `CAPACITY_RESULTS.md`'s
+  Ookay row). base_seed=12345 (repeats use base_seed+index), samples=
+  1,000,000/run, batch_size=1000, warmup_passes=3, dependent load mode,
+  random pattern, timestamp `20260914T003308Z`.
+- Raw output: `data_raw/ookay/pmu/{L1,L2,LLC}/*_perfstat_*.csv.gz` (perf
+  stat's own `-x,` CSV output) and `*_bench_*.csv.gz` (cache_bench's own
+  CSV from the same invocation), gzipped by hand after the run per
+  `.gitignore`'s `data_raw/**/*.csv` convention. Transcript:
+  `data_raw/ookay/pmu/run_pmu_verification_20260914T003308Z.log`.
+- Processed: `data_processed/ookay/pmu/{L1,L2,LLC}/pmu_summary_20260914T003308Z.csv`
+  (one row per run_tag + a median-of-3 row).
+- System-reported cache info (also Phase II, same session):
+  `data_raw/ookay/pmu/system_reported_cache_info.txt` — `lscpu --caches`,
+  full `lscpu`, and per-instance `/sys/devices/system/cpu/cpu0/cache/index*/`
+  fields, collected 2026-09-14T00:33:33Z.
+- Headline results (full detail and caveats:
+  `data_processed/ookay/PHASE2_VALIDATION_TABLE.md`): size/ways/sets/line
+  match exactly across Phase I timing, system-report, AND Agner Fog's
+  literature table (Table 11.2, "Cache sizes on Skylake" — covers Kaby
+  Lake per Fog's own text) at L1D; L2 and LLC associativity **both
+  disagree with Phase I's confound-blocked best guess (8-way at both
+  levels) — system-reported is 4-way at L2 and 16-way at LLC**, resolved
+  in favor of the system-reported values, directly confirming (not just
+  suspecting) that Phase I's repeated "8" at this level and above was the
+  cross-machine small-structure confound, not real associativity. LLC size
+  matches Phase I's ~8 MiB estimate to the exact byte (8,388,608 B).
+  Miss-rate PMU evidence reproduces Phase I's own L1/L2/LLC boundary
+  placement (LLC-scope-specific miss rate: 17.34% at L1 footprint → 1.38%
+  at L2 → 32.39% at LLC; L1-dcache miss rate climbs monotonically 0.97% →
+  12.14% → 8.79%, saturating). **New finding not seen on Sunbird/
+  Thunderbird**: the LLC-footprint run's own bench latency (≈128.42 ticks)
+  diverged +71.7% from Phase I's original ≈74.78-tick result, coinciding
+  with an unstable implied clock frequency across repeats (2.32-4.80 GHz,
+  computed from `cycles ÷ duration_time`, briefly exceeding this CPU's own
+  4.2 GHz max turbo) even though core 3 itself was independently confirmed
+  idle throughout — attributed to shared-LLC/memory-bandwidth contention
+  and per-package Turbo Boost power-budget sharing from the two other
+  students' processes pinned at 100% on cores 0 and 2 the entire session,
+  since an idle *core* doesn't insulate against contention on *chip-shared*
+  resources (LLC, package power budget) the way it does for private L1/L2.
+  Flagged plainly, not re-run this session — see the validation table's
+  caveat section for the full reasoning and per-run numbers.
 
 ## Final Inferred Cache Table (Ookay, Phase I best guess, 2026-09-13)
 
