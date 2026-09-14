@@ -1,0 +1,44 @@
+== run_hit_rate_pmu_validation: machine=sunbird core=1 base_seed=12345 ==
+== timestamp=20260914T021626Z ==
+
+== level L1: footprint_bytes=32768 ==
+-- base (seed=12345) --
+  calibration: tau=80.0000 sensitivity=0.9923 specificity=1.0000 (-> data_raw/sunbird/software_hit_rate/pmu/L1/L1_calibonly_base_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/L1/L1_perfstat_base_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/L1/L1_bench_base_20260914T021626Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=80.0000 sensitivity=0.9924 specificity=0.9999 (-> data_raw/sunbird/software_hit_rate/pmu/L1/L1_calibonly_rep1_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/L1/L1_perfstat_rep1_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/L1/L1_bench_rep1_20260914T021626Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=80.0000 sensitivity=0.9929 specificity=1.0000 (-> data_raw/sunbird/software_hit_rate/pmu/L1/L1_calibonly_rep2_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/L1/L1_perfstat_rep2_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/L1/L1_bench_rep2_20260914T021626Z.csv
+
+== level L2: footprint_bytes=262144 ==
+-- base (seed=12345) --
+  calibration: tau=80.0000 sensitivity=0.9927 specificity=1.0000 (-> data_raw/sunbird/software_hit_rate/pmu/L2/L2_calibonly_base_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/L2/L2_perfstat_base_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/L2/L2_bench_base_20260914T021626Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=80.0000 sensitivity=0.9925 specificity=0.9999 (-> data_raw/sunbird/software_hit_rate/pmu/L2/L2_calibonly_rep1_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/L2/L2_perfstat_rep1_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/L2/L2_bench_rep1_20260914T021626Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=80.0000 sensitivity=0.9927 specificity=1.0000 (-> data_raw/sunbird/software_hit_rate/pmu/L2/L2_calibonly_rep2_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/L2/L2_perfstat_rep2_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/L2/L2_bench_rep2_20260914T021626Z.csv
+
+== level LLC: footprint_bytes=31457280 ==
+-- base (seed=12345) --
+  calibration: tau=80.0000 sensitivity=0.9925 specificity=1.0000 (-> data_raw/sunbird/software_hit_rate/pmu/LLC/LLC_calibonly_base_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/LLC/LLC_perfstat_base_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/LLC/LLC_bench_base_20260914T021626Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=80.0000 sensitivity=0.9924 specificity=0.9999 (-> data_raw/sunbird/software_hit_rate/pmu/LLC/LLC_calibonly_rep1_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/LLC/LLC_perfstat_rep1_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/LLC/LLC_bench_rep1_20260914T021626Z.csv
+-- rep2 (seed=12347) --
+  calibration: tau=80.0000 sensitivity=0.9929 specificity=0.9999 (-> data_raw/sunbird/software_hit_rate/pmu/LLC/LLC_calibonly_rep2_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/LLC/LLC_perfstat_rep2_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/LLC/LLC_bench_rep2_20260914T021626Z.csv
+
+== level DRAM: footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  calibration: tau=80.0000 sensitivity=0.9926 specificity=1.0000 (-> data_raw/sunbird/software_hit_rate/pmu/DRAM/DRAM_calibonly_base_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/DRAM/DRAM_perfstat_base_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/DRAM/DRAM_bench_base_20260914T021626Z.csv
+-- rep1 (seed=12346) --
+  calibration: tau=80.0000 sensitivity=0.9925 specificity=0.9998 (-> data_raw/sunbird/software_hit_rate/pmu/DRAM/DRAM_calibonly_rep1_20260914T021626Z.csv)
+  -> data_raw/sunbird/software_hit_rate/pmu/DRAM/DRAM_perfstat_rep1_20260914T021626Z.csv / data_raw/sunbird/software_hit_rate/pmu/DRAM/DRAM_bench_rep1_20260914T021626Z.csv
+-- rep2 (seed=12347) --

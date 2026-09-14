@@ -1816,6 +1816,90 @@ counters on Sunbird/Thunderbird; all 7-8 events at once on Crux/Artemisia/
 Upgrade) — worth hand-checking fresh on any future machine rather than
 assuming either extreme.
 
+**Software-only cache hit-rate estimator (Problem 8.5): implemented and run
+on Sunbird only so far (2026-09-14) — read this before running the PMU
+validation piece on another machine, it has already been through one
+invalid design.** `main_code/software_hit_rate/software_hit_rate.{c,h}`
+(no PMU/perf access anywhere in that file) self-calibrates a resident-vs-
+nonresident latency threshold (ROC/Youden's J), classifies a test
+workload's single-shot access latencies against it, and debiases the raw
+classified rate into Hhat via the Rogan-Gladen prevalence-correction
+estimator, with a bootstrap CI. "Hit" is defined as "served by ANY cache
+level, not DRAM" — see the header doc comment for the full method and its
+own documented KNOWN LIMITATIONS (a single global threshold cannot
+distinguish an LLC-speed hit from a DRAM miss as cleanly as an L1-speed
+hit — this is not hypothetical, see the PMU validation results below).
+
+- **Sweep (parts 1-3, standalone)**: `scripts/run_software_hit_rate_sweep.sh
+  <machine> <core> [footprint_bytes_csv]` + `scripts/
+  summarize_software_hit_rate.py` + `scripts/plot_software_hit_rate.py`.
+  No perf involved at all — safe to run on any machine at any time,
+  independent of Phase discipline. Anchor the footprint list to that
+  machine's own `CAPACITY_RESULTS.md`/`FINAL_CACHE_TABLE.md` boundaries
+  (the default list is Sunbird-specific). **Sunbird's own sweep already
+  surfaced a real, reusable finding**: Hhat reads ~1.0 through L2-scale
+  footprints as expected, but dips to 0.8664 (not ~1.0) at the EXACT L1
+  capacity boundary (32768 B) — a genuine conflict/associativity-edge
+  effect (a random cyclic address stream sized to exactly fill a level
+  does not evenly fill every set), not noise. Keep this in mind if a
+  future machine's sweep shows an unexpected dip exactly at one of its own
+  capacity boundaries — it's expected, not a bug.
+- **PMU validation (part 4)**: `scripts/run_hit_rate_pmu_validation.sh
+  <machine> <core> <level>:<footprint_bytes>[,...]` + `scripts/
+  compare_hit_rate_pmu.py`. Phase-II-only (needs `phase1-timing-only`
+  tagged first, same discipline as `run_pmu_verification.sh`).
+  **IMPORTANT — the version of this script now in the repo is already the
+  FIXED, second design; do not re-derive the broken first version.** The
+  original design (perf-wrapping `--experiment hit_rate` directly, in PMU
+  validation mode, to get Hhat and H_pmu from literally identical timed
+  accesses) produced unusable results on Sunbird — rel_error_pct of
+  ~99-100% at every level (L1 read Hhat=0.0 for a footprint that fits
+  entirely in L1). Root-caused via a controlled A/B replay (same binary/
+  args/seed, only the perf wrapper differed) to TWO compounding problems:
+  (1) testing each level at its EXACT `CAPACITY_RESULTS.md` boundary
+  rather than safely inside it (matches the sweep's own L1-boundary dip
+  above — Hhat there is genuinely seed-sensitive right at an exact
+  boundary, swinging 0.37-1.0 across seeds with no perf involved at all);
+  (2) `perf stat` itself reproducibly and severely distorting
+  `software_hit_rate.c`'s single-shot-per-access `lfence+rdtsc...
+  rdtscp+lfence` timing loop (unlike this project's `hit_latency`
+  experiment's BATCHED timing, already perf-wrapped cleanly on every team
+  machine) — a same-seed/same-footprint A/B pair went from p_obs=0.998
+  (unwrapped, correct) to p_obs=0.317 (perf-wrapped) with wall time
+  inflating from an expected ~2 ms to 2.9 seconds; a bare `perf stat --
+  /bin/true` control only took 14 ms, ruling out simple perf-startup
+  overhead. Leading hypothesis, not exhaustively confirmed:
+  `nmi_watchdog=1` (already known to pin a PMU counter on Sunbird, see the
+  Phase II PMU section above) periodically interrupting the tight
+  per-access loop in a way it doesn't disrupt `hit_latency`'s coarser
+  batched one; `systemd-detect-virt` confirms bare metal, ruling out a
+  VM-trap explanation. **Fix, now baked into the script itself (no action
+  needed on a future machine beyond just running it)**: (a) L1/L2/LLC are
+  tested at HALF their given `CAPACITY_RESULTS.md` footprint, not the
+  exact boundary (DRAM is left as given); (b) Hhat now comes from an
+  UNWRAPPED `hit_rate` run, and H_pmu now comes from a SEPARATE
+  perf-wrapped `--experiment hit_latency` run (batched timing, same
+  samples/batch/warmup as `run_pmu_verification.sh`) at the same
+  footprint/seed — decoupled sources instead of one perf-wrapped fragile
+  loop. **Sunbird's results under the fixed design** (core 1,
+  timestamp `20260914T025929Z`): L1 rel_error=30.1% (Hhat=1.0,
+  H_pmu=0.768), L2 rel_error=12.4% (Hhat=0.956, H_pmu=0.851) — both sane
+  and citable. **LLC (rel_error=98.7%, Hhat=0.013 vs H_pmu=0.978) and DRAM
+  (rel_error=99.9%, Hhat=0.0001 vs H_pmu=0.144) still disagree hugely —
+  this is EXPECTED and real, not a sign the fix didn't work; do not
+  re-investigate this as a bug on another machine.** It's the estimator's
+  own documented single-threshold limitation: tau (~80-84 ticks on
+  Sunbird) sits well below a genuine LLC hit's true single-shot latency
+  (LLC hit latency + this machine's own ~64-85 tick documented single-shot
+  fixed overhead), so real LLC hits get classified "miss" regardless of
+  footprint choice or perf involvement. Expect the same LLC/DRAM-diverges,
+  L1/L2-agrees pattern on every future machine — that IS the citable
+  finding ("this estimator reliably detects L1-scale residency only,
+  despite its intended any-cache-level definition"), not something a
+  redesign should try to eliminate. Full writeup, including the exact
+  broken-run numbers kept as evidence:
+  `data_raw/sunbird/README.md`'s `software_hit_rate/` section.
+
 ## Known constraints from prior sessions
 
 - Compile baseline is `-O0 -g -std=c11 -Wall -Wextra -fno-omit-frame-pointer`
