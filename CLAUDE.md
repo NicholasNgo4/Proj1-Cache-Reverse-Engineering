@@ -1817,9 +1817,10 @@ Upgrade) — worth hand-checking fresh on any future machine rather than
 assuming either extreme.
 
 **Software-only cache hit-rate estimator (Problem 8.5): implemented
-2026-09-14, now run on 5 of 8 machines (Sunbird, Thunderbird, Skylark,
-Crux, Upgrade) — read this before running the PMU validation piece on
-another machine, it has already been through one invalid design.**
+2026-09-14, now run on all 8 of 8 machines (Sunbird, Thunderbird, Skylark,
+Crux, Upgrade, Artemisia, Charnwood, Ookay) — read this before running the
+PMU validation piece on another machine, it has already been through one
+invalid design.**
 `main_code/software_hit_rate/software_hit_rate.{c,h}`
 (no PMU/perf access anywhere in that file) self-calibrates a resident-vs-
 nonresident latency threshold (ROC/Youden's J), classifies a test
