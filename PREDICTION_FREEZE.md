@@ -10,7 +10,7 @@ cache-reverse-engineering suite.
 | Field | Value |
 |---|---|
 | Freeze date/time | 2026-09-14 18:23 UTC |
-| Git commit hash at freeze | (filled in the follow-up commit that tags `predictions-frozen` — see git log) |
+| Git commit hash at freeze | `b7d98c0187567ce0a1a60eb2663fc1d5351673c3` (content commit; this follow-up commit records it and carries the `predictions-frozen` tag) |
 | Git tag | `predictions-frozen` |
 | Timestamp of first Hazel cache-experiment job (must be AFTER freeze) | (not yet run — this pass only runs a non-cache access/build check, which Phase Discipline permits pre-freeze) |
 | Slurm job ID of that first Hazel cache run | (not yet run) |
