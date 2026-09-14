@@ -873,6 +873,107 @@ independent, compounding problems, not one:
   practice, despite that being its intended definition** — a real,
   citable finding, not a broken measurement.
 
+### eight_counters/ (Problem 8.4, item 1 — 2026-09-14)
+The 3 standardized cross-machine microbenchmarks required by problem 8.4 —
+(i) L1-resident dependent accesses, (ii) LLC-sized randomized accesses, (iii)
+a working set larger than LLC — run identically to every other machine that
+will eventually run this pipeline, collecting a fixed 8-event counter set.
+Phase II already frozen (`phase1-timing-only`), so this reuses the same
+`perf`-wrapping discipline as `pmu/` above, just a different benchmark set
+and a different 8th/9th event pair (see rationale below).
+
+- Source file(s): `scripts/run_standardized_benchmarks.sh`,
+  `scripts/summarize_eight_counters.py` (both new this session; no
+  `cache_bench` source changes — same `--experiment hit_latency
+  --load-mode dependent --pattern random` construction as every other
+  latency/PMU pipeline in this project, differing only in
+  `--footprint-bytes` and the perf event set).
+- **8 counters** (assignment-literal set, not `pmu/`'s own set): all 3
+  benchmarks collect `cache-references`, `cache-misses`, `L1-dcache-loads`,
+  `L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`,
+  `LLC-load-misses`, `dTLB-load-misses` — swapping out the `pmu/`
+  pipeline's `cycles`/`instructions` pair for the L1 store-side signal and
+  a real dTLB-miss count (all 8 confirmed present via `perf list` before
+  writing the script). Chosen specifically because per-access
+  normalization (problem 8.4 item 2, not attempted this session) doesn't
+  need an instructions counter, and dTLB-load-misses gives real
+  measured data toward this project's still-open DTLB-scale confound
+  question from the associativity investigation (see `CLAUDE.md`'s
+  associativity section) — this pipeline is the first to actually count
+  dTLB misses directly rather than only inferring the confound
+  structurally. Same 4-groups-of-2 perf-scheduling discipline as `pmu/`
+  (3 of the 4 groups — `cache`, `l1`, `llc` — are byte-identical
+  invocations to that pipeline's; only the 4th group differs:
+  `L1-dcache-stores,dTLB-load-misses` instead of `cycles,instructions`).
+- Idle-core check before running: `/proc/stat` idle-tick deltas sampled
+  across 3 windows ~2s apart for cores 1/3/4/5 — core 4 showed a flat,
+  non-incrementing idle counter (100% busy, matches `ps` showing another
+  student's `cache_bench_x86` pinned there via `taskset`); core 1 (used by
+  every prior Sunbird PMU run) confirmed idle (~99% idle across all 3
+  samples) and used again here.
+- Run command: `./scripts/run_standardized_benchmarks.sh sunbird 1
+  L1_resident:32768,LLC_random:31457280,beyond_LLC:536870912` (core 1;
+  footprints are this machine's own hand-confirmed
+  `FINAL_CACHE_TABLE.md` L1/LLC values plus the project's universal
+  536,870,912 B / 512 MiB DRAM-scale constant for `beyond_LLC`, safely
+  above every team machine's LLC). base_seed=12345 (repeats use
+  base_seed+index), samples=1,000,000/run, batch_size=1000,
+  warmup_passes=3, dependent load mode, random pattern (identical
+  construction across all 3 benchmarks, differing only in
+  `--footprint-bytes`), timestamp `20260914T041517Z`.
+- Raw output: `data_raw/sunbird/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/*_perfstat_*.csv.gz` and `*_bench_*.csv.gz` (gzipped by hand
+  post-run, same `.gitignore` convention as every other experiment).
+  Transcript: `data_raw/sunbird/eight_counters/
+  run_standardized_benchmarks_20260914T041517Z.log`.
+- Processed: `data_processed/sunbird/eight_counters/{L1_resident,LLC_random,
+  beyond_LLC}/eight_counters_summary_20260914T041517Z.csv` (one row per
+  run_tag + a median-of-3 row each; raw counts and miss-rate ratios only —
+  problem 8.4's actual per-access/per-1000-iteration normalization,
+  ranking/S-curves, and cross-generation comparison (items 2-4) are
+  explicitly NOT attempted this session; they need all 8 machines' data
+  first).
+- **Headline numbers (median row, all 3 benchmarks) — internally
+  consistent, no re-investigation needed:**
+  - `L1_resident` (32,768 B): ≈14.4 ticks/access (matches this machine's
+    own already-documented ≈10.35-tick L1 hit latency reasonably given
+    this run's own base-vs-repeat P-state-style elevation — base read
+    16.1 vs. rep1/rep2's 14.4/14.4, the same first-invocation-of-a-session
+    elevation pattern documented elsewhere in this project, e.g.
+    Charnwood's latency/ section); `l1_miss_rate` ≈0.6%, `llc_miss_rate`
+    ≈2.7%, `dtlb_load_misses` tiny (~502-516) — as expected for a dataset
+    that fits entirely in L1 and touches very few distinct pages.
+  - `LLC_random` (31,457,280 B): ≈57.7-59.5 ticks/access, matching this
+    machine's own documented ≈58.42-tick LLC hit latency almost exactly;
+    `l1_miss_rate` jumps to ≈7.5% (the working set no longer fits in L1,
+    as expected), `cache_miss_rate` ≈9-10%, `dtlb_load_misses` ≈880-1060
+    (an order of magnitude above `L1_resident`, tracking the much larger
+    page count touched).
+  - `beyond_LLC` (536,870,912 B): ≈254-258 ticks/access — noticeably
+    higher than this machine's own previously-documented ≈207-tick DRAM
+    hit latency (`data_processed/sunbird/FINAL_CACHE_TABLE.md`); most
+    likely contention from the same other student's `cache_bench_x86`
+    process confirmed pinned on core 4 for the whole session (a shared
+    memory-bandwidth/LLC resource, not insulated by this run's own idle
+    *core*, the same "idle core doesn't insulate from chip-shared
+    contention" finding this project already documented for Ookay's PMU
+    run) — flagged here, not smoothed over, and not re-run this session.
+    `cache_miss_rate`/`llc_miss_rate` both ≈49-55%, `dtlb_load_misses` is
+    3-4 orders of magnitude above the other two benchmarks (≈2-2.2×10^8),
+    consistent with streaming through far more distinct pages than the
+    DTLB can hold.
+  - Across all 3 benchmarks: ticks/access, `l1_miss_rate`, and
+    `dtlb_load_misses` all climb monotonically with footprint, exactly the
+    expected shape — no anomaly requiring further investigation this
+    session.
+- **Not yet run on any other machine.** Remaining 7 (Thunderbird, Skylark,
+  Artemisia, Charnwood, Crux, Ookay, Upgrade) need the same command with
+  their own `FINAL_CACHE_TABLE.md` L1/LLC byte values (Thunderbird also
+  needs the same `LLC-loads`/`LLC-load-misses` `<not supported>` tolerance
+  already documented for its ARM PMU in `pmu/` above) before problem 8.4
+  items 2-4 (normalization, per-benchmark ranked S-curves, and the
+  Intel/AMD/Arm and older/newer generation comparison) can be attempted.
+
 ## Final Inferred Cache Table (Sunbird, Phase I best guess, 2026-09-13)
 
 Moved to `data_processed/sunbird/FINAL_CACHE_TABLE.md` (2026-09-13) so it sits

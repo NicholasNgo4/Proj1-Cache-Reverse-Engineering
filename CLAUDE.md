@@ -2003,13 +2003,87 @@ that freeze will be fit from.
   freeze the two named team "Cache Laws," fill in and tag
   `PREDICTION_FREEZE.md`, THEN (only after that tag) verify Hazel access and
   begin §8.6. Also still open, independent of Hazel: §8.4's eight-counter
-  *cross-machine standardized* comparison (3 fixed benchmarks × ranked
-  S-curves — distinct from the per-machine PMU verification already done),
-  still an empty stub under `main_code/`; and finishing §8.5's
-  software-only hit-rate estimator's cross-machine coverage (implemented
-  and validated on 2 of 8 machines so far — see this file's own
-  "Software-only cache hit-rate estimator" bullet above — not a stub
-  anymore, just incomplete).
+  *cross-machine standardized* comparison — item 1 (the 3 fixed
+  benchmarks themselves) is no longer a stub as of 2026-09-14, see the
+  dedicated bullet just below, but items 2-4 (normalization, ranked
+  S-curves, and the Intel/AMD/Arm + generation comparison) still need all
+  8 machines' data first; and finishing §8.5's software-only hit-rate
+  estimator's cross-machine coverage (implemented and validated on 2 of 8
+  machines so far — see this file's own "Software-only cache hit-rate
+  estimator" bullet above — not a stub anymore, just incomplete).
+
+**Problem 8.4 (eight interesting performance counters across generations),
+item 1: started 2026-09-14, Sunbird and Thunderbird done (2 of 8 machines).**
+New pipeline
+`scripts/run_standardized_benchmarks.sh` + `scripts/summarize_eight_counters.py`
+runs the same `--experiment hit_latency --load-mode dependent --pattern
+random` construction already used everywhere in this project (no new C
+code — the "3 microbenchmarks" are just 3 standardized `--footprint-bytes`
+choices of the existing benchmark) at 3 fixed, cross-machine-standardized
+names — `L1_resident`, `LLC_random`, `beyond_LLC` — instead of raw byte
+values, so every machine's own footprint values can differ (per its own
+`FINAL_CACHE_TABLE.md`) while the benchmark identity stays comparable.
+Collects a **different fixed 8-event set than `run_pmu_verification.sh`'s
+own**: `cache-references`, `cache-misses`, `L1-dcache-loads`,
+`L1-dcache-load-misses`, `L1-dcache-stores`, `LLC-loads`, `LLC-load-misses`,
+`dTLB-load-misses` (swaps out that pipeline's `cycles`/`instructions` pair
+for the L1 store-side signal and a real dTLB-miss count) — chosen because
+per-access normalization (item 2) doesn't need an instructions counter, and
+dTLB-load-misses gives this project's first direct measured data toward the
+still-open DTLB-scale confound question from the associativity
+investigation, rather than only the structural/inferential evidence
+gathered so far. Same proven 4-groups-of-2 perf-scheduling split as
+`run_pmu_verification.sh` (3 of 4 groups byte-identical; only the 4th
+differs), same base+2-reproducibility-repeat convention.
+- **Sunbird** (`data_raw/sunbird/eight_counters/`, core 1, base_seed=12345,
+  timestamp `20260914T041517Z`): all 3 benchmarks + all 8 counters
+  collected cleanly, ticks/access and `dtlb_load_misses` both climb
+  monotonically with footprint as expected (`L1_resident`≈14.4,
+  `LLC_random`≈57.7-59.5 — matching this machine's own already-documented
+  ≈58.42-tick LLC hit latency almost exactly — `beyond_LLC`≈254-258
+  ticks/access). One honestly-flagged anomaly: `beyond_LLC`'s latency
+  reads noticeably higher than this machine's own previously-documented
+  ≈207-tick DRAM hit latency, most likely from another student's
+  `cache_bench_x86` process confirmed pinned on core 4 for the whole
+  session (a shared memory-bandwidth/LLC-contention effect, not insulated
+  by this run's own idle *core* — the same "idle core doesn't protect
+  against chip-shared contention" finding already documented for Ookay's
+  PMU run) — not re-run this session. Full detail:
+  `data_raw/sunbird/README.md`'s `eight_counters/` section.
+- **Thunderbird** (`data_raw/thunderbird/eight_counters/`, core 3,
+  base_seed=12345, timestamp `20260914T043110Z`; scripts copied over via
+  `scp`, same as this machine's earlier Phase II PMU work, since its git
+  remote still has no cached GitHub credentials). Machine-specific PMU
+  check confirmed `L1-dcache-stores` isn't even listed in `perf list` on
+  this `armv8_pmuv3_0` PMU (unlike Sunbird) and, together with the
+  already-documented `LLC-loads`/`LLC-load-misses`, comes back
+  `<not supported>` gracefully (exit 0), no script changes needed —
+  `dTLB-load-misses` counts fine. `L1_resident`≈0.085 ticks/access,
+  sane and small. **Two things worth flagging, not smoothing over**: (1)
+  `LLC_random`≈2.16 ticks/access reads well above this machine's own
+  previously-documented ≈0.907-tick LLC hit latency, while `beyond_LLC`
+  ≈2.44 stays close to its own documented ≈2.336-tick DRAM latency —
+  compressing the LLC-to-DRAM gap from the documented ~2.6x down to ~1.13x
+  in this run, most likely from two other students' processes (`incl_pmu`
+  on core 0, `cache_bench_arm` on core 2) confirmed active the whole
+  session, contending for chip-shared LLC/memory bandwidth despite core 3
+  itself staying idle — the same "idle core doesn't insulate from
+  chip-shared contention" pattern as Sunbird's own `beyond_LLC` anomaly
+  above, not re-run this session. (2) `cache_miss_rate`≈`l1_miss_rate` at
+  every footprint (0.20/0.19% at L1_resident, 5.46/5.46% at LLC_random,
+  5.33/5.34% at beyond_LLC) — confirms, in this new counter set too, the
+  already-documented ARM PMU quirk that this machine's generic
+  `cache-references`/`cache-misses` alias tracks L1-scope traffic rather
+  than a true any-cache-vs-DRAM signal. `dtlb_load_misses` climbs cleanly
+  monotonic across all 3 benchmarks (~1500 → ~1.1-1.8M → ~256M),
+  unaffected by that limitation. Full detail:
+  `data_raw/thunderbird/README.md`'s `eight_counters/` section.
+- **2 of 8 machines done (Sunbird, Thunderbird); 6 remaining** (Skylark,
+  Artemisia, Charnwood, Crux, Ookay, Upgrade). Each needs the same command
+  (`./scripts/run_standardized_benchmarks.sh <machine> <core>
+  L1_resident:<L1_bytes>,LLC_random:<LLC_bytes>,beyond_LLC:536870912`) with
+  its own `FINAL_CACHE_TABLE.md` L1/LLC values. Items 2-4 of 8.4 cannot be
+  attempted until all 8 machines have this data.
 
 ## Known constraints from prior sessions
 
