@@ -1816,6 +1816,76 @@ counters on Sunbird/Thunderbird; all 7-8 events at once on Crux/Artemisia/
 Upgrade) — worth hand-checking fresh on any future machine rather than
 assuming either extreme.
 
+**Moore-style chronological master table + cross-generation plots: done
+(2026-09-14), the first concrete step of Phase III/§9 — but this is
+prerequisite consolidation work, NOT the frozen prediction itself, and does
+NOT unblock touching Hazel.** Per `README.md`'s Phase Discipline, the
+lab-only prediction must still be frozen/tagged (`PREDICTION_FREEZE.md`)
+before any Hazel cache experiment — this section only builds the trend data
+that freeze will be fit from.
+- **Consolidated all 8 machines' `FINAL_CACHE_TABLE.md` (Phase I, frozen,
+  the primary/plotted series) + `PHASE2_VALIDATION_TABLE.md` (Phase II
+  PMU/system-report/literature, kept as a separate verification flag, never
+  substituted in) into `CHRONOLOGICAL_MASTER_TABLE.md`** (repo root,
+  alongside `CAPACITY_RESULTS.md`) and its machine-readable backing file
+  `data_processed/master/chronological_master_table.csv`. Sourcing rule
+  applied throughout, per `PROJECT 1.pdf`'s Table 5 instruction: every cell's
+  primary value is Phase I's timing-only number; a Phase II disagreement is
+  shown as `Phase I → Phase II` with an explicit match/mismatch flag, never
+  silently overwritten.
+- **Cross-machine findings worth citing directly in the report's §9 write-up
+  (full detail: `CHRONOLOGICAL_MASTER_TABLE.md`'s own "Notable cross-machine
+  data-quality findings" section):**
+  1. L1D size/associativity/sets/line matched Phase II ground truth on
+     **all 8 of 8 machines, zero exceptions** — the strongest validation of
+     the timing-only method in this project.
+  2. L2 associativity disagreed with Phase II on 5 of 8 machines; LLC
+     associativity disagreed on 7 of 8 (only Artemisia's 16-vs-15 came
+     close) — a now-quantified cost of the documented DTLB-scale confound
+     above L1.
+  3. LLC *capacity* itself (not just associativity) was wrong on 3 of 8
+     machines (Crux, Skylark, Artemisia) — each time because that machine's
+     own Phase-I capacity sweep never found a clean plateau at the
+     `CAPACITY_RESULTS.md` value used; Phase II's system-report/vendor-spec
+     closed the gap in every case.
+  4. LLC sharing *domain* is not "one socket" universally — Skylark's is a
+     2-core CCX slice (AMD Rome cache-doubled binning), Thunderbird's is all
+     80 SoC cores (a distributed SLC) — the master table normalizes MiB/core
+     to each machine's own actual domain, not blindly to total box cores.
+- **Units methodology, explicit and auditable (not "cycles from nominal
+  GHz"):** ns/access is derived per machine for cross-architecture
+  comparability — Thunderbird via its independently-read `CNTFRQ_EL0` =
+  25 MHz (a genuinely calibrated hardware constant, already established in
+  Phase I); every x86 machine via that CPU's own rated base clock (an
+  already-collected, Phase-I-safe `lscpu` field) under the standard
+  `constant_tsc`/invariant-TSC assumption. This converts an already-measured
+  elapsed-tick count into seconds — it does not fabricate a cycle count —
+  and is the same conversion several individual machines'
+  `PHASE2_VALIDATION_TABLE.md` files already used ad hoc (e.g. Sunbird's
+  "~4.14 ns @ 2.5 GHz nominal"); this session just applied it uniformly
+  across all 8 for the master table/plots.
+- **15 of the 15 required chronological plots produced** (`scripts/
+  plot_chronological_master.py` → `plots/chrono_01..15_*.{png,pdf}`,
+  grayscale/no-gridlines/solid-marker "old-ISCA" style matching
+  `plot_capacity.py`'s existing convention; distinct marker shapes for
+  Intel/AMD/Arm; log2 y-axis for the 3 capacity plots; open-marker +
+  dotted-tie-line overlay wherever Phase II resolved a Phase-I
+  disagreement, so the correction is visible without replacing the plotted
+  point). **Plot item 14 (timing-derived hit-rate/residency metric vs.
+  year) is NOT produced** — it depends on the software-only cache-hit-rate
+  estimator (`PROJECT 1.pdf` §8.5), which is still an empty stub
+  (`main_code/software_hit_rate/`) — flagged as a known gap, not silently
+  skipped.
+- **Still open before Hazel can be touched at all**: fit the actual
+  quantitative trend models/doubling-times from this data, formulate and
+  freeze the two named team "Cache Laws," fill in and tag
+  `PREDICTION_FREEZE.md`, THEN (only after that tag) verify Hazel access and
+  begin §8.6. Also still open, independent of Hazel: §8.4's eight-counter
+  *cross-machine standardized* comparison (3 fixed benchmarks × ranked
+  S-curves — distinct from the per-machine PMU verification already done)
+  and §8.5's software-only hit-rate estimator, both still empty stubs under
+  `main_code/`.
+
 ## Known constraints from prior sessions
 
 - Compile baseline is `-O0 -g -std=c11 -Wall -Wextra -fno-omit-frame-pointer`
