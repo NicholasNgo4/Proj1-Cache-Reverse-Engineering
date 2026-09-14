@@ -1366,7 +1366,7 @@ check that machine's own `data_raw/<machine>/README.md` and recent git log
 status, since this file lags active work in progress.
 
 **Phase II (counter- and literature-based verification): started
-2026-09-13, two machines done (Sunbird, Thunderbird), 6 outstanding.**
+2026-09-13, three machines done (Sunbird, Thunderbird, Charnwood), 5 outstanding.**
 `phase1-timing-only` tagged at commit `7be6dac` — **two sessions tagged it
 independently and concurrently (both at this same commit, so the tags
 should be identical objects pointing to the same target); verify with
@@ -1452,7 +1452,11 @@ open decision.**
   what was required except load-use latency in cycles, which neither
   publishes, and the TRM doesn't cover the SLC at all (outside a per-core
   manual's scope) — Thunderbird's LLC row rests on the Ampere datasheet
-  alone, one source, unlike its L1D/L2 rows.
+  alone, one source, unlike its L1D/L2 rows. **Charnwood now done**: Fog's
+  manual §11.12, Table 11.2 "Cache sizes on Skylake", p. 160 — the first
+  machine on this team where Fog's table is a direct hit for the exact
+  microarchitecture (Skylake client) rather than a same-family stand-in;
+  cited in full in `data_processed/charnwood/PHASE2_VALIDATION_TABLE.md`.
 - **Deliverable**: a single `data_processed/<machine>/
   PHASE2_VALIDATION_TABLE.md` per machine (separate file from
   `FINAL_CACHE_TABLE.md`, never edits it) — `PROJECT 1.pdf`'s Table 2
@@ -1539,13 +1543,57 @@ open decision.**
   third independent piece of evidence for "this SoC's SLC is invisible to
   per-core PMU/OS reporting," alongside sysfs's missing L3 entry and finding
   (2) above.
-- **Not yet done on the other 6 machines (Skylark, Artemisia, Charnwood,
-  Crux, Ookay, Upgrade).** Whoever picks up the next one should use
+- **Charnwood results (full detail:
+  `data_processed/charnwood/PHASE2_VALIDATION_TABLE.md`)**: run via
+  `scripts/run_pmu_verification.sh charnwood 3
+  L1:32768,L2:262144,LLC:8388608`, core 3, timestamp `20260914T003212Z`.
+  Literature source: Agner Fog's manual §11.12, Table 11.2 "Cache sizes on
+  Skylake", p. 160 — the first machine on the team where Fog's table covers
+  this exact microarchitecture (Skylake client) rather than a related one.
+  **L1D: exact match, all 3 sources** (size/ways/sets/line/sharing), same
+  clean pattern as Sunbird's and Thunderbird's L1D rows. **Both L2 and LLC
+  associativity were real disagreements, in opposite directions**: Phase
+  I's confound-blocked best guess was 8-way for both (see
+  `FINAL_CACHE_TABLE.md`'s associativity reasoning); system-reported came
+  back **L2 = 4-way** (half the guess, and literature's Table 11.2
+  independently corroborates 4-way as the low end of its own quoted
+  "4-16 way" range, plus an exact 1,024-set match) and **LLC = 16-way**
+  (double the guess; no literature ways figure exists for L3 in this table
+  to arbitrate a 3rd way — an honest gap in the source, not a discrepancy).
+  This is now the 3rd team machine (after Sunbird's LLC and Thunderbird's
+  L2) where Phase II unlocked a real correction to a confound-blocked Phase
+  I guess — the direction isn't consistent across machines (too high on
+  some, too low on others), reinforcing that the underlying confound isn't
+  systematically biased in one direction, just unreliable. **New finding
+  not present on Sunbird/Thunderbird's PMU runs**: this run's own PMU
+  counters caught a real *confirmed* multi-tenant interference effect even
+  though the two other students' processes were pinned to different
+  physical cores than this run's core 3 — `cycles/duration_time_ns` computed
+  from this run's own counters showed core 3 running at only ~2.4-2.7 GHz
+  (vs. this CPU's 3.4 GHz base), while two other physical cores sat near
+  100% busy the whole time; independently corroborated via
+  `scaling_cur_freq`/`scaling_governor`. Leading hypothesis: package-level
+  turbo-budget suppression, not direct resource contention — a different
+  interference mechanism than the same-core or shared-LLC contention this
+  project has documented elsewhere, since here the contending processes
+  shared neither a physical core nor (as far as tested) a demonstrated LLC
+  conflict with the pinned core. This tracks with a fairly uniform ~30-36%
+  inflation in this run's own `bench_avg_ticks_per_access_median` relative
+  to Phase I's own (quieter-session) hit_latency numbers at all 3 levels —
+  worth checking for on any future machine's PMU run where "different
+  physical core, still not fully quiet" was the best idle-core check
+  achievable at the time.
+- **Not yet done on the other 5 machines (Skylark, Artemisia, Crux, Ookay,
+  Upgrade).** Whoever picks up the next one should use
   `scripts/run_pmu_verification.sh` (now the settled convention, see above)
-  and read both the Sunbird and Thunderbird writeups + their respective
-  output files before choosing a literature source for that machine's own
-  CPU — an ARM machine should also expect (and not be alarmed by) the
-  `LLC-loads` `<not supported>` limitation documented above.
+  and read the Sunbird, Thunderbird, and Charnwood writeups + their
+  respective output files before choosing a literature source for that
+  machine's own CPU — an ARM machine should also expect (and not be
+  alarmed by) the `LLC-loads` `<not supported>` limitation documented
+  above, and any machine sharing a package with other active users' jobs
+  (even on different physical cores) should check `cycles/duration_time_ns`
+  and `scaling_cur_freq` for the turbo-suppression signature Charnwood's
+  run surfaced.
 
 ## Known constraints from prior sessions
 
