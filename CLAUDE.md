@@ -2062,7 +2062,7 @@ that freeze will be fit from.
   estimator" bullet above — not a stub anymore, just incomplete).
 
 **Problem 8.4 (eight interesting performance counters across generations),
-item 1: started 2026-09-14, Sunbird, Thunderbird, and Skylark done (3 of 8 machines).**
+item 1: started 2026-09-14, Sunbird, Thunderbird, Skylark, and Crux done (4 of 8 machines).**
 New pipeline
 `scripts/run_standardized_benchmarks.sh` + `scripts/summarize_eight_counters.py`
 runs the same `--experiment hit_latency --load-mode dependent --pattern
@@ -2146,8 +2146,30 @@ differs), same base+2-reproducibility-repeat convention.
   the whole session — not further investigated. `dtlb_load_misses` climbs
   cleanly monotonic across all 3 benchmarks (~691 → ~2,905 → ~10,901).
   Full detail: `data_raw/skylark/README.md`'s `eight_counters/` section.
-- **3 of 8 machines done (Sunbird, Thunderbird, Skylark); 5 remaining**
-  (Artemisia, Charnwood, Crux, Ookay, Upgrade). Each needs the same command
+- **Crux** (`data_raw/crux/eight_counters/`, core 1, base_seed=12345,
+  timestamp `20260914T052920Z`; footprints `L1_resident:32768,
+  LLC_random:8388608` per this machine's own `FINAL_CACHE_TABLE.md`,
+  `beyond_LLC:536870912` universal). Core re-verified idle via two
+  `/proc/stat` idle-delta samples 4s apart immediately before this run
+  (the other students' jobs that had pinned cores 0/2 during this
+  machine's earlier `pmu/` §8.3 session had since exited — all 8 cores
+  ~99-100% idle this time). **The cleanest of the four runs done so far**:
+  `L1_resident`≈6.94, `LLC_random`≈42.25, `beyond_LLC`≈237.64 ticks/access,
+  each within ~6.5% of this machine's own already-documented Phase I
+  `latency/` hit-latency numbers at the matching footprint (7.42/43.23/
+  236.80) — no contention-driven `beyond_LLC` inflation the way Sunbird's,
+  Thunderbird's, and (in the §8.3 pipeline) Ookay's runs all showed, most
+  likely because every core (not just the pinned one) was genuinely idle
+  this time, not only the run's own core. `l1_miss_rate` climbs cleanly
+  monotonically across all 3 benchmarks (1.05% → 8.80% → 13.4%) — unlike
+  this machine's own `pmu/` section, where the ratio saturates and drops
+  once past L1 into L2/LLC territory, here it keeps climbing because
+  `beyond_LLC` goes past LLC entirely, not just past L1. `dtlb_load_misses`
+  climbs cleanly and monotonically (median 1,349 → 1,080,275 → 254,971,011),
+  consistent with Sunbird/Thunderbird/Skylark's own pattern. Full detail:
+  `data_raw/crux/README.md`'s `eight_counters/` section.
+- **4 of 8 machines done (Sunbird, Thunderbird, Skylark, Crux); 4 remaining**
+  (Artemisia, Charnwood, Ookay, Upgrade). Each needs the same command
   (`./scripts/run_standardized_benchmarks.sh <machine> <core>
   L1_resident:<L1_bytes>,LLC_random:<LLC_bytes>,beyond_LLC:536870912`) with
   its own `FINAL_CACHE_TABLE.md` L1/LLC values. Items 2-4 of 8.4 cannot be
