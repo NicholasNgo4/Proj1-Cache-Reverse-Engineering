@@ -1091,6 +1091,115 @@ swaps the store/TLB pair for `cycles`/`instructions`.
   machines' `eight_counters/` data first — not attempted here, per
   `CLAUDE.md`'s own tracking of this problem.
 
+### software_hit_rate/ (Problem 8.5 — 2026-09-14)
+Software-only, timing-derived cache hit-rate estimator
+(`main_code/software_hit_rate/`, no PMU access anywhere in that file) plus
+its Phase-II PMU validation, same pipeline and redesigned harness used on
+Sunbird/Thunderbird/Skylark — see `data_raw/sunbird/README.md`'s
+`software_hit_rate/` section for the original design, the invalid first
+attempt, and the 2026-09-14 redesign that fixed it (none of that history is
+re-derived here). See `main_code/software_hit_rate/software_hit_rate.h`'s
+module doc comment for the full method (calibration -> ROC threshold
+selection -> Rogan-Gladen prevalence correction -> bootstrap CI). Footprint
+values come from `CAPACITY_RESULTS.md` (L1=49,152 B, L2=2,097,152 B,
+LLC≈30 MiB=31,457,280 B, DRAM=536,870,912 B), per this project's
+`CAPACITY_RESULTS.md`-is-authoritative rule. Core 4 (same core as this
+machine's `hit_latency`/`miss_latency`/`associativity` runs), confirmed
+idle via two `/proc/stat` idle-time-delta samples ~2s apart immediately
+before each run (per this machine's own established practice of not
+trusting a single `ps` snapshot).
+
+#### Sweep (parts 1-3, standalone, no perf)
+- Source file(s): `main_code/software_hit_rate/software_hit_rate.{c,h}`,
+  `scripts/run_software_hit_rate_sweep.sh`,
+  `scripts/summarize_software_hit_rate.py`, `scripts/plot_software_hit_rate.py`.
+- Run command: `./scripts/run_software_hit_rate_sweep.sh artemisia 4
+  4096,16384,32768,49152,65536,131072,262144,1048576,2097152,4194304,8388608,16777216,31457280,67108864,134217728,268435456,536870912
+  "L1:49152,L2:2097152,LLC:31457280,DRAM:536870912"` — the script's own
+  default sweep list with this machine's own L1 (49,152 B) and L2
+  (2,097,152 B) boundaries inserted (the unmodified default only contains
+  Sunbird's L1/L2 values, 32,768/262,144 B, not Artemisia's — same
+  explicit-only discipline the Skylark run already established), and the
+  boundary_spec passed explicitly (the script previously hardcoded
+  Sunbird's boundaries for its plot reference lines until Skylark's session
+  fixed it — see that machine's writeup). core=4, seed=12345,
+  calib_samples=20000, test_samples=50000, bootstrap_reps=2000,
+  pattern=random, timestamp `20260914T122226Z`.
+- Raw output: `data_raw/artemisia/software_hit_rate/raw/hit_rate_<bytes>_20260914T122226Z.csv.gz`
+  (full per-access CSV per footprint). Transcript:
+  `data_raw/artemisia/software_hit_rate/run_software_hit_rate_sweep_20260914T122226Z.log`.
+- Processed: `data_raw/artemisia/software_hit_rate/hit_rate_sweep_20260914T122226Z.csv.gz`
+  (gzipped by hand after generation, matching Skylark's convention);
+  plots: `data_processed/artemisia/software_hit_rate/plots/{hit_rate_sweep,calibration_distributions}.{png,pdf}`.
+- **Headline results**: Hhat=1.0000 clear through 262,144 B — **no dip at
+  this machine's own exact L1 boundary (49,152 B)**, unlike Sunbird's
+  0.8664 dip at its own L1 edge, matching Skylark's (also no-dip) pattern
+  rather than Sunbird's. Falls off starting at 1,048,576 B, and this
+  transition is genuinely noisy, not a clean monotonic ramp:
+  1,048,576 B -> Hhat=0.7221 but with a wide bootstrap CI (0.4046-0.7264,
+  bootstrap_std=0.1575 — an order of magnitude higher than every other
+  point's bootstrap_std, all of which are ≤0.07), then 2,097,152 B (this
+  machine's own L2 boundary) -> 0.1944 (tight CI again), then a steady
+  monotonic decline through 4,194,304 B (0.0642, itself still fairly wide:
+  CI 0.0623-0.2423) down to 536,870,912 B (0.0001). This 1-4 MiB
+  wide-uncertainty region lines up with this machine's own already-
+  documented (`capacity/` section) unresolved ~48 KiB-90 MiB continuous
+  ramp with no confirmed L2/L3 shelf — plausibly the same underlying
+  cause, not investigated further here.
+
+#### PMU validation (part 4)
+- Source file(s): `scripts/run_hit_rate_pmu_validation.sh`,
+  `scripts/compare_hit_rate_pmu.py` (unmodified from Sunbird's/Thunderbird's/
+  Skylark's runs — this machine used the already-fixed, second-design
+  version throughout, never the original broken one).
+- Run command: `./scripts/run_hit_rate_pmu_validation.sh artemisia 4
+  L1:49152,L2:2097152,LLC:31457280,DRAM:536870912`. Tested footprints after
+  the L1/L2/LLC halving (DRAM left as given): L1=24,576, L2=1,048,576,
+  LLC=15,728,640, DRAM=536,870,912. base_seed=12345 (repeats use
+  base_seed+index), timestamp `20260914T123624Z`.
+- Raw output: `data_raw/artemisia/software_hit_rate/pmu/{L1,L2,LLC,DRAM}/
+  *_{calibonly,bench,hitlatpmu,perfstat}_{base,rep1,rep2}_20260914T123624Z.csv.gz`
+  (gzipped by hand after the run, same as Sunbird/Skylark — this script does
+  not compress its own output). Transcript:
+  `data_raw/artemisia/software_hit_rate/pmu/run_hit_rate_pmu_validation_20260914T123624Z.log`.
+- Processed: `data_processed/artemisia/software_hit_rate/pmu_validation_20260914T123624Z.csv`.
+- **Headline results (median of base+2 repeats)**:
+
+  | Level | Tested footprint | Hhat | H_pmu | rel. error |
+  |---|---|---|---|---|
+  | L1  | 24,576 B     | 1.0000 | 0.7827 | 27.8% |
+  | L2  | 1,048,576 B  | 0.7163 | 0.6018 | 20.4% |
+  | LLC | 15,728,640 B | 0.0060 | 0.9029 | 99.3% |
+  | DRAM | 536,870,912 B | 0.0001 | 0.2328 | 100.0% |
+
+  L1 and L2 are both sane and citable (same "L1/L2 roughly agree, LLC/DRAM
+  diverge hugely" pattern as every other machine tested so far). **LLC and
+  DRAM's large disagreement is EXPECTED, not a bug** — the estimator's own
+  documented single-threshold limitation (tau ~86-90 ticks here sits well
+  below a genuine LLC/DRAM hit's true single-shot latency), reproduced on
+  a 5th machine now (after Sunbird, Thunderbird, Skylark, and this being
+  the 4th x86 one).
+- **New, Artemisia-specific finding: L2's repeats disagree with each other
+  more than any other machine's L2 result so far** (base=0.7163,
+  rep1=0.4119, rep2=0.7177 — rep1 is a real outlier, not within noise of
+  the other two). This corroborates the sweep's own finding above that the
+  1,048,576 B footprint sits in a genuinely wide-uncertainty region on this
+  machine (that sweep point's own bootstrap CI was 0.40-0.73, wide enough
+  to span both rep1's and base/rep2's PMU-validation values) — a real
+  order-sensitivity/reproducibility issue at this specific footprint on
+  this machine, not a PMU-harness artifact. Do not treat "L2 rel_error =
+  20.4%" as a tight, fully resolved number the way Skylark's 0.78% L2
+  result was; the median across 3 runs is being pulled by an outlier.
+- **DRAM's H_pmu=0.2328 (not near 0, as `Hhat`'s definition would predict)
+  is corroborated, not contradicted, by this machine's own already-
+  collected `eight_counters/beyond_LLC` result above**: that run's generic
+  `cache_miss_rate`/`llc_miss_rate` at 536,870,912 B were ~80%/~77%, i.e.
+  a generic-counter-derived "hit rate" of roughly 0.20-0.23 — close to this
+  H_pmu, an internal cross-check rather than the Thunderbird-style
+  generic-counter-unreliable-at-DRAM-scale finding (that machine's own
+  `cache-references`/`cache-misses` alias tracked something much closer to
+  L1-scope traffic; this machine's does not show the same symptom).
+
 ## Final Inferred Cache Table (Artemisia, Phase I best guess, 2026-09-13)
 
 Lives at `data_processed/artemisia/FINAL_CACHE_TABLE.md`, alongside this

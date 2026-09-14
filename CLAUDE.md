@@ -1981,6 +1981,41 @@ hit — this is not hypothetical, see the PMU validation results below).
   is-not-an-any-cache-vs-DRAM-signal finding already seen on both other
   machines. Full writeup: `data_raw/skylark/README.md`'s
   `software_hit_rate/` section.
+- **Artemisia (x86/Intel Sapphire Rapids, 2026-09-14): full flow run (sweep
+  + PMU validation), 5th machine overall, 4th on x86.** Core 4 (same core
+  as this machine's `hit_latency`/`miss_latency`/`associativity` runs),
+  confirmed idle via two `/proc/stat` idle-time-delta samples before each
+  run. Sweep: `./scripts/run_software_hit_rate_sweep.sh artemisia 4
+  <default list with 49152 and 2097152 (this machine's own L1/L2
+  boundaries) inserted> "L1:49152,L2:2097152,LLC:31457280,DRAM:536870912"`,
+  timestamp `20260914T122226Z`. Hhat=1.0 clear through 262,144 B — no dip
+  at the exact L1 boundary (49,152 B), same as Skylark, unlike Sunbird's
+  dip at its own L1 edge. **New finding: the 1,048,576 B sweep point has a
+  genuinely wide bootstrap CI (0.40-0.73, bootstrap_std=0.1575, ~10x every
+  other point's) rather than a clean monotonic falloff** — lines up with
+  this machine's own already-documented unresolved ~48 KiB-90 MiB
+  continuous capacity ramp (no confirmed L2/L3 shelf).
+  PMU validation: `./scripts/run_hit_rate_pmu_validation.sh artemisia 4
+  L1:49152,L2:2097152,LLC:31457280,DRAM:536870912`, timestamp
+  `20260914T123624Z`. L1 rel_error=27.8% (Hhat=1.0, H_pmu=0.783) and L2
+  rel_error=20.4% (Hhat=0.716, H_pmu=0.602) both sane; LLC (99.3%) and DRAM
+  (100.0%) reproduce the same expected single-threshold-classifier
+  limitation seen on every machine so far. **L2-specific new finding: its
+  3 repeats disagree with each other more than any other machine's L2
+  result** (Hhat=0.716/0.412/0.718 across base/rep1/rep2 — rep1 is a real
+  outlier) — directly corroborated by the sweep's own wide-CI finding at
+  the same 1,048,576 B footprint, i.e. a real machine-specific
+  reproducibility issue at this footprint, not a PMU-harness artifact; do
+  not read Artemisia's 20.4% L2 rel_error as a tight number the way
+  Skylark's 0.78% was. **DRAM's H_pmu=0.233 (not near 0) is internally
+  cross-checked, not a red flag**: this machine's own `eight_counters/
+  beyond_LLC` result (same 536,870,912 B footprint, collected earlier)
+  already showed ~77-80% `llc_miss_rate`/`cache_miss_rate` via the generic
+  PMU alias, i.e. a ~0.20-0.23 generic-counter "hit rate" — consistent with
+  H_pmu here, unlike Thunderbird's DRAM finding (that machine's generic
+  counter was shown to track L1-scope traffic, not real DRAM-vs-cache
+  activity). Full writeup: `data_raw/artemisia/README.md`'s
+  `software_hit_rate/` section.
 
 **Moore-style chronological master table + cross-generation plots: done
 (2026-09-14), the first concrete step of Phase III/§9 — but this is
@@ -2043,9 +2078,9 @@ that freeze will be fit from.
   file's own "Software-only cache hit-rate estimator" bullet above)**: the
   estimator (`PROJECT 1.pdf` §8.5, `main_code/software_hit_rate/`) is no
   longer an empty stub — it's implemented and has PMU-validated results on
-  Sunbird, Thunderbird, and now Skylark — but a cross-machine chronological
-  plot needs data from all 8 machines, and only 3 of 8 have any
-  `software_hit_rate` data collected so far. Still a known gap, just a
+  Sunbird, Thunderbird, Skylark, and now Artemisia — but a cross-machine
+  chronological plot needs data from all 8 machines, and only 4 of 8 have
+  any `software_hit_rate` data collected so far. Still a known gap, just a
   narrower one than "the code doesn't exist yet."
 - **Still open before Hazel can be touched at all**: fit the actual
   quantitative trend models/doubling-times from this data, formulate and

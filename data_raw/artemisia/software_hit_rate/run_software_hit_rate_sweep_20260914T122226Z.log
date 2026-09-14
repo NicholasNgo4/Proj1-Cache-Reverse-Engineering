@@ -1,0 +1,47 @@
+== run_software_hit_rate_sweep: machine=artemisia core=4 seed=12345 ==
+== boundaries=L1:49152,L2:2097152,LLC:31457280,DRAM:536870912 ==
+== timestamp=20260914T122226Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=304.0000 sensitivity=0.9932 specificity=0.9940 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=90.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=86.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.9996 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=49152 ==
+  # result tau_ticks=88.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=86.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.9979 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=88.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.9989 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=88.0000 sensitivity=0.9871 specificity=1.0000 p_obs=0.9900 Hhat=1.0000 ci_lower=0.9931 ci_upper=1.0000 bootstrap_mean=0.9998 bootstrap_std=0.0013 bootstrap_reps=2000
+== test_bytes=1048576 ==
+  # result tau_ticks=88.0000 sensitivity=0.9871 specificity=1.0000 p_obs=0.7129 Hhat=0.7221 ci_lower=0.4046 ci_upper=0.7264 bootstrap_mean=0.6085 bootstrap_std=0.1575 bootstrap_reps=2000
+== test_bytes=2097152 ==
+  # result tau_ticks=86.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.1919 Hhat=0.1944 ci_lower=0.1907 ci_upper=0.1980 bootstrap_mean=0.1944 bootstrap_std=0.0018 bootstrap_reps=2000
+== test_bytes=4194304 ==
+  # result tau_ticks=86.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.0634 Hhat=0.0642 ci_lower=0.0623 ci_upper=0.2423 bootstrap_mean=0.0999 bootstrap_std=0.0707 bootstrap_reps=2000
+== test_bytes=8388608 ==
+  # result tau_ticks=86.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.0241 Hhat=0.0244 ci_lower=0.0230 ci_upper=0.0258 bootstrap_mean=0.0303 bootstrap_std=0.0754 bootstrap_reps=2000
+== test_bytes=16777216 ==
+  # result tau_ticks=86.0000 sensitivity=0.9871 specificity=1.0000 p_obs=0.0063 Hhat=0.0064 ci_lower=0.0057 ci_upper=0.0071 bootstrap_mean=0.0064 bootstrap_std=0.0004 bootstrap_reps=2000
+== test_bytes=31457280 ==
+  # result tau_ticks=86.0000 sensitivity=0.9871 specificity=1.0000 p_obs=0.0024 Hhat=0.0024 ci_lower=0.0020 ci_upper=0.0028 bootstrap_mean=0.0024 bootstrap_std=0.0002 bootstrap_reps=2000
+== test_bytes=67108864 ==
+  # result tau_ticks=86.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.0006 Hhat=0.0006 ci_lower=0.0004 ci_upper=0.0008 bootstrap_mean=0.0008 bootstrap_std=0.0066 bootstrap_reps=2000
+== test_bytes=134217728 ==
+  # result tau_ticks=86.0000 sensitivity=0.9871 specificity=1.0000 p_obs=0.0003 Hhat=0.0003 ci_lower=0.0002 ci_upper=0.0012 bootstrap_mean=0.0006 bootstrap_std=0.0003 bootstrap_reps=2000
+== test_bytes=268435456 ==
+  # result tau_ticks=86.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.0001 Hhat=0.0001 ci_lower=0.0000 ci_upper=0.0002 bootstrap_mean=0.0001 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=536870912 ==
+  # result tau_ticks=86.0000 sensitivity=0.9872 specificity=1.0000 p_obs=0.0000 Hhat=0.0000 ci_lower=0.0000 ci_upper=0.0001 bootstrap_mean=0.0001 bootstrap_std=0.0011 bootstrap_reps=2000
+wrote 17 rows -> data_raw/artemisia/software_hit_rate/hit_rate_sweep_20260914T122226Z.csv
+-- generating plots --
+wrote data_processed/artemisia/software_hit_rate/plots/calibration_distributions.{png,pdf}
+wrote data_processed/artemisia/software_hit_rate/plots/hit_rate_sweep.{png,pdf}
+-- compressing raw per-access CSVs --
+
+== done ==
+== summary: data_raw/artemisia/software_hit_rate/hit_rate_sweep_20260914T122226Z.csv ==
+== record in data_raw/artemisia/README.md: core=4, seed=12345, timestamp=20260914T122226Z ==
+== full transcript saved to: data_raw/artemisia/software_hit_rate/run_software_hit_rate_sweep_20260914T122226Z.log ==
