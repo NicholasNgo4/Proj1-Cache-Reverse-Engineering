@@ -1366,7 +1366,8 @@ check that machine's own `data_raw/<machine>/README.md` and recent git log
 status, since this file lags active work in progress.
 
 **Phase II (counter- and literature-based verification): started
-2026-09-13, three machines done (Sunbird, Thunderbird, Skylark), 5 outstanding.**
+2026-09-13, four machines done (Sunbird, Thunderbird, Skylark, Ookay),
+4 outstanding.**
 `phase1-timing-only` tagged at commit `7be6dac` — **two sessions tagged it
 independently and concurrently (both at this same commit, so the tags
 should be identical objects pointing to the same target); verify with
@@ -1595,16 +1596,66 @@ open decision.**
     than Intel's LLC-scope mapping does (very low absolute event counts at
     the L1 footprint support this); the LLC footprint's own sharp jump is
     still a clean, trustworthy boundary confirmation regardless.
-- **Not yet done on the remaining 5 machines (Artemisia, Charnwood, Crux,
-  Ookay, Upgrade).** Whoever picks up the next one should use
+- **Ookay results (full detail:
+  `data_processed/ookay/PHASE2_VALIDATION_TABLE.md`)**: run via
+  `scripts/run_pmu_verification.sh ookay 3 L1:32768,L2:262144,LLC:8388608`,
+  core 3 (checked idle via 3 `mpstat` samples ~3s apart — cores 0/2 were
+  each 100% busy with other students' `incl_pmu`/`cache_bench_x86`
+  processes the entire session; core 3's own both SMT threads were
+  independently idle throughout), timestamp `20260914T003308Z`. Literature:
+  Agner Fog's Table 11.2 "Cache sizes on Skylake" (Kaby Lake is covered by
+  Fog's own "Skylake and other Lakes are quite similar" framing), per this
+  section's pre-existing Skylake-family assignment for Ookay/Crux/Upgrade.
+  **L1D: exact match, all 3 sources** (size/ways/sets/line), same clean
+  pattern as Sunbird's and Thunderbird's L1D rows, and notably the same
+  `-O0` latency-inflation ratio (~3.43x vs. Fog's 4-cycle reference) as
+  Sunbird's own L1 (~3.40x) despite a different CPU generation. **Both L2
+  and LLC associativity disagree with Phase I's confound-blocked best guess
+  (8-way at both levels, per `FINAL_CACHE_TABLE.md`'s reasoning) —
+  system-reported is 4-way at L2 and 16-way at LLC**, each resolved in
+  favor of the system-reported value — the same resolution pattern as
+  Sunbird's LLC row and Thunderbird's L2 row, now with BOTH non-L1 levels
+  disagreeing on the same machine, reinforcing that Phase I's repeated "8"
+  above L1 was the shared small-structure confound, not real signal. LLC
+  size matches Phase I's ~8 MiB estimate to the exact byte (8,388,608 B).
+  **New finding, not seen on Sunbird/Thunderbird: the LLC-footprint run's
+  own bench latency diverged +71.7% from Phase I's original hit_latency
+  result** (≈128.42 vs. ≈74.78 ticks), coinciding with an unstable implied
+  clock frequency across repeats (2.32-4.80 GHz, computed from `cycles ÷
+  duration_time` — briefly exceeding this CPU's own 4.2 GHz max turbo) even
+  though the run's own core (3) was independently confirmed idle
+  throughout via `mpstat` before/during/after — attributed to
+  shared-LLC/memory-bandwidth contention and per-package Turbo Boost
+  power-budget sharing from two other students' processes pinned at 100%
+  on cores 0 and 2 the entire session: an idle *core* doesn't insulate a
+  benchmark from contention on *chip-shared* resources (LLC, package power
+  budget) the way it does for private per-core L1/L2. A second, milder
+  anomaly: the generic `cache-references` and `LLC-loads`-specific miss
+  ratios both came back non-monotonic (higher at the small L1 footprint
+  than at L2, before climbing again at LLC) — reproducible across all 3
+  repeats at each level, attributed to the L1 footprint's very short timed
+  loop (~3.3-4.6 ms) letting fixed one-time setup cost (fork/exec, warmup,
+  permutation construction) dominate that ratio's denominator; the
+  L1-dcache-specific miss rate doesn't show this artifact and climbs
+  monotonically as expected, and was used as the more trustworthy per-level
+  indicator instead. Neither anomaly was re-run this session — flagged
+  plainly, not smoothed over, consistent with this project's practice
+  elsewhere. Also worth reusing: this session's shell had a default
+  `Cpus_allowed_list: 0-1`, but `taskset -c <core>` still successfully
+  retargeted to any of the machine's 8 logical CPUs (verified before
+  relying on it) — not a hard cgroup restriction, just an inherited
+  default affinity.
+- **Not yet done on the remaining 4 machines (Artemisia, Charnwood, Crux,
+  Upgrade).** Whoever picks up the next one should use
   `scripts/run_pmu_verification.sh` (now the settled convention, see above)
-  and read the Sunbird, Thunderbird, and Skylark writeups + their
+  and read the Sunbird, Thunderbird, Skylark, and Ookay writeups + their
   respective output files before choosing a literature source for that
   machine's own CPU — an ARM machine should also expect (and not be
   alarmed by) the `LLC-loads` `<not supported>` limitation documented
-  above, and an AMD machine should expect (per Skylark, just above) the
-  same limitation plus a possible non-monotonic generic-cache-group
-  miss-rate signal.
+  above, and an AMD/Intel machine should expect (per Skylark's and Ookay's
+  bullets just above) a possible non-monotonic generic-cache-group
+  miss-rate signal at the L1 footprint and/or Turbo/shared-LLC contention
+  from other students' processes even on an independently-idle core.
 
 ## Known constraints from prior sessions
 
