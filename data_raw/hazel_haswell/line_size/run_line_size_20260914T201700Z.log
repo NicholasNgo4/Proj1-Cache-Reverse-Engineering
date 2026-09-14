@@ -1,0 +1,253 @@
+== run_line_size: machine=hazel_haswell core=10 seed=12345 ==
+== timestamp=20260914T201700Z boundaries=32768,262144,25165824 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=32768B -- Method A window=[4096,131072] bytes
+############################################################
+-- [L32768 A coarse] stride=8B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099350: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_8_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_8_random_summary.csv
+-- [L32768 A coarse] stride=8B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099395: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_8_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_8_sequential_summary.csv
+-- [L32768 A coarse] stride=16B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099441: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_16_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_16_random_summary.csv
+-- [L32768 A coarse] stride=16B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099485: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_16_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_16_sequential_summary.csv
+-- [L32768 A coarse] stride=32B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099530: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_32_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_32_random_summary.csv
+-- [L32768 A coarse] stride=32B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099574: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_32_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_32_sequential_summary.csv
+-- [L32768 A coarse] stride=64B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099618: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_64_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_64_random_summary.csv
+-- [L32768 A coarse] stride=64B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099662: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_64_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_64_sequential_summary.csv
+-- [L32768 A coarse] stride=128B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099706: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_128_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_128_random_summary.csv
+-- [L32768 A coarse] stride=128B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099750: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_128_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_128_sequential_summary.csv
+-- [L32768 A coarse] stride=256B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099794: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_256_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_256_random_summary.csv
+-- [L32768 A coarse] stride=256B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099838: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_32768/family_256_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_32768/family_256_sequential_summary.csv
+-- [L32768 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_haswell/line_size/level_32768/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 58384, 16B: 52016, 32B: 52000, 64B: 36736, 128B: 36736, 256B: 36608}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~36608 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_haswell/line_size/level_32768/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_haswell/line_size/level_32768/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L32768 A] no candidate given for this level -- inspect
+   data_processed/hazel_haswell/line_size/level_32768/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L32768 B] single-curve method, footprint_bytes=65536 (2.0x boundary) --
+-- [L32768 B coarse] stride 8-1024 bytes (step 8) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099884: Disk quota exceeded
+  wrote 128002 lines -> data_raw/hazel_haswell/line_size/level_32768/singlecurve_coarse_random_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099927: Disk quota exceeded
+  wrote 128002 lines -> data_raw/hazel_haswell/line_size/level_32768/singlecurve_coarse_sequential_20260914T201700Z.csv
+Wrote 128 summary rows to data_processed/hazel_haswell/line_size/level_32768/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_haswell/line_size/level_32768/singlecurve_coarse_sequential_summary.csv
+-- [L32768 B] detected line-size estimate (bytes): 64 --
+-- [L32768 B] dense sweep around estimate 64 bytes: 32-129 (step 1) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3099979: Disk quota exceeded
+  wrote 98002 lines -> data_raw/hazel_haswell/line_size/level_32768/singlecurve_dense_random_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100023: Disk quota exceeded
+  wrote 98002 lines -> data_raw/hazel_haswell/line_size/level_32768/singlecurve_dense_sequential_20260914T201700Z.csv
+Wrote 98 summary rows to data_processed/hazel_haswell/line_size/level_32768/singlecurve_dense_random_summary.csv
+Wrote 98 summary rows to data_processed/hazel_haswell/line_size/level_32768/singlecurve_dense_sequential_summary.csv
+  -- [L32768 B] repeat 1/2 of the dense window --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100069: Disk quota exceeded
+  wrote 98002 lines -> data_raw/hazel_haswell/line_size/level_32768/singlecurve_dense_rep1_random_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100122: Disk quota exceeded
+  wrote 98002 lines -> data_raw/hazel_haswell/line_size/level_32768/singlecurve_dense_rep1_sequential_20260914T201700Z.csv
+Wrote 98 summary rows to data_processed/hazel_haswell/line_size/level_32768/singlecurve_dense_rep1_random_summary.csv
+Wrote 98 summary rows to data_processed/hazel_haswell/line_size/level_32768/singlecurve_dense_rep1_sequential_summary.csv
+  -- [L32768 B] repeat 2/2 of the dense window --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100182: Disk quota exceeded
+  wrote 98002 lines -> data_raw/hazel_haswell/line_size/level_32768/singlecurve_dense_rep2_random_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100225: Disk quota exceeded
+  wrote 98002 lines -> data_raw/hazel_haswell/line_size/level_32768/singlecurve_dense_rep2_sequential_20260914T201700Z.csv
+Wrote 98 summary rows to data_processed/hazel_haswell/line_size/level_32768/singlecurve_dense_rep2_random_summary.csv
+Wrote 98 summary rows to data_processed/hazel_haswell/line_size/level_32768/singlecurve_dense_rep2_sequential_summary.csv
+-- [L32768 B] generating single-curve plots --
+  note: flagged 3 isolated spike stride(s) as probable page-aliasing artifacts: [256, 512, 1024]
+Wrote data_processed/hazel_haswell/line_size/level_32768/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_haswell/line_size/level_32768/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## LEVEL boundary=262144B -- Method A window=[32768,1048576] bytes
+############################################################
+-- [L262144 A coarse] stride=8B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100275: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_8_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_8_random_summary.csv
+-- [L262144 A coarse] stride=8B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100319: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_8_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_8_sequential_summary.csv
+-- [L262144 A coarse] stride=16B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100363: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_16_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_16_random_summary.csv
+-- [L262144 A coarse] stride=16B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100407: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_16_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_16_sequential_summary.csv
+-- [L262144 A coarse] stride=32B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100451: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_32_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_32_random_summary.csv
+-- [L262144 A coarse] stride=32B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100495: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_32_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_32_sequential_summary.csv
+-- [L262144 A coarse] stride=64B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100539: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_64_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_64_random_summary.csv
+-- [L262144 A coarse] stride=64B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100583: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_64_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_64_sequential_summary.csv
+-- [L262144 A coarse] stride=128B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100628: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_128_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_128_random_summary.csv
+-- [L262144 A coarse] stride=128B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100673: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_128_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_128_sequential_summary.csv
+-- [L262144 A coarse] stride=256B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100720: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_256_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_256_random_summary.csv
+-- [L262144 A coarse] stride=256B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100764: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_262144/family_256_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_262144/family_256_sequential_summary.csv
+-- [L262144 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_haswell/line_size/level_262144/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 588488, 16B: 588480, 32B: 524288, 64B: 416128, 128B: 370688, 256B: 370688}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~370688 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_haswell/line_size/level_262144/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_haswell/line_size/level_262144/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L262144 A] no candidate given for this level -- inspect
+   data_processed/hazel_haswell/line_size/level_262144/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L262144 B] single-curve method, footprint_bytes=524288 (2.0x boundary) --
+-- [L262144 B coarse] stride 8-1024 bytes (step 8) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100812: Disk quota exceeded
+  wrote 128002 lines -> data_raw/hazel_haswell/line_size/level_262144/singlecurve_coarse_random_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100865: Disk quota exceeded
+  wrote 128002 lines -> data_raw/hazel_haswell/line_size/level_262144/singlecurve_coarse_sequential_20260914T201700Z.csv
+Wrote 128 summary rows to data_processed/hazel_haswell/line_size/level_262144/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_haswell/line_size/level_262144/singlecurve_coarse_sequential_summary.csv
+-- [L262144 B] detected line-size estimate (bytes): none --
+-- [L262144 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L262144 B] generating single-curve plots --
+  note: flagged 5 isolated spike stride(s) as probable page-aliasing artifacts: [128, 256, 512, 768, 1024]
+Wrote data_processed/hazel_haswell/line_size/level_262144/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_haswell/line_size/level_262144/plots/line_size_boxplots.pdf and .png
+
+############################################################
+## LEVEL boundary=25165824B -- Method A window=[3145728,100663296] bytes
+############################################################
+-- [L25165824 A coarse] stride=8B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100939: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_8_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_8_random_summary.csv
+-- [L25165824 A coarse] stride=8B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3100993: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_8_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_8_sequential_summary.csv
+-- [L25165824 A coarse] stride=16B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101142: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_16_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_16_random_summary.csv
+-- [L25165824 A coarse] stride=16B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101189: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_16_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_16_sequential_summary.csv
+-- [L25165824 A coarse] stride=32B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101238: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_32_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_32_random_summary.csv
+-- [L25165824 A coarse] stride=32B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101284: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_32_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_32_sequential_summary.csv
+-- [L25165824 A coarse] stride=64B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101341: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_64_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_64_random_summary.csv
+-- [L25165824 A coarse] stride=64B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101385: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_64_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_64_sequential_summary.csv
+-- [L25165824 A coarse] stride=128B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101440: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_128_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_128_random_summary.csv
+-- [L25165824 A coarse] stride=128B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101484: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_128_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_128_sequential_summary.csv
+-- [L25165824 A coarse] stride=256B pattern=random offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101535: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_256_random_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_256_random_summary.csv
+-- [L25165824 A coarse] stride=256B pattern=sequential offset=0B --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834508.c207n01.tmp.3101580: Disk quota exceeded
+  wrote 31002 lines -> data_raw/hazel_haswell/line_size/level_25165824/family_256_sequential_20260914T201700Z.csv
+Wrote 31 summary rows to data_processed/hazel_haswell/line_size/level_25165824/family_256_sequential_summary.csv
+-- [L25165824 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_haswell/line_size/level_25165824/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 56495360, 16B: 50331648, 32B: 39948224, 64B: 39948224, 128B: 39948160, 256B: 44840192}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~44840192 bytes) is 16B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_haswell/line_size/level_25165824/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_haswell/line_size/level_25165824/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L25165824 A] no candidate given for this level -- inspect
+   data_processed/hazel_haswell/line_size/level_25165824/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L25165824 B] single-curve method, footprint_bytes=50331648 (2.0x boundary) --
+-- [L25165824 B coarse] stride 8-1024 bytes (step 8) --

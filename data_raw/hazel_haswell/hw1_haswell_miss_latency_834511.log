@@ -1,0 +1,68 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+c207n05
+Linux c207n05 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) CPU E5-2650 v3 @ 2.30GHz
+Assigned logical CPU: 14, SLURM_JOB_ID=834511
+
+=== Running scripts/run_miss_latency_full.sh (HAZEL_MODE=1) ===
+== run_miss_latency_full: machine=hazel_haswell core=14 base_seed=12345 ==
+== timestamp=20260914T201700Z ==
+
+== transition L1_to_L2: target_bytes=32768 evict_bytes=262144 ==
+-- base (seed=12345) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725134: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L1_to_L2/miss_latency_base_random_20260914T201700Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L1_to_L2/base_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725178: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L1_to_L2/miss_latency_base_sequential_20260914T201700Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L1_to_L2/base_sequential_summary_20260914T201700Z.csv
+-- rep1 (seed=12346) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725222: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L1_to_L2/miss_latency_rep1_random_20260914T201700Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L1_to_L2/rep1_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725266: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L1_to_L2/miss_latency_rep1_sequential_20260914T201700Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L1_to_L2/rep1_sequential_summary_20260914T201700Z.csv
+-- rep2 (seed=12347) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725310: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L1_to_L2/miss_latency_rep2_random_20260914T201700Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L1_to_L2/rep2_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725355: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L1_to_L2/miss_latency_rep2_sequential_20260914T201700Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L1_to_L2/rep2_sequential_summary_20260914T201700Z.csv
+-- found source-level (L1) hit_latency data for penalty annotation: data_processed/hazel_haswell/latency/hit/L1/base_dependent_random_summary_20260914T201700Z.csv data_processed/hazel_haswell/latency/hit/L1/rep1_dependent_random_summary_20260914T201700Z.csv --
+-- generating plots for L1_to_L2 --
+Wrote data_processed/hazel_haswell/latency/miss/L1_to_L2/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1_to_L2 --
+
+== transition L2_to_LLC: target_bytes=262144 evict_bytes=25165824 ==
+-- base (seed=12345) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725408: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L2_to_LLC/miss_latency_base_random_20260914T201700Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L2_to_LLC/base_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725452: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L2_to_LLC/miss_latency_base_sequential_20260914T201700Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L2_to_LLC/base_sequential_summary_20260914T201700Z.csv
+-- rep1 (seed=12346) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725519: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L2_to_LLC/miss_latency_rep1_random_20260914T201700Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L2_to_LLC/rep1_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725563: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L2_to_LLC/miss_latency_rep1_sequential_20260914T201700Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L2_to_LLC/rep1_sequential_summary_20260914T201700Z.csv
+-- rep2 (seed=12347) --
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725610: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L2_to_LLC/miss_latency_rep2_random_20260914T201700Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L2_to_LLC/rep2_random_summary_20260914T201700Z.csv
+/usr/local/sbin/task_epilog.sh: line 261: /home/krchen/.cache/slurm-summary/834511.c207n05.tmp.725654: Disk quota exceeded
+  wrote 202 lines -> data_raw/hazel_haswell/latency/miss/L2_to_LLC/miss_latency_rep2_sequential_20260914T201700Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_haswell/latency/miss/L2_to_LLC/rep2_sequential_summary_20260914T201700Z.csv
+-- found source-level (L2) hit_latency data for penalty annotation: data_processed/hazel_haswell/latency/hit/L2/base_dependent_random_summary_20260914T201700Z.csv data_processed/hazel_haswell/latency/hit/L2/rep1_dependent_random_summary_20260914T201700Z.csv data_processed/hazel_haswell/latency/hit/L2/rep2_dependent_random_summary_20260914T201700Z.csv --
+-- generating plots for L2_to_LLC --
+  note: pattern=random has 3 overlapping summary rows with medians [279.0, 261.0, 117.0] (spread 162.0 ticks, 74.0%) -- averaging, widening whiskers to the union
+  note: pattern=sequential has 3 overlapping summary rows with medians [267.0, 111.0, 288.0] (spread 177.0 ticks, 79.7%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_haswell/latency/miss/L2_to_LLC/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2_to_LLC --
+
+== transition LLC_to_DRAM: target_bytes=25165824 evict_bytes=536870912 ==
+-- base (seed=12345) --

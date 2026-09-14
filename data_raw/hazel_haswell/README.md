@@ -159,10 +159,31 @@ brevity, but confirmed matching for `c207n01` in this run's own log,
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 834509, hostname `c207n02`, logical CPU 10, elapsed 33s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh hazel_haswell 10
+  32768,262144,25165824` (explicit `cache_bytes_csv`, no `ASSOC_ALLOW_AUTO`; base_seed=12345,
+  repeats at seed+1/seed+2, max_ways=40, 1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate (32,768 / 262,144 / 25,165,824 B), forcing every probed node into the same cache
+  set (see `associativity.h`'s docstring) -- standard method used on every lab machine.
+- Notes / results:
+  - **L1 = 8-way, fully reproducible (base + both repeats agree exactly)** -- flat ~7.7-19.2
+    ticks through num_ways=8, sharp knee at 9 (see
+    `data_processed/hazel_haswell/associativity/L1/plots/associativity_curve.png`). Matches
+    the frozen prediction exactly, and matches every x86 lab machine's own confirmed L1=8-way.
+  - **L2 = UNRESOLVED, flagged by the pipeline itself**: base run detected 3, both repeats
+    detected 4 (`WARNING: repeat(s) disagree with the base estimate`). Given L2's own capacity
+    (262,144 B) was itself a reasoned guess rather than a confirmed boundary this pass, this
+    disagreement is not surprising -- do not cite an L2 associativity number for this machine.
+  - **L3_LLC = 9, fully reproducible (base + both repeats agree exactly)** -- this is the SAME
+    "~9-10-way wall" confound signature already documented extensively across Sunbird/Upgrade/
+    Thunderbird/Charnwood/etc. in `CLAUDE.md` (a shared small-fixed-structure artifact, most
+    likely DTLB-scale, not real LLC associativity) -- do not cite 9-way as this machine's real
+    LLC associativity either. A useful cross-validation point regardless: the exact same
+    confound reproduces on Hazel hardware, not just the team's own lab machines.
 
 ### latency/
 - Source file(s): 
