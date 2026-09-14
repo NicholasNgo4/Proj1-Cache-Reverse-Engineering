@@ -106,12 +106,34 @@ echo "== run_inclusion_policy_full: machine=${MACHINE} core=${CORE} base_seed=${
 echo "== assumed_line_size_bytes=${ASSUMED_LINE_SIZE_BYTES} (confirmed for Sunbird 2026-09-11; verify for other machines) =="
 echo "== timestamp=${TS} =="
 
-make -s
+HAZEL_MODE="${HAZEL_MODE:-0}"
+if [ "$HAZEL_MODE" = "1" ]; then
+  # Isolated per-job build -- avoids races when several of this project's
+  # Hazel Slurm jobs land RUNNING at the same time in this one shared GPFS
+  # checkout (unlike the lab machines, which each have their own separate,
+  # non-shared /home -- see CLAUDE.md). Confirmed the hard way: a same-batch
+  # submission of sister access-check jobs that all ran `make clean && make`
+  # directly in this checkout produced a missing-.o link failure on one job.
+  : "${SLURM_JOB_ID:?HAZEL_MODE=1 requires running under Slurm (SLURM_JOB_ID unset)}"
+  BUILD_DIR="${REPO_ROOT}/hazel_build/${SLURM_JOB_ID}"
+  rm -rf "$BUILD_DIR"
+  mkdir -p "$BUILD_DIR"
+  cp -r main_code Makefile "$BUILD_DIR/"
+  ( cd "$BUILD_DIR" && make -s )
+  BENCH="${BUILD_DIR}/cache_bench"
+  PIN_CMD=(srun --cpu-bind=cores)
+  cleanup_hazel_build() { rm -rf "$BUILD_DIR"; }
+  trap cleanup_hazel_build EXIT
+else
+  make -s
+  BENCH="./cache_bench"
+  PIN_CMD=(taskset -c "$CORE")
+fi
 
 run_sweep() {
   # run_sweep <pattern> <target_bytes> <evict_bytes> <out_csv> [seed]
   local pattern="$1" target="$2" evict="$3" out="$4" seed="${5:-$SEED}"
-  taskset -c "$CORE" ./cache_bench --experiment inclusion_policy --pattern "$pattern" \
+  "${PIN_CMD[@]}" "$BENCH" --experiment inclusion_policy --pattern "$pattern" \
     --samples "$SAMPLES" --batch-size 1 --target-bytes "$target" --evict-bytes "$evict" \
     --evict-stride-bytes "$EVICT_STRIDE_BYTES" --evict-offset-bytes "$EVICT_OFFSET_BYTES" \
     --warmup-passes "$WARMUP" --seed "$seed" > "$out"
@@ -148,7 +170,7 @@ for spec in "${SPECS[@]}"; do
   # to characterize miss_latency's single-shot overhead on this machine. ----
   echo "-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --"
   CAL_OUT="${RAW_DIR}/inclusion_policy_calibration_${TS}.csv"
-  taskset -c "$CORE" ./cache_bench --experiment inclusion_policy --pattern random \
+  "${PIN_CMD[@]}" "$BENCH" --experiment inclusion_policy --pattern random \
     --samples "$CAL_SAMPLES" --batch-size 1 --target-bytes "$TARGET_BYTES" \
     --evict-bytes "$TARGET_BYTES" --evict-stride-bytes "$EVICT_STRIDE_BYTES" \
     --evict-offset-bytes "$EVICT_OFFSET_BYTES" --warmup-passes "$WARMUP" --seed "$SEED" \

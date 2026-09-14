@@ -189,7 +189,29 @@ exec > >(tee -a "$LOG") 2>&1
 echo "== run_line_size: machine=${MACHINE} core=${CORE} seed=${SEED} =="
 echo "== timestamp=${TS} boundaries=${BOUNDARIES_CSV} coarse_strides=${STRIDES_CSV} =="
 
-make -s
+HAZEL_MODE="${HAZEL_MODE:-0}"
+if [ "$HAZEL_MODE" = "1" ]; then
+  # Isolated per-job build -- avoids races when several of this project's
+  # Hazel Slurm jobs land RUNNING at the same time in this one shared GPFS
+  # checkout (unlike the lab machines, which each have their own separate,
+  # non-shared /home -- see CLAUDE.md). Confirmed the hard way: a same-batch
+  # submission of sister access-check jobs that all ran `make clean && make`
+  # directly in this checkout produced a missing-.o link failure on one job.
+  : "${SLURM_JOB_ID:?HAZEL_MODE=1 requires running under Slurm (SLURM_JOB_ID unset)}"
+  BUILD_DIR="${REPO_ROOT}/hazel_build/${SLURM_JOB_ID}"
+  rm -rf "$BUILD_DIR"
+  mkdir -p "$BUILD_DIR"
+  cp -r main_code Makefile "$BUILD_DIR/"
+  ( cd "$BUILD_DIR" && make -s )
+  BENCH="${BUILD_DIR}/cache_bench"
+  PIN_CMD=(srun --cpu-bind=cores)
+  cleanup_hazel_build() { rm -rf "$BUILD_DIR"; }
+  trap cleanup_hazel_build EXIT
+else
+  make -s
+  BENCH="./cache_bench"
+  PIN_CMD=(taskset -c "$CORE")
+fi
 
 compute_bracket() {
   local c=$1 step=$2
@@ -218,7 +240,7 @@ compute_offsets() {
 run_sweep_b() {
   # run_sweep_b <footprint> <pattern> <min_stride> <max_stride> <step> <out_csv>
   local footprint="$1" pattern="$2" min="$3" max="$4" step="$5" out="$6"
-  taskset -c "$CORE" ./cache_bench --experiment line_size --pattern "$pattern" \
+  "${PIN_CMD[@]}" "$BENCH" --experiment line_size --pattern "$pattern" \
     --samples "$SAMPLES" --batch-size "$BATCH" \
     --footprint-bytes "$footprint" --min-stride "$min" --max-stride "$max" \
     --stride-step "$step" --align-bytes "$ALIGN_BYTES" \
@@ -263,7 +285,7 @@ for idx in "${!BOUNDARIES[@]}"; do
     for pattern in random sequential; do
       echo "-- [L${BOUNDARY} A coarse] stride=${stride}B pattern=${pattern} offset=0B --"
       RAW="${RAW_LEVEL_DIR}/family_${stride}_${pattern}_${TS}.csv"
-      taskset -c "$CORE" ./cache_bench --experiment line_size_family \
+      "${PIN_CMD[@]}" "$BENCH" --experiment line_size_family \
         --stride "$stride" --min-bytes "$LEVEL_MIN" --max-bytes "$LEVEL_MAX" \
         --points-per-octave "$POINTS_PER_OCTAVE" --align-bytes "$ALIGN_BYTES" \
         --offset-bytes 0 \
@@ -321,7 +343,7 @@ for idx in "${!BOUNDARIES[@]}"; do
       for stride in "${BRACKET[@]}"; do
         echo "-- [L${BOUNDARY} A refine] stride=${stride}B offset=${offset}B pattern=random --"
         RAW="${RAW_LEVEL_DIR}/refine_${stride}_off${offset}_${TS}.csv"
-        taskset -c "$CORE" ./cache_bench --experiment line_size_family \
+        "${PIN_CMD[@]}" "$BENCH" --experiment line_size_family \
           --stride "$stride" --min-bytes "$LEVEL_MIN" --max-bytes "$LEVEL_MAX" \
           --points-per-octave "$POINTS_PER_OCTAVE" --align-bytes "$ALIGN_BYTES" \
           --offset-bytes "$offset" \

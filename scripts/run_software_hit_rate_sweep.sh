@@ -69,14 +69,36 @@ echo "== run_software_hit_rate_sweep: machine=${MACHINE} core=${CORE} seed=${SEE
 echo "== boundaries=${BOUNDARY_SPEC} =="
 echo "== timestamp=${TS} =="
 
-make -s
+HAZEL_MODE="${HAZEL_MODE:-0}"
+if [ "$HAZEL_MODE" = "1" ]; then
+  # Isolated per-job build -- avoids races when several of this project's
+  # Hazel Slurm jobs land RUNNING at the same time in this one shared GPFS
+  # checkout (unlike the lab machines, which each have their own separate,
+  # non-shared /home -- see CLAUDE.md). Confirmed the hard way: a same-batch
+  # submission of sister access-check jobs that all ran `make clean && make`
+  # directly in this checkout produced a missing-.o link failure on one job.
+  : "${SLURM_JOB_ID:?HAZEL_MODE=1 requires running under Slurm (SLURM_JOB_ID unset)}"
+  BUILD_DIR="${REPO_ROOT}/hazel_build/${SLURM_JOB_ID}"
+  rm -rf "$BUILD_DIR"
+  mkdir -p "$BUILD_DIR"
+  cp -r main_code Makefile "$BUILD_DIR/"
+  ( cd "$BUILD_DIR" && make -s )
+  BENCH="${BUILD_DIR}/cache_bench"
+  PIN_CMD=(srun --cpu-bind=cores)
+  cleanup_hazel_build() { rm -rf "$BUILD_DIR"; }
+  trap cleanup_hazel_build EXIT
+else
+  make -s
+  BENCH="./cache_bench"
+  PIN_CMD=(taskset -c "$CORE")
+fi
 
 RAW_FILES=()
 IFS=',' read -r -a FOOTPRINTS <<< "$SWEEP_CSV"
 for fp in "${FOOTPRINTS[@]}"; do
   OUT="${RAW_DETAIL}/hit_rate_${fp}_${TS}.csv"
   echo "== test_bytes=${fp} =="
-  taskset -c "$CORE" ./cache_bench --experiment hit_rate --test-bytes "$fp" --seed "$SEED" > "$OUT"
+  "${PIN_CMD[@]}" "$BENCH" --experiment hit_rate --test-bytes "$fp" --seed "$SEED" > "$OUT"
   echo "  $(grep '^# result' "$OUT")"
   RAW_FILES+=("$OUT")
 done

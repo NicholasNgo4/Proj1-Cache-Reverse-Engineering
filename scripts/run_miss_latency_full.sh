@@ -86,7 +86,29 @@ exec > >(tee -a "$LOG") 2>&1
 echo "== run_miss_latency_full: machine=${MACHINE} core=${CORE} base_seed=${SEED} =="
 echo "== timestamp=${TS} =="
 
-make -s
+HAZEL_MODE="${HAZEL_MODE:-0}"
+if [ "$HAZEL_MODE" = "1" ]; then
+  # Isolated per-job build -- avoids races when several of this project's
+  # Hazel Slurm jobs land RUNNING at the same time in this one shared GPFS
+  # checkout (unlike the lab machines, which each have their own separate,
+  # non-shared /home -- see CLAUDE.md). Confirmed the hard way: a same-batch
+  # submission of sister access-check jobs that all ran `make clean && make`
+  # directly in this checkout produced a missing-.o link failure on one job.
+  : "${SLURM_JOB_ID:?HAZEL_MODE=1 requires running under Slurm (SLURM_JOB_ID unset)}"
+  BUILD_DIR="${REPO_ROOT}/hazel_build/${SLURM_JOB_ID}"
+  rm -rf "$BUILD_DIR"
+  mkdir -p "$BUILD_DIR"
+  cp -r main_code Makefile "$BUILD_DIR/"
+  ( cd "$BUILD_DIR" && make -s )
+  BENCH="${BUILD_DIR}/cache_bench"
+  PIN_CMD=(srun --cpu-bind=cores)
+  cleanup_hazel_build() { rm -rf "$BUILD_DIR"; }
+  trap cleanup_hazel_build EXIT
+else
+  make -s
+  BENCH="./cache_bench"
+  PIN_CMD=(taskset -c "$CORE")
+fi
 
 run_sweep() {
   # run_sweep <pattern> <target_bytes> <evict_bytes> <out_csv> [seed]
@@ -100,7 +122,7 @@ run_sweep() {
   # selected. Pass --batch-size 1 explicitly so that cross-check can't fail
   # just because SAMPLES here is deliberately much smaller than those other
   # experiments' defaults.
-  taskset -c "$CORE" ./cache_bench --experiment miss_latency --pattern "$pattern" \
+  "${PIN_CMD[@]}" "$BENCH" --experiment miss_latency --pattern "$pattern" \
     --samples "$SAMPLES" --batch-size 1 --target-bytes "$target" --evict-bytes "$evict" \
     --warmup-passes "$WARMUP" --seed "$seed" > "$out"
   echo "  wrote $(wc -l < "$out") lines -> $out (pattern=${pattern} seed=${seed})"

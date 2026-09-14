@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# hw1_haswell.sh -- Phase III Hazel pilot job, haswell generation.
+# hw1_icelake_8358.sh -- Phase III Hazel pilot job, icelake_8358 generation.
 #
 # THIS JOB IS AN ACCESS/BUILD CHECK, NOT THE FULL CACHE SUITE. It identifies
 # the allocated node (whitelisted commands only, per README.md's Phase
@@ -32,14 +32,14 @@
 # after the tag (e.g. this script itself), not just the exact tagged commit.
 #
 #SBATCH --job-name=hw1_cache
-#SBATCH --output=data_raw/hazel_haswell/hw1_haswell_%j.log
-#SBATCH --error=data_raw/hazel_haswell/hw1_haswell_%j.err.log
+#SBATCH --output=data_raw/hazel_icelake_8358/hw1_icelake_8358_%j.log
+#SBATCH --error=data_raw/hazel_icelake_8358/hw1_icelake_8358_%j.err.log
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=4G
 #SBATCH --time=00:15:00
 #SBATCH --partition=compute_partners
-#SBATCH --constraint=haswell
+#SBATCH --constraint=icelake_8358
 
 set -euo pipefail
 
@@ -53,7 +53,7 @@ echo "=== Slurm job context ==="
 echo "SLURM_JOB_ID=${SLURM_JOB_ID:-unset}"
 echo "SLURM_JOB_NODELIST=${SLURM_JOB_NODELIST:-unset}"
 echo "SLURM_CPUS_ON_NODE=${SLURM_CPUS_ON_NODE:-unset}"
-echo "SLURM_JOB_CONSTRAINT (feature match)=${SLURM_JOB_CONSTRAINT:-haswell}"
+echo "SLURM_JOB_CONSTRAINT (feature match)=${SLURM_JOB_CONSTRAINT:-icelake_8358}"
 if command -v numactl >/dev/null 2>&1; then
   numactl -s || true
 else
