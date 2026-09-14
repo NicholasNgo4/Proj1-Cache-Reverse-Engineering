@@ -1518,11 +1518,13 @@ a doubling time; LLC capacity and associativity are better described as class-de
 changes with no consistent per-year slope, and line size and L1D capacity/associativity are
 reported as constant (item 1), not growing.
 
-\item[7.] Evaluating the frozen lab-only prediction against held-out Hazel measurements cannot be
-done yet: per this project's phase discipline (Section~\ref{sec:hazel}),
-\texttt{PREDICTION\_FREEZE.md} must be filled in, committed, and tagged before any Hazel cache
-experiment runs, and that freeze has not happened as of this draft; this item will be completed
-once Hazel results exist. Using only the 8 lab machines, we extend the L2-capacity-per-core
+\item[7.] The lab-only prediction was frozen and tagged \texttt{predictions-frozen} in
+\texttt{PREDICTION\_FREEZE.md} on 2026-09-14, before any Hazel cache experiment ran (Hazel access
+was only exercised via a non-cache build/access-check job on the \texttt{haswell} constraint, which
+this project's phase discipline explicitly permits pre-freeze). Evaluating the frozen prediction
+against held-out Hazel measurements is still pending -- the full 1,000,000-sample cache suite has
+not run on Hazel yet -- and this item will be completed once those results exist. Using only the 8
+lab machines, we extend the L2-capacity-per-core
 doubling model from item 6 ($\tau=3$ years) 5 years beyond the newest measured system (Artemisia,
 2023) to $\sim$2028: $2\,\text{MiB} \times 2^{5/3} \approx 6.3$--$6.7$\,MiB per core. Given the
 trend is a step function rather than smooth (item 2), we report a wide uncertainty range of
