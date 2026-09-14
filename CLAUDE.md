@@ -1899,6 +1899,39 @@ hit — this is not hypothetical, see the PMU validation results below).
   redesign should try to eliminate. Full writeup, including the exact
   broken-run numbers kept as evidence:
   `data_raw/sunbird/README.md`'s `software_hit_rate/` section.
+- **Redesigned PMU validation confirmed cross-architecture on Thunderbird
+  (ARM, 2026-09-14) — PMU validation piece only, the sweep hasn't been run
+  on this machine yet.** `./scripts/run_hit_rate_pmu_validation.sh
+  thunderbird 3 L1:65536,L2:1048576,LLC:31457280,DRAM:536870912`, core 3,
+  timestamp `20260914T032826Z`. **Mechanically, both fixes generalized with
+  no changes needed**: no 0.0/1.0 classification flips, and perf-wrapped
+  durations scaled sanely with footprint size (L1=71ms through
+  DRAM=24.8s) instead of the ~1.7-2.9s fixed floor the original broken
+  design produced at every footprint regardless of size. L1/L2 validated
+  cleanly (rel_error 0.08%/6.4%). **LLC's disagreement (Hhat=0.36 vs.
+  H_pmu=0.94) is the same expected classifier limitation, just
+  numerically different for an architecture-specific reason**: every
+  calibration this session produced `tau=1.0000` (ARM's 25 MHz
+  `CNTVCT_EL0` is far coarser than x86 TSC), and this machine's own
+  confirmed LLC hit latency (~36 ns ≈ 0.9 ticks at this resolution) sits
+  close enough to tau=1 that a sizeable fraction of LLC hits land at or
+  below it — unlike Sunbird's fine-grained TSC, where LLC latency
+  unambiguously exceeds tau. **DRAM's H_pmu=0.9466 is a genuinely new,
+  separate finding, not a harness bug**: checked directly from the raw
+  perf output, `cache-misses/cache-references` = 5.3% even at full
+  512 MiB DRAM scale — this machine's generic `cache-references`/
+  `cache-misses` PMU alias tracks something much closer to L1-scope
+  traffic than a true any-cache-vs-DRAM signal (already independently
+  documented in this machine's Phase II PMU verification work above; now
+  directly reproduced in the hit_rate context too). H_pmu is simply not
+  trustworthy ground truth on this machine at DRAM scale, independent of
+  anything the harness controls — do not read this as evidence the
+  redesign failed here. Also worth reusing: this machine's own git remote
+  has no cached GitHub credentials (`git fetch` fails, "could not read
+  Username") — a pre-existing condition unrelated to this work; the
+  redesigned scripts were copied over via `scp` instead of `git pull`.
+  Full writeup: `data_raw/thunderbird/README.md`'s `software_hit_rate/`
+  section.
 
 **Moore-style chronological master table + cross-generation plots: done
 (2026-09-14), the first concrete step of Phase III/§9 — but this is

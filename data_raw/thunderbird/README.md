@@ -240,6 +240,94 @@ one.
   "SLC is invisible to this core's PMU/OS reporting" finding above — see the
   validation table's supplementary section for the full writeup.
 
+### software_hit_rate/ (Problem 8.5 — 2026-09-14)
+**Cross-architecture reproducibility check only** — this session ran just
+the PMU validation piece (part 4) on Thunderbird, to confirm the 2026-09-14
+redesign (see `CLAUDE.md`'s "Software-only cache hit-rate estimator"
+subsection and `data_raw/sunbird/README.md`'s `software_hit_rate/` section
+for the full original investigation) generalizes past Sunbird's x86 PMU to
+this machine's ARM/`armv8_pmuv3_0` PMU. **The standalone sweep (parts 1-3)
+has NOT been run on this machine yet** — only the PMU validation harness
+was exercised here.
+
+- Source file(s): `scripts/run_hit_rate_pmu_validation.sh`,
+  `scripts/compare_hit_rate_pmu.py` (unchanged from Sunbird's redesigned
+  version — no Thunderbird-specific code path exists or was needed).
+- Run command: `./scripts/run_hit_rate_pmu_validation.sh thunderbird 3
+  L1:65536,L2:1048576,LLC:31457280,DRAM:536870912` (core 3, same core as
+  every other Thunderbird experiment — core 2 was busy with another
+  student's `cache_bench_arm` job at the time, confirmed via `ps`; core 3
+  confirmed idle via `/proc/stat` idle-time deltas across a 3s window
+  immediately before running: ~99.7% idle). Tested footprints after the
+  redesign's L1/L2/LLC halving: L1=32768, L2=524288, LLC=15728640,
+  DRAM=536870912 (unchanged). base_seed=12345 (repeats use base_seed+index),
+  timestamp `20260914T032826Z`. Repo state: this machine's own git remote
+  has no cached GitHub credentials (`gh auth status`: not logged in;
+  `git fetch` fails with "could not read Username") — a pre-existing
+  condition, not something this session fixed — so the redesigned scripts
+  were copied over via `scp` directly rather than `git pull`; this
+  machine's git working tree itself was otherwise clean before that copy.
+- Raw output: `data_raw/thunderbird/software_hit_rate/pmu/{L1,L2,LLC,DRAM}/
+  *_{calibonly,bench,hitlatpmu,perfstat}_{base,rep1,rep2}_20260914T032826Z.csv.gz`.
+  Transcript: `data_raw/thunderbird/software_hit_rate/pmu/
+  run_hit_rate_pmu_validation_20260914T032826Z.log`.
+- Processed: `data_processed/thunderbird/software_hit_rate/
+  pmu_validation_20260914T032826Z.csv`.
+- Headline results (median of base+2 repeats):
+
+  | Level | Tested footprint | Hhat | H_pmu | rel. error |
+  |---|---|---|---|---|
+  | L1  | 32,768 B     | 1.0000 | 0.9992 | 0.08% |
+  | L2  | 524,288 B    | 0.9755 | 0.9166 | 6.4% |
+  | LLC | 15,728,640 B | 0.3616 | 0.9437 | 61.7% |
+  | DRAM | 536,870,912 B | 0.0000 | 0.9466 | 100% |
+
+  **Mechanically, the redesign confirmed fully cross-architecture**: no
+  literal 0.0/1.0 classification flips, and perf-wrapped durations scale
+  sanely with footprint size (L1=71 ms, L2=58 ms, LLC=384 ms, DRAM=24.8 s —
+  proportional to real workload size, not a fixed multi-second floor the
+  way the original, un-redesigned harness produced on Sunbird at every
+  footprint regardless of size). L1/L2 validate cleanly, same pattern as
+  Sunbird's own fixed-design results.
+
+  **LLC's disagreement is the same expected single-threshold-classifier
+  limitation documented on Sunbird** (tau derived from a resident-vs-far
+  latency split cannot distinguish a genuine LLC hit from a DRAM miss as
+  cleanly as an L1 hit) — Thunderbird's Hhat=0.36 (not near-zero like
+  Sunbird's 0.013) is itself explained by this machine's much coarser 25 MHz
+  `CNTVCT_EL0` timer: every calibration run this session produced
+  `tau=1.0000` (a single tick), and this machine's own confirmed LLC hit
+  latency (~36 ns, `data_raw/thunderbird/README.md`'s `latency/` section)
+  rounds to ~0.9 ticks at this counter's resolution — close enough to
+  tau=1 that a large, machine-specific fraction of LLC hits land AT OR
+  BELOW tau rather than clearly above it, unlike Sunbird's fine-grained TSC
+  where an LLC hit's latency-plus-overhead sits unambiguously above tau.
+  Same underlying limitation, different-looking number, for an
+  architecture-specific reason.
+
+  **DRAM's result (H_pmu=0.9466) is a new, genuinely different, and
+  NOT-a-harness-bug finding: this machine's generic `cache-references`/
+  `cache-misses` PMU events do not behave as an "any cache level vs. DRAM"
+  signal at all.** Checked directly from the raw perf output
+  (`DRAM_perfstat_base_20260914T032826Z.csv.gz`): `cache-misses` /
+  `cache-references` = 341,140,655 / 6,392,314,436 = 5.34% — i.e. perf
+  itself reports a ~95% "hit" rate for a fully random 512 MiB working set
+  that should almost never hit. This is consistent with, and now directly
+  confirms in the hit_rate context, what this project's own Phase II PMU
+  verification already found on this machine (see `CLAUDE.md`'s Phase II
+  section and `data_processed/thunderbird/PHASE2_VALIDATION_TABLE.md`):
+  Thunderbird's `armv8_pmuv3_0` generic `cache-references`/`cache-misses`
+  alias tracks something much closer to L1-scope traffic than a true
+  LLC/DRAM-scope signal (unlike Sunbird's x86 PMU, where the same event
+  pair behaves as intended). **Conclusion: on this machine, H_pmu is not a
+  trustworthy ground truth at DRAM scale, independent of anything the
+  hit_rate harness itself controls** — a genuine, pre-existing PMU-event-
+  semantics limitation, not something the 2026-09-14 redesign introduced or
+  could fix by construction. Do not read Thunderbird's DRAM
+  rel_error_pct=100% as evidence the redesign failed here; L1/L2's clean
+  agreement plus the sane, size-proportional durations are the actual
+  evidence the redesign is architecture-agnostic.
+
 ## Reservation Log (if applicable)
 - Reserved core/package: core 3 (of `Cpus_allowed_list: 0-4` granted to this session)
 - Time window: 2026-09-08 ~20:14 UTC - ~23:14 UTC
