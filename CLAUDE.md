@@ -1539,13 +1539,47 @@ open decision.**
   third independent piece of evidence for "this SoC's SLC is invisible to
   per-core PMU/OS reporting," alongside sysfs's missing L3 entry and finding
   (2) above.
-- **Not yet done on the other 6 machines (Skylark, Artemisia, Charnwood,
-  Crux, Ookay, Upgrade).** Whoever picks up the next one should use
+- **Upgrade (2026-09-14): Phase II PMU verification complete — 3rd machine
+  done, 2nd x86 machine after Sunbird.** Ran `scripts/run_pmu_verification.sh
+  upgrade 5 L1:32768,L2:262144,LLC:12582912` (core 5, idle-checked via 3
+  `/proc/stat` sampling windows despite another student's job pinning cores
+  0/2 at 100% the whole session; base_seed=12345 + 2 repeats, 1,000,000
+  samples/run, timestamp `20260914T003134Z`). Literature: Agner Fog's
+  Skylake-family table (§11.12, Table 11.2, p.160 — Coffee Lake is
+  explicitly named in that chapter as sharing Skylake's design) plus
+  uops.info's per-SKU Coffee Lake (i7-8700K) cache table as a second source,
+  needed because Agner Fog's Skylake table gives no L3 associativity figure
+  at all (only a family-wide size/latency range) — see
+  `data_processed/upgrade/PHASE2_VALIDATION_TABLE.md`. **L1D: exact match,
+  all 3 sources + literature** (8-way), the cleanest row, same pattern as
+  Sunbird's/Thunderbird's own L1 rows. **L2 AND LLC associativity both
+  disagree with Phase I's confound-flagged 8-way-at-both-levels best guess —
+  system-reported gives L2=4-way/LLC=16-way, and literature (both Agner Fog
+  and uops.info) independently agrees with both** — the strongest
+  literature-corroborated confound-resolution result of the 3 machines done
+  so far (2 independent literature sources agreeing with system-report at
+  BOTH disputed levels, not just one). All 4 perf event groups scheduled at
+  100% in every run — this machine never hit the 2-generic-counter
+  scheduling limit Sunbird's PMU had. Notable finding: LLC-footprint
+  miss-rate metrics showed high run-to-run spread (32.7-57.8%), plausibly
+  from the confirmed cross-core contention (this machine's LLC is shared
+  across all 12 threads, and 2 of them were pinned busy by another
+  student's job) — read as corroborating, not contradicting, Phase I's own
+  finding that this machine's capacity sweep never resolved a clean LLC
+  edge in this size region. Full detail:
+  `data_raw/upgrade/README.md`'s pmu/ section.
+- **Not yet done on the other 5 machines (Skylark, Artemisia, Charnwood,
+  Crux, Ookay).** Whoever picks up the next one should use
   `scripts/run_pmu_verification.sh` (now the settled convention, see above)
-  and read both the Sunbird and Thunderbird writeups + their respective
+  and read the Sunbird, Thunderbird, and Upgrade writeups + their respective
   output files before choosing a literature source for that machine's own
   CPU — an ARM machine should also expect (and not be alarmed by) the
-  `LLC-loads` `<not supported>` limitation documented above.
+  `LLC-loads` `<not supported>` limitation documented above. If a family-wide
+  literature table (like Agner Fog's) doesn't give an L3 associativity
+  figure for that CPU's family, Upgrade's session found `uops.info`'s
+  per-microarchitecture cache table (`https://uops.info/cache.html`) a
+  useful, independent supplementary source with exact per-SKU ways/latency
+  numbers.
 
 ## Known constraints from prior sessions
 

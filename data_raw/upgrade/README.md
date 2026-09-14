@@ -302,10 +302,79 @@ were run** (L1 vs L2, L2 vs LLC, and L1 vs LLC directly).
 
 **Best-guess synthesis:** unlike Sunbird's mixed result (non-inclusive L2, leaning-inclusive skip-level LLC) and unlike Skylark's uniformly clean non-inclusive read, Upgrade's three pairings all point the same direction with varying confidence: **L1 vs L2 is confidently non-inclusive** (cleanest result, 99% survived); **L2 vs LLC leans non-inclusive** (95.5% survived-like, but the weakest-confidence pairing per caveat 3, same status as both other machines' own L2_vs_LLC result); **L1 vs LLC (skip-level) is classifier-UNCERTAIN but reasoned-leans non-inclusive** once the tight, LLC-hit-scale intermediate cluster is read directly rather than through the survived/invalidated boundary alone (see above). Put together, the best-supported single story for this machine is a cache hierarchy where **no level tested here is inclusive of the level(s) below it** — the same overall shape as Skylark's Zen-2-flavored non-inclusive read, though Upgrade is a Coffee Lake (Intel, pre-Skylake-SP-era ring-bus) part, so this does not match the "older monolithic Intel designs use an inclusive LLC snoop filter" plausibility aside Sunbird's own writeup raised for its Haswell-EP part — noted as a genuine cross-machine difference among same-vendor Intel parts, not resolved further here (Phase I timing-only discipline; no hardware documentation lookup performed).
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename: 
-- Events collected + exact semantics on this CPU: 
-- Run command + arguments: 
+### pmu/ (Phase II — 2026-09-14)
+Phase I frozen/tagged (`phase1-timing-only`) before anything below was run,
+per `README.md`'s Phase Discipline. See `CLAUDE.md`'s "Phase II" subsection
+and `data_processed/upgrade/PHASE2_VALIDATION_TABLE.md` for the full
+methodology/results write-up and literature citations — this section is the
+raw-data/reproduction-detail record. Used `scripts/run_pmu_verification.sh`
+(the settled cross-session convention, not the ad hoc approach
+Thunderbird's session originally tried and later migrated away from).
+
+- Source file(s): `scripts/run_pmu_verification.sh`, `scripts/summarize_pmu.py`
+  (both already present in this checkout from Sunbird's/Thunderbird's
+  sessions; no changes needed, no `cache_bench` source changes — reuses the
+  existing `--experiment hit_latency` binary, wrapped in `perf stat`).
+- Idle-core check done before running (this project's established
+  discipline — a single `ps` snapshot is not trusted alone): sampled
+  per-core `/proc/stat` idle-time deltas across 3 windows, ~3-4s apart.
+  Cores 0 and 2 were pinned at 100% busy in all 3 samples (`ps` corroborated
+  this: another student's `incl_pmu` and `cache_bench_x86` processes,
+  user `msabap`, logged in via `pts/0`). Core 5 (and its SMT sibling,
+  logical CPU 11) measured ≤0.5% busy in all 3 samples — chosen for
+  consistency with every prior Upgrade run (capacity/associativity/latency/
+  inclusion_policy all used core 5).
+- `perf` version 6.8.12; `/proc/sys/kernel/perf_event_paranoid` = 1 (allows
+  unprivileged `perf stat`, no sudo needed). Did not need to re-derive the
+  2-generic-counter PMU scheduling limit Sunbird's session found on its own
+  machine — reused the same 4-group split `run_pmu_verification.sh` already
+  implements — but verified after the fact (see below) that this machine
+  never even hit that limit: all 4 groups scheduled at 100% in every run.
+- Run command: `./scripts/run_pmu_verification.sh upgrade 5
+  L1:32768,L2:262144,LLC:12582912` (core 5; footprint bytes = this
+  machine's own hand-confirmed `CAPACITY_RESULTS.md` L1/L2 values plus the
+  exact 12 MiB LLC candidate already used by this machine's own Phase-I
+  `hit_latency`/`miss_latency` runs, per the note at the top of `CLAUDE.md`'s
+  "Current status" section that `CAPACITY_RESULTS.md` is the single source
+  of truth for boundary values). base_seed=12345 (repeats use
+  base_seed+index), samples=1,000,000/run, batch_size=1000, warmup_passes=3,
+  dependent load mode, random pattern (matching the existing `hit_latency`
+  convention), timestamp `20260914T003134Z`.
+- Raw output: `data_raw/upgrade/pmu/{L1,L2,LLC}/*_perfstat_*.csv.gz` (perf
+  stat's own `-x,` CSV output, one file per group×run_tag, gzipped by hand
+  after the run per `.gitignore`'s `data_raw/**/*.csv` convention — the
+  script itself does not gzip its own output) and `*_bench_*.csv.gz`
+  (cache_bench's own CSV from the same invocation, for direct side-by-side
+  comparison against the perf-derived numbers). Transcript:
+  `data_raw/upgrade/pmu/run_pmu_verification_20260914T003134Z.log`.
+  Verified via `zgrep -i "not counted\|not supported"` across every raw
+  perfstat CSV: zero hits — every event in every group counted cleanly.
+- Processed: `data_processed/upgrade/pmu/{L1,L2,LLC}/pmu_summary_20260914T003134Z.csv`
+  (one row per run_tag + a median-of-3 row; columns include miss rates for
+  cache-references/L1-dcache/LLC, cycles/access, IPC, and perf's own
+  wall-clock ns/access — see `scripts/summarize_pmu.py`'s docstring for the
+  exact parsing/derivation and its caveats).
+- System-reported cache info (also Phase II, same session):
+  `data_raw/upgrade/pmu/sysfs_cache_topology_20260913.txt` — `lscpu --caches`,
+  full `lscpu`, and per-instance `/sys/devices/system/cpu/cpu0/cache/index*/`
+  fields.
+- Headline results (full detail and caveats:
+  `data_processed/upgrade/PHASE2_VALIDATION_TABLE.md`): size/sets/line/sharing
+  match exactly across Phase I timing and this system-report at all 3
+  levels. **L1D associativity also matches (8-way, all 3 sources +
+  literature).** **L2 and LLC associativity both disagree with Phase I's own
+  confound-flagged best guesses (8-way at both levels) — system-reported
+  gives L2=4-way and LLC=16-way, and literature (Agner Fog's Skylake-family
+  table plus uops.info's per-SKU Coffee Lake table) independently agrees
+  with both** — read as direct confirmation of Phase I's own DTLB-scale
+  confound hypothesis, the same resolution pattern Sunbird's and
+  Thunderbird's LLC/L2 rows already showed, now reproduced a 3rd/4th time.
+  LLC-footprint miss-rate metrics showed notably high run-to-run spread
+  (32.7-57.8%), plausibly explained by the confirmed cross-core contention
+  on cores 0/2 (this machine's LLC is shared across the entire 12-thread
+  chip) — this independently corroborates, rather than contradicts, Phase
+  I's own `CAPACITY_RESULTS.md`-adjacent finding that Upgrade's own
+  capacity sweep never resolved a clean LLC edge in this size region.
 
 ## Reservation Log (if applicable)
 - Reserved core/package: 
