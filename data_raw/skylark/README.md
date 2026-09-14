@@ -662,10 +662,75 @@ pairings carry the added capacity-estimate caveat above, so "strongly"
 here means "the classifier's numbers are clean," not "high confidence in
 the absolute claim").
 
-### pmu/ (Phase II only — leave blank until Phase I is frozen)
-- `perf list` output filename: 
-- Events collected + exact semantics on this CPU: 
-- Run command + arguments: 
+### pmu/ (Phase II — 2026-09-14)
+Phase I frozen/tagged (`phase1-timing-only`) before anything below was run,
+per `README.md`'s Phase Discipline. See `CLAUDE.md`'s "Phase II" subsection
+and `data_processed/skylark/PHASE2_VALIDATION_TABLE.md` for the full
+methodology/results write-up and literature citation — this section is the
+raw-data/reproduction-detail record, same convention as Sunbird's and
+Thunderbird's.
+
+- Used the existing, now-canonical pipeline (`scripts/run_pmu_verification.sh`
+  + `scripts/summarize_pmu.py`, built by Sunbird's session) unmodified — no
+  new code this session.
+- Core selection: session's `Cpus_allowed_list` was `0-31`. `mpstat -P ALL`
+  showed cores 0 (65% busy), 2 (98%), and 3 (100%) pinned by other students'
+  processes (`incl_pmu`, `cache_bench_x86 --exp nextlevel`, `latency_bench`,
+  confirmed via `taskset -pc <pid>`); core 5 read 0% busy across two
+  `mpstat` samples taken a few seconds apart. Core 5 used.
+- Machine-specific PMU check done before the full run: this AMD Zen 2 PMU
+  (`AuthenticAMD`, EPYC 7532) reliably schedules the `cache-references,
+  cache-misses`, `L1-dcache-loads,L1-dcache-load-misses`, and
+  `cycles,instructions` 2-event groups at 100%. **`LLC-loads`/
+  `LLC-load-misses` come back `<not supported>` (not `<not counted>`) at
+  every level** — a harder failure than a scheduling conflict: this PMU has
+  no LLC-scoped generic-event alias perf can map to on this CPU. Also
+  hand-checked: AMD's own raw uncore L3 events (`l3_accesses`, `l3_misses`,
+  PMU unit `amd_l3`, found via `perf list`) fail identically, even
+  system-wide (`perf stat -a`) — consistent with `perf_event_paranoid=2`
+  blocking unprivileged access to the socket-scoped uncore PMU; no `sudo`
+  available to check whether root access resolves it.
+- Run command: `./scripts/run_pmu_verification.sh skylark 5
+  L1:32768,L2:524288,LLC:8388608` (footprints from `CAPACITY_RESULTS.md`,
+  same three values already used for this machine's `latency/` and
+  `inclusion_policy/` runs). base_seed=12345 (repeats use base_seed+index),
+  samples=1,000,000/run, batch_size=1000, warmup_passes=3, dependent load
+  mode, random pattern, timestamp `20260914T002932Z`.
+- Raw output: `data_raw/skylark/pmu/{L1,L2,LLC}/*_perfstat_*.csv.gz` (perf
+  stat's own `-x,` CSV output, one file per group×run_tag) and
+  `*_bench_*.csv.gz` (cache_bench's own CSV from the same invocation).
+  Transcript: `data_raw/skylark/pmu/run_pmu_verification_20260914T002932Z.log`.
+- Processed: `data_processed/skylark/pmu/{L1,L2,LLC}/pmu_summary_20260914T002932Z.csv`
+  (one row per run_tag + a median-of-3 row).
+- System-reported cache info (same run): `data_raw/skylark/pmu/
+  system_reported_cache_info.txt` — `lscpu --caches`, full `lscpu`, and
+  per-instance `/sys/devices/system/cpu/cpu5/cache/index*/` fields
+  (core 5), plus a spot-check of cores 0/4/6/8/12's L3 `shared_cpu_list` to
+  confirm the sharing pattern was machine-wide, not core-5-specific.
+- Headline results (full detail and caveats:
+  `data_processed/skylark/PHASE2_VALIDATION_TABLE.md`): size/ways/sets/line
+  match exactly across Phase I timing, system-report, AND Agner Fog's Zen 2
+  literature table (Table 22.3, p. 237) at L1D and L2 — system-reported L2
+  associativity independently confirms Phase I's confound-blocked 8-way
+  best guess, same story as Sunbird's L2 row. **LLC size: system-reported
+  16,777,216 B (16 MiB) confirms Phase I's own suspicion that its
+  8 MiB `CAPACITY_RESULTS.md` value was an underestimate**, landing almost
+  exactly at the bottom of Phase I's ~16.8-21.8 MiB re-look bracket.
+  **LLC associativity disagrees (Phase I best-guess 8-way vs.
+  system-reported 16-way)**, same confound-resolution pattern as Sunbird's
+  and Thunderbird's LLC/L2 rows. **Line size disagrees**: Phase I confirmed
+  128 B at the LLC-region transition by two independent methods, but
+  system-report says 64 B uniformly at every level — flagged as an open
+  question (leading hypothesis: Zen 2's adjacent-line/stream prefetcher
+  creating an apparent 128 B granularity for a stride-based probe once the
+  working set spills past L2, not a real doubled physical line — not
+  confirmed this phase). **Sharing scope is the standout finding**: this
+  LLC is shared by only 2 logical cores per instance (`shared_cpu_list`
+  e.g. `4-5`), not the whole socket as Phase I guessed — resolved via AMD's
+  published EPYC 7532 spec (8 CCDs × 2 CCX/CCD × 16 MiB/CCX = 256 MiB total
+  L3 per socket, this SKU's known "cache-doubled" binning that runs only 2
+  of 4 possible cores per CCX while granting each CCX its full L3), not a
+  measurement artifact.
 
 ## Final Inferred Cache Table (Skylark, Phase I best guess, 2026-09-13)
 
