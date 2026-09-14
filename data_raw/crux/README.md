@@ -514,6 +514,143 @@ own per-level names.
   (normalization, ranked S-curves, Intel/AMD/Arm + generation comparison)
   still need all 8 machines' data before they can be attempted.
 
+### software_hit_rate/ (Problem 8.5 — 2026-09-14)
+Software-only, timing-derived cache hit-rate estimator
+(`main_code/software_hit_rate/`, no PMU access anywhere in that file) plus
+its Phase-II PMU validation, same pipeline and redesigned harness used on
+Sunbird/Thunderbird/Skylark (see `data_raw/sunbird/README.md`'s
+`software_hit_rate/` section for the original design, the invalid first
+attempt, and the 2026-09-14 redesign that fixed it — none of that history
+is re-derived here). See `main_code/software_hit_rate/software_hit_rate.h`'s
+module doc comment for the full method (calibration -> ROC threshold
+selection -> Rogan-Gladen prevalence correction -> bootstrap CI).
+
+#### Sweep (parts 1-3, standalone, no perf)
+- Source file(s): `main_code/software_hit_rate/software_hit_rate.{c,h}`,
+  `scripts/run_software_hit_rate_sweep.sh`,
+  `scripts/summarize_software_hit_rate.py`, `scripts/plot_software_hit_rate.py`.
+- Run command: `./scripts/run_software_hit_rate_sweep.sh crux 5
+  4096,16384,32768,65536,131072,262144,1048576,4194304,8388608,16777216,33554432,67108864,134217728,268435456,536870912
+  L1:32768,L2:262144,LLC:8388608,DRAM:536870912` — core=5 (confirmed idle:
+  `/proc/stat` idle-tick deltas across 2 windows ~3s apart showed ~99%+
+  idle on every core, and `ps -eLo pid,psr,pcpu,...` showed nothing but this
+  session's own light VS Code/Claude processes anywhere on the machine),
+  seed=12345, timestamp `20260914T123738Z`. Footprint list is anchored to
+  this machine's own `CAPACITY_RESULTS.md` L1/L2/LLC values (32,768 /
+  262,144 / 8,388,608 B), not Sunbird's default sweep.
+- Raw output: `data_raw/crux/software_hit_rate/raw/hit_rate_<bytes>_20260914T123738Z.csv.gz`
+  (full per-access CSV per point). Transcript:
+  `data_raw/crux/software_hit_rate/run_software_hit_rate_sweep_20260914T123738Z.log`.
+- Processed: `data_raw/crux/software_hit_rate/hit_rate_sweep_20260914T123738Z.csv`
+  (one row per footprint); plots:
+  `data_processed/crux/software_hit_rate/plots/{hit_rate_sweep,calibration_distributions}.{png,pdf}`.
+- Headline results: Hhat=1.0000 for every footprint through 131,072 B,
+  **including this machine's own exact 32,768 B L1 boundary** (0.9999, no
+  dip) — unlike Sunbird, whose Hhat dipped to 0.8664 right at its own exact
+  L1 edge. Falls off from there: 262,144 B (L2 boundary)->0.9824, 1,048,576
+  B->0.6978, 4,194,304 B->0.3633, then **rises again** at 8,388,608 B (this
+  machine's nominal `CAPACITY_RESULTS.md` LLC value)->0.4643 — non-monotonic,
+  not smoothed over — before resuming its fall: 16,777,216 B->0.0868,
+  33,554,432 B->0.0506, 67,108,864 B->0.0095, 134,217,728 B->0.0038,
+  268,435,456 B->0.0009, and 0.0000 at the 536,870,912 B DRAM reference.
+  **The non-monotonic dip-then-rise between 4,194,304 B and 8,388,608 B is
+  not a fluke of this one estimator run — it lines up with two things this
+  project already independently documented about Crux's own hardware in
+  this exact byte range**: (1) `CLAUDE.md`'s own Crux capacity bullet
+  already flags "the ~4-64 MiB region showed up to ~89% run-to-run spread"
+  as genuinely noisy, not a settled shelf; (2)
+  `data_processed/crux/PHASE2_VALIDATION_TABLE.md` establishes that this
+  machine's REAL LLC capacity is 12,582,912 B (12 MiB), not the 8,388,608 B
+  `CAPACITY_RESULTS.md` value used to anchor this sweep — so every point
+  from 1,048,576 B through 8,388,608 B sits inside one messy, still-growing
+  transition region on real hardware, not past a clean L2/LLC edge, which
+  is a very plausible reason a single-seed sweep would land non-monotonically
+  in exactly this range. See the PMU validation subsection below for direct
+  confirmation that this instability is real and reproducible, not
+  particular to this one seed.
+
+#### PMU validation (part 4)
+- Source file(s): `scripts/run_hit_rate_pmu_validation.sh`,
+  `scripts/compare_hit_rate_pmu.py` (unmodified from the Sunbird-redesigned
+  version — no Crux-specific code path exists or was needed).
+- Run command: `./scripts/run_hit_rate_pmu_validation.sh crux 5
+  L1:32768,L2:262144,LLC:8388608,DRAM:536870912` (core 5, re-confirmed idle
+  immediately before running — same core as the sweep above). Footprint
+  values are this machine's own `CAPACITY_RESULTS.md` numbers, same three
+  L1/L2/LLC values already used for this machine's `latency/`,
+  `associativity/`, `pmu/`, and `eight_counters/` sections. Tested
+  footprints after the script's own L1/L2/LLC halving (a "safely inside the
+  level" point, not the exact edge — see Sunbird's writeup for why):
+  L1=16384, L2=131072, LLC=4194304, DRAM=536870912 (unchanged).
+  base_seed=12345 (repeats use base_seed+index), timestamp `20260914T125809Z`.
+- Raw output: `data_raw/crux/software_hit_rate/pmu/{L1,L2,LLC,DRAM}/
+  *_{calibonly,bench,hitlatpmu,perfstat}_{base,rep1,rep2}_20260914T125809Z.csv`
+  (not yet gzipped — do before committing, per this repo's `data_raw/**/*.csv.gz`
+  convention). Transcript:
+  `data_raw/crux/software_hit_rate/pmu/run_hit_rate_pmu_validation_20260914T125809Z.log`.
+- Processed: `data_processed/crux/software_hit_rate/pmu_validation_20260914T125809Z.csv`.
+- Headline results (median of base+2 repeats):
+
+  | Level | Tested footprint | Hhat | H_pmu | rel. error |
+  |---|---|---|---|---|
+  | L1  | 16,384 B     | 1.0000 | 0.9023 | 10.8% |
+  | L2  | 131,072 B    | 0.9995 | 0.9406 | 6.3%  |
+  | LLC | 4,194,304 B  | 0.7519 | 0.9795 | 23.1% |
+  | DRAM | 536,870,912 B | 0.0001 | 0.4541 | 100.0% |
+
+  **L1/L2 agreement is in the same 6-11% ballpark already seen on
+  Sunbird/Skylark/Thunderbird** — no new finding there. L1's 10.8% error is
+  also independently corroborated by this machine's own earlier Phase-II
+  work: `data_processed/crux/PHASE2_VALIDATION_TABLE.md` already flagged
+  the generic `cache-references`/`cache-misses` pair as showing an
+  "unexplained anomaly at the L1 footprint" (12.6% median miss rate there,
+  vs. this run's own 9.8% at the L1 footprint) — same order of magnitude,
+  same counter pair, same machine, different session. Still not root-caused,
+  but now reproduced twice rather than a one-off.
+
+  **LLC is where this machine produces a genuinely new result: Hhat itself
+  is wildly unstable across the 3 seeds (base=0.7519, rep1=0.1246,
+  rep2=0.8683 — a ~7x spread), while H_pmu (the independent, batched-timing
+  PMU ground truth) stays tight and consistent across the same 3 seeds
+  (0.9783, 0.9795, 0.9796 — agreeing to within 0.13%).** This is a different
+  failure mode from every prior machine's LLC row: on Sunbird/Skylark/
+  Thunderbird the single-threshold classifier was consistently wrong in the
+  same direction (systematically too low, because a genuine LLC hit's
+  single-shot latency sits above tau); here the classifier is inconsistent
+  with itself seed-to-seed at a footprint where the underlying PMU signal
+  says the true hit rate barely moves at all. Directly explained by the two
+  facts already noted in the sweep write-up above: (1) 4,194,304 B (half of
+  the nominal 8,388,608 B LLC value) sits inside the same ~4-64 MiB region
+  this machine's own capacity data already flags as having up to 89%
+  run-to-run spread on raw timing, and (2) the real LLC is 12 MiB, so this
+  footprint is not actually "half of the level's true capacity" the way the
+  script's halving convention intends for L1/L2 — it is a point deep inside
+  a still-unsettled transition on the real hardware, which is exactly where
+  a single-shot classifier that depends on individual access timings (not a
+  batched aggregate) would be most exposed to real per-run conflict-miss
+  variance. **Conclusion: do not cite a single "Crux LLC Hhat" number from
+  this run — the instability is the finding.** The raw per-run PMU miss
+  counts corroborate H_pmu's own stability directly: `cache-references`/
+  `cache-misses` were 11,140,906/242,046 (base), 11,174,069/229,595 (rep1),
+  11,146,775/226,938 (rep2) — a consistent ~2.0-2.2% miss rate underlying
+  all 3 runs, confirming the instability is in the software estimator, not
+  in the workload itself varying seed-to-seed.
+
+  **DRAM's near-total disagreement (100.0%) is the same expected,
+  already-documented generic-counter-semantics limitation as every other
+  machine tested so far (Sunbird 99.9%, Skylark 99.98%, Thunderbird 100%)**
+  — H_pmu's median 0.4541 reflects a generic `cache-references`/
+  `cache-misses` alias that does not cleanly mean "any cache level vs.
+  DRAM" at this scale, not a real ~45% hit rate for a fully random 512 MiB
+  working set. Hhat's near-zero (0.0000-0.0001 across 3 runs) is the
+  trustworthy number here, consistent with every other machine.
+
+  **4 of 8 machines now have software_hit_rate data (Sunbird, Skylark,
+  Thunderbird, Crux — check each machine's own README before assuming this
+  count is current); Charnwood/Artemisia/Ookay/Upgrade still need this
+  pipeline run** — see `CLAUDE.md`'s §8.5 section for the running
+  cross-machine tally.
+
 ## Final Inferred Cache Table (Crux, Phase I best guess, 2026-09-13)
 
 Lives at `data_processed/crux/FINAL_CACHE_TABLE.md`, alongside this machine's
