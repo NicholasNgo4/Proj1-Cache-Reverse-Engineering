@@ -2062,7 +2062,7 @@ that freeze will be fit from.
   estimator" bullet above — not a stub anymore, just incomplete).
 
 **Problem 8.4 (eight interesting performance counters across generations),
-item 1: started 2026-09-14, Sunbird, Thunderbird, and Skylark done (3 of 8 machines).**
+item 1: started 2026-09-14, Sunbird, Thunderbird, Skylark, and Charnwood done (4 of 8 machines).**
 New pipeline
 `scripts/run_standardized_benchmarks.sh` + `scripts/summarize_eight_counters.py`
 runs the same `--experiment hit_latency --load-mode dependent --pattern
@@ -2146,8 +2146,27 @@ differs), same base+2-reproducibility-repeat convention.
   the whole session — not further investigated. `dtlb_load_misses` climbs
   cleanly monotonic across all 3 benchmarks (~691 → ~2,905 → ~10,901).
   Full detail: `data_raw/skylark/README.md`'s `eight_counters/` section.
-- **3 of 8 machines done (Sunbird, Thunderbird, Skylark); 5 remaining**
-  (Artemisia, Charnwood, Crux, Ookay, Upgrade). Each needs the same command
+- **Charnwood** (`data_raw/charnwood/eight_counters/`, core 3,
+  base_seed=12345, timestamp `20260914T052928Z`). All 4 perf groups
+  scheduled at 100% for every (benchmark, run_tag) — no `<not counted>`
+  anywhere. **The cleanest cross-check of any machine's `eight_counters`/
+  `pmu` run so far**: this session's idle-core check found the machine
+  fully quiet (the two other students' processes documented in this
+  machine's `pmu/` section had both since exited), and the resulting
+  `bench_avg_ticks_per_access_median` ladder (`L1_resident`≈8.016,
+  `LLC_random`≈106.185, `beyond_LLC`≈394.551) matches this machine's own
+  already-documented Phase I `latency/` numbers (≈7.98 / ≈106.9-109.1 /
+  ≈394.6-394.8) to within ~0.5%, ~1%, and ~0.06% respectively — unlike
+  Sunbird's, Thunderbird's, and Ookay's own `beyond_LLC`/PMU runs, none of
+  which had a comparably quiet session and all of which showed a
+  contention-driven divergence from their own Phase I baseline. `l1_miss_rate`
+  (1.08%→8.83%→13.42%) and `llc_miss_rate` (14.0%→15.9%→47.5%, the last a
+  clean order-of-magnitude jump exactly at `beyond_LLC`) both climb as
+  expected. `dtlb_load_misses` climbs cleanly monotonic across all 3
+  benchmarks (2,025 → 1,096,978 → 253,582,411). Full detail:
+  `data_raw/charnwood/README.md`'s `eight_counters/` section.
+- **4 of 8 machines done (Sunbird, Thunderbird, Skylark, Charnwood); 4
+  remaining** (Artemisia, Crux, Ookay, Upgrade). Each needs the same command
   (`./scripts/run_standardized_benchmarks.sh <machine> <core>
   L1_resident:<L1_bytes>,LLC_random:<LLC_bytes>,beyond_LLC:536870912`) with
   its own `FINAL_CACHE_TABLE.md` L1/LLC values. Items 2-4 of 8.4 cannot be
