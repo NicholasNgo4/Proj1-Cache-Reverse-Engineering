@@ -1,0 +1,3 @@
+target_bytes,evict_bytes,evict_stride_bytes,evict_offset_bytes,pattern,channel,n,mean,median,stddev,min,q1,q3,p5,p95,max,n_outliers
+1048576,1518499840,4096,2048,random,target,200,166.78,188.0,31.578117224387935,84.0,134.0,192.0,128.0,198.0,208.0,0
+1048576,1518499840,4096,2048,random,control,200,50.7,48.0,6.514768687779819,46.0,46.0,54.0,46.0,58.0,100.0,2

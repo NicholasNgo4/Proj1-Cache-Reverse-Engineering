@@ -1,0 +1,108 @@
+== run_inclusion_policy_full: machine=hazel_icelake_6326 core=16 base_seed=12345 ==
+== assumed_line_size_bytes=64 (confirmed for Sunbird 2026-09-11; verify for other machines) ==
+== timestamp=20260915T032414Z ==
+
+== L1_vs_L2: target_bytes=32768 lower_level_bytes=1310720 -> evict_bytes=83886080 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 145.7 ticks
+  invalidated-class (from data_processed/hazel_icelake_6326/latency/miss/L1_to_L2/base_random_summary_20260915T022145Z.csv): 212.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_L2/inclusion_policy_base_random_20260915T032414Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_L2/base_random_summary_20260915T032414Z.csv
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_L2/inclusion_policy_base_sequential_20260915T032414Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_L2/base_sequential_summary_20260915T032414Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_random_20260915T032414Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_L2/rep1_random_summary_20260915T032414Z.csv
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_sequential_20260915T032414Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_L2/rep1_sequential_summary_20260915T032414Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_random_20260915T032414Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_L2/rep2_random_summary_20260915T032414Z.csv
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_sequential_20260915T032414Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_L2/rep2_sequential_summary_20260915T032414Z.csv
+Survived-class (upper-level hit) median:       145.70 ticks
+Invalidated-class (beyond-lower-level) median: 212.00 ticks
+Classification boundary (geometric mean):      175.75 ticks
+
+TARGET channel  (n=200): median=92.0 mean=92.0 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+CONTROL channel (n=200): median=82.0 mean=82.6 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+Paired check: target read slower than its own trial's control in 99.5% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L1_vs_L2 --
+Wrote data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_L2/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_L2 --
+
+== L2_vs_LLC: target_bytes=1310720 lower_level_bytes=25874000 -> evict_bytes=1655936000 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 88.104 ticks
+  invalidated-class (from data_processed/hazel_icelake_6326/latency/miss/L2_to_LLC/base_random_summary_20260915T022145Z.csv): 530.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/inclusion_policy_base_random_20260915T032414Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/base_random_summary_20260915T032414Z.csv
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/inclusion_policy_base_sequential_20260915T032414Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/base_sequential_summary_20260915T032414Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_random_20260915T032414Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/rep1_random_summary_20260915T032414Z.csv
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_sequential_20260915T032414Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/rep1_sequential_summary_20260915T032414Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_random_20260915T032414Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/rep2_random_summary_20260915T032414Z.csv
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_sequential_20260915T032414Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/rep2_sequential_summary_20260915T032414Z.csv
+Survived-class (upper-level hit) median:       88.10 ticks
+Invalidated-class (beyond-lower-level) median: 530.00 ticks
+Classification boundary (geometric mean):      216.09 ticks
+
+TARGET channel  (n=200): median=222.0 mean=213.8 ticks -- 32 survived-like (16.0%), 162 ambiguous, 6 invalidated-like (3.0%)
+CONTROL channel (n=200): median=74.0 mean=79.6 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+Paired check: target read slower than its own trial's control in 100.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: UNCERTAIN (mixed result -- do not claim a global policy from this alone)
+-- generating plots for L2_vs_LLC --
+  note: ('target', 'random') has 3 overlapping summary rows with medians [222.0, 178.0, 136.0] (spread 86.0 ticks, 48.1%) -- averaging, widening whiskers to the union
+  note: ('target', 'sequential') has 3 overlapping summary rows with medians [172.0, 112.0, 202.0] (spread 90.0 ticks, 55.6%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_icelake_6326/inclusion_policy/L2_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L2_vs_LLC --
+
+== L1_vs_LLC: target_bytes=32768 lower_level_bytes=25874000 -> evict_bytes=1655936000 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 136.944 ticks
+  invalidated-class (from data_processed/hazel_icelake_6326/latency/miss/LLC_to_DRAM/base_random_summary_20260915T022145Z.csv): 489.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/inclusion_policy_base_random_20260915T032414Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/base_random_summary_20260915T032414Z.csv
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/inclusion_policy_base_sequential_20260915T032414Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/base_sequential_summary_20260915T032414Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_random_20260915T032414Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/rep1_random_summary_20260915T032414Z.csv
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_sequential_20260915T032414Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/rep1_sequential_summary_20260915T032414Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_random_20260915T032414Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/rep2_random_summary_20260915T032414Z.csv
+  wrote 402 lines -> data_raw/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_sequential_20260915T032414Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/rep2_sequential_summary_20260915T032414Z.csv
+Survived-class (upper-level hit) median:       136.94 ticks
+Invalidated-class (beyond-lower-level) median: 489.00 ticks
+Classification boundary (geometric mean):      258.78 ticks
+
+TARGET channel  (n=200): median=74.0 mean=77.2 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+CONTROL channel (n=200): median=72.0 mean=74.7 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+Paired check: target read slower than its own trial's control in 63.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L1_vs_LLC --
+Wrote data_processed/hazel_icelake_6326/inclusion_policy/L1_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_LLC --
+
+== done ==
+== L1_vs_L2: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== L2_vs_LLC: VERDICT: UNCERTAIN (mixed result -- do not claim a global policy from this alone) ==
+== L1_vs_LLC: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== record in data_raw/hazel_icelake_6326/README.md: core=16, base_seed=12345 (repeats use base_seed+index), trials=200, assumed_line_size_bytes=64, timestamp=20260915T032414Z ==
+== full transcript saved to: data_raw/hazel_icelake_6326/inclusion_policy/run_inclusion_policy_full_20260915T032414Z.log ==

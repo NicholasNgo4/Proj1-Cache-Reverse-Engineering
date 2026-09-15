@@ -1,0 +1,315 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+c060n02
+Linux c060n02 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) Gold 6326 CPU @ 2.90GHz
+Assigned logical CPU: 16, SLURM_JOB_ID=838189
+
+=== Running scripts/run_line_size.sh (HAZEL_MODE=1) ===
+== run_line_size: machine=hazel_icelake_6326 core=16 seed=12345 ==
+== timestamp=20260915T022145Z boundaries=32768,1310720,25874000 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=32768B -- Method A window=[4096,131072] bytes
+############################################################
+-- [L32768 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_8_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_8_random_summary.csv
+-- [L32768 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_8_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_8_sequential_summary.csv
+-- [L32768 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_16_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_16_random_summary.csv
+-- [L32768 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_16_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_16_sequential_summary.csv
+-- [L32768 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_32_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_32_random_summary.csv
+-- [L32768 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_32_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_32_sequential_summary.csv
+-- [L32768 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_64_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_64_random_summary.csv
+-- [L32768 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_64_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_64_sequential_summary.csv
+-- [L32768 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_128_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_128_random_summary.csv
+-- [L32768 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_128_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_128_sequential_summary.csv
+-- [L32768 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_256_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_256_random_summary.csv
+-- [L32768 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/family_256_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/family_256_sequential_summary.csv
+-- [L32768 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_icelake_6326/line_size/level_32768/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: None, 16B: None, 32B: 73536, 64B: None, 128B: None, 256B: None}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~73536 bytes) is 32B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_icelake_6326/line_size/level_32768/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_icelake_6326/line_size/level_32768/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L32768 A] no candidate given for this level -- inspect
+   data_processed/hazel_icelake_6326/line_size/level_32768/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L32768 B] single-curve method, footprint_bytes=65536 (2.0x boundary) --
+-- [L32768 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/singlecurve_coarse_random_20260915T022145Z.csv
+  wrote 128002 lines -> data_raw/hazel_icelake_6326/line_size/level_32768/singlecurve_coarse_sequential_20260915T022145Z.csv
+Wrote 128 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_icelake_6326/line_size/level_32768/singlecurve_coarse_sequential_summary.csv
+-- [L32768 B] detected line-size estimate (bytes): none --
+-- [L32768 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L32768 B] generating single-curve plots --
+  note: flagged 5 isolated spike stride(s) as probable page-aliasing artifacts: [8, 128, 256, 512, 1024]
+Wrote data_processed/hazel_icelake_6326/line_size/level_32768/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_icelake_6326/line_size/level_32768/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 32768 --
+
+############################################################
+## LEVEL boundary=1310720B -- Method A window=[163840,5242880] bytes
+############################################################
+-- [L1310720 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_8_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_8_random_summary.csv
+-- [L1310720 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_8_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_8_sequential_summary.csv
+-- [L1310720 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_16_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_16_random_summary.csv
+-- [L1310720 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_16_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_16_sequential_summary.csv
+-- [L1310720 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_32_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_32_random_summary.csv
+-- [L1310720 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_32_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_32_sequential_summary.csv
+-- [L1310720 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_64_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_64_random_summary.csv
+-- [L1310720 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_64_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_64_sequential_summary.csv
+-- [L1310720 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_128_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_128_random_summary.csv
+-- [L1310720 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_128_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_128_sequential_summary.csv
+-- [L1310720 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_256_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_256_random_summary.csv
+-- [L1310720 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/family_256_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/family_256_sequential_summary.csv
+-- [L1310720 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_icelake_6326/line_size/level_1310720/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 2942464, 16B: 2942464, 32B: 2621440, 64B: 1853632, 128B: 1853568, 256B: 1853440}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~1853440 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_icelake_6326/line_size/level_1310720/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_icelake_6326/line_size/level_1310720/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L1310720 A] no candidate given for this level -- inspect
+   data_processed/hazel_icelake_6326/line_size/level_1310720/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L1310720 B] single-curve method, footprint_bytes=2621440 (2.0x boundary) --
+-- [L1310720 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/singlecurve_coarse_random_20260915T022145Z.csv
+  wrote 128002 lines -> data_raw/hazel_icelake_6326/line_size/level_1310720/singlecurve_coarse_sequential_20260915T022145Z.csv
+Wrote 128 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_icelake_6326/line_size/level_1310720/singlecurve_coarse_sequential_summary.csv
+-- [L1310720 B] detected line-size estimate (bytes): none --
+-- [L1310720 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L1310720 B] generating single-curve plots --
+  note: flagged 6 isolated spike stride(s) as probable page-aliasing artifacts: [8, 64, 128, 256, 512, 1024]
+Wrote data_processed/hazel_icelake_6326/line_size/level_1310720/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_icelake_6326/line_size/level_1310720/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 1310720 --
+
+############################################################
+## LEVEL boundary=25874000B -- Method A window=[3234250,103496000] bytes
+############################################################
+-- [L25874000 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_8_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_8_random_summary.csv
+-- [L25874000 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_8_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_8_sequential_summary.csv
+-- [L25874000 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_16_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_16_random_summary.csv
+-- [L25874000 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_16_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_16_sequential_summary.csv
+-- [L25874000 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_32_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_32_random_summary.csv
+-- [L25874000 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_32_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_32_sequential_summary.csv
+-- [L25874000 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_64_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_64_random_summary.csv
+-- [L25874000 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_64_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_64_sequential_summary.csv
+-- [L25874000 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_128_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_128_random_summary.csv
+-- [L25874000 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_128_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_128_sequential_summary.csv
+-- [L25874000 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_256_random_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_256_random_summary.csv
+-- [L25874000 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/family_256_sequential_20260915T022145Z.csv
+Wrote 31 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/family_256_sequential_summary.csv
+-- [L25874000 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_icelake_6326/line_size/level_25874000/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 32599192, 16B: 29042576, 32B: 25873984, 64B: 25873984, 128B: 32599168, 256B: 46102016}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~46102016 bytes) is 256B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_icelake_6326/line_size/level_25874000/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_icelake_6326/line_size/level_25874000/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L25874000 A] no candidate given for this level -- inspect
+   data_processed/hazel_icelake_6326/line_size/level_25874000/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L25874000 B] single-curve method, footprint_bytes=51748000 (2.0x boundary) --
+-- [L25874000 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/singlecurve_coarse_random_20260915T022145Z.csv
+  wrote 128002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/singlecurve_coarse_sequential_20260915T022145Z.csv
+Wrote 128 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/singlecurve_coarse_sequential_summary.csv
+-- [L25874000 B] detected line-size estimate (bytes): 64 --
+-- [L25874000 B] dense sweep around estimate 64 bytes: 32-129 (step 1) --
+  wrote 98002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_random_20260915T022145Z.csv
+  wrote 98002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_sequential_20260915T022145Z.csv
+Wrote 98 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_random_summary.csv
+Wrote 98 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_sequential_summary.csv
+  -- [L25874000 B] repeat 1/2 of the dense window --
+  wrote 98002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_rep1_random_20260915T022145Z.csv
+  wrote 98002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_rep1_sequential_20260915T022145Z.csv
+Wrote 98 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_rep1_random_summary.csv
+Wrote 98 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_rep1_sequential_summary.csv
+  -- [L25874000 B] repeat 2/2 of the dense window --
+  wrote 98002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_rep2_random_20260915T022145Z.csv
+  wrote 98002 lines -> data_raw/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_rep2_sequential_20260915T022145Z.csv
+Wrote 98 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_rep2_random_summary.csv
+Wrote 98 summary rows to data_processed/hazel_icelake_6326/line_size/level_25874000/singlecurve_dense_rep2_sequential_summary.csv
+-- [L25874000 B] generating single-curve plots --
+  note: 32B (random) has 4 overlapping summary rows with medians [240.0, 251.2, 202.0, 208.3] (spread 49.2 ticks, 21.8%) -- averaging, widening whiskers to the union
+  note: 40B (random) has 4 overlapping summary rows with medians [239.0, 190.1, 189.8, 190.8] (spread 49.2 ticks, 24.3%) -- averaging, widening whiskers to the union
+  note: 48B (random) has 4 overlapping summary rows with medians [241.4, 184.5, 182.7, 180.2] (spread 61.2 ticks, 31.0%) -- averaging, widening whiskers to the union
+  note: 56B (random) has 4 overlapping summary rows with medians [242.3, 195.8, 195.3, 188.0] (spread 54.3 ticks, 26.5%) -- averaging, widening whiskers to the union
+  note: 72B (random) has 4 overlapping summary rows with medians [245.4, 200.2, 242.6, 196.1] (spread 49.3 ticks, 22.3%) -- averaging, widening whiskers to the union
+  note: 80B (random) has 4 overlapping summary rows with medians [245.3, 191.8, 166.4, 170.2] (spread 78.9 ticks, 40.8%) -- averaging, widening whiskers to the union
+  note: 88B (random) has 4 overlapping summary rows with medians [245.3, 244.6, 180.3, 183.3] (spread 65.0 ticks, 30.5%) -- averaging, widening whiskers to the union
+  note: 96B (random) has 4 overlapping summary rows with medians [245.2, 171.4, 137.6, 136.8] (spread 108.5 ticks, 62.8%) -- averaging, widening whiskers to the union
+  note: 104B (random) has 4 overlapping summary rows with medians [245.0, 203.9, 148.2, 147.2] (spread 97.7 ticks, 52.5%) -- averaging, widening whiskers to the union
+  note: 112B (random) has 4 overlapping summary rows with medians [245.2, 200.3, 130.3, 125.7] (spread 119.5 ticks, 68.2%) -- averaging, widening whiskers to the union
+  note: 120B (random) has 4 overlapping summary rows with medians [243.7, 139.7, 116.9, 121.2] (spread 126.8 ticks, 81.6%) -- averaging, widening whiskers to the union
+  note: 128B (random) has 4 overlapping summary rows with medians [243.7, 201.0, 198.5, 198.4] (spread 45.4 ticks, 21.6%) -- averaging, widening whiskers to the union
+  note: 42B (random) has 3 overlapping summary rows with medians [199.4, 243.3, 203.4] (spread 43.8 ticks, 20.4%) -- averaging, widening whiskers to the union
+  note: 60B (random) has 3 overlapping summary rows with medians [199.7, 240.0, 196.2] (spread 43.8 ticks, 20.7%) -- averaging, widening whiskers to the union
+  note: 61B (random) has 3 overlapping summary rows with medians [202.8, 254.1, 194.3] (spread 59.8 ticks, 27.6%) -- averaging, widening whiskers to the union
+  note: 63B (random) has 3 overlapping summary rows with medians [204.4, 235.3, 192.1] (spread 43.2 ticks, 20.5%) -- averaging, widening whiskers to the union
+  note: 66B (random) has 3 overlapping summary rows with medians [207.1, 256.3, 200.7] (spread 55.6 ticks, 25.1%) -- averaging, widening whiskers to the union
+  note: 67B (random) has 3 overlapping summary rows with medians [206.0, 250.2, 194.1] (spread 56.1 ticks, 25.9%) -- averaging, widening whiskers to the union
+  note: 69B (random) has 3 overlapping summary rows with medians [211.5, 256.8, 199.9] (spread 56.9 ticks, 25.6%) -- averaging, widening whiskers to the union
+  note: 81B (random) has 3 overlapping summary rows with medians [206.4, 247.0, 180.6] (spread 66.4 ticks, 31.4%) -- averaging, widening whiskers to the union
+  note: 83B (random) has 3 overlapping summary rows with medians [206.0, 197.4, 247.8] (spread 50.4 ticks, 23.2%) -- averaging, widening whiskers to the union
+  note: 97B (random) has 3 overlapping summary rows with medians [240.2, 183.0, 178.5] (spread 61.7 ticks, 30.8%) -- averaging, widening whiskers to the union
+  note: 98B (random) has 3 overlapping summary rows with medians [247.4, 155.9, 155.3] (spread 92.2 ticks, 49.5%) -- averaging, widening whiskers to the union
+  note: 99B (random) has 3 overlapping summary rows with medians [256.0, 163.7, 155.3] (spread 100.7 ticks, 52.6%) -- averaging, widening whiskers to the union
+  note: 100B (random) has 3 overlapping summary rows with medians [250.8, 173.7, 176.3] (spread 77.1 ticks, 38.5%) -- averaging, widening whiskers to the union
+  note: 101B (random) has 3 overlapping summary rows with medians [246.0, 166.6, 144.1] (spread 101.9 ticks, 54.9%) -- averaging, widening whiskers to the union
+  note: 102B (random) has 3 overlapping summary rows with medians [251.0, 151.5, 152.3] (spread 99.6 ticks, 53.8%) -- averaging, widening whiskers to the union
+  note: 103B (random) has 3 overlapping summary rows with medians [215.6, 165.8, 160.6] (spread 55.0 ticks, 30.4%) -- averaging, widening whiskers to the union
+  note: 105B (random) has 3 overlapping summary rows with medians [213.5, 159.1, 149.5] (spread 64.0 ticks, 36.8%) -- averaging, widening whiskers to the union
+  note: 106B (random) has 3 overlapping summary rows with medians [212.8, 150.7, 150.5] (spread 62.3 ticks, 36.4%) -- averaging, widening whiskers to the union
+  note: 107B (random) has 3 overlapping summary rows with medians [217.9, 150.3, 151.6] (spread 67.5 ticks, 39.0%) -- averaging, widening whiskers to the union
+  note: 108B (random) has 3 overlapping summary rows with medians [227.6, 159.2, 139.3] (spread 88.3 ticks, 50.3%) -- averaging, widening whiskers to the union
+  note: 109B (random) has 3 overlapping summary rows with medians [251.4, 165.5, 163.8] (spread 87.6 ticks, 45.2%) -- averaging, widening whiskers to the union
+  note: 110B (random) has 3 overlapping summary rows with medians [255.1, 154.5, 148.3] (spread 106.8 ticks, 57.4%) -- averaging, widening whiskers to the union
+  note: 111B (random) has 3 overlapping summary rows with medians [249.4, 144.0, 145.9] (spread 105.4 ticks, 58.6%) -- averaging, widening whiskers to the union
+  note: 113B (random) has 3 overlapping summary rows with medians [207.4, 226.5, 143.3] (spread 83.2 ticks, 43.2%) -- averaging, widening whiskers to the union
+  note: 114B (random) has 3 overlapping summary rows with medians [206.5, 219.4, 141.7] (spread 77.6 ticks, 41.0%) -- averaging, widening whiskers to the union
+  note: 115B (random) has 3 overlapping summary rows with medians [209.8, 128.0, 121.6] (spread 88.2 ticks, 57.6%) -- averaging, widening whiskers to the union
+  note: 116B (random) has 3 overlapping summary rows with medians [241.2, 130.5, 239.5] (spread 110.7 ticks, 54.4%) -- averaging, widening whiskers to the union
+  note: 117B (random) has 3 overlapping summary rows with medians [218.1, 139.3, 135.2] (spread 82.8 ticks, 50.4%) -- averaging, widening whiskers to the union
+  note: 118B (random) has 3 overlapping summary rows with medians [212.0, 147.8, 166.2] (spread 64.2 ticks, 36.6%) -- averaging, widening whiskers to the union
+  note: 119B (random) has 3 overlapping summary rows with medians [203.9, 128.3, 123.4] (spread 80.5 ticks, 53.0%) -- averaging, widening whiskers to the union
+  note: 121B (random) has 3 overlapping summary rows with medians [182.5, 148.1, 156.4] (spread 34.4 ticks, 21.2%) -- averaging, widening whiskers to the union
+  note: 124B (random) has 3 overlapping summary rows with medians [150.7, 120.1, 123.4] (spread 30.6 ticks, 23.3%) -- averaging, widening whiskers to the union
+  note: flagged 6 isolated spike stride(s) as probable page-aliasing artifacts: [128, 360, 384, 512, 768, 1024]
+Wrote data_processed/hazel_icelake_6326/line_size/level_25874000/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_icelake_6326/line_size/level_25874000/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 25874000 --
+
+############################################################
+## step 5: cross-level, cross-method agreement summary
+############################################################
+   level boundary=32768B -> method A (family of curves) = noneB, method B (single curve) = noneB
+   level boundary=1310720B -> method A (family of curves) = noneB, method B (single curve) = noneB
+   level boundary=25874000B -> method A (family of curves) = noneB, method B (single curve) = 64B
+== every level/method that produced an estimate AGREES on 64B -- strong Phase-I evidence ==
+== done: all levels, both methods, complete ==
+== this is a FROZEN PHASE-I TIMING-ONLY result -- compare against PMU counters
+   and the documented/system-reported line size in Phase II before treating it as
+   confirmed (see README.md's Phase I/II/III discipline).
+== plots per level: data_processed/hazel_icelake_6326/line_size/level_<boundary>/plots/line_size_family_{curve,boxplots}.{png,pdf} (A, steps 1-3),
+          .../line_size_offset_{elbow,boxplots}.{png,pdf} (A, step 4), .../line_size_{curve,boxplots}.{png,pdf} (B) ==
+== record in data_raw/hazel_icelake_6326/README.md: boundaries=32768,1310720,25874000, core=16,
+   seed=12345, samples=1000000, coarse_strides=8,16,32,64,128,256, per-level/per-method estimates as above,
+   timestamp=20260915T022145Z ==
+== full transcript saved to: data_raw/hazel_icelake_6326/line_size/run_line_size_20260915T022145Z.log ==
+
+=== Done ===
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 838189
+    Job name          : hw1_line_size
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-14T22:21:29
+    Started           : 2026-09-14T22:21:44
+    Wait time         : 15 sec
+    Elapsed (wall)    : 00:03:38
+    Nodes             : 1 (c060n02)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 202.76 sec  (user 185.42, sys 17.35)
+    CPU efficiency    : 93.0%
+    Memory in use     : 207.79 MB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 838189
+------------------------------------------------------------

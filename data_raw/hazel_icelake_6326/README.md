@@ -181,7 +181,39 @@ number below 10 MiB from this machine.**
   separated (~22% apart), consistent with this machine's independently-confirmed LLC edge
   (past the capacity anomaly).
 
-**miss_latency: pending as of this writing.**
+**miss_latency (Slurm job 838192, elapsed 1h02m16s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh
+  hazel_icelake_6326 16 L1_to_L2:32768:1310720,L2_to_LLC:1310720:25874000,
+  LLC_to_DRAM:25874000:536870912`
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=212.0, L2_to_LLC=530.0,
+  LLC_to_DRAM=489.0 -- NOT monotonic (L2_to_LLC exceeds LLC_to_DRAM).** All 3 transitions
+  showed substantial repeat-to-repeat spread (60.5-104.0%), and this same spread is the most
+  likely explanation for the inversion (a single noisy repeat pulling one transition's median
+  above the next level's) rather than a genuine physical anomaly -- consistent with this
+  machine's own already-documented pervasive noise (the capacity-section anomaly, the
+  arithmetically-invalid associativity readings). Not re-run this pass.
+
+### inclusion_policy/
+**(Slurm job 838193, elapsed 1m20s, exit 0.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh
+  hazel_icelake_6326 16 L1_vs_L2:32768:1310720:L1_to_L2,L2_vs_LLC:1310720:25874000:L2_to_LLC,
+  L1_vs_LLC:32768:25874000:LLC_to_DRAM` (`ASSUMED_LINE_SIZE_BYTES` default 64).
+- **Results:**
+  - **L1_vs_L2**: target 100% survived-like, control 100% survived-like. **Verdict:
+    EXCLUSIVE / NON-INCLUSIVE** -- clean, no calibration warnings.
+  - **L2_vs_LLC**: target 16.0% survived-like / 3.0% invalidated-like / 81.0% ambiguous
+    (the most ambiguous result of any machine's L2_vs_LLC so far), control 100%
+    survived-like. **Verdict: UNCERTAIN (mixed result)** -- usual lowest-confidence pairing.
+  - **L1_vs_LLC (skip-level)**: target 100% survived-like, control 100% survived-like.
+    **Verdict: EXCLUSIVE / NON-INCLUSIVE.**
+  - **Best-guess overall reading:** leans non-inclusive throughout (both L1 pairings clean),
+    matching hazel_skylake's own overall shape.
+- Full transcript: see `data_raw/hazel_icelake_6326/inclusion_policy/run_inclusion_policy_full_*.log`
 
 ### inclusion_policy/
 - Source file(s): 

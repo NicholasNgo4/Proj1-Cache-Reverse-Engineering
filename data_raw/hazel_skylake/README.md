@@ -166,7 +166,44 @@ confirmed by an actual sharp knee, not a best-guess pick from a noisy/continuous
   own result, LLC and DRAM are well-separated here (~28% apart), consistent with this
   machine's independently-confirmed (not best-guess) LLC boundary.
 
-**miss_latency: pending as of this writing.**
+**miss_latency (Slurm job 838184, elapsed 1h05m23s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh hazel_skylake 16
+  L1_to_L2:32768:1048576,L2_to_LLC:1048576:23726560,LLC_to_DRAM:23726560:536870912`
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=58.0, L2_to_LLC=378.0,
+  LLC_to_DRAM=654.0** -- increasing as expected. All 3 transitions flagged repeat-to-repeat
+  spread (32-42%/32%/71%), not re-run.
+
+### inclusion_policy/
+**(Slurm job 838185, elapsed 1m40s, exit 0.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh hazel_skylake
+  16 L1_vs_L2:32768:1048576:L1_to_L2,L2_vs_LLC:1048576:23726560:L2_to_LLC,
+  L1_vs_LLC:32768:23726560:LLC_to_DRAM` (`ASSUMED_LINE_SIZE_BYTES` default 64).
+- **Results:**
+  - **L1_vs_L2: the pipeline's own calibration sanity check FAILED here** -- "invalidated-
+    class median (58.0) is not clearly above survived-class median (60.4)" -- i.e. this
+    machine's forced-eviction-to-L2 single-shot reload (58.0, from miss_latency's own
+    L1_to_L2 data) is not measurably slower than the survived-class calibration baseline
+    (60.4), which shouldn't be physically possible if the eviction is working. The pipeline
+    still produced a verdict regardless (98.0% survived-like target, 100% control) --
+    **EXCLUSIVE / NON-INCLUSIVE nominally, but this specific pairing's own calibration is
+    untrustworthy on this machine and the verdict should be read with that caveat**, unlike
+    every other machine's own clean L1_vs_L2 result.
+  - **L2_vs_LLC**: target 31.5% survived-like / 50.5% invalidated-like / 36 ambiguous, control
+    100% survived-like. **Verdict: UNCERTAIN (mixed result)** -- same lowest-confidence
+    pairing status as every other machine (L2's index doesn't fit in one page).
+  - **L1_vs_LLC (skip-level)**: target 100% survived-like, control 100% survived-like.
+    **Verdict: EXCLUSIVE / NON-INCLUSIVE** -- clean on both channels, though the small
+    target/control gap (52.0 vs 46.0 median) makes this a less dramatic separation than
+    hazel_haswell's own equivalent result.
+  - **Best-guess overall reading:** leans non-inclusive throughout, but L1_vs_L2's own
+    calibration failure means this machine's inclusion-policy picture is less solid than
+    most others -- treat with more caution than usual before citing.
+- Full transcript: see `data_raw/hazel_skylake/inclusion_policy/run_inclusion_policy_full_*.log`
 
 ### inclusion_policy/
 - Source file(s): 
