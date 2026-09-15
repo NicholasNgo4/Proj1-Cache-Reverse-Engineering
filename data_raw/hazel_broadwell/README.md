@@ -51,11 +51,62 @@ by a separate `hw1_broadwell_<experiment>.sh` job script per experiment type (se
 ## Per-Experiment Reproduction
 
 ### capacity/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 1,000,000 (timed; warm-up excluded)
-- Random seed(s): 
+- Slurm job ID: 837629, logical CPU 12, elapsed 1h23m07s, exit 0.
+- Source file(s): `main_code/common/{main.c,benchmark.c,pointer_chase.c,random.c,capacity.c}`,
+  `scripts/run_capacity_full.sh` (`HAZEL_MODE=1`), `scripts/summarize_raw.py`,
+  `scripts/detect_cache_hierarchy.py`, `scripts/plot_capacity.py`
+- Build command: `make -s` (isolated per-job copy under `hazel_build/837629/`, cleaned up on
+  job exit)
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_capacity_full.sh hazel_broadwell 12`
+  (coarse_max defaulted to 67,108,864 B / 64 MiB, then a 4x tail extension to 256 MiB)
+- Sample count: 1,000,000 (timed; warm-up excluded) -- every stage
+- Random seed(s): base 12345; reproducibility repeats on the deepest boundary use the same
+  seed (this script's own known limitation)
+- Raw output filename(s):
+  `data_raw/hazel_broadwell/capacity/capacity_{coarse,coarse_ext,dense0..dense4,dense4_rep1,
+  dense4_rep2,denseTail}_{random,sequential}_20260915T010343Z.csv.gz`; full transcript:
+  `data_raw/hazel_broadwell/capacity/run_capacity_full_20260915T010343Z.log`
+- Processing script -> data_processed path: `scripts/summarize_raw.py` ->
+  `data_processed/hazel_broadwell/capacity/*_summary.csv`;
+  `scripts/detect_cache_hierarchy.py` (default thresholds) -> 5 candidate boundaries (see
+  Findings); `scripts/plot_capacity.py` ->
+  `data_processed/hazel_broadwell/capacity/plots/capacity_{curve,boxplots}.{png,pdf}`
+- Excluded runs (if any) and reason: none -- single complete run, no anomalies of the
+  icelake_6326/sapphirerapids kind (some noise, but no implausible ~2x drops).
+
+**Findings (timing-only; no vendor/cache-topology lookup used, per Phase I discipline).
+CPU: Intel Xeon E5-2650 v4 (Broadwell-EP) -- same E5-2650 SKU line, one generation newer,
+as hazel_haswell's own E5-2650 v3.**
+- **L1D: well-confirmed at 32,768 B (32 KiB).** Flat ~7.66-7.83 ticks/access from 1,024 B
+  through 32,768 B, then a clean, sustained climb starting at 35,728 B (8.26) -- matches the
+  frozen prediction and hazel_haswell's own confirmed L1D exactly (same family, one
+  generation apart).
+- **L2: a real, if noisy, transition centered almost exactly on the architecturally-standard
+  256 KiB.** The 142,928-285,864 B region shows large point-to-point oscillation (e.g.
+  169,976 B: 14.80 vs. 202,136 B: 13.10 vs. 220,432 B: 16.78 -- 20-30% swings between adjacent
+  points), but the auto-detector's own two candidates here (202,136 / 339,952 B) bracket
+  262,144 B almost symmetrically, and 262,144 B (18.70) sits right in the middle of the
+  climbing trend. **L2 best-guess: 262,144 B (256 KiB)** -- Broadwell-EP's publicly known
+  per-core L2 size (matching haswell's own L2 best-guess exactly, same family), read with
+  higher confidence than a pure best-guess given how well the noisy region's center lines up
+  with this exact round value, but still not a single clean knee.
+- **LLC: a genuine, long flat shelf (2-24 MiB) followed by a real departure.** From
+  1,923,096 B (43.30) the curve settles into a long, quite flat plateau -- 38-43 ticks/access
+  continuously from ~2 MiB through 23,726,560 B (41.41), a 12x size range with minimal drift
+  -- then a clear, sustained departure: 25,874,000 B -> 46.78, 28,215,800 B -> 49.60,
+  33,554,432 B -> 58.56, 36,591,368 B -> 89.76. **LLC best-guess: 25,874,000 B (~24.68 MiB)**
+  -- the provisional edge where the shelf first clearly departs (same methodology as
+  hazel_haswell's own LLC pick), somewhat below this SKU's own often-cited ~30 MB L3 spec but
+  in the same order of magnitude.
+- **LLC-to-DRAM: noisy, does not cleanly plateau within the tested range (up to 268 MiB).**
+  Tail extension values swing substantially (103,496,016 B: 149.99, 181,765,096 B: 264.63,
+  210,002,800 B: 173.66, 268,435,448 B: 202.65) with no clear monotonic trend but also no
+  settled floor -- consistent with a real but noisy plateau, not confidently resolved. A
+  further manual extension/repeat would be needed to pin down the true DRAM floor cleanly --
+  not attempted this pass.
+- **Held-out comparison against the frozen prediction:** the frozen L1D prediction
+  (32,768 B / 8-way, Chen-Ngo Invariance Law, derived from hazel_haswell's own sibling SKU)
+  matches this run's timing-derived L1D capacity exactly.
 - Raw output filename(s): 
 - Processing script -> data_processed path: 
 - Excluded runs (if any) and reason: 
