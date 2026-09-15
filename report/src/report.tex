@@ -793,13 +793,7 @@ plots into one command.
 
 \begin{figure}[htbp]
 \centering
-\fbox{\parbox[c][2.2in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- methodology-logic flow chart for capacity/cache-level discovery:\\[4pt]
-sweep footprint $N$ (log$_2$-spaced) $\rightarrow$ build dependent cycle of $N$ bytes,
-random \emph{and} sequential $\rightarrow$ batched avg.\ ticks/access $\rightarrow$
-compare consecutive size points $\rightarrow$ sustained jump exceeding threshold?
-$\rightarrow$ \textbf{yes}: record a cache-level boundary; \textbf{no}: continue sweep.
-}}
+\includegraphics[width=0.95\textwidth]{flow_capacity.png}
 \caption{Methodology logic for cache-level/capacity discovery. Measured quantity: median
 ticks/access (y) vs.\ working-set footprint in bytes (x, log scale). Expected signature: a
 sustained step in the random-pattern curve, absent (or at a different location) in the
@@ -920,16 +914,7 @@ methods agree.
 
 \begin{figure}[htbp]
 \centering
-\fbox{\parbox[c][2.0in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- methodology-logic flow chart for line-size inference (both methods
-side by side): \\[4pt]
-\emph{Single-curve:} fix footprint just above a capacity boundary $\rightarrow$ sweep
-stride linearly $\rightarrow$ ticks/access ramps then saturates $\rightarrow$ saturation
-stride = line size.\\
-\emph{Family-of-curves:} fix candidate stride $s$ $\rightarrow$ sweep footprint
-$\rightarrow$ overlay curves for several $s$ $\rightarrow$ smallest $s$ whose curve
-separates from the shared baseline = line size.
-}}
+\includegraphics[width=0.95\textwidth]{flow_linesize.png}
 \caption{Methodology logic for cache line-size inference. Expected signature: a
 ramp-to-plateau elbow (single-curve) or a baseline-separation point (family-of-curves).
 Inference rule: smallest stride at which the tested signature first appears.}
@@ -1029,13 +1014,7 @@ int run_associativity_experiment(const struct associativity_config *cfg)
 
 \begin{figure}[htbp]
 \centering
-\fbox{\parbox[c][2.0in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- methodology-logic flow chart for associativity:\\[4pt]
-fix stride = level's own confirmed capacity (every probed node $\rightarrow$ same set,
-distinct tag) $\rightarrow$ sweep num\_ways $\rightarrow$ flat latency while
-num\_ways $\le$ true associativity $\rightarrow$ sharp jump once exceeded (LRU/PLRU set
-thrashes) $\rightarrow$ knee = associativity.
-}}
+\includegraphics[width=0.95\textwidth]{flow_assoc.png}
 \caption{Methodology logic for associativity inference. Expected signature: a flat
 hit-latency shelf followed by a sharp, sustained jump at \texttt{num\_ways = A+1}.
 Inference rule: reported associativity $A$ = the last \texttt{num\_ways} on the flat
@@ -1196,13 +1175,7 @@ int run_miss_latency_experiment(const struct miss_latency_config *cfg)
 
 \begin{figure}[htbp]
 \centering
-\fbox{\parbox[c][1.8in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- methodology-logic flow chart for hit latency:\\[4pt]
-fix footprint inside one confirmed level $\rightarrow$ run BOTH dependent and
-independent-load batched timers $\rightarrow$ independent reads faster (MLP exposed,
-confirms the dependent timer is genuinely serializing) $\rightarrow$ report the
-\emph{dependent}, random-pattern median as that level's hit latency.
-}}
+\includegraphics[width=0.95\textwidth]{flow_hitlat.png}
 \caption{Methodology logic for hit-latency inference. Inference rule: dependent/random
 median at a confirmed single-level footprint is the reported hit latency, valid only if
 paired independent-load control reads faster at the same footprint.}
@@ -1257,12 +1230,7 @@ is not repeated here.
 
 \begin{figure}[htbp]
 \centering
-\fbox{\parbox[c][1.8in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- methodology-logic flow chart for miss/next-level latency:\\[4pt]
-untimed re-touch of target (source-level residency restored) $\rightarrow$ untimed
-eviction walk (size $>$ source capacity, $<$ next-level capacity) $\rightarrow$ ONE timed
-dependent reload $\rightarrow$ record ticks (single-shot, per trial).
-}}
+\includegraphics[width=0.95\textwidth]{flow_misslat.png}
 \caption{Methodology logic for miss/next-level-latency inference. Inference rule: raw
 single-shot reload latency at a transition = true reload latency + a fixed, per-machine
 single-shot measurement overhead (isolated separately via a deliberately
@@ -1421,15 +1389,7 @@ int run_inclusion_policy_experiment(const struct inclusion_policy_config *cfg)
 
 \begin{figure}[htbp]
 \centering
-\fbox{\parbox[c][2.1in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- methodology-logic flow chart for inclusion/exclusion:\\[4pt]
-touch target \& control (upper level) $\rightarrow$ page-offset eviction walk (lower
-level, structurally avoids target's own set) $\rightarrow$ reload target \& control
-$\rightarrow$ classify each vs.\ calibrated survived/invalidated latency classes
-(Section~\ref{sec:hitlatency}/\ref{sec:misslatency}) $\rightarrow$ target invalidated
-\& control survived $\Rightarrow$ inclusive; both survived $\Rightarrow$
-exclusive/non-inclusive.
-}}
+\includegraphics[width=0.95\textwidth]{flow_inclusion.png}
 \caption{Methodology logic for inclusion/exclusion inference. Inference rule: $\ge$80\%
 of target trials classified invalidated-like $\Rightarrow$ inclusive; $\ge$80\%
 survived-like $\Rightarrow$ exclusive/non-inclusive; otherwise uncertain. Control channel
@@ -2420,14 +2380,7 @@ printf("# result tau_ticks=%.4f sensitivity=%.4f specificity=%.4f p_obs=%.4f "
 
 \begin{figure}[htbp]
 \centering
-\fbox{\parbox[c][2.1in][c]{0.85\textwidth}{\centering
-PLACEHOLDER-style methodology-logic flow chart for the software-only cache metric:\\[4pt]
-build resident \& nonresident calibration chains $\rightarrow$ single-shot time both
-$\rightarrow$ ROC sweep picks threshold $\tau$ maximizing Youden's J (records Se/Sp)
-$\rightarrow$ time the TEST workload the same way $\rightarrow$ classify each test access
-hit/miss at $\tau$ $\rightarrow$ debias the raw hit fraction via Rogan--Gladen using Se/Sp
-$\rightarrow$ bootstrap CI $\rightarrow$ report $\widehat{H}$.
-}}
+\includegraphics[width=0.95\textwidth]{flow_hitrate.png}
 \caption{Methodology logic for the software-only cache hit-rate metric. Measured quantity:
 single-shot ticks/access for two calibration classes and the test workload. Expected
 signature: two well-separated calibration distributions (single-digit-tick hits vs.\
