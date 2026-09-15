@@ -112,11 +112,20 @@ as hazel_haswell's own E5-2650 v3.**
 - Excluded runs (if any) and reason: 
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 838232, exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_broadwell 22
+  32768,262144,25874000` (default coarse strides; no `candidate_overrides_csv`, Method A
+  step 4 skipped at every level)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- **L1 produced a real, citable 64 B; LLC produced a different, implausible value (136 B),
+  flagged by the pipeline as a genuine disagreement.** L1 (32,768 B): 64 B, matching the
+  frozen prediction and hazel_haswell's own confirmed L1 line size exactly. L2 (262,144 B):
+  no transition. LLC (25,874,000 B): 136 B -- not a standard line size on any real hardware,
+  most likely a noisy/spurious large-footprint detection (same category as
+  hazel_cascadelake's own implausible 200 B and hazel_genoa's own 112 B). **Best-guess: 64 B
+  for all levels** -- L1's own clean detection, trusted over LLC's implausible outlier.
 
 ### associativity/
 - Slurm job ID: 838351 (resubmit of 838233, which failed on the same non-4096-aligned LLC
@@ -145,10 +154,23 @@ as hazel_haswell's own E5-2650 v3.**
   other machine's own LLC finding regardless of the specific digit reported.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 838234, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh hazel_broadwell 22
+  L1:32768,L2:262144,LLC:25874000,DRAM:536870912` (base_seed=12345, 2 repeats, 1,000,000
+  samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000
+- Regular vs. randomized control included? Yes -- no `[UNEXPECTED]` flags, independent read
+  faster than dependent everywhere.
+- **Results (dependent, random, base-run median, ticks/access): L1=7.85, L2=18.09,
+  LLC=47.58, DRAM=186.79** -- a clean, monotonic 4-tier ladder. LLC's own ratio to L2 (~2.6x)
+  is smaller than most other machines' own LLC/L2 ratios (often 5-10x), plausibly because
+  this machine's LLC boundary (a provisional "shelf departure" edge, not vendor-spec-matched)
+  undershoots the real L3 capacity somewhat -- consistent with the capacity section's own
+  caveat that 25,874,000 B sits below this SKU's often-cited ~30 MB spec.
+
+**miss_latency: pending as of this writing.**
 
 ### inclusion_policy/
 - Source file(s): 

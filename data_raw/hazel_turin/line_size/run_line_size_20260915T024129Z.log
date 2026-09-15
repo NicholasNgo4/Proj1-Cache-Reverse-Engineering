@@ -1,0 +1,238 @@
+== run_line_size: machine=hazel_turin core=160 seed=12345 ==
+== timestamp=20260915T024129Z boundaries=49152,1048576,33554432 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=49152B -- Method A window=[6144,196608] bytes
+############################################################
+-- [L49152 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_8_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_8_random_summary.csv
+-- [L49152 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_8_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_8_sequential_summary.csv
+-- [L49152 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_16_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_16_random_summary.csv
+-- [L49152 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_16_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_16_sequential_summary.csv
+-- [L49152 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_32_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_32_random_summary.csv
+-- [L49152 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_32_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_32_sequential_summary.csv
+-- [L49152 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_64_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_64_random_summary.csv
+-- [L49152 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_64_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_64_sequential_summary.csv
+-- [L49152 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_128_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_128_random_summary.csv
+-- [L49152 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_128_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_128_sequential_summary.csv
+-- [L49152 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_256_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_256_random_summary.csv
+-- [L49152 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_49152/family_256_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_49152/family_256_sequential_summary.csv
+-- [L49152 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_turin/line_size/level_49152/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 110336, 16B: 110336, 32B: 98304, 64B: 55168, 128B: 55168, 256B: 55040}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~55040 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_turin/line_size/level_49152/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_turin/line_size/level_49152/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L49152 A] no candidate given for this level -- inspect
+   data_processed/hazel_turin/line_size/level_49152/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L49152 B] single-curve method, footprint_bytes=98304 (2.0x boundary) --
+-- [L49152 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_turin/line_size/level_49152/singlecurve_coarse_random_20260915T024129Z.csv
+  wrote 128002 lines -> data_raw/hazel_turin/line_size/level_49152/singlecurve_coarse_sequential_20260915T024129Z.csv
+Wrote 128 summary rows to data_processed/hazel_turin/line_size/level_49152/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_turin/line_size/level_49152/singlecurve_coarse_sequential_summary.csv
+-- [L49152 B] detected line-size estimate (bytes): none --
+-- [L49152 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L49152 B] generating single-curve plots --
+  note: flagged 4 isolated spike stride(s) as probable page-aliasing artifacts: [152, 256, 512, 1024]
+Wrote data_processed/hazel_turin/line_size/level_49152/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_turin/line_size/level_49152/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 49152 --
+
+############################################################
+## LEVEL boundary=1048576B -- Method A window=[131072,4194304] bytes
+############################################################
+-- [L1048576 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_8_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_8_random_summary.csv
+-- [L1048576 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_8_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_8_sequential_summary.csv
+-- [L1048576 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_16_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_16_random_summary.csv
+-- [L1048576 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_16_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_16_sequential_summary.csv
+-- [L1048576 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_32_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_32_random_summary.csv
+-- [L1048576 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_32_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_32_sequential_summary.csv
+-- [L1048576 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_64_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_64_random_summary.csv
+-- [L1048576 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_64_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_64_sequential_summary.csv
+-- [L1048576 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_128_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_128_random_summary.csv
+-- [L1048576 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_128_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_128_sequential_summary.csv
+-- [L1048576 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_256_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_256_random_summary.csv
+-- [L1048576 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_1048576/family_256_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_1048576/family_256_sequential_summary.csv
+-- [L1048576 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_turin/line_size/level_1048576/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 2642240, 16B: 2353968, 32B: 2353952, 64B: 2642240, 128B: 1482880, 256B: 1482752}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~1482752 bytes) is 128B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_turin/line_size/level_1048576/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_turin/line_size/level_1048576/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L1048576 A] no candidate given for this level -- inspect
+   data_processed/hazel_turin/line_size/level_1048576/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L1048576 B] single-curve method, footprint_bytes=2097152 (2.0x boundary) --
+-- [L1048576 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_turin/line_size/level_1048576/singlecurve_coarse_random_20260915T024129Z.csv
+  wrote 128002 lines -> data_raw/hazel_turin/line_size/level_1048576/singlecurve_coarse_sequential_20260915T024129Z.csv
+Wrote 128 summary rows to data_processed/hazel_turin/line_size/level_1048576/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_turin/line_size/level_1048576/singlecurve_coarse_sequential_summary.csv
+-- [L1048576 B] detected line-size estimate (bytes): none --
+-- [L1048576 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L1048576 B] generating single-curve plots --
+  note: flagged 4 isolated spike stride(s) as probable page-aliasing artifacts: [256, 512, 952, 1024]
+Wrote data_processed/hazel_turin/line_size/level_1048576/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_turin/line_size/level_1048576/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 1048576 --
+
+############################################################
+## LEVEL boundary=33554432B -- Method A window=[4194304,134217728] bytes
+############################################################
+-- [L33554432 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_8_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_8_random_summary.csv
+-- [L33554432 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_8_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_8_sequential_summary.csv
+-- [L33554432 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_16_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_16_random_summary.csv
+-- [L33554432 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_16_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_16_sequential_summary.csv
+-- [L33554432 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_32_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_32_random_summary.csv
+-- [L33554432 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_32_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_32_sequential_summary.csv
+-- [L33554432 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_64_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_64_random_summary.csv
+-- [L33554432 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_64_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_64_sequential_summary.csv
+-- [L33554432 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_128_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_128_random_summary.csv
+-- [L33554432 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_128_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_128_sequential_summary.csv
+-- [L33554432 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_256_random_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_256_random_summary.csv
+-- [L33554432 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_turin/line_size/level_33554432/family_256_sequential_20260915T024129Z.csv
+Wrote 31 summary rows to data_processed/hazel_turin/line_size/level_33554432/family_256_sequential_summary.csv
+-- [L33554432 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_turin/line_size/level_33554432/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 29893600, 16B: 33554432, 32B: 26632160, 64B: 18831744, 128B: 16777216, 256B: 23726336}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~23726336 bytes) is 32B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_turin/line_size/level_33554432/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_turin/line_size/level_33554432/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L33554432 A] no candidate given for this level -- inspect
+   data_processed/hazel_turin/line_size/level_33554432/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L33554432 B] single-curve method, footprint_bytes=67108864 (2.0x boundary) --
+-- [L33554432 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_turin/line_size/level_33554432/singlecurve_coarse_random_20260915T024129Z.csv
+  wrote 128002 lines -> data_raw/hazel_turin/line_size/level_33554432/singlecurve_coarse_sequential_20260915T024129Z.csv
+Wrote 128 summary rows to data_processed/hazel_turin/line_size/level_33554432/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_turin/line_size/level_33554432/singlecurve_coarse_sequential_summary.csv
+-- [L33554432 B] detected line-size estimate (bytes): 64 --
+-- [L33554432 B] dense sweep around estimate 64 bytes: 32-129 (step 1) --
+  wrote 98002 lines -> data_raw/hazel_turin/line_size/level_33554432/singlecurve_dense_random_20260915T024129Z.csv
+  wrote 98002 lines -> data_raw/hazel_turin/line_size/level_33554432/singlecurve_dense_sequential_20260915T024129Z.csv
+Wrote 98 summary rows to data_processed/hazel_turin/line_size/level_33554432/singlecurve_dense_random_summary.csv
+Wrote 98 summary rows to data_processed/hazel_turin/line_size/level_33554432/singlecurve_dense_sequential_summary.csv
+  -- [L33554432 B] repeat 1/2 of the dense window --
+  wrote 98002 lines -> data_raw/hazel_turin/line_size/level_33554432/singlecurve_dense_rep1_random_20260915T024129Z.csv
+  wrote 98002 lines -> data_raw/hazel_turin/line_size/level_33554432/singlecurve_dense_rep1_sequential_20260915T024129Z.csv
+Wrote 98 summary rows to data_processed/hazel_turin/line_size/level_33554432/singlecurve_dense_rep1_random_summary.csv
+Wrote 98 summary rows to data_processed/hazel_turin/line_size/level_33554432/singlecurve_dense_rep1_sequential_summary.csv
+  -- [L33554432 B] repeat 2/2 of the dense window --
+  wrote 98002 lines -> data_raw/hazel_turin/line_size/level_33554432/singlecurve_dense_rep2_random_20260915T024129Z.csv
+  wrote 98002 lines -> data_raw/hazel_turin/line_size/level_33554432/singlecurve_dense_rep2_sequential_20260915T024129Z.csv
+Wrote 98 summary rows to data_processed/hazel_turin/line_size/level_33554432/singlecurve_dense_rep2_random_summary.csv
+Wrote 98 summary rows to data_processed/hazel_turin/line_size/level_33554432/singlecurve_dense_rep2_sequential_summary.csv
+-- [L33554432 B] generating single-curve plots --
+  note: flagged 12 isolated spike stride(s) as probable page-aliasing artifacts: [256, 384, 456, 472, 488, 512, 568, 584, 640, 768, 904, 1024]
+Wrote data_processed/hazel_turin/line_size/level_33554432/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_turin/line_size/level_33554432/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 33554432 --
+
+############################################################
+## step 5: cross-level, cross-method agreement summary
+############################################################
+   level boundary=49152B -> method A (family of curves) = noneB, method B (single curve) = noneB
+   level boundary=1048576B -> method A (family of curves) = noneB, method B (single curve) = noneB
+   level boundary=33554432B -> method A (family of curves) = noneB, method B (single curve) = 64B
+== every level/method that produced an estimate AGREES on 64B -- strong Phase-I evidence ==
+== done: all levels, both methods, complete ==
+== this is a FROZEN PHASE-I TIMING-ONLY result -- compare against PMU counters
+   and the documented/system-reported line size in Phase II before treating it as
+   confirmed (see README.md's Phase I/II/III discipline).
+== plots per level: data_processed/hazel_turin/line_size/level_<boundary>/plots/line_size_family_{curve,boxplots}.{png,pdf} (A, steps 1-3),
+          .../line_size_offset_{elbow,boxplots}.{png,pdf} (A, step 4), .../line_size_{curve,boxplots}.{png,pdf} (B) ==
+== record in data_raw/hazel_turin/README.md: boundaries=49152,1048576,33554432, core=160,
+   seed=12345, samples=1000000, coarse_strides=8,16,32,64,128,256, per-level/per-method estimates as above,
+   timestamp=20260915T024129Z ==
+== full transcript saved to: data_raw/hazel_turin/line_size/run_line_size_20260915T024129Z.log ==

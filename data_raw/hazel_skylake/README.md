@@ -115,11 +115,17 @@ confirmed by an actual sharp knee, not a best-guess pick from a noisy/continuous
 - Excluded runs (if any) and reason: 
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 838181, elapsed (see log), exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_skylake 16
+  32768,1048576,23726560` (default coarse strides 8,16,32,64,128,256; no
+  `candidate_overrides_csv`, so Method A step 4 was skipped at every level)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- **Inconclusive -- Method B found no transition at any of the 3 levels** (`-- detected
+  line-size estimate (bytes): none --` at L1/L2/LLC). No citable value from this run at all.
+  **Best-guess: 64 B** (matching the frozen prediction and every other x86 machine so far),
+  unconfirmed by this machine's own data.
 
 ### associativity/
 - Slurm job ID: 838348 (resubmit of 838182, which failed with "Invalid associativity
@@ -146,10 +152,21 @@ confirmed by an actual sharp knee, not a best-guess pick from a noisy/continuous
   L1 is the load-bearing evidence, not the arithmetic).
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 838183, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh hazel_skylake 16
+  L1:32768,L2:1048576,LLC:23726560,DRAM:536870912` (base_seed=12345, 2 repeats, 1,000,000
+  samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000
+- Regular vs. randomized control included? Yes -- both load modes, both patterns, every
+  level. No `[UNEXPECTED]` flags -- independent read faster than dependent everywhere.
+- **Results (dependent, random, base-run median, ticks/access): L1=9.54, L2=17.41,
+  LLC=152.41, DRAM=194.99** -- a clean, monotonic 4-tier ladder, and unlike hazel_cascadelake's
+  own result, LLC and DRAM are well-separated here (~28% apart), consistent with this
+  machine's independently-confirmed (not best-guess) LLC boundary.
+
+**miss_latency: pending as of this writing.**
 
 ### inclusion_policy/
 - Source file(s): 

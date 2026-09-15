@@ -122,11 +122,19 @@ number below 10 MiB from this machine.**
   generation.
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 838189, exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_icelake_6326 16
+  32768,1310720,25874000` (default coarse strides; no `candidate_overrides_csv`, Method A
+  step 4 skipped at every level)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- **Only LLC produced a citable estimate: 64 B.** L1 (32,768 B) and L2 (1,310,720 B) both
+  found no transition. The pipeline's own "every level/method that produced an estimate
+  AGREES on 64B" line is technically true but misleading here (as with hazel_haswell's own
+  identical caveat) -- it only "agrees" because LLC's 64 B was the ONLY value any level
+  produced, not because multiple independent levels converged. **Best-guess: 64 B**, one real
+  data point plus the universal x86 default.
 
 ### associativity/
 - Slurm job ID: 838349 (resubmit of 838190, which failed on the same non-4096-aligned LLC
@@ -157,10 +165,23 @@ number below 10 MiB from this machine.**
   not just the one capacity run.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 838191, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh
+  hazel_icelake_6326 16 L1:32768,L2:1310720,LLC:25874000,DRAM:536870912` (base_seed=12345,
+  2 repeats, 1,000,000 samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000
+- Regular vs. randomized control included? Yes -- one flagged cell, L1 random
+  (`independent >= dependent`, 22.85 vs 22.13 ticks, `[UNEXPECTED -- investigate]`) -- a ~3%
+  gap at L1's own scale, consistent with sub-tick measurement noise (same category as several
+  lab machines' own small L1 flags), not a real inversion. Every other cell read as expected.
+- **Results (dependent, random, base-run median, ticks/access): L1=21.92, L2=36.60,
+  LLC=203.40, DRAM=248.26** -- a clean, monotonic 4-tier ladder, LLC/DRAM reasonably
+  separated (~22% apart), consistent with this machine's independently-confirmed LLC edge
+  (past the capacity anomaly).
+
+**miss_latency: pending as of this writing.**
 
 ### inclusion_policy/
 - Source file(s): 

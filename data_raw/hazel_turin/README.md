@@ -121,11 +121,20 @@ hazel_genoa's own Zen 4.**
   generation (after sapphirerapids) where the timing data itself points to a larger L1D.
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 838244, exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_turin 144
+  49152,1048576,33554432` (default coarse strides; no `candidate_overrides_csv`, Method A
+  step 4 skipped at every level)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- **Only LLC produced a citable estimate: 64 B.** L1 (49,152 B) and L2 (1,048,576 B) both
+  found no transition -- consistent with the same "no signal near the best-guess L1 edge"
+  pattern already seen on sapphirerapids' own line_size run. Same misleading-but-technically-
+  true "every level/method that produced an estimate AGREES on 64B" pipeline message as
+  hazel_haswell/hazel_icelake_6326's own runs (only one level actually produced a value).
+  **Best-guess: 64 B** -- matches genoa's own Zen 4 result exactly (Zen 5 didn't change line
+  size either), and this is the only real data point on this machine.
 
 ### associativity/
 - Slurm job ID: 838245, logical CPU 144, elapsed 16s, exit 0.
@@ -154,10 +163,23 @@ hazel_genoa's own Zen 4.**
   `CLAUDE.md` is the more likely explanation throughout.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 838246, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh hazel_turin 144
+  L1:49152,L2:1048576,LLC:33554432,DRAM:536870912` (base_seed=12345, 2 repeats, 1,000,000
+  samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000
+- Regular vs. randomized control included? Yes -- no `[UNEXPECTED]` flags, independent read
+  faster than dependent everywhere.
+- **Results (dependent, random, base-run median, ticks/access): L1=3.33, L2=18.46,
+  LLC=41.95, DRAM=347.59** -- a clean, monotonic 4-tier ladder. The DRAM/L1 ratio (~104x) is
+  the largest of any Hazel machine so far, consistent with this being the fastest/lowest-
+  latency core measured this session (L1≈3.3 ticks) -- the same "faster core sees more ticks
+  for the same physical DRAM latency" effect already noted for genoa, just more pronounced
+  given Zen 5's even lower baseline.
+
+**miss_latency: pending as of this writing.**
 
 ### inclusion_policy/
 - Source file(s): 

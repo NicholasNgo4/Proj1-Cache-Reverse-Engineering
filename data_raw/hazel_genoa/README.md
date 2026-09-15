@@ -115,11 +115,23 @@ project's AMD-generation requirement for the assignment's minimum-5 spanning set
 - Excluded runs (if any) and reason: 
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 838201, exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_genoa 97
+  32768,1048576,33554432` (default coarse strides; no `candidate_overrides_csv`, Method A
+  step 4 skipped at every level)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- **L1 produced a real, citable 64 B; LLC produced a DIFFERENT value (112 B), and the
+  pipeline itself flags this as a genuine disagreement, not something to average.** L1
+  (32,768 B): Method B cleanly detected 64 B, matching the frozen prediction and every other
+  x86 machine (Zen 4 didn't change line size, consistent with its own unchanged L1D size).
+  L2 (1,048,576 B): no transition. LLC (33,554,432 B): Method B detected 112 B -- **not a
+  standard line size on any real hardware** (64 B and 128 B are essentially universal; 112 B
+  is neither), most likely a noisy/spurious detection at this large a footprint rather than a
+  genuine architectural difference (similar in kind to hazel_cascadelake's own implausible
+  200 B LLC detection). **Best-guess: 64 B for all levels** -- L1's own clean detection,
+  trusted over LLC's implausible outlier.
 
 ### associativity/
 - Slurm job ID: 838202, logical CPU 97, elapsed 40s, exit 0.
@@ -148,10 +160,23 @@ project's AMD-generation requirement for the assignment's minimum-5 spanning set
   not a genuine measurement.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 838203, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh hazel_genoa 97
+  L1:32768,L2:1048576,LLC:33554432,DRAM:536870912` (base_seed=12345, 2 repeats, 1,000,000
+  samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000
+- Regular vs. randomized control included? Yes -- no `[UNEXPECTED]` flags anywhere,
+  independent read faster than dependent at every level/pattern.
+- **Results (dependent, random, base-run median, ticks/access): L1=7.49, L2=30.96,
+  LLC=215.66, DRAM=330.04** -- a clean, monotonic 4-tier ladder, consistent with this
+  machine's own confirmed 32 MiB LLC edge. The large DRAM/L1 ratio (~44x) reflects this
+  chip's very low absolute L1 latency (fast core), not an unusually slow DRAM path -- memory
+  latency doesn't scale down with core speed, so a faster core "sees" proportionally more
+  ticks for the same physical DRAM access.
+
+**miss_latency: pending as of this writing.**
 
 ### inclusion_policy/
 - Source file(s): 

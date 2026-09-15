@@ -141,11 +141,16 @@ machine L1D result -- read all three notes before citing a number from this mach
 - Excluded runs (if any) and reason: 
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 838196, exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_sapphirerapids 40
+  49152,2097152,39903168` (default coarse strides; no `candidate_overrides_csv`, Method A
+  step 4 skipped at every level)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- **Inconclusive -- Method B found no transition at any of the 3 levels** (L1/L2/LLC all
+  `none`). **Best-guess: 64 B** (the universal x86 default; independent of this machine's own
+  distinct 48 KiB L1D finding, since line size and L1 capacity are unrelated properties).
 
 ### associativity/
 - Slurm job ID: 838350 (resubmit of 838197, which failed on the same non-4096-aligned LLC
@@ -176,10 +181,24 @@ machine L1D result -- read all three notes before citing a number from this mach
   are NOT.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 838198, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh
+  hazel_sapphirerapids 40 L1:49152,L2:2097152,LLC:39903168,DRAM:536870912` (base_seed=12345,
+  2 repeats, 1,000,000 samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000
+- Regular vs. randomized control included? Yes -- one flagged cell, L1 sequential
+  (`independent >= dependent`, 20.14 vs 17.67 ticks, `[UNEXPECTED -- investigate]`) -- a
+  sequential-pattern L1 effect (prefetcher-related, same category documented on several lab
+  machines), not a real inversion at the level that matters (random). Every other cell read
+  as expected.
+- **Results (dependent, random, base-run median, ticks/access): L1=17.45, L2=24.52,
+  LLC=155.96, DRAM=283.30** -- a clean, monotonic 4-tier ladder, LLC/DRAM well-separated
+  (~82% apart), consistent with this machine's own capacity finding that LLC-to-DRAM never
+  plateaus (a genuinely large, real gap between these two levels here).
+
+**miss_latency: pending as of this writing.**
 
 ### inclusion_policy/
 - Source file(s): 

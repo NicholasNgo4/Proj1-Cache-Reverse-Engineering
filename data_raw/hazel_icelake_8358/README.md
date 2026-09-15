@@ -120,11 +120,16 @@ before citing any number from this machine; only L1 gets even a best-guess-quali
 - Excluded runs (if any) and reason: 
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 838211, exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_icelake_8358 34
+  32768,1310720,50331648` (default coarse strides; no `candidate_overrides_csv`, Method A
+  step 4 skipped at every level)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- **Inconclusive -- Method B found no transition at any of the 3 levels.** Consistent with
+  this machine's already-documented pervasive capacity-sweep noise. **Best-guess: 64 B**
+  (universal x86 default, unconfirmed here).
 
 ### associativity/
 - Slurm job ID: 838212, logical CPU 34, elapsed 35s, exit 0.
@@ -149,10 +154,26 @@ before citing any number from this machine; only L1 gets even a best-guess-quali
   re-run when quiet" note).
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 838213, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh
+  hazel_icelake_8358 34 L1:32768,L2:1310720,LLC:50331648,DRAM:536870912` (base_seed=12345,
+  2 repeats, 1,000,000 samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000
+- Regular vs. randomized control included? Yes -- no `[UNEXPECTED]` flags, independent read
+  faster than dependent everywhere -- but see the result note below before trusting this as
+  a sign of a clean run.
+- **Results (dependent, random, base-run median, ticks/access): L1=27.22, L2=30.98,
+  LLC=231.65, DRAM=256.88.** **L1 and L2 are unusually close together (only ~14% apart) --
+  every other Hazel/lab machine shows a 2-4x gap between these two levels.** This is further,
+  independent evidence (beyond the capacity/associativity sections' own findings) that this
+  machine's whole session was affected by pervasive noise/contention, not a genuine L1≈L2
+  hardware property -- consistent with this machine's own "likely needs a full re-run when
+  quiet" flag. LLC/DRAM are also closer together (~11%) than most other machines. Do not cite
+  any of these four numbers as clean, independent per-level latencies.
+
+**miss_latency: pending as of this writing.**
 
 ### inclusion_policy/
 - Source file(s): 
