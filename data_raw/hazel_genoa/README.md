@@ -122,10 +122,30 @@ project's AMD-generation requirement for the assignment's minimum-5 spanning set
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 838202, logical CPU 97, elapsed 40s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh hazel_genoa 97
+  32768,1048576,33554432` (base_seed=12345, repeats at seed+1/seed+2, max_ways=40,
+  1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate (standard method).
+- **Notes / results: L1=9 (fully reproducible), L2=9 (fully reproducible), L3_LLC=9 base,
+  9/8 on repeats (flagged disagreement).** Unlike every other x86 Hazel/lab machine's own
+  clean L1=8-way, **this machine's L1 reads 9 -- and the arithmetic-consistency check rules
+  it out as genuine**: 32,768 B / 64 B-lines / 9-way = 56.89 sets, not a whole number, so a
+  real L1D cannot actually have this associativity at this capacity. This is the first AMD/
+  Zen 4 machine to show the same "L1 itself fails the integer-sets check" symptom already
+  seen on several Intel Hazel machines (icelake_6326/icelake_8358/turin) -- read as further,
+  cross-vendor evidence that whatever structure produces this confound is not
+  Intel-microarchitecture-specific. L2's identical "9" (sets=1820.44) and LLC's own two
+  disagreeing values (9: sets=58254.22; the rep2 alternative, 8: sets=65536.00 -- notably
+  the ONLY arithmetically valid number among the four LLC-level readings across base+2
+  repeats) both point the same direction: whatever real L1D/L2/LLC associativities this
+  machine has, this run's own data cannot resolve them -- the cross-machine DTLB-scale
+  confound documented in `CLAUDE.md` is the more likely explanation for every level here,
+  not a genuine measurement.
 
 ### latency/
 - Source file(s): 

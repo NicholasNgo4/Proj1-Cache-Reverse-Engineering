@@ -119,10 +119,30 @@ as hazel_haswell's own E5-2650 v3.**
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 838351 (resubmit of 838233, which failed on the same non-4096-aligned LLC
+  value pattern as icelake_6326's own; 25,874,000 B rounded to 25,874,432 B for this
+  experiment's own `--cache-bytes` argument only), logical CPU 22, elapsed 40s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh hazel_broadwell
+  22 32768,262144,25874432` (base_seed=12345, repeats at seed+1/seed+2, max_ways=40,
+  1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate (standard method).
+- **Notes / results: L1=8 (fully reproducible), L2=4 (fully reproducible), L3_LLC=9 base
+  but one repeat found no knee at all and the other agreed at 9 (flagged disagreement).**
+  L1=8-way matches the frozen prediction and hazel_haswell's own confirmed L1 exactly (sets=64,
+  arithmetically valid). **L2=4-way is a genuinely distinct value from L1, not a repeat of
+  it** -- and it's arithmetically valid (262,144 B / 64 B-lines / 4-way = 1,024 sets, a clean
+  integer) -- this is the SAME "4-way L2" resolution this project's Phase II PMU work already
+  found on several Skylake-family lab machines (Crux/Charnwood/Ookay/Upgrade all corrected
+  their own confound-blocked "8-way" guess to a system-reported 4-way, see `CLAUDE.md`'s Phase
+  II section) -- a plausible, if not independently PMU-confirmed here, real L2 associativity
+  for this Broadwell-EP part, not just another instance of the confound repeating L1's digit.
+  **LLC's own "9" fails the arithmetic check** (25,874,432 B / 64 / 9 = 44,920.89, not a whole
+  number) -- read as the usual confound, not a real LLC associativity, consistent with every
+  other machine's own LLC finding regardless of the specific digit reported.
 
 ### latency/
 - Source file(s): 

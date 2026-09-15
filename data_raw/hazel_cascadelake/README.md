@@ -208,9 +208,42 @@ by a separate `hw1_cascadelake_<experiment>.sh` job script per experiment type (
 - Full transcript: `data_raw/hazel_cascadelake/latency/run_miss_latency_full_20260915T014348Z.log`
 
 ### inclusion_policy/
-- Source file(s): 
-- Run command + arguments: 
-- Eviction/reload construction: 
+**(Slurm job 838068, elapsed 1m15s, exit 0 -- submitted with `--dependency=afterok` right
+after miss_latency completed.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh
+  hazel_cascadelake 1 L1_vs_L2:32768:1048576:L1_to_L2,L2_vs_LLC:1048576:16777216:L2_to_LLC,
+  L1_vs_LLC:32768:16777216:LLC_to_DRAM` (`ASSUMED_LINE_SIZE_BYTES` left at default 64 -- this
+  machine's own line_size/ section above never produced a citable value, so 64 B is used as
+  the only established convention, not a machine-specific confirmation).
+- Eviction/reload construction: target + untouched control, both page-aligned; eviction
+  buffer one node/page (stride 4096 B, offset 2048 B), scaled by page_size/64 (64x) from each
+  pairing's lower-level capacity (see `inclusion_policy.h`'s docstring). 200 single-shot
+  trials/channel/pattern/run, base_seed=12345, 2 repeats.
+- **Results:**
+  - **L1_vs_L2** (evict_bytes scaled to 67,108,864 B): target 98.5% survived-like, control
+    100% survived-like, paired check 98.5%. **Verdict: EXCLUSIVE / NON-INCLUSIVE** -- the
+    cleanest of the three, matching every lab/Hazel machine's own L1_vs_L2 result so far.
+  - **L2_vs_LLC** (evict_bytes scaled to 1,073,741,824 B / 1 GiB): the pipeline's own confound
+    check fired -- **control itself read 23.5% invalidated-like despite never being touched
+    by the eviction walk**, the classifier's own signature for a compromised avoidance
+    construction (likely DTLB pressure from the 1 GiB scaled footprint, or L2's index not
+    fitting in one page -- both documented caveats in `inclusion_policy.h`). **Verdict:
+    UNCERTAIN (confound suspected)** -- do not cite a directional lean here, unlike some other
+    machines' own L2_vs_LLC results.
+  - **L1_vs_LLC** (skip-level, evict_bytes scaled to 1,073,741,824 B): target 94.5%
+    survived-like, control 97.0% survived-like -- both channels read fast and similar, so the
+    paired check itself is only 34.0% (not very informative when target and control barely
+    differ), but the absolute-tick classification is clean on both sides. **Verdict:
+    EXCLUSIVE / NON-INCLUSIVE.**
+  - **Best-guess overall reading:** L1 reads confidently non-inclusive of both L2 and LLC on
+    this machine; L2_vs_LLC's own confound means this machine cannot speak to whether LLC is
+    inclusive of L2 specifically. Consistent with (not contradicting) hazel_haswell's own
+    uniformly-non-inclusive reading, though this machine's middle pairing is a genuine
+    non-answer rather than a lean either way.
+- Full transcript: `data_raw/hazel_cascadelake/inclusion_policy/run_inclusion_policy_full_20260915T025345Z.log`
 
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename: 

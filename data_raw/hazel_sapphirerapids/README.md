@@ -148,10 +148,32 @@ machine L1D result -- read all three notes before citing a number from this mach
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 838350 (resubmit of 838197, which failed on the same non-4096-aligned LLC
+  value pattern as skylake's; 39,903,168 B rounded to 39,903,232 B for this experiment's own
+  `--cache-bytes` argument only), logical CPU 40, elapsed 32s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh
+  hazel_sapphirerapids 40 49152,2097152,39903232` (base_seed=12345, repeats at
+  seed+1/seed+2, max_ways=40, 1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate (standard method).
+- **Notes / results: L1=12, L2=12, L3_LLC=12 -- all three fully reproducible, but L1's "12"
+  is likely real while L2/LLC's identical "12" is very likely the usual confound wearing the
+  same digit by coincidence.** The arithmetic-consistency check (sets = cache_bytes /
+  64 B-lines / assoc must be a whole number) draws a clean line here: **L1 at 49,152 B with
+  12-way gives EXACTLY 64 sets (768 total lines / 12 = 64)** -- physically valid, and directly
+  corroborates this machine's own capacity-section finding that L1D is 48 KiB, not the usual
+  32,768 B (48 KiB / 64 B-lines / 12-way = 64 sets is an architecturally ordinary L1D
+  design). **L2 (2,097,152 B) and LLC (39,903,232 B) at the same "12" both fail this check**
+  (sets=2730.67 and 51957.33 respectively, neither a whole number) -- direct, same-run
+  evidence that L2/LLC's own "12" is the cross-machine DTLB-scale confound documented in
+  `CLAUDE.md` coincidentally reporting the same integer as L1's real value, not a genuine L2/
+  LLC measurement. **This is the cleanest positive confirmation yet, on any Hazel machine, of
+  both halves of this project's long-running associativity story**: a real, non-8-way L1
+  result that IS arithmetically self-consistent, sitting right next to L2/LLC values that
+  are NOT.
 
 ### latency/
 - Source file(s): 

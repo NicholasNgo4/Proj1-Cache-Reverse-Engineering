@@ -122,10 +122,28 @@ confirmed by an actual sharp knee, not a best-guess pick from a noisy/continuous
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 838348 (resubmit of 838182, which failed with "Invalid associativity
+  parameter values (--cache-bytes must be a multiple of 4096)" -- the reasoned LLC edge,
+  23,726,560 B, wasn't page-aligned; rounded to 23,728,128 B for this experiment's own
+  `--cache-bytes` argument only, see `hpc_slurm/hw1_skylake_associativity.sh`'s own note),
+  logical CPU 16, elapsed 50s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh hazel_skylake 16
+  32768,1048576,23728128` (explicit `cache_bytes_csv`, base_seed=12345, repeats at
+  seed+1/seed+2, max_ways=40, 1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate, forcing every probed node into the same cache set (standard method).
+- **Notes / results: L1=8, L2=8, L3_LLC=8 -- all three fully reproducible (base + both
+  repeats agree exactly).** L1=8-way matches the frozen prediction and is arithmetically
+  valid (32,768 B / 64 B lines / 8-way = 64 sets, a clean integer). **L2 and L3_LLC's
+  identical "8" is the same cross-machine DTLB-scale confound extensively documented in
+  `CLAUDE.md`'s associativity section** -- do not cite either as this machine's real L2/LLC
+  associativity (both values are also arithmetically "valid" in isolation, since 8 divides
+  the page-line-count 64 evenly regardless of scale, so the integer-sets check alone can't
+  rule them out here the way it can on other machines below -- the cross-level identity with
+  L1 is the load-bearing evidence, not the arithmetic).
 
 ### latency/
 - Source file(s): 

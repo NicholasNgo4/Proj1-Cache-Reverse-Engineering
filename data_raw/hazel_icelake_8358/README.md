@@ -127,10 +127,26 @@ before citing any number from this machine; only L1 gets even a best-guess-quali
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 838212, logical CPU 34, elapsed 35s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh
+  hazel_icelake_8358 34 32768,1310720,50331648` (best-guess/unresolved capacity boundaries,
+  see capacity/ section's noise caveat above; base_seed=12345, repeats at seed+1/seed+2,
+  max_ways=40, 1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate (standard method).
+- **Notes / results: L1=9 (fully reproducible), L2=12 (fully reproducible), L3_LLC=10 base,
+  10/9 on repeats (flagged disagreement).** Consistent with this machine's own already-noisy
+  capacity data, **L1's own "9" fails the arithmetic-consistency check** (32,768 B / 64 /
+  9 = 56.89 sets, not a whole number) -- not a genuine L1 associativity, same symptom as
+  icelake_6326's own machine. L2's "12" (sets=1706.67) and both LLC candidates (10:
+  sets=78,643.2; 9: sets=87,381.33) are likewise arithmetically invalid. **No level on this
+  machine produces a physically self-consistent associativity number** -- the whole run is
+  read as confound/noise throughout, consistent with this machine's already-documented
+  pervasive capacity-sweep noise (see the capacity/ section's own "likely needs a full
+  re-run when quiet" note).
 
 ### latency/
 - Source file(s): 

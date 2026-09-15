@@ -129,10 +129,32 @@ number below 10 MiB from this machine.**
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 838349 (resubmit of 838190, which failed on the same non-4096-aligned LLC
+  value as skylake's own; 25,874,000 B rounded to 25,874,432 B for this experiment's own
+  `--cache-bytes` argument only), logical CPU 16, elapsed 36s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh
+  hazel_icelake_6326 16 32768,1310720,25874432` (base_seed=12345, repeats at seed+1/seed+2,
+  max_ways=40, 1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate (standard method).
+- **Notes / results: L1=9 (fully reproducible), L2=12 (fully reproducible), L3_LLC=9 base
+  but 12/12 on both repeats (flagged disagreement -- do NOT treat as resolved).** None of
+  these are citable numbers, and this machine gives an unusually clean arithmetic argument
+  for why: **L1's own reported "9" is not even physically possible for a 32,768 B cache with
+  64 B lines** -- 32,768/64=512 total lines, and 512/9=56.89, not a whole number of sets. A
+  real hardware cache cannot have a non-integer set count -- this is direct, timing-and-
+  arithmetic-only proof (no hardware lookup needed) that the "9" reported here is a
+  measurement artifact, not this machine's real L1 associativity (independently expected to
+  be 8, per the frozen prediction and every other x86 Hazel/lab machine's own confirmed L1).
+  L2's "12" (sets=1706.67) and LLC's own two competing values (9: sets=44920.89; 12:
+  sets=33690.67) are both arithmetically invalid too. **This is the first Hazel machine where
+  even the L1 read fails a basic physical-consistency check**, consistent with this machine's
+  own already-documented capacity anomaly (a sharp, unexplained ~2x latency drop) -- read as
+  further evidence this machine's timing environment was disturbed for this whole session,
+  not just the one capacity run.
 
 ### latency/
 - Source file(s): 

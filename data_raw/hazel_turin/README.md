@@ -128,10 +128,30 @@ hazel_genoa's own Zen 4.**
 - Notes on alignment/candidate strides tested: 
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 838245, logical CPU 144, elapsed 16s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh hazel_turin 144
+  49152,1048576,33554432` (base_seed=12345, repeats at seed+1/seed+2, max_ways=40,
+  1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate (standard method).
+- **Notes / results: L1=13, L2=13, L3_LLC=13 base, 12/13 on repeats (flagged disagreement)
+  -- the clearest single-machine confound signature of any Hazel generation so far.** All
+  three levels report the SAME digit (13) despite spanning a 683x byte-capacity range
+  (49,152 B to 33,554,432 B), and **that digit fails the arithmetic-consistency check at
+  every level**: L1 (768 lines/13 = 59.08 sets), L2 (16,384 lines/13 = 1,260.31 sets), and
+  LLC (524,288 lines/13 = 40,329.85 sets) are all non-integer -- not one of these three
+  levels can physically have 13-way associativity at its own tested capacity. Unlike
+  sapphirerapids' own L1 result (which reported a distinct value from L2/LLC AND passed the
+  arithmetic check, both signs of a genuine measurement), this machine's L1 result gives
+  neither -- despite this being the SAME capacity/ section that flagged L1D as likely
+  49,152 B (48 KiB, not 32,768 B) from independent timing evidence. Read as: the 48 KiB L1D
+  best-guess itself is not undermined by this (it came from the capacity curve's own shape,
+  not this experiment), but this machine's associativity run cannot independently confirm
+  ANY level's real associativity -- the cross-machine DTLB-scale confound documented in
+  `CLAUDE.md` is the more likely explanation throughout.
 
 ### latency/
 - Source file(s): 
