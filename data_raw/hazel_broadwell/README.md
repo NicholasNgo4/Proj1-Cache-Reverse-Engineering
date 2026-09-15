@@ -170,7 +170,14 @@ as hazel_haswell's own E5-2650 v3.**
   undershoots the real L3 capacity somewhat -- consistent with the capacity section's own
   caveat that 25,874,000 B sits below this SKU's often-cited ~30 MB spec.
 
-**miss_latency: pending as of this writing.**
+**miss_latency (Slurm job 838235, elapsed 1h23m01s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh hazel_broadwell
+  22 L1_to_L2:32768:262144,L2_to_LLC:262144:25874000,LLC_to_DRAM:25874000:536870912`
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=76.0, L2_to_LLC=289.5,
+  LLC_to_DRAM=1001.0** -- cleanly increasing. Substantial repeat spread flagged throughout
+  (24.1-54.8%), not re-run.
 
 ### inclusion_policy/
 - Source file(s): 
