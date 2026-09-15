@@ -189,8 +189,23 @@ by a separate `hw1_cascadelake_<experiment>.sh` job script per experiment type (
   a clean, independent L3 hit-latency number -- it is more accurately "deep in the LLC-to-DRAM
   transition," matching this machine's own unresolved-LLC-edge caveat above.
 
-**miss_latency: IN PROGRESS as of this writing (job 838067) -- see CLAUDE.md for current
-status; fill in once complete.**
+**miss_latency (Slurm job 838067, elapsed 1h09m56s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh hazel_cascadelake 1
+  L1_to_L2:32768:1048576,L2_to_LLC:1048576:16777216,LLC_to_DRAM:16777216:536870912`
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=194.0, L2_to_LLC=574.0,
+  LLC_to_DRAM=582.0.** L2_to_LLC and LLC_to_DRAM sit almost on top of each other (only ~1.4%
+  apart) -- direct corroboration of this machine's already-documented hit_latency finding
+  (LLC=224.31 vs DRAM=254.75, also unusually close): the LLC footprint (16,777,216 B, this
+  machine's own best-guess *provisional* edge) is late enough in the still-climbing capacity
+  transition that reloading past it costs almost the same as reloading all the way to DRAM.
+  L1_to_L2 and L2_to_LLC both show substantial repeat-to-repeat spread (53.1%/43.3% and
+  56.5%/58.0%, random/sequential) -- flagged by the pipeline's own overlapping-summary check,
+  consistent with the same "real reload latency + noisy repeat variance" pattern documented
+  for every lab machine's own miss_latency section. LLC_to_DRAM's spread stayed under the 20%
+  flag threshold. No dedicated single-shot fixed-overhead control was run this pass.
+- Full transcript: `data_raw/hazel_cascadelake/latency/run_miss_latency_full_20260915T014348Z.log`
 
 ### inclusion_policy/
 - Source file(s): 
