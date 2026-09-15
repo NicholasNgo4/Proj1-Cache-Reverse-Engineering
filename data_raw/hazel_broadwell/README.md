@@ -127,6 +127,24 @@ as hazel_haswell's own E5-2650 v3.**
   hazel_cascadelake's own implausible 200 B and hazel_genoa's own 112 B). **Best-guess: 64 B
   for all levels** -- L1's own clean detection, trusted over LLC's implausible outlier.
 
+**Follow-up re-run (2026-09-15), L3 only:** the family-of-curves plot at this level was
+flagged as not looking clean; re-ran with `hpc_slurm/hw1_line_size_relook.sh` into a
+separate `data_raw/hazel_broadwell/line_size_rerun/` / `data_processed/hazel_broadwell/
+line_size_rerun/` subdirectory (original data above kept, not overwritten). **Result: WORSE,
+not better** -- the new run's own 8 B-stride curve shows a sharp, reproducible cliff-drop
+(mean ~43 with a TIGHT stddev of ~1.2-1.4, not a single wild outlier) at exactly two
+adjacent footprints (14,521,288 / 16,299,592 B), sandwiched between neighboring points
+reading ~170-180. A real cache/line-size effect cannot cause latency to drop ~4x at one
+footprint and recover at the next; the low stddev rules out simple single-sample noise. Most
+consistent with a brief, genuine easing of contention on this SHARED (non-exclusive) compute
+node during the sweep -- the same "idle core doesn't insulate from chip-shared contention"
+category of finding already documented extensively elsewhere in this project (see
+`CLAUDE.md`'s `eight_counters`/PMU sections) -- not a bug in this pipeline. A single re-run
+is not guaranteed to avoid this, since it depends on what other users' jobs happen to be
+doing on the same physical node at the time. Compare
+`data_processed/hazel_broadwell/line_size_rerun/line_size/level_25874000/plots/
+line_size_family_curve.png` against the original plot referenced above.
+
 ### associativity/
 - Slurm job ID: 838351 (resubmit of 838233, which failed on the same non-4096-aligned LLC
   value pattern as icelake_6326's own; 25,874,000 B rounded to 25,874,432 B for this

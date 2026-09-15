@@ -143,6 +143,16 @@ by a separate `hw1_cascadelake_<experiment>.sh` job script per experiment type (
   this machine -- a follow-up Method-A step-4 run (candidate=64B at all 3 levels, mirroring the
   fix already applied on hazel_haswell) would be needed to actually confirm it here.
 
+**Follow-up re-run (2026-09-15), L3 only:** flagged as not looking clean; re-ran into a
+separate `data_raw/hazel_cascadelake/line_size_rerun/` / `data_processed/hazel_cascadelake/
+line_size_rerun/` subdirectory (original data above kept, not overwritten). **Result:
+genuinely improved.** The original plot's 32 B-stride curve showed a dramatic dip-and-recover
+(~250 down to ~110 ticks, back up) across the ~2^23.5-2^25 region; the rerun's equivalent
+region is instead a smooth, stable plateau (~230-250 ticks across all 6 strides) with no such
+reversal. Compare `data_processed/hazel_cascadelake/line_size/level_16777216/plots/
+line_size_family_curve.png` (original) against `data_processed/hazel_cascadelake/
+line_size_rerun/line_size/level_16777216/plots/line_size_family_curve.png` (rerun) directly.
+
 ### associativity/
 - Slurm job ID: 838065, hostname `c021n04`, logical CPU 0, elapsed 33s, exit 0.
 - Source file(s): `main_code/common/associativity.{c,h}`,

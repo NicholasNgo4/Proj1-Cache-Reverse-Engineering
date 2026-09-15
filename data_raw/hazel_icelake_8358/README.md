@@ -131,6 +131,18 @@ before citing any number from this machine; only L1 gets even a best-guess-quali
   this machine's already-documented pervasive capacity-sweep noise. **Best-guess: 64 B**
   (universal x86 default, unconfirmed here).
 
+**Follow-up re-run (2026-09-15), L2 and L3:** both flagged as not looking clean; re-ran both
+into a separate `data_raw/hazel_icelake_8358/line_size_rerun/` / `data_processed/
+hazel_icelake_8358/line_size_rerun/` subdirectory (original data above kept, not
+overwritten). **Result: still chaotic at both levels** -- L2's rerun shows a huge,
+wide-uncertainty-band spike in the 16 B-stride curve near the tail (jumping to ~145-185
+ticks with a shaded band spanning ~100-215); L3's rerun is even worse, a near-continuous
+sawtooth across almost the entire sweep. Consistent with, not contradicted by, this
+machine's own already-documented "noisiest capacity run of any Hazel generation" finding
+(see the capacity/ section above) -- this machine's own pervasive noise appears to extend to
+line_size too, and a single re-run does not fix it. Matches this machine's existing "likely
+needs a full re-run when quiet" flag rather than resolving it.
+
 ### associativity/
 - Slurm job ID: 838212, logical CPU 34, elapsed 35s, exit 0.
 - Source file(s): `main_code/common/associativity.{c,h}`,

@@ -152,6 +152,21 @@ machine L1D result -- read all three notes before citing a number from this mach
   `none`). **Best-guess: 64 B** (the universal x86 default; independent of this machine's own
   distinct 48 KiB L1D finding, since line size and L1 capacity are unrelated properties).
 
+**Follow-up re-run (2026-09-15), L2 and L3:** both flagged as not looking clean; re-ran both
+into a separate `data_raw/hazel_sapphirerapids/line_size_rerun/` / `data_processed/
+hazel_sapphirerapids/line_size_rerun/` subdirectory (original data above kept, not
+overwritten). **L2: a real but mild anomaly** -- all 6 strides show a simultaneous,
+synchronized dip to ~16-17 ticks at exactly one shared footprint (~2^21 B) before recovering
+together, a signature of a brief system-wide timing event during the sweep (affecting every
+stride identically at the same point) rather than real per-stride cache behavior. **L3:
+still very messy, arguably the worst plot in this whole re-run batch** -- wild, repeated
+sawtooth spikes in the 8 B and 64 B-stride curves (jumping between ~65 and ~330 ticks
+multiple times across the sweep), spanning up to ~170 MiB of working set -- a footprint range
+this machine's own capacity section already flags as never reaching a DRAM plateau (i.e.
+genuinely volatile territory, not a clean region to begin with). See
+`data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_{2097152,39903168}/
+plots/line_size_family_curve.png`.
+
 ### associativity/
 - Slurm job ID: 838350 (resubmit of 838197, which failed on the same non-4096-aligned LLC
   value pattern as skylake's; 39,903,168 B rounded to 39,903,232 B for this experiment's own

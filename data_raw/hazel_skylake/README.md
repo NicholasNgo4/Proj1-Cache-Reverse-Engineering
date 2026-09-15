@@ -127,6 +127,16 @@ confirmed by an actual sharp knee, not a best-guess pick from a noisy/continuous
   **Best-guess: 64 B** (matching the frozen prediction and every other x86 machine so far),
   unconfirmed by this machine's own data.
 
+**Follow-up re-run (2026-09-15), L3 only:** flagged as not looking clean; re-ran into a
+separate `data_raw/hazel_skylake/line_size_rerun/` / `data_processed/hazel_skylake/
+line_size_rerun/` subdirectory (original data above kept, not overwritten). **Result:
+improved further** -- the original plot was already reasonably clean (only a minor blip in
+the 32 B-stride curve around 2^22.7); the rerun shows no such blip at all, with every stride
+tracking together smoothly through the whole sweep. See
+`data_processed/hazel_skylake/line_size_rerun/line_size/level_23726560/plots/
+line_size_family_curve.png` vs. `data_processed/hazel_skylake/line_size/level_23726560/
+plots/line_size_family_curve.png` (original).
+
 ### associativity/
 - Slurm job ID: 838348 (resubmit of 838182, which failed with "Invalid associativity
   parameter values (--cache-bytes must be a multiple of 4096)" -- the reasoned LLC edge,

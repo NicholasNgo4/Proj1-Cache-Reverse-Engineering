@@ -136,6 +136,21 @@ number below 10 MiB from this machine.**
   produced, not because multiple independent levels converged. **Best-guess: 64 B**, one real
   data point plus the universal x86 default.
 
+**Follow-up re-run (2026-09-15), L3 only:** flagged as not looking clean; re-ran into a
+separate `data_raw/hazel_icelake_6326/line_size_rerun/` / `data_processed/
+hazel_icelake_6326/line_size_rerun/` subdirectory (original data above kept, not
+overwritten). **Result: WORSE, not better -- and notably, the ORIGINAL plot at this level was
+already one of the cleanest in the whole project** (a clean flat plateau, one clean rising
+elbow, all 6 strides converging tightly at the top -- see
+`data_processed/hazel_icelake_6326/line_size/level_25874000/plots/
+line_size_family_curve.png`). The rerun's own 8 B-stride curve instead shows the SAME
+category of sharp, reproducible cliff-drop documented on hazel_broadwell's own L3 rerun (a
+sudden fall from ~143 to ~68 at a single footprint, ~21M B, then climbing again) -- most
+consistent with the same transient shared-node-contention explanation, not a script bug, and
+direct evidence that a single re-run can make an already-good result look WORSE by chance,
+not just fix a bad one. **If this level is needed for the report, prefer the ORIGINAL data
+(`data_raw/hazel_icelake_6326/line_size/`), not this rerun.**
+
 ### associativity/
 - Slurm job ID: 838349 (resubmit of 838190, which failed on the same non-4096-aligned LLC
   value as skylake's own; 25,874,000 B rounded to 25,874,432 B for this experiment's own

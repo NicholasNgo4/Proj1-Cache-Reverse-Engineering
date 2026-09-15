@@ -136,6 +136,16 @@ hazel_genoa's own Zen 4.**
   **Best-guess: 64 B** -- matches genoa's own Zen 4 result exactly (Zen 5 didn't change line
   size either), and this is the only real data point on this machine.
 
+**Follow-up re-run (2026-09-15), L2 and L3:** both flagged as not looking clean; re-ran both
+into a separate `data_raw/hazel_turin/line_size_rerun/` / `data_processed/hazel_turin/
+line_size_rerun/` subdirectory (original data above kept, not overwritten). **L2: reasonably
+clean**, comparable to the original, with only a small shared dip around 2^20.9 (same
+transient-event signature as several other machines' reruns, small amplitude here). **L3:
+excellent, the cleanest plot of this entire re-run batch** -- fully monotonic, well-separated
+by stride, no reversals or spikes anywhere in the sweep. See
+`data_processed/hazel_turin/line_size_rerun/line_size/level_{1048576,33554432}/plots/
+line_size_family_curve.png`.
+
 ### associativity/
 - Slurm job ID: 838245, logical CPU 144, elapsed 16s, exit 0.
 - Source file(s): `main_code/common/associativity.{c,h}`,

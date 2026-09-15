@@ -133,6 +133,17 @@ project's AMD-generation requirement for the assignment's minimum-5 spanning set
   200 B LLC detection). **Best-guess: 64 B for all levels** -- L1's own clean detection,
   trusted over LLC's implausible outlier.
 
+**Follow-up re-run (2026-09-15), L2 and L3:** both flagged as not looking clean; re-ran
+both into a separate `data_raw/hazel_genoa/line_size_rerun/` / `data_processed/hazel_genoa/
+line_size_rerun/` subdirectory (original data above kept, not overwritten). **L2: essentially
+unchanged** -- the rerun's curve shape (a common dip around 2^20.9, otherwise smooth) is
+nearly identical to the original, suggesting this level was already about as clean as this
+method produces on this machine, not something a re-run alone fixes. **L3: comparable,
+slightly better** -- a smooth, orderly climb through 2^26-2^27 with only two minor
+single-point spikes (128 B stride at ~2^24.5, 8 B stride at ~2^24.4), no sustained reversal.
+See `data_processed/hazel_genoa/line_size_rerun/line_size/level_{1048576,33554432}/plots/
+line_size_family_curve.png`.
+
 ### associativity/
 - Slurm job ID: 838202, logical CPU 97, elapsed 40s, exit 0.
 - Source file(s): `main_code/common/associativity.{c,h}`,
