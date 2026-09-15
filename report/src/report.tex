@@ -9,8 +9,12 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{amsmath}
-\usepackage{amssymb}
 \usepackage{hyperref}
+\usepackage{float}
+\usepackage[section]{placeins}
+\usepackage{needspace}
+\usepackage{subcaption}
+
 
 \renewcommand{\arraystretch}{1.2}
 
@@ -53,11 +57,6 @@
 \begin{document}
 
 \maketitle
-
-\begin{center}
-\textbf{GitHub repository:} \url{https://github.com/NicholasNgo4/Proj1-Cache-Reverse-Engineering}\\
-\textbf{Overleaf project:} \url{https://www.overleaf.com/project/6a933c98d84565980e9e4385}
-\end{center}
 
 \section{Introduction}
 
@@ -224,7 +223,7 @@ Every experiment measures elapsed time in raw CPU cycles ("ticks") via a portabl
 architecture-specific implementation (Listing~\ref{lst:timer}). This is the \emph{only}
 architecture-specific code in the entire codebase -- every experiment-specific file
 (Section~\ref{sec:phase1}) calls only the portable \texttt{timer.h} interface and requires
-zero changes to run on Sunbird/Skylark/Crux/Ookay/Upgrade/Charnwood/Artemisia (x86-64) or
+zero changes to run on Sunbird/Skylark/Crux/Ookay/Upgrade/Charnwood/ Artemisia (x86-64) or
 Thunderbird (AArch64).
 
 \begin{lstlisting}[caption={Portable timer dispatch. File: \texttt{main\_code/common/timer.h}, commit \texttt{e0f2538}.},label={lst:timer}]
@@ -766,13 +765,8 @@ cache-level boundary.}
 
 \begin{figure}[htbp]
 \centering
-% \includegraphics[width=\textwidth]{../../plots/sunbird_capacity_curve.pdf}
-\fbox{\parbox[c][2.2in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- Sunbird capacity curve\\
-(\texttt{data\_processed/sunbird/capacity/plots/}): median ticks/access (y-axis, linear)
-vs.\ working-set footprint in bytes (x-axis, log$_2$ scale), random and sequential
-patterns overlaid, detected boundaries annotated with vertical lines.
-}}
+ \includegraphics[width=\textwidth]{Sunbird Capacity.png}
+
 \caption{Capacity sweep, Sunbird (2x Intel Xeon E5-2680 v3, Haswell), core pinned via
 \texttt{taskset}, 1{,}000{,}000 timed accesses/point, 8 points/octave, 1\,KiB--1\,GiB.
 Units: ticks/access (TSC cycles, y-axis) vs.\ bytes (x-axis, log scale). \textbf{Boundary
@@ -896,12 +890,7 @@ Inference rule: smallest stride at which the tested signature first appears.}
 \begin{figure}[htbp]
 \centering
 % \includegraphics[width=0.48\textwidth]{../../plots/PLACEHOLDER_linesize_single.pdf}
-% \includegraphics[width=0.48\textwidth]{../../plots/PLACEHOLDER_linesize_family.pdf}
-\fbox{\parbox[c][2.0in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- Sunbird single-curve stride sweep (left) and family-of-curves footprint
-overlay (right), at the confirmed L1 footprint. Units: ticks/access (y) vs.\ stride or
-footprint in bytes (x).
-}}
+\includegraphics[width=0.70\textwidth]{Sunbird Linesize.png}
 \caption{Line-size sweep, Sunbird L1 (32{,}768\,B footprint), both methods.
 Interpretation: both independently-designed methods agree at 64\,B for this level,
 confirmed with an offset cross-check.}
@@ -1003,11 +992,7 @@ shelf before the jump.}
 
 \begin{figure}[htbp]
 \centering
-% \includegraphics[width=\textwidth]{../../plots/sunbird_associativity_L1.pdf}
-\fbox{\parbox[c][2.0in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- Sunbird L1 associativity curve (\texttt{cache\_bytes}=32{,}768\,B):
-ticks/access (y) vs.\ \texttt{num\_ways\_probed} (x), 3 independent-seed repeats overlaid.
-}}
+\includegraphics[width=\textwidth]{Sunbird L1 Associativity.png}
 \caption{Associativity sweep, Sunbird L1. Units: ticks/access (y) vs.\ num\_ways probed
 (x). Interpretation: flat $\approx$6.0--6.2 ticks/access through \texttt{num\_ways=8},
 sharp jump at 9, 0\% run-to-run spread across 3 seeded repeats $\rightarrow$ L1 = 8-way.}
@@ -1166,24 +1151,35 @@ paired independent-load control reads faster at the same footprint.}
 \label{fig:hitlat-flow}
 \end{figure}
 
-\begin{figure}[htbp]
-\centering
-% \includegraphics[width=\textwidth]{../../plots/sunbird_hit_latency_ladder.pdf}
-\fbox{\parbox[c][1.8in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- Sunbird 4-tier hit-latency ladder: L1/L2/LLC/DRAM (x) vs.\ median
-ticks/access (y), dependent vs.\ independent load mode grouped per level.
-}}
-\caption{Hit-latency sweep, Sunbird, footprints 32{,}768 / 262{,}144 / 31{,}457{,}280 /
-536{,}870{,}912\,B (L1/L2/LLC/DRAM per \texttt{CAPACITY\_RESULTS.md}). Units: ticks/access
-(TSC cycles). Interpretation: a clean, monotonic 4-tier ladder
-(L1$\approx$10.4, L2$\approx$26.8, LLC$\approx$58.4, DRAM$\approx$207 ticks, dependent,
-random, median); the independent-load control reads faster than dependent at every level
-and pattern, confirming MLP was correctly exposed rather than hidden.}
-\label{fig:hitlat-plot}
-\end{figure}
+\begin{figure}[H]
+    \centering
 
-\textbf{Phase-II validation:} not yet performed; Section~\ref{sec:pmu} will cross-check
-these absolute cycle counts against hardware performance counters once Phase I is frozen.
+    % Top row
+    \includegraphics[width=0.48\linewidth]{hit_latency_boxplots.pdf}
+    \hfill
+    \includegraphics[width=0.48\linewidth]{hit_latency_boxplots1.pdf}
+
+    \par\medskip
+
+    % Bottom row
+    \includegraphics[width=0.48\linewidth]{hit_latency_boxplots2.pdf}
+    \hfill
+    \includegraphics[width=0.48\linewidth]{hit_latency_boxplots3.pdf}
+    
+\newpage
+
+    \caption{Hit-latency sweep, Sunbird, footprints
+    32{,}768 / 262{,}144 / 31{,}457{,}280 / 536{,}870{,}912\,B
+    (L1/L2/LLC/DRAM per \texttt{CAPACITY\_RESULTS.md}).
+    Units: ticks/access (TSC cycles). Interpretation: a clean,
+    monotonic four-tier ladder
+    (L1 $\approx 10.4$, L2 $\approx 26.8$,
+    LLC $\approx 58.4$, DRAM $\approx 207$ ticks;
+    dependent, random, median). The independent-load control reads
+    faster than the dependent-load measurement at every level and
+    pattern, confirming that MLP was exposed rather than hidden.}
+    \label{fig:hitlat-plot}
+\end{figure}
 
 \subsection{Miss and Next-Level Latency}
 \label{sec:misslatency}
@@ -1216,21 +1212,45 @@ non-colliding control eviction set, Section~\ref{sec:misslatency}).}
 \label{fig:misslat-flow}
 \end{figure}
 
-\begin{figure}[htbp]
-\centering
-% \includegraphics[width=\textwidth]{../../plots/sunbird_miss_latency.pdf}
-\fbox{\parbox[c][1.8in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- Sunbird miss/next-level latency: L1$\to$L2 / L2$\to$LLC / LLC$\to$DRAM (x)
-vs.\ median single-shot reload ticks (y), with the fixed single-shot overhead band
-annotated.
-}}
-\caption{Miss/next-level latency, Sunbird. Units: ticks (single-shot TSC delta) per
-transition. Interpretation: an increasing 124/284/622-tick sequence (random pattern,
-median) -- but a dedicated control run (a deliberately non-colliding, tiny eviction set)
-isolated a $\approx$64--85 tick \emph{fixed} single-shot measurement overhead on this
-machine, so these numbers should be read as ``true reload latency + fixed overhead,''
-not a clean incremental-penalty number.}
-\label{fig:misslat-plot}
+\begin{figure}[H]
+    \centering
+
+    % Top-left image
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{miss_latency_boxplots.pdf}
+        \caption{L1 to L2 Latentency}
+        \label{fig:hitlat-a}
+    \end{subfigure}
+    \hfill
+    % Top-right image
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{miss_latency_boxplots1.pdf}
+        \caption{L2 to LLC Latency}
+        \label{fig:hitlat-b}
+    \end{subfigure}
+
+    \vspace{0.5cm}
+
+        \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{miss_latency_boxplots2.pdf}
+        \caption{LLC to DRAM Latency}
+        \label{fig:hitlat-b}
+    \end{subfigure}
+
+    \caption{Hit-latency sweep, Sunbird, footprints
+    32{,}768 / 262{,}144 / 31{,}457{,}280 / 536{,}870{,}912\,B
+    (L1/L2/LLC/DRAM per \texttt{CAPACITY\_RESULTS.md}).
+    Units: ticks/access (TSC cycles). Interpretation: a clean,
+    monotonic four-tier ladder
+    (L1 $\approx 10.4$, L2 $\approx 26.8$,
+    LLC $\approx 58.4$, DRAM $\approx 207$ ticks;
+    dependent, random, median). The independent-load control reads
+    faster than the dependent-load measurement at every level and
+    pattern, confirming that MLP was exposed rather than hidden.}
+    \label{fig:hitlat-plot}
 \end{figure}
 
 \textbf{Known limitation (stated directly in the source, quoted here rather than
@@ -1362,12 +1382,8 @@ holding for that pairing.}
 
 \begin{figure}[htbp]
 \centering
-% \includegraphics[width=\textwidth]{../../plots/sunbird_inclusion_L1_vs_L2.pdf}
-\fbox{\parbox[c][2.1in][c]{0.85\textwidth}{\centering
-PLACEHOLDER -- Sunbird L1\_vs\_L2 per-trial reload-latency distribution: target vs.\
-control channel boxplots/histograms, with survived/invalidated calibration lines
-overlaid.
-}}
+ \includegraphics[width=\textwidth]{inclusion_policy_boxplots.pdf}
+
 \caption{Inclusion/exclusion, Sunbird, L1\_vs\_L2 pairing (target=L1, 32{,}768\,B;
 eviction past L2, 262{,}144\,B). Units: ticks (single-shot reload). Interpretation: target
 90.0\% survived-like (median 84 ticks), control 92.0\% survived-like (median 68) $\Rightarrow$
@@ -1443,110 +1459,181 @@ Section~\ref{sec:evolution}.
 \section{Performance Counter Verification}
 \label{sec:pmu}
 
+\subsection{Verify the Reverse Engineering with Performance Counters}
+
+\subsubsection{Exposed Cache Events}
+\texttt{perf list} confirmed real cross-vendor differences. Sunbird (Intel Haswell-EP) exposes all eight target events. Skylark (AMD Zen 2) lists only five: \texttt{L1-dcache-stores}, \texttt{LLC-loads}, and \texttt{LLC-load-misses} are absent and return \texttt{<not supported>} at runtime. Thunderbird (Arm Neoverse N1) lists six: \texttt{L1-dcache-stores} is absent, and \texttt{LLC-loads}/\texttt{LLC-load-misses} are listed but unsupported, since this PMU has no LLC-scoped event to alias them to.
+
+\subsubsection{Counter Evidence at Boundaries}
+L1 miss rate confirms the L1 boundary on all three machines: Sunbird 0.61\% to 12.59\%, Skylark 0.44\% to 9.05\%, Thunderbird 0.18\% to 2.81\%, all at the L1$\to$L2 transition. The LLC boundary is confirmed by LLC-scope miss rate on Sunbird (0.08\% to 11.25\%) and by the generic cache-miss group on Skylark (11.3\% to 46.6\%, since \texttt{LLC-loads} is unsupported there). Thunderbird has no usable last-level-miss signal at all: \texttt{LLC-loads} is unsupported, and a supplementary sweep of raw L3 events showed no capacity-dependent structure.
+
+\subsubsection{Timing Inference vs. PMU Evidence vs. Published Value}
+
+\begin{table}[h]
+\centering
+\tiny
+\begin{tabular}{@{}p{2.0cm}p{2.6cm}p{2.0cm}p{2.8cm}p{1.6cm}p{3.0cm}@{}}
+\toprule
+Machine/Level & Timing Inference & PMU Evidence & Published/System & Source & Agreement \\
+\midrule
+Sunbird L1D & 32,768\,B, 8w, 64\,B, 64s, 10.35t & L1 miss 0.61\% & 32\,KiB 8w 64\,B 4cyc; sys match & Fog T10.2 & Match; latency 2.6x high \\
+Sunbird L2 & 262,144\,B, 8w (guess), 64\,B, 512s, 26.83t & L1 miss 12.59\% & 256\,KiB 8w 64\,B 12cyc; sys match & Fog T10.2 & Match; guess confirmed \\
+Sunbird LLC & $\sim$30\,MiB, 9w (guess), 64\,B, 58.42t & LLC miss 11.25\% & 31.46\,MB exact; 20w, 24576s; Fog 2--45\,MB 12--16w 34cyc & Fog T10.2; sysfs & Size match; ways 9 vs 20, resolved to sys \\
+\midrule
+Skylark L1D & 32,768\,B, 8w, 64\,B, 64s, 6.24t & L1 miss 0.44\% & 32\,KiB 8w 64\,B 4cyc; sys match & Fog T22.3 & Match; latency 1.6x high \\
+Skylark L2 & 524,288\,B, 8w (guess), 64\,B, 1024s, 15.38t & L1 miss 9.05\% & 512\,KiB 8w 64\,B 12cyc; sys match & Fog T22.3 & Match; guess confirmed \\
+Skylark LLC & 8.39\,MB (underestimate), 8w (guess), 128\,B, 27.26t & Cache miss 46.6\% & 16.78\,MB exact; 16w, 16384s, 64\,B; Fog 4--32\,MB 16--24w 40cyc & Fog T22.3; sysfs & Size confirms underestimate; ways 8 vs 16; line 128 vs 64 unresolved; sharing 2 cores/CCX, not socket \\
+\midrule
+Thunderbird L1D & 65,536\,B, 4w, 64\,B, 256s, 0.13t & L1 miss 0.20\% & 64\,KiB 4w 64\,B; sys match; no cycle figure & Ampere \S2.3.1; Arm TRM & Exact match \\
+Thunderbird L2 & 1.05\,MB (taken as given), 12w (guess), 64\,B, 1365s, 0.30t & L1 miss 7.72\% & 1\,MiB 8w 64\,B 2048s; sys match & Ampere \S2.4; Arm TRM & Ways 12 vs 8, resolved by 3-way convergence \\
+Thunderbird LLC & $\sim$30\,MiB, 10w (guess), 128\,B, 24576s, 0.91--1.01t & \texttt{LLC-loads} unsupported; generic 5.50\% (wrong direction) & No sysfs entry; Ampere: 32\,MiB, 16w, shared across 80 cores, mostly exclusive with L2 & Ampere \S2.5 & Size $\sim$94\%; ways 10 vs 16 unresolved; sharing wider than assumed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Disagreement Analysis}
+Every associativity guess Phase I made above L1 disagreed with the system or literature value once checked (Sunbird's LLC: 9-way guessed vs. 20-way actual; Skylark's LLC: 8 vs. 16; Thunderbird's L2: 12 vs. 8), consistent with a shared timing confound rather than a real per-level effect. Sharing scope also surprised in both directions: Thunderbird's SLC is shared across all 80 cores rather than per socket, while Skylark's LLC is shared by only two cores per CCX rather than the whole socket. Thunderbird's inclusion result is the one place a vendor document directly contradicts Phase I: the datasheet calls the SLC mostly exclusive with L2, but the timing classifier leaned inclusive there, though that result was already flagged low-confidence. Skylark's LLC line size (128\,B measured vs. 64\,B published) remains unresolved, most likely an artifact of Zen 2's prefetcher rather than a real 128\,B line.
+
+\Needspace{0.6\textheight}
 \section{Eight Performance Counters Across Generations}
+
+% Requires: \usepackage{booktabs}, \usepackage[T1]{fontenc}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{} c p{4.3cm} p{9cm} @{}}
+\toprule
+\textbf{\#} & \textbf{Category / event name} & \textbf{Why it reflects cache theory} \\
+\midrule
+
+1 & Cache references \newline \texttt{cache-references} (same on all 3 archs) &
+Denominator for a miss rate; total traffic reaching the cache hierarchy, the baseline every ratio below is measured against. \\
+
+2 & Cache misses \newline \texttt{cache-misses} (same on all 3 archs) &
+Hardware analog of the ticks/access knees from Phase I timing; should jump exactly where working-set size crosses a real capacity boundary. \\
+
+3 & L1 data-cache accesses/loads \newline \texttt{L1-dcache-loads} (same on all 3 archs) &
+Access-count baseline for the fastest, most temporally-local tier, used to normalize \#4 into a rate. \\
+
+4 & L1 data-cache misses \newline \texttt{L1-dcache-load-misses} (same on all 3 archs) &
+Direct test of locality theory: near-zero for an L1-resident chase, rising sharply once footprint exceeds L1, the counter-based confirmation of that boundary. \\
+
+5 & L1 data-cache stores/replacements \newline Intel/AMD: \texttt{L1-dcache-stores}; ARM: \texttt{l1d\_cache\_wb} (raw; no store alias exists) &
+Store traffic and eviction/writeback counts reflect how dirty lines cycle out of L1 as the chase touches new sets, which is exactly what the ``replacements'' half of the category measures. \\
+
+6 & LLC accesses/loads \newline Intel: \texttt{LLC-loads}; AMD: inaccessible (\texttt{perf\_event\_paranoid=2} blocks the uncore PMU); ARM: \texttt{l3d\_cache} (raw) &
+Traffic reaching the last level before DRAM; theoretically should stay flat once footprint exceeds L1/L2, until it itself is exceeded. \\
+
+7 & LLC misses \newline Intel: \texttt{LLC-load-misses}; AMD: same restriction as \#6; ARM: \texttt{l3d\_cache\_refill} (raw) &
+Should jump sharply once footprint exceeds LLC capacity, the counter-based confirmation of the inferred LLC boundary, mirroring \#2/\#4's logic one level up. \\
+
+8 & dTLB misses (memory-hierarchy event) \newline \texttt{dTLB-load-misses} (same on all 3 archs) &
+Tests the standing DTLB-confound hypothesis from the associativity work. If it saturates at the same footprint where the timing method's spurious num\_ways $\approx$ 9--10 wall appeared, that is hardware corroboration, not just an inferred guess. \\
+
+\bottomrule
+\end{tabular}
+\caption{Eight performance events chosen for Section 8.4.}
+\label{tab:8_4_events}
+\end{table}
+
+\subsection{Standardized Cross-Machine Benchmarks}
+All eight events were collected on all eight ECE machines using \texttt{scripts/run\_standardized\_benchmarks.sh}, running the three standardized benchmarks (L1-resident, LLC-sized random, beyond-LLC) at each machine's own confirmed L1/LLC footprint. Two machines have structurally reduced coverage: AMD Zen 2 (Skylark) does not expose \texttt{L1-dcache-stores} or \texttt{LLC-loads/LLC-load-misses} at all in \texttt{perf list}, and ARM Neoverse N1 (Thunderbird) lacks the same two categories under \texttt{armv8\_pmuv3}. This is documented per machine rather than backfilled with a substitute.
+
+\subsection{Normalization}
+Miss rates (cache, L1, LLC) are self-normalized ratios of misses to their own reference count, so no further scaling is applied. dTLB misses are reported per 1{,}000 accesses (raw count divided by 1000, since every run fixes samples\_achieved at 1{,}000{,}000). Latency uses perf's \texttt{ns\_per\_access\_perf} rather than raw ticks, since raw tick counts are not comparable across machines with different counter frequencies (Thunderbird's 25 MHz \texttt{CNTVCT\_EL0} versus every x86 machine's multi-GHz TSC).
+
+\subsection{Ranked Summary}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{Latency Curve.png}
+\caption{Per-access latency (ns), ranked ascending within each benchmark, colored by vendor.}
+\label{fig:latency_scurve}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{dtlb_miss_scurve.png}
+    \caption{dTLB misses per 1{,}000 accesses, ranked ascending within each benchmark, colored by vendor.}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{} l r r r r @{}}
+\toprule
+Machine (vendor, microarch) & ns/access & L1 miss \% & LLC miss \% & dTLB/1000 \\
+\midrule
+Crux (Intel, Coffee Lake) & 3.31 & 1.05 & 5.76 & 1.35 \\
+Ookay (Intel, Kaby Lake) & 3.71 & 0.96 & 11.04 & 1.84 \\
+Upgrade (Intel, Coffee Lake) & 3.95 & 0.94 & 8.82 & 1.81 \\
+Charnwood (Intel, Sky Lake) & 4.27 & 1.08 & 14.00 & 2.03 \\
+Skylark (AMD, Zen 2) & 5.33 & 0.44 & n/a & 0.69 \\
+Thunderbird (Ampere/ARM, N1) & 5.84 & 0.19 & n/a & 1.56 \\
+Artemisia (Intel, Sapphire Rapids) & 6.27 & 0.61 & 8.69 & 1.69 \\
+Sunbird (Intel, Haswell) & 10.19 & 0.63 & 2.71 & 0.51 \\
+\bottomrule
+\end{tabular}
+\caption{L1-resident benchmark, ranked ascending by latency.}
+\label{tab:l1_resident}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{} l r r r r @{}}
+\toprule
+Machine (vendor, microarch) & ns/access & L1 miss \% & LLC miss \% & dTLB/1000 \\
+\midrule
+Skylark (AMD, Zen 2) & 74.04 & 6.13 & n/a & 2.91 \\
+Crux (Intel, Coffee Lake) & 88.03 & 8.80 & 3.59 & 1080.28 \\
+Ookay (Intel, Kaby Lake) & 136.89 & 8.79 & 16.33 & 1091.71 \\
+Charnwood (Intel, Sky Lake) & 174.84 & 8.83 & 15.92 & 1096.98 \\
+Upgrade (Intel, Coffee Lake) & 203.70 & 9.52 & 18.75 & 3091.93 \\
+Sunbird (Intel, Haswell) & 542.14 & 7.54 & 7.25 & 0.92 \\
+Artemisia (Intel, Sapphire Rapids) & 1183.75 & 8.76 & 30.68 & 11084.29 \\
+Thunderbird (Ampere/ARM, N1) & 1296.89 & 5.46 & n/a & 1638.88 \\
+\bottomrule
+\end{tabular}
+\caption{LLC-sized random benchmark, ranked ascending by latency.}
+\label{tab:llc_random}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{} l r r r r @{}}
+\toprule
+Machine (vendor, microarch) & ns/access & L1 miss \% & LLC miss \% & dTLB/1000 \\
+\midrule
+Crux (Intel, Coffee Lake) & 19530.32 & 13.42 & 46.75 & 254971.01 \\
+Upgrade (Intel, Coffee Lake) & 19788.38 & 13.36 & 47.05 & 256121.64 \\
+Ookay (Intel, Kaby Lake) & 19847.98 & 13.36 & 47.79 & 252964.81 \\
+Thunderbird (Ampere/ARM, N1) & 25154.25 & 5.34 & n/a & 255722.15 \\
+Charnwood (Intel, Sky Lake) & 28545.55 & 13.42 & 47.53 & 253582.41 \\
+Skylark (AMD, Zen 2) & 29989.45 & 5.52 & n/a & 10.90 \\
+Artemisia (Intel, Sapphire Rapids) & 35782.53 & 11.21 & 76.72 & 251331.33 \\
+Sunbird (Intel, Haswell) & 38588.18 & 12.94 & 49.48 & 210666.08 \\
+\bottomrule
+\end{tabular}
+\caption{Beyond-LLC benchmark, ranked ascending by latency.}
+\label{tab:beyond_llc}
+\end{table}
+
+\subsection{Cross-Vendor and Cross-Generation Comparison}
+LLC-scope counters and L1 store counts are not comparable across all three vendors: both are absent on AMD and ARM, leaving only the six Intel machines with that data. The generic \texttt{cache-references}/\texttt{cache-misses} pair is present everywhere but is not semantically equivalent across PMUs either, since it has already been shown to track L1-scope traffic almost exactly on Thunderbird's ARM PMU rather than genuine last-level activity, so raw comparisons of that pair across vendors would be misleading. dTLB-load-misses is the most portable of the eight events, with consistent semantics on all three vendors.
+
+Skylark (AMD) shows a striking and reproducible dTLB anomaly: at LLC-sized and beyond-LLC footprints its dTLB miss rate is two to four orders of magnitude lower than every other machine at the same tier (2.91 and 10.90 per 1{,}000 accesses versus 1000+ and 250{,}000+ elsewhere), suggesting a real architectural difference in TLB reach or page management rather than measurement noise, since it is consistent across both larger benchmarks. Within Intel alone, the oldest machine (Sunbird, Haswell, 2014) shows the highest L1-resident and beyond-LLC latency of the Intel group, while the newest (Artemisia, Sapphire Rapids, 2023) is a partial outlier with the highest LLC-random latency and dTLB miss count among Intel machines, most likely reflecting its much larger multi-socket server die rather than a simple generational speedup, so raw latency does not track chip age monotonically once die size and topology differ this much.
 
 \section{Software-Only Cache Metric}
 
 \section{Chronological Cache Evolution Analysis}
 \label{sec:evolution}
 
-The consolidated chronological master table (\texttt{CHRONOLOGICAL\_MASTER\_TABLE.md}, backing
-data in \texttt{data\_processed/master/chronological\_master\_table.csv}) sorts all 8 machines by
-microarchitecture introduction year (2014--2023) and reports each cache-related quantity as its
-Phase I timing-only value, with Phase II (PMU/system-report/literature) shown as a separate
-verification flag rather than overwriting it. All 15 required plots are in \texttt{plots/}.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{../figures/chrono_05_l2_capacity.pdf}
-\caption{L2 capacity per core vs.\ year, log$_2$ y-axis. The clearest step-doubling trend of any
-quantity measured: flat at 256\,KiB from 2014--2019, then three jumps (512\,KiB, 1\,MiB, 2\,MiB)
-in quick succession through 2023.}
-\label{fig:chrono-l2cap}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{../figures/chrono_09a_llc_capacity_domain.pdf}
-\caption{LLC capacity (sharing domain) vs.\ year, log$_2$ y-axis, Phase I value with an open
-Phase-II-resolved marker wherever they disagree. Driven far more by server-vs-desktop class than
-by year: the oldest machine (Sunbird, 2014, 2-socket Xeon) already exceeds every desktop part
-through 2019.}
-\label{fig:chrono-llccap}
-\end{figure}
-
-\textbf{Required interpretation and prediction} (item numbers match the assignment):
-
-\begin{enumerate}
-\item[1.] L1D line size is 64\,B on all 8 machines with no exceptions across the full 2014--2023
-span. L1D capacity (32\,KiB) and associativity (8-way) are likewise constant on 6 of 8 machines;
-Thunderbird (Arm) and Artemisia (48\,KiB/12-way) are the only deviations. L1-vs-L2 non-inclusion
-is stable across 6 of 8 machines with the remaining 2 leaning the same direction, the most
-consistent architectural finding in this dataset.
-
-\item[2.] L2 capacity per core is the one quantity with a clear, monotonic growth trend: 256\,KiB
-(2014--2019) to 512\,KiB (2019) to 1\,MiB (2020) to 2\,MiB (2023), an exact 8$\times$ increase
-over 9 years (Fig.~\ref{fig:chrono-l2cap}). The growth is stepwise, not smooth: five flat years
-followed by three rapid doublings, not a continuously compounding trend.
-
-\item[3.] LLC hit latency broadly grows with capacity (Ookay: 21\,ns at 8\,MiB; Sunbird: 23\,ns at
-30\,MiB; Artemisia: 47\,ns at 52.5\,MiB), consistent with the expected wire-delay/capacity
-tradeoff, but not cleanly monotonic across all 8: Upgrade reads 48\,ns at only 12\,MiB, higher
-than Artemisia's much larger cache, an inversion we do not smooth over. DRAM latency does not
-track CPU generation cleanly either: Artemisia (2023, dual-socket) is highest at 153\,ns, plausibly
-a NUMA/platform effect rather than a memory-technology one, since several older single-socket
-desktop parts (Sunbird, Ookay, Upgrade, Crux) all cluster tighter around 79--83\,ns despite being
-4--9 years older.
-
-\item[4.] Trends are better explained by server-vs-desktop class than by vendor or year alone.
-Sunbird (2014, server) already has a larger LLC than every desktop part measured through 2019.
-AMD's LLC sharing granularity (2 cores per CCX slice on Skylark) and Arm's LLC design (one SLC
-shared by all 80 SoC cores on Thunderbird) are vendor/ISA-specific chiplet or fabric choices, not
-points on a shared generational curve with the Intel parts.
-
-\item[5.] L2 capacity per core (Fig.~\ref{fig:chrono-l2cap}) most resembles Moore's style of
-trend: monotonic, an integer power-of-two multiple across the full span, and the only quantity
-this fleet's data supports fitting an exponential to. Fit as $C(t) = C_0 \cdot 2^{(t-t_0)/\tau}$
-using the 2014 and 2023 endpoints only ($C_0=256$\,KiB, $8\times$ over 9 years) gives a clean fit
-at those two points by construction; a least-squares fit across all 8 points would fit poorly
-because the trend is a step function, not smooth, so the exponential is an end-to-end summary, not
-a validated per-year model.
-
-\item[6.] Using the two endpoints above, L2 capacity per core has a doubling time of
-$9/\log_2(8) = 3$ years. No other measured quantity shows exponential growth clean enough to quote
-a doubling time; LLC capacity and associativity are better described as class-dependent step
-changes with no consistent per-year slope, and line size and L1D capacity/associativity are
-reported as constant (item 1), not growing.
-
-\item[7.] The lab-only prediction was frozen and tagged \texttt{predictions-frozen} in
-\texttt{PREDICTION\_FREEZE.md} on 2026-09-14, before any Hazel cache experiment ran (Hazel access
-was only exercised via a non-cache build/access-check job on the \texttt{haswell} constraint, which
-this project's phase discipline explicitly permits pre-freeze). Evaluating the frozen prediction
-against held-out Hazel measurements is still pending -- the full 1,000,000-sample cache suite has
-not run on Hazel yet -- and this item will be completed once those results exist. Using only the 8
-lab machines, we extend the L2-capacity-per-core
-doubling model from item 6 ($\tau=3$ years) 5 years beyond the newest measured system (Artemisia,
-2023) to $\sim$2028: $2\,\text{MiB} \times 2^{5/3} \approx 6.3$--$6.7$\,MiB per core. Given the
-trend is a step function rather than smooth (item 2), we report a wide uncertainty range of
-roughly 4--10\,MiB per core rather than a tight interval around the point estimate. This
-prediction could fail if the next generation's core-count growth outpaces per-core cache scaling
-(a common tradeoff when die area is fixed), if a vendor shifts strategy toward a larger shared LLC
-instead of per-core L2, or if the sampled generation is a server part whose class-driven capacity
-(item 4) does not follow the desktop/server mix observed in this fleet.
-
-\item[8.] The evidence here is far weaker than Moore's original observation: Moore's trend held
-smoothly across many more generations and a single scaling technology (transistor count), while
-this fleet's 8 machines over 9 years show one plausible doubling trend (L2 capacity per core,
-step-like rather than smooth), several deliberately-constant quantities (L1D line size, largely
-L1D capacity/associativity), and several quantities dominated by non-chronological factors
-(LLC capacity and sharing domain, dominated by server/desktop class and vendor chiplet design).
-We do not claim a capacity-doubling law with Moore's original confidence; at most, a modest,
-step-wise L2-capacity growth claim is defensible from this data.
-\end{enumerate}
-
 \section{Cache Evolution Prediction}
 
-\subsection{9.1 Your Team's Cache Laws and Future Scaling Walls}
+\subsection{Your Team's Cache Laws and Future Scaling Walls}
 \label{sec:cachelaws}
 
 Two named laws are formulated below, using both team members' surnames (Chen, Ngo) per the
@@ -1565,7 +1652,7 @@ Discipline (\S\ref{sec:phasediscipline}).
 \textbf{Statement.} Per-core L2 cache capacity on the team's lab machines grows with processor
 introduction year via a step-doubling trend, doubling on average every 3 years across the 2014--2023
 span sampled.
-
+\noindent
 \textbf{Quantitative rule.} $C(t) = 256\,\text{KiB} \cdot 2^{(t - 2014)/\tau}$, with $\tau = 3$ years,
 fit from the dataset's two chronological endpoints (Sunbird, 2014, 256\,KiB $\to$ Artemisia, 2023,
 2\,MiB -- an exact $8\times$ increase over 9 years). The underlying data is a step function, not a
@@ -1573,7 +1660,7 @@ smooth curve: flat at 256\,KiB for five years (2014--2019: Sunbird, Charnwood, O
 then three back-to-back doublings in four years (512\,KiB -- Skylark, 2019; 1\,MiB -- Thunderbird,
 2020; 2\,MiB -- Artemisia, 2023). The fitted $\tau$ is an end-to-end summary between two endpoints, not
 a per-year validated slope (see \S\ref{sec:evolution}, items 2, 5, 6, for the full derivation).
-
+\noindent
 \textbf{Scope/domain.} 8 machines, 2014--2023, pooled across vendor/ISA (6 Intel x86-64, 1 AMD
 x86-64 [Skylark], 1 Arm AArch64 [Thunderbird]) and pooled across desktop/server class. Not
 vendor-specific: the two fitted endpoints are both Intel, but the two intermediate step points come
@@ -1581,7 +1668,7 @@ from AMD and Arm parts, so the doubling time is not read off a single vendor's r
 imply the trend holds beyond 2023, outside this 8-machine sample, or for a machine class not
 represented in this fleet.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \fbox{
 \begin{minipage}[c][7cm][c]{0.92\textwidth}
@@ -1598,11 +1685,12 @@ $C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/3}$ extrapolated forward to $\sim$2028 
 Hazel's \texttt{haswell} target generation ($t \approx 2014$).
 \end{minipage}
 }
+
 \caption{Evidence plot for the Chen--Ngo Cache Capacity Doubling Law -- at least 3 lab-machine
 observations as solid points/line, model extrapolation as a dashed line, Moore-style format.}
 \label{fig:law1-placeholder}
 \end{figure}
-
+\noindent
 \textbf{Frozen prediction.} Evaluated at Hazel's target \texttt{haswell} generation ($t \approx 2014$,
 the model's own lower fit endpoint): \textbf{256\,KiB} per core -- a same-era identity prediction, not
 a forward extrapolation, so it carries no extra uncertainty band beyond the step-function caveat
@@ -1614,20 +1702,20 @@ table.
 \textbf{Statement.} L1D cache capacity, associativity, and line size on the team's lab machines are
 approximately invariant across a decade of processor generations and three vendors/ISAs, rather than
 scaling with year the way L2 capacity does.
-
+\noindent
 \textbf{Quantitative rule.} Line size: 64\,B on 8 of 8 machines (2014--2023), zero exceptions. L1D
 capacity: 32,768\,B (32\,KiB) on 6 of 8 machines. L1D associativity: 8-way on 6 of 8 machines. The
 same two machines account for both deviations -- Thunderbird (Arm, 2020: 64\,KiB, 4-way) and Artemisia
 (Intel Sapphire Rapids, 2023: 48\,KiB, 12-way) -- and they deviate in different directions/magnitudes
 from each other despite Artemisia being the newer machine, i.e.\ the deviations themselves show no
 chronological trend.
-
+\noindent
 \textbf{Scope/domain.} Same 8-machine, 2014--2023, cross-vendor/ISA pool as Law 1. The invariance
 claim is majority-case (6 of 8), not universal, and is stated as approximate; it is known not to hold
 for the team's one Arm machine or its newest/largest-L1D Intel Xeon, and should not be assumed to hold
 for machine classes outside this fleet.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \fbox{
 \begin{minipage}[c][7cm][c]{0.92\textwidth}
@@ -1649,6 +1737,7 @@ as solid points, the constant-value prediction as a dashed line.}
 \label{fig:law2-placeholder}
 \end{figure}
 
+\noindent
 \textbf{Frozen prediction.} At Hazel's \texttt{haswell} target: L1D capacity \textbf{32,768\,B},
 associativity \textbf{8-way}, line size \textbf{64\,B} -- chosen because \texttt{haswell} is an x86
 Xeon target, the exact class where this law's 6/8 majority held with no exceptions (both deviations
@@ -2102,7 +2191,8 @@ The team verified every code listing against the actual repository source at the
 
 Both members must review the completed appendix before submission and complete Table 14.
 
-\begin{table}[htbp]
+
+\begin{table}[H]
 \centering
 \caption{Final contribution-appendix confirmation by both team members.}
 \label{tab:final-confirmation}
