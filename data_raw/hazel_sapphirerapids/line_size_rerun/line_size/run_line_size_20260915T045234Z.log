@@ -1,0 +1,86 @@
+== run_line_size: machine=hazel_sapphirerapids/line_size_rerun core=40 seed=12345 ==
+== timestamp=20260915T045234Z boundaries=2097152 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=2097152B -- Method A window=[262144,8388608] bytes
+############################################################
+-- [L2097152 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_8_random_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_8_random_summary.csv
+-- [L2097152 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_8_sequential_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_8_sequential_summary.csv
+-- [L2097152 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_16_random_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_16_random_summary.csv
+-- [L2097152 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_16_sequential_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_16_sequential_summary.csv
+-- [L2097152 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_32_random_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_32_random_summary.csv
+-- [L2097152 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_32_sequential_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_32_sequential_summary.csv
+-- [L2097152 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_64_random_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_64_random_summary.csv
+-- [L2097152 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_64_sequential_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_64_sequential_summary.csv
+-- [L2097152 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_128_random_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_128_random_summary.csv
+-- [L2097152 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_128_sequential_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_128_sequential_summary.csv
+-- [L2097152 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_256_random_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_256_random_summary.csv
+-- [L2097152 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_256_sequential_20260915T045234Z.csv
+Wrote 31 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/family_256_sequential_summary.csv
+-- [L2097152 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 5284488, 16B: 4194304, 32B: 3736672, 64B: 2965760, 128B: 2965760, 256B: 2965760}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~2965760 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L2097152 A] no candidate given for this level -- inspect
+   data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L2097152 B] single-curve method, footprint_bytes=4194304 (2.0x boundary) --
+-- [L2097152 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/singlecurve_coarse_random_20260915T045234Z.csv
+  wrote 128002 lines -> data_raw/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/singlecurve_coarse_sequential_20260915T045234Z.csv
+Wrote 128 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/singlecurve_coarse_sequential_summary.csv
+-- [L2097152 B] detected line-size estimate (bytes): none --
+-- [L2097152 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L2097152 B] generating single-curve plots --
+  note: flagged 20 isolated spike stride(s) as probable page-aliasing artifacts: [8, 32, 128, 136, 256, 296, 312, 328, 448, 480, 496, 512, 616, 656, 696, 744, 840, 944, 984, 1024]
+Wrote data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_2097152/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 2097152 --
+
+############################################################
+## step 5: cross-level, cross-method agreement summary
+############################################################
+   level boundary=2097152B -> method A (family of curves) = noneB, method B (single curve) = noneB
+== no level/method produced a usable estimate -- widen windows or strides before citing anything
+== done: all levels, both methods, complete ==
+== this is a FROZEN PHASE-I TIMING-ONLY result -- compare against PMU counters
+   and the documented/system-reported line size in Phase II before treating it as
+   confirmed (see README.md's Phase I/II/III discipline).
+== plots per level: data_processed/hazel_sapphirerapids/line_size_rerun/line_size/level_<boundary>/plots/line_size_family_{curve,boxplots}.{png,pdf} (A, steps 1-3),
+          .../line_size_offset_{elbow,boxplots}.{png,pdf} (A, step 4), .../line_size_{curve,boxplots}.{png,pdf} (B) ==
+== record in data_raw/hazel_sapphirerapids/line_size_rerun/README.md: boundaries=2097152, core=40,
+   seed=12345, samples=1000000, coarse_strides=8,16,32,64,128,256, per-level/per-method estimates as above,
+   timestamp=20260915T045234Z ==
+== full transcript saved to: data_raw/hazel_sapphirerapids/line_size_rerun/line_size/run_line_size_20260915T045234Z.log ==
