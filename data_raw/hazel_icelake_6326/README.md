@@ -51,14 +51,75 @@ by a separate `hw1_icelake_6326_<experiment>.sh` job script per experiment type 
 ## Per-Experiment Reproduction
 
 ### capacity/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 1,000,000 (timed; warm-up excluded)
-- Random seed(s): 
-- Raw output filename(s): 
-- Processing script -> data_processed path: 
-- Excluded runs (if any) and reason: 
+- Slurm job ID: 837632, logical CPU 16, elapsed 52m52s, exit 0.
+- Source file(s): `main_code/common/{main.c,benchmark.c,pointer_chase.c,random.c,capacity.c}`,
+  `scripts/run_capacity_full.sh` (`HAZEL_MODE=1`), `scripts/summarize_raw.py`,
+  `scripts/detect_cache_hierarchy.py`, `scripts/plot_capacity.py`
+- Build command: `make -s` (isolated per-job copy under `hazel_build/837632/`, cleaned up on
+  job exit)
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_capacity_full.sh hazel_icelake_6326 16`
+  (coarse_max defaulted to 67,108,864 B / 64 MiB, then a 4x tail extension to 256 MiB)
+- Sample count: 1,000,000 (timed; warm-up excluded) -- every stage
+- Random seed(s): base 12345; reproducibility repeats on the deepest boundary use the same
+  seed (this script's own known limitation)
+- Raw output filename(s):
+  `data_raw/hazel_icelake_6326/capacity/capacity_{coarse,coarse_ext,dense0..dense5,
+  dense5_rep1,dense5_rep2,denseTail}_{random,sequential}_20260915T010343Z.csv.gz`; full
+  transcript: `data_raw/hazel_icelake_6326/capacity/run_capacity_full_20260915T010343Z.log`
+- Processing script -> data_processed path: `scripts/summarize_raw.py` ->
+  `data_processed/hazel_icelake_6326/capacity/*_summary.csv`;
+  `scripts/detect_cache_hierarchy.py` (default thresholds) -> 6 candidate boundaries (see
+  Findings); `scripts/plot_capacity.py` ->
+  `data_processed/hazel_icelake_6326/capacity/plots/capacity_{curve,boxplots}.{png,pdf}`
+- Excluded runs (if any) and reason: none -- single complete run; see the Findings' anomaly
+  note below (flagged, not excluded/re-run).
+
+**Findings (timing-only; no vendor/cache-topology lookup used, per Phase I discipline).
+CPU: Intel Xeon Gold 6326 (Ice Lake-SP). This run shows a genuine, unexplained anomaly that
+makes the L1/L2 region untrustworthy this pass -- read the anomaly note before citing any
+number below 10 MiB from this machine.**
+- **Anomaly: a sharp, ~2x latency DROP between two adjacent coarse-sweep points, with no
+  plausible cache-capacity explanation.** Latency climbs steadily and plausibly from 60,096 B
+  (10.47) all the way to 9,147,840 B (132.71), then the very next point, 9,975,792 B, drops to
+  65.98 -- roughly half -- before a SECOND, separate climb resumes from there. A real cache
+  boundary does not roughly halve latency at ANY footprint (crossing a boundary only ever
+  INCREASES miss cost); this is far more consistent with a session-level interference event
+  (another process starting/stopping, a frequency/turbo-state change, or similar) coinciding
+  with wherever the coarse sweep happened to be in its own elapsed-time timeline at that point,
+  matching the same category of anomaly already documented elsewhere in this project (see
+  Charnwood's/Ookay's/Artemisia's own contention write-ups in `CLAUDE.md`) -- not independently
+  root-caused this pass (no `mpstat`/`ps` snapshot was taken mid-run to confirm a specific
+  contending process). The small-size region below this point is also noisier than every other
+  Hazel generation run so far (values oscillate 7.2-9.9 ticks with no clean monotonic trend
+  from 1,216 B through 55,104 B, rather than a flat plateau), consistent with contention being
+  present from early in the run, not just at the one dramatic drop point.
+- **L1D: NOT cleanly confirmed this pass, due to the anomaly above.** The noisy small-size
+  region only loosely resembles a plateau (7.2-9.9 ticks, no sharp edge) before a real,
+  unambiguous climb resumes at 60,096 B (10.47) -- **best-guess: 32,768 B**, matching the
+  frozen prediction and every other x86 Hazel/lab machine, but this run's own data cannot
+  independently confirm it the way skylake's or cascadelake's L1 could.
+- **L2: NOT resolved.** The climb from 60,096 B through 9,147,840 B (10.47 -> 132.71) is one
+  continuous ramp with no distinct flat shelf -- the auto-detector's first 4 boundaries
+  (1,143,480 / 1,359,832 / 1,617,120 / 2,493,944 B) are fragments of this one ramp, the same
+  "one continuous transition triggering multiple spurious boundary detections" pattern
+  documented elsewhere in this project. **L2 best-guess: 1,310,720 B (1.25 MiB)** -- Ice
+  Lake-SP's publicly known standard per-core L2 size across the Xeon Scalable 3rd-gen lineup
+  (same "generation-typical value" reasoning as every other machine's unresolved L2).
+- **LLC: well-confirmed at 25,874,000 B (~24.68 MiB) -- a genuinely sharp knee, once read
+  starting from the anomaly's own recovery point.** From 9,975,792 B onward (past the drop),
+  the curve is a FLAT, clean shelf: 65.98 -> 59.38 -> 60.17 -> 60.23 -> 60.97 -> 61.13 -> 61.25
+  -> 61.88 -> 62.43 -> 62.36 -> 64.29 ticks across 9,975,792-23,726,560 B (barely any drift
+  across a 2.4x size range) -- then a sharp, sustained departure starting at 25,874,000 B
+  (71.50), continuing 28,215,800 B -> 91.08, 30,769,544 B -> 108.54, 33,554,432 B -> 122.79.
+  This matches Xeon Gold 6326's own publicly documented 24 MB L3 almost exactly (24.68 MiB
+  measured vs. 24 MB spec) -- as clean a knee as skylake's own confirmed LLC edge.
+- **LLC-to-DRAM: confirmed plateau within the default tail extension** -- 67,108,864 B: 219.32,
+  117,860,080 B: 246.27, 210,002,800 B: 235.74, 268,435,456 B: 251.57 -- flat within ~15% noise
+  across the whole 4x tail range, no further manual extension needed (unlike haswell/skylake).
+- **Held-out comparison against the frozen prediction:** the frozen L1D prediction
+  (32,768 B / 8-way) is consistent with this run's best-guess L1D, though not independently
+  confirmed here due to the anomaly. No frozen LLC prediction exists for an Ice Lake-SP
+  generation.
 
 ### line_size/
 - Source file(s): 
