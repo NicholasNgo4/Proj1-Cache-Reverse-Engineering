@@ -185,9 +185,35 @@ before citing any number from this machine; only L1 gets even a best-guess-quali
   associativity/hit_latency sections' own documented noise on this machine -- not re-run.
 
 ### inclusion_policy/
-- Source file(s): 
-- Run command + arguments: 
-- Eviction/reload construction: 
+**(Slurm job 838215, elapsed 2m47s, exit 0. This machine's noisiest inclusion_policy result
+of any Hazel generation, consistent with its already-documented pervasive noise elsewhere.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh
+  hazel_icelake_8358 34 L1_vs_L2:32768:1310720:L1_to_L2,L2_vs_LLC:1310720:50331648:L2_to_LLC,
+  L1_vs_LLC:32768:50331648:LLC_to_DRAM` (`ASSUMED_LINE_SIZE_BYTES` default 64).
+- **Results:**
+  - **L1_vs_L2**: same calibration-sanity-check FAILURE as hazel_skylake's own L1_vs_L2 --
+    "invalidated-class median (90.0) is not clearly above survived-class median (125.0)".
+    Nominal result (91.5% target survived-like) still reads **EXCLUSIVE / NON-INCLUSIVE**,
+    but per the failed calibration this should be read with real skepticism, not taken at
+    face value.
+  - **L2_vs_LLC**: the classifier's own confound warning fired -- **control itself read
+    20.5% invalidated-like despite never being touched**, the same construction-compromised
+    signature as hazel_cascadelake's own L2_vs_LLC. **Verdict: UNCERTAIN (confound
+    suspected)**.
+  - **L1_vs_LLC (skip-level)**: target 78.5% survived-like / 10.5% invalidated-like / 22
+    ambiguous, control 76.0% survived-like / 15.5% invalidated-like / 17 ambiguous -- both
+    channels noisy and similar to each other. **Verdict: UNCERTAIN (mixed result)** -- unlike
+    every other machine so far, this skip-level pairing did NOT come back clean here.
+  - **Best-guess overall reading: this machine's inclusion_policy data is not trustworthy
+    enough to support any directional claim** -- one pairing has a failed calibration, one
+    has a confirmed confound, and the third (normally the cleanest pairing on every other
+    machine) came back genuinely ambiguous. Consistent with, and reinforcing, this machine's
+    "likely needs a full re-run when quiet" flag from the capacity section.
+- Full transcript: see
+  `data_raw/hazel_icelake_8358/inclusion_policy/run_inclusion_policy_full_*.log`
 
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename: 

@@ -1,0 +1,186 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+c059n01
+Linux c059n01 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+Assigned logical CPU: 61, SLURM_JOB_ID=838213
+
+=== Running scripts/run_hit_latency_full.sh (HAZEL_MODE=1) ===
+== run_hit_latency_full: machine=hazel_icelake_8358 core=61 base_seed=12345 ==
+== timestamp=20260915T022749Z ==
+
+== level L1: footprint_bytes=32768 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_base_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/base_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_base_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/base_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_base_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/base_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_base_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/base_independent_sequential_summary_20260915T022749Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_rep1_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/rep1_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_rep1_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/rep1_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_rep1_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/rep1_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_rep1_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/rep1_independent_sequential_summary_20260915T022749Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_rep2_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/rep2_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_rep2_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/rep2_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_rep2_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/rep2_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L1/hit_latency_rep2_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L1/rep2_independent_sequential_summary_20260915T022749Z.csv
+-- generating plots for L1 --
+  note: ('dependent', 'random') has 3 overlapping summary rows with medians [27.2, 18.9, 22.2] (spread 8.3 ticks, 36.6%) -- averaging, widening whiskers to the union
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [28.0, 24.3, 20.4] (spread 7.7 ticks, 31.6%) -- averaging, widening whiskers to the union
+  note: ('independent', 'random') has 3 overlapping summary rows with medians [14.0, 17.0, 22.3] (spread 8.3 ticks, 46.6%) -- averaging, widening whiskers to the union
+random: independent < dependent (17.76 vs 22.78 ticks) [expected]
+sequential: independent < dependent (17.69 vs 24.24 ticks) [expected]
+Wrote data_processed/hazel_icelake_8358/latency/hit/L1/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: footprint_bytes=1310720 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_base_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/base_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_base_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/base_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_base_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/base_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_base_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/base_independent_sequential_summary_20260915T022749Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_rep1_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/rep1_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_rep1_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/rep1_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_rep1_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/rep1_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_rep1_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/rep1_independent_sequential_summary_20260915T022749Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_rep2_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/rep2_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_rep2_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/rep2_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_rep2_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/rep2_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/L2/hit_latency_rep2_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/L2/rep2_independent_sequential_summary_20260915T022749Z.csv
+-- generating plots for L2 --
+  note: ('dependent', 'random') has 3 overlapping summary rows with medians [31.0, 35.1, 28.0] (spread 7.1 ticks, 22.6%) -- averaging, widening whiskers to the union
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [22.2, 17.8, 22.1] (spread 4.4 ticks, 21.3%) -- averaging, widening whiskers to the union
+  note: ('independent', 'sequential') has 3 overlapping summary rows with medians [22.6, 14.8, 18.7] (spread 7.7 ticks, 41.3%) -- averaging, widening whiskers to the union
+random: independent < dependent (11.75 vs 31.37 ticks) [expected]
+sequential: independent < dependent (18.70 vs 20.71 ticks) [expected]
+Wrote data_processed/hazel_icelake_8358/latency/hit/L2/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level LLC: footprint_bytes=50331648 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_base_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/base_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_base_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/base_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_base_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/base_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_base_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/base_independent_sequential_summary_20260915T022749Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_rep1_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/rep1_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_rep1_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/rep1_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_rep1_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/rep1_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_rep1_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/rep1_independent_sequential_summary_20260915T022749Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_rep2_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/rep2_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_rep2_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/rep2_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_rep2_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/rep2_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/LLC/hit_latency_rep2_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/LLC/rep2_independent_sequential_summary_20260915T022749Z.csv
+-- generating plots for LLC --
+  note: ('independent', 'random') has 3 overlapping summary rows with medians [38.0, 37.5, 46.2] (spread 8.7 ticks, 21.3%) -- averaging, widening whiskers to the union
+random: independent < dependent (40.55 vs 223.81 ticks) [expected]
+sequential: independent < dependent (8.14 vs 9.76 ticks) [expected]
+Wrote data_processed/hazel_icelake_8358/latency/hit/LLC/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC --
+
+== level DRAM: footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_base_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/base_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_base_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/base_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_base_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/base_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_base_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/base_independent_sequential_summary_20260915T022749Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_rep1_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/rep1_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_rep1_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/rep1_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_rep1_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/rep1_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_rep1_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/rep1_independent_sequential_summary_20260915T022749Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_rep2_dependent_random_20260915T022749Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/rep2_dependent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_rep2_dependent_sequential_20260915T022749Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/rep2_dependent_sequential_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_rep2_independent_random_20260915T022749Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/rep2_independent_random_summary_20260915T022749Z.csv
+  wrote 1002 lines -> data_raw/hazel_icelake_8358/latency/hit/DRAM/hit_latency_rep2_independent_sequential_20260915T022749Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_icelake_8358/latency/hit/DRAM/rep2_independent_sequential_summary_20260915T022749Z.csv
+-- generating plots for DRAM --
+random: independent < dependent (40.01 vs 259.13 ticks) [expected]
+sequential: independent < dependent (7.63 vs 9.26 ticks) [expected]
+Wrote data_processed/hazel_icelake_8358/latency/hit/DRAM/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for DRAM --
+
+== done ==
+== L1: footprint_bytes=32768 ==
+== L2: footprint_bytes=1310720 ==
+== LLC: footprint_bytes=50331648 ==
+== DRAM: footprint_bytes=536870912 ==
+== record in data_raw/hazel_icelake_8358/README.md: core=61, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260915T022749Z ==
+== full transcript saved to: data_raw/hazel_icelake_8358/latency/run_hit_latency_full_20260915T022749Z.log ==
+
+=== Done ===
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 838213
+    Job name          : hw1_hit_latency
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-14T22:27:43
+    Started           : 2026-09-14T22:27:48
+    Wait time         : 5 sec
+    Elapsed (wall)    : 00:03:27
+    Nodes             : 1 (c059n01)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 187.40 sec  (user 181.39, sys 6.02)
+    CPU efficiency    : 90.5%
+    Memory in use     : 1.01 GB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 838213
+------------------------------------------------------------
