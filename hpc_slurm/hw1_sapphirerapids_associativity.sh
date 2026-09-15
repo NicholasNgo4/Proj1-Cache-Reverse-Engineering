@@ -7,6 +7,14 @@
 # LLC=39903168 B / ~38.05 MiB (provisional). No ASSOC_ALLOW_AUTO -- explicit
 # cache_bytes_csv given, per this script's own hand-confirmed-only policy.
 #
+# NOTE: LLC byte value rounded to the nearest 4096-byte (page-size) multiple --
+# --cache-bytes must be a multiple of 4096 (main.c's ASSOC_CACHE_BYTES_ALIGN check),
+# and the README's own reasoned LLC edge was not exactly aligned. Original job failed
+# with 'Invalid associativity parameter values' before this fix. Only this script's own
+# argument changed -- line_size/hit_latency/miss_latency/inclusion_policy keep the
+# original (unaligned) reasoned value, since only associativity's --cache-bytes has
+# this hard requirement.
+#
 #SBATCH --job-name=hw1_associativity
 #SBATCH --output=data_raw/hazel_sapphirerapids/hw1_sapphirerapids_associativity_%j.log
 #SBATCH --error=data_raw/hazel_sapphirerapids/hw1_sapphirerapids_associativity_%j.err.log
@@ -35,7 +43,7 @@ fi
 source hpc_slurm/hazel_python_env.sh
 
 echo "=== Running scripts/run_associativity_full.sh (HAZEL_MODE=1) ==="
-HAZEL_MODE=1 ./scripts/run_associativity_full.sh hazel_sapphirerapids "${CORE:-0}" 49152,2097152,39903168
+HAZEL_MODE=1 ./scripts/run_associativity_full.sh hazel_sapphirerapids "${CORE:-0}" 49152,2097152,39903232
 
 echo
 echo "=== Done ==="
