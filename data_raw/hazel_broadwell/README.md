@@ -180,9 +180,33 @@ as hazel_haswell's own E5-2650 v3.**
   (24.1-54.8%), not re-run.
 
 ### inclusion_policy/
-- Source file(s): 
-- Run command + arguments: 
-- Eviction/reload construction: 
+**(Slurm job 838236, elapsed 2m15s, exit 0. All three pairings came back UNCERTAIN -- the
+least informative inclusion_policy result of any Hazel generation, worse even than
+icelake_8358's own noisy result.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh
+  hazel_broadwell 22 L1_vs_L2:32768:262144:L1_to_L2,L2_vs_LLC:262144:25874000:L2_to_LLC,
+  L1_vs_LLC:32768:25874000:LLC_to_DRAM` (`ASSUMED_LINE_SIZE_BYTES` default 64).
+- **Results:**
+  - **L1_vs_L2**: target only 26.5% survived-like / 72.5% ambiguous, control 39.0%
+    survived-like / 59.5% ambiguous -- both channels mostly ambiguous, unlike every other
+    machine's own clean L1_vs_L2 pairing. **Verdict: UNCERTAIN (mixed result)**.
+  - **L2_vs_LLC**: the classifier's confound warning fired at its most extreme -- **control
+    itself read 100.0% invalidated-like**, despite never being touched by the eviction walk.
+    **Verdict: UNCERTAIN (confound suspected)** -- total construction failure, not just a
+    partial one.
+  - **L1_vs_LLC (skip-level)**: control also compromised -- **86.0% invalidated-like**.
+    **Verdict: UNCERTAIN (confound suspected)**.
+  - **Best-guess overall reading: none -- this machine's inclusion_policy data supports no
+    directional claim at any pairing.** The severity here (100%/86% control contamination,
+    worse than any other machine's own confound-suspected result) is plausibly related to
+    this machine's own provisional (below-spec) LLC boundary requiring a larger-than-real
+    scaled eviction footprint, or to Broadwell-EP's own DTLB being smaller/more easily
+    saturated than newer generations -- not independently diagnosed this pass.
+- Full transcript: see
+  `data_raw/hazel_broadwell/inclusion_policy/run_inclusion_policy_full_*.log`
 
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename: 
