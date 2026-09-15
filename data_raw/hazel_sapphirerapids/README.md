@@ -198,7 +198,36 @@ machine L1D result -- read all three notes before citing a number from this mach
   (~82% apart), consistent with this machine's own capacity finding that LLC-to-DRAM never
   plateaus (a genuinely large, real gap between these two levels here).
 
-**miss_latency: pending as of this writing.**
+**miss_latency (Slurm job 838199, elapsed 1h16m20s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh
+  hazel_sapphirerapids 40 L1_to_L2:49152:2097152,L2_to_LLC:2097152:39903168,
+  LLC_to_DRAM:39903168:536870912`
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=214.0, L2_to_LLC=566.0,
+  LLC_to_DRAM=825.0** -- cleanly increasing, unlike icelake_6326's own inverted result.
+  Substantial repeat-to-repeat spread flagged (40-56.5%), not re-run.
+
+### inclusion_policy/
+**(Slurm job 838200, elapsed 2m10s, exit 0.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh
+  hazel_sapphirerapids 40 L1_vs_L2:49152:2097152:L1_to_L2,L2_vs_LLC:2097152:39903168:L2_to_LLC,
+  L1_vs_LLC:49152:39903168:LLC_to_DRAM` (`ASSUMED_LINE_SIZE_BYTES` default 64).
+- **Results:**
+  - **L1_vs_L2**: target 100% survived-like, control 100% survived-like. **Verdict:
+    EXCLUSIVE / NON-INCLUSIVE** -- clean, no calibration warnings.
+  - **L2_vs_LLC**: target 29.5% survived-like / 48.5% invalidated-like / 44 ambiguous,
+    control 100% survived-like. **Verdict: UNCERTAIN (mixed result)** -- usual
+    lowest-confidence pairing.
+  - **L1_vs_LLC (skip-level)**: target 99.5% survived-like, control 100% survived-like.
+    **Verdict: EXCLUSIVE / NON-INCLUSIVE.**
+  - **Best-guess overall reading:** leans non-inclusive throughout, same overall shape as
+    hazel_skylake's and hazel_icelake_6326's own results.
+- Full transcript: see
+  `data_raw/hazel_sapphirerapids/inclusion_policy/run_inclusion_policy_full_*.log`
 
 ### inclusion_policy/
 - Source file(s): 
