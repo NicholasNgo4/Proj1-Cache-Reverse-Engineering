@@ -1,0 +1,434 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+n0405
+Linux n0405 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: AMD EPYC 9655 96-Core Processor
+CPU CORE SOCKET NODE
+  0    0      0    0
+  1    1      0    0
+  2    2      0    0
+  3    3      0    0
+  4    4      0    0
+  5    5      0    0
+  6    6      0    0
+  7    7      0    0
+  8    8      0    0
+  9    9      0    0
+ 10   10      0    0
+ 11   11      0    0
+ 12   12      0    0
+ 13   13      0    0
+ 14   14      0    0
+ 15   15      0    0
+ 16   16      0    0
+ 17   17      0    0
+ 18   18      0    0
+ 19   19      0    0
+ 20   20      0    0
+ 21   21      0    0
+ 22   22      0    0
+ 23   23      0    0
+ 24   24      0    0
+ 25   25      0    0
+ 26   26      0    0
+ 27   27      0    0
+ 28   28      0    0
+ 29   29      0    0
+ 30   30      0    0
+ 31   31      0    0
+ 32   32      0    0
+ 33   33      0    0
+ 34   34      0    0
+ 35   35      0    0
+ 36   36      0    0
+ 37   37      0    0
+ 38   38      0    0
+ 39   39      0    0
+ 40   40      0    0
+ 41   41      0    0
+ 42   42      0    0
+ 43   43      0    0
+ 44   44      0    0
+ 45   45      0    0
+ 46   46      0    0
+ 47   47      0    0
+ 48   48      0    0
+ 49   49      0    0
+ 50   50      0    0
+ 51   51      0    0
+ 52   52      0    0
+ 53   53      0    0
+ 54   54      0    0
+ 55   55      0    0
+ 56   56      0    0
+ 57   57      0    0
+ 58   58      0    0
+ 59   59      0    0
+ 60   60      0    0
+ 61   61      0    0
+ 62   62      0    0
+ 63   63      0    0
+ 64   64      0    0
+ 65   65      0    0
+ 66   66      0    0
+ 67   67      0    0
+ 68   68      0    0
+ 69   69      0    0
+ 70   70      0    0
+ 71   71      0    0
+ 72   72      0    0
+ 73   73      0    0
+ 74   74      0    0
+ 75   75      0    0
+ 76   76      0    0
+ 77   77      0    0
+ 78   78      0    0
+ 79   79      0    0
+ 80   80      0    0
+ 81   81      0    0
+ 82   82      0    0
+ 83   83      0    0
+ 84   84      0    0
+ 85   85      0    0
+ 86   86      0    0
+ 87   87      0    0
+ 88   88      0    0
+ 89   89      0    0
+ 90   90      0    0
+ 91   91      0    0
+ 92   92      0    0
+ 93   93      0    0
+ 94   94      0    0
+ 95   95      0    0
+ 96   96      1    1
+ 97   97      1    1
+ 98   98      1    1
+ 99   99      1    1
+100  100      1    1
+101  101      1    1
+102  102      1    1
+103  103      1    1
+104  104      1    1
+105  105      1    1
+106  106      1    1
+107  107      1    1
+108  108      1    1
+109  109      1    1
+110  110      1    1
+111  111      1    1
+112  112      1    1
+113  113      1    1
+114  114      1    1
+115  115      1    1
+116  116      1    1
+117  117      1    1
+118  118      1    1
+119  119      1    1
+120  120      1    1
+121  121      1    1
+122  122      1    1
+123  123      1    1
+124  124      1    1
+125  125      1    1
+126  126      1    1
+127  127      1    1
+128  128      1    1
+129  129      1    1
+130  130      1    1
+131  131      1    1
+132  132      1    1
+133  133      1    1
+134  134      1    1
+135  135      1    1
+136  136      1    1
+137  137      1    1
+138  138      1    1
+139  139      1    1
+140  140      1    1
+141  141      1    1
+142  142      1    1
+143  143      1    1
+144  144      1    1
+145  145      1    1
+146  146      1    1
+147  147      1    1
+148  148      1    1
+149  149      1    1
+150  150      1    1
+151  151      1    1
+152  152      1    1
+153  153      1    1
+154  154      1    1
+155  155      1    1
+156  156      1    1
+157  157      1    1
+158  158      1    1
+159  159      1    1
+160  160      1    1
+161  161      1    1
+162  162      1    1
+163  163      1    1
+164  164      1    1
+165  165      1    1
+166  166      1    1
+167  167      1    1
+168  168      1    1
+169  169      1    1
+170  170      1    1
+171  171      1    1
+172  172      1    1
+173  173      1    1
+174  174      1    1
+175  175      1    1
+176  176      1    1
+177  177      1    1
+178  178      1    1
+179  179      1    1
+180  180      1    1
+181  181      1    1
+182  182      1    1
+183  183      1    1
+184  184      1    1
+185  185      1    1
+186  186      1    1
+187  187      1    1
+188  188      1    1
+189  189      1    1
+190  190      1    1
+191  191      1    1
+Assigned logical CPU (physcpubind, informational -- srun --cpu-bind=cores does the real pinning): 160
+SLURM_JOB_ID=837636
+
+=== Phase Discipline gate check: is predictions-frozen an ancestor of HEAD? ===
+OK -- predictions-frozen confirmed ancestor of HEAD, proceeding.
+
+=== Running scripts/run_capacity_full.sh (HAZEL_MODE=1) ===
+== run_capacity_full: machine=hazel_turin core=160 coarse_max=67108864 seed=12345 ==
+== timestamp=20260915T010343Z ==
+-- coarse sweep 1024-67108864 bytes --
+  wrote 129002 lines -> data_raw/hazel_turin/capacity/capacity_coarse_random_20260915T010343Z.csv
+  wrote 129002 lines -> data_raw/hazel_turin/capacity/capacity_coarse_sequential_20260915T010343Z.csv
+Wrote 129 summary rows to data_processed/hazel_turin/capacity/coarse_random_summary.csv
+Wrote 129 summary rows to data_processed/hazel_turin/capacity/coarse_sequential_summary.csv
+-- tail-extension sweep 67108864-268435456 bytes --
+  wrote 17002 lines -> data_raw/hazel_turin/capacity/capacity_coarse_ext_random_20260915T010343Z.csv
+  wrote 17002 lines -> data_raw/hazel_turin/capacity/capacity_coarse_ext_sequential_20260915T010343Z.csv
+Wrote 17 summary rows to data_processed/hazel_turin/capacity/coarse_ext_random_summary.csv
+Wrote 17 summary rows to data_processed/hazel_turin/capacity/coarse_ext_sequential_summary.csv
+-- detected boundaries (bytes): 1143480 33554432 36591368 43514712 --
+-- dense sweep around boundary 1143480 bytes: 142935-9147840 --
+  wrote 289002 lines -> data_raw/hazel_turin/capacity/capacity_dense0_random_20260915T010343Z.csv
+  wrote 289002 lines -> data_raw/hazel_turin/capacity/capacity_dense0_sequential_20260915T010343Z.csv
+Wrote 289 summary rows to data_processed/hazel_turin/capacity/dense0_random_summary.csv
+Wrote 289 summary rows to data_processed/hazel_turin/capacity/dense0_sequential_summary.csv
+-- dense sweep around boundary 33554432 bytes: 4194304-268435456 --
+  wrote 289002 lines -> data_raw/hazel_turin/capacity/capacity_dense1_random_20260915T010343Z.csv
+  wrote 289002 lines -> data_raw/hazel_turin/capacity/capacity_dense1_sequential_20260915T010343Z.csv
+Wrote 289 summary rows to data_processed/hazel_turin/capacity/dense1_random_summary.csv
+Wrote 289 summary rows to data_processed/hazel_turin/capacity/dense1_sequential_summary.csv
+-- dense sweep around boundary 36591368 bytes: 4573921-268435456 --
+  wrote 282002 lines -> data_raw/hazel_turin/capacity/capacity_dense2_random_20260915T010343Z.csv
+  wrote 282002 lines -> data_raw/hazel_turin/capacity/capacity_dense2_sequential_20260915T010343Z.csv
+Wrote 282 summary rows to data_processed/hazel_turin/capacity/dense2_random_summary.csv
+Wrote 282 summary rows to data_processed/hazel_turin/capacity/dense2_sequential_summary.csv
+-- dense sweep around boundary 43514712 bytes: 5439339-268435456 --
+  wrote 271002 lines -> data_raw/hazel_turin/capacity/capacity_dense3_random_20260915T010343Z.csv
+  wrote 271002 lines -> data_raw/hazel_turin/capacity/capacity_dense3_sequential_20260915T010343Z.csv
+Wrote 271 summary rows to data_processed/hazel_turin/capacity/dense3_random_summary.csv
+Wrote 271 summary rows to data_processed/hazel_turin/capacity/dense3_sequential_summary.csv
+  -- repeat 1/2 of deepest boundary's dense window --
+  wrote 271002 lines -> data_raw/hazel_turin/capacity/capacity_dense3_rep1_random_20260915T010343Z.csv
+  wrote 271002 lines -> data_raw/hazel_turin/capacity/capacity_dense3_rep1_sequential_20260915T010343Z.csv
+Wrote 271 summary rows to data_processed/hazel_turin/capacity/dense3_rep1_random_summary.csv
+Wrote 271 summary rows to data_processed/hazel_turin/capacity/dense3_rep1_sequential_summary.csv
+  -- repeat 2/2 of deepest boundary's dense window --
+  wrote 271002 lines -> data_raw/hazel_turin/capacity/capacity_dense3_rep2_random_20260915T010343Z.csv
+  wrote 271002 lines -> data_raw/hazel_turin/capacity/capacity_dense3_rep2_sequential_20260915T010343Z.csv
+Wrote 271 summary rows to data_processed/hazel_turin/capacity/dense3_rep2_random_summary.csv
+Wrote 271 summary rows to data_processed/hazel_turin/capacity/dense3_rep2_sequential_summary.csv
+-- dense sweep past deepest boundary, checking for a further plateau: 87029424-268435456 --
+  wrote 79002 lines -> data_raw/hazel_turin/capacity/capacity_denseTail_random_20260915T010343Z.csv
+  wrote 79002 lines -> data_raw/hazel_turin/capacity/capacity_denseTail_sequential_20260915T010343Z.csv
+Wrote 79 summary rows to data_processed/hazel_turin/capacity/denseTail_random_summary.csv
+Wrote 79 summary rows to data_processed/hazel_turin/capacity/denseTail_sequential_summary.csv
+-- generating plots --
+  note: 11.3137 MiB (random) has 6 overlapping summary rows with medians [38.1, 38.2, 47.4, 45.5, 40.9, 63.7] (spread 25.6 ticks, 56.2%) -- averaging, widening whiskers to the union
+  note: 12.3377 MiB (random) has 6 overlapping summary rows with medians [37.8, 37.9, 45.6, 49.4, 49.1, 68.9] (spread 31.1 ticks, 64.6%) -- averaging, widening whiskers to the union
+  note: 13.4543 MiB (random) has 6 overlapping summary rows with medians [38.4, 38.7, 95.9, 96.7, 60.6, 132.8] (spread 94.4 ticks, 122.3%) -- averaging, widening whiskers to the union
+  note: 14.6721 MiB (random) has 6 overlapping summary rows with medians [38.3, 38.4, 163.1, 158.2, 67.1, 177.4] (spread 139.1 ticks, 129.9%) -- averaging, widening whiskers to the union
+  note: 16 MiB (random) has 3 overlapping summary rows with medians [38.4, 38.4, 166.9] (spread 128.5 ticks, 158.2%) -- averaging, widening whiskers to the union
+  note: 17.4481 MiB (random) has 6 overlapping summary rows with medians [38.8, 38.8, 181.1, 177.6, 186.5, 219.7] (spread 180.8 ticks, 128.8%) -- averaging, widening whiskers to the union
+  note: 19.0273 MiB (random) has 3 overlapping summary rows with medians [38.8, 38.8, 210.4] (spread 171.6 ticks, 178.7%) -- averaging, widening whiskers to the union
+  note: 20.7494 MiB (random) has 6 overlapping summary rows with medians [38.8, 38.9, 224.9, 230.4, 231.8, 255.9] (spread 217.0 ticks, 127.6%) -- averaging, widening whiskers to the union
+  note: 22.6274 MiB (random) has 6 overlapping summary rows with medians [39.3, 38.9, 246.1, 245.4, 238.1, 262.8] (spread 223.8 ticks, 125.4%) -- averaging, widening whiskers to the union
+  note: 24.6754 MiB (random) has 6 overlapping summary rows with medians [54.2, 39.1, 253.3, 257.1, 253.6, 270.7] (spread 231.6 ticks, 123.2%) -- averaging, widening whiskers to the union
+  note: 26.9087 MiB (random) has 6 overlapping summary rows with medians [39.2, 39.3, 264.3, 259.8, 266.0, 281.7] (spread 242.6 ticks, 126.5%) -- averaging, widening whiskers to the union
+  note: 29.3441 MiB (random) has 6 overlapping summary rows with medians [63.6, 40.2, 278.5, 276.4, 272.7, 288.8] (spread 248.7 ticks, 122.3%) -- averaging, widening whiskers to the union
+  note: 32 MiB (random) has 3 overlapping summary rows with medians [39.6, 39.8, 284.2] (spread 244.5 ticks, 201.8%) -- averaging, widening whiskers to the union
+  note: 34.8962 MiB (random) has 3 overlapping summary rows with medians [73.0, 70.6, 293.0] (spread 222.5 ticks, 152.8%) -- averaging, widening whiskers to the union
+  note: 38.0546 MiB (random) has 3 overlapping summary rows with medians [98.6, 97.9, 296.7] (spread 198.7 ticks, 120.9%) -- averaging, widening whiskers to the union
+  note: 41.4989 MiB (random) has 6 overlapping summary rows with medians [123.0, 122.6, 303.9, 301.8, 304.1, 310.8] (spread 188.2 ticks, 77.0%) -- averaging, widening whiskers to the union
+  note: 45.2548 MiB (random) has 6 overlapping summary rows with medians [144.4, 143.1, 305.9, 309.7, 306.5, 316.1] (spread 173.0 ticks, 68.0%) -- averaging, widening whiskers to the union
+  note: 49.3507 MiB (random) has 3 overlapping summary rows with medians [166.9, 162.6, 313.4] (spread 150.7 ticks, 70.3%) -- averaging, widening whiskers to the union
+  note: 53.8174 MiB (random) has 6 overlapping summary rows with medians [181.1, 181.1, 315.6, 316.8, 317.0, 322.6] (spread 141.5 ticks, 52.0%) -- averaging, widening whiskers to the union
+  note: 58.6883 MiB (random) has 6 overlapping summary rows with medians [197.7, 197.6, 320.0, 319.1, 321.3, 325.8] (spread 128.1 ticks, 45.7%) -- averaging, widening whiskers to the union
+  note: 64 MiB (random) has 4 overlapping summary rows with medians [211.3, 210.9, 215.9, 322.4] (spread 111.5 ticks, 46.4%) -- averaging, widening whiskers to the union
+  note: 69.7925 MiB (random) has 5 overlapping summary rows with medians [235.2, 241.3, 326.6, 325.6, 331.7] (spread 96.6 ticks, 33.1%) -- averaging, widening whiskers to the union
+  note: 76.1093 MiB (random) has 3 overlapping summary rows with medians [237.9, 261.9, 327.7] (spread 89.8 ticks, 32.5%) -- averaging, widening whiskers to the union
+  note: 82.9977 MiB (random) has 7 overlapping summary rows with medians [253.3, 266.1, 331.2, 330.3, 331.8, 334.4, 335.4] (spread 82.2 ticks, 26.4%) -- averaging, widening whiskers to the union
+  note: 90.5097 MiB (random) has 3 overlapping summary rows with medians [262.8, 273.6, 335.5] (spread 72.6 ticks, 25.0%) -- averaging, widening whiskers to the union
+  note: 98.7015 MiB (random) has 3 overlapping summary rows with medians [267.4, 268.7, 335.4] (spread 68.0 ticks, 23.4%) -- averaging, widening whiskers to the union
+  note: 10.9916 MiB (random) has 5 overlapping summary rows with medians [38.0, 41.9, 42.7, 44.4, 46.7] (spread 8.7 ticks, 20.5%) -- averaging, widening whiskers to the union
+  note: 11.1515 MiB (random) has 5 overlapping summary rows with medians [38.1, 46.8, 41.4, 41.4, 47.5] (spread 9.3 ticks, 21.7%) -- averaging, widening whiskers to the union
+  note: 11.4783 MiB (random) has 5 overlapping summary rows with medians [38.3, 44.9, 43.6, 44.1, 49.5] (spread 11.3 ticks, 25.6%) -- averaging, widening whiskers to the union
+  note: 11.6452 MiB (random) has 2 overlapping summary rows with medians [38.4, 51.0] (spread 12.6 ticks, 28.2%) -- averaging, widening whiskers to the union
+  note: 11.8146 MiB (random) has 5 overlapping summary rows with medians [38.4, 49.2, 45.5, 45.3, 188.0] (spread 149.6 ticks, 204.1%) -- averaging, widening whiskers to the union
+  note: 11.9865 MiB (random) has 5 overlapping summary rows with medians [38.6, 49.0, 47.0, 51.7, 113.7] (spread 75.1 ticks, 125.2%) -- averaging, widening whiskers to the union
+  note: 12.1608 MiB (random) has 5 overlapping summary rows with medians [37.8, 44.2, 48.6, 50.0, 151.0] (spread 113.2 ticks, 170.6%) -- averaging, widening whiskers to the union
+  note: 12.5171 MiB (random) has 5 overlapping summary rows with medians [38.0, 52.0, 50.9, 53.0, 59.5] (spread 21.5 ticks, 42.4%) -- averaging, widening whiskers to the union
+  note: 12.6992 MiB (random) has 5 overlapping summary rows with medians [38.1, 47.7, 56.0, 62.8, 78.6] (spread 40.4 ticks, 71.3%) -- averaging, widening whiskers to the union
+  note: 12.8839 MiB (random) has 5 overlapping summary rows with medians [38.2, 52.9, 57.7, 55.8, 173.5] (spread 135.3 ticks, 178.9%) -- averaging, widening whiskers to the union
+  note: 13.0713 MiB (random) has 5 overlapping summary rows with medians [38.3, 56.5, 71.0, 68.0, 116.2] (spread 77.8 ticks, 111.2%) -- averaging, widening whiskers to the union
+  note: 13.2614 MiB (random) has 5 overlapping summary rows with medians [39.2, 78.3, 54.4, 81.3, 108.8] (spread 69.5 ticks, 96.0%) -- averaging, widening whiskers to the union
+  note: 13.65 MiB (random) has 5 overlapping summary rows with medians [38.6, 103.9, 129.5, 79.4, 156.4] (spread 117.8 ticks, 116.0%) -- averaging, widening whiskers to the union
+  note: 13.8486 MiB (random) has 5 overlapping summary rows with medians [38.7, 117.6, 70.1, 142.5, 161.4] (spread 122.7 ticks, 115.7%) -- averaging, widening whiskers to the union
+  note: 14.05 MiB (random) has 5 overlapping summary rows with medians [38.1, 92.9, 146.8, 155.1, 130.9] (spread 117.0 ticks, 103.8%) -- averaging, widening whiskers to the union
+  note: 14.2544 MiB (random) has 2 overlapping summary rows with medians [38.1, 146.1] (spread 108.0 ticks, 117.2%) -- averaging, widening whiskers to the union
+  note: 14.4617 MiB (random) has 5 overlapping summary rows with medians [38.2, 158.1, 81.1, 88.2, 155.1] (spread 119.9 ticks, 115.1%) -- averaging, widening whiskers to the union
+  note: 14.8855 MiB (random) has 2 overlapping summary rows with medians [38.5, 124.6] (spread 86.1 ticks, 105.6%) -- averaging, widening whiskers to the union
+  note: 15.102 MiB (random) has 5 overlapping summary rows with medians [38.6, 155.7, 159.4, 107.8, 183.2] (spread 144.6 ticks, 112.2%) -- averaging, widening whiskers to the union
+  note: 15.3216 MiB (random) has 5 overlapping summary rows with medians [38.7, 179.6, 194.6, 137.4, 183.8] (spread 155.9 ticks, 106.2%) -- averaging, widening whiskers to the union
+  note: 15.5445 MiB (random) has 5 overlapping summary rows with medians [38.8, 195.6, 166.7, 144.5, 191.3] (spread 156.8 ticks, 106.4%) -- averaging, widening whiskers to the union
+  note: 15.7706 MiB (random) has 5 overlapping summary rows with medians [38.9, 139.0, 179.1, 180.3, 192.6] (spread 153.8 ticks, 105.3%) -- averaging, widening whiskers to the union
+  note: 16.2327 MiB (random) has 5 overlapping summary rows with medians [38.4, 165.9, 206.2, 164.8, 195.6] (spread 167.8 ticks, 108.8%) -- averaging, widening whiskers to the union
+  note: 16.4688 MiB (random) has 5 overlapping summary rows with medians [38.4, 161.6, 192.0, 177.0, 194.7] (spread 156.2 ticks, 102.3%) -- averaging, widening whiskers to the union
+  note: 16.7084 MiB (random) has 5 overlapping summary rows with medians [38.6, 155.1, 181.8, 165.0, 202.7] (spread 164.1 ticks, 110.4%) -- averaging, widening whiskers to the union
+  note: 16.9514 MiB (random) has 5 overlapping summary rows with medians [38.7, 171.6, 181.9, 149.4, 223.7] (spread 184.9 ticks, 120.8%) -- averaging, widening whiskers to the union
+  note: 17.198 MiB (random) has 5 overlapping summary rows with medians [38.8, 179.9, 173.3, 184.6, 227.4] (spread 188.6 ticks, 117.3%) -- averaging, widening whiskers to the union
+  note: 17.7019 MiB (random) has 2 overlapping summary rows with medians [38.9, 175.6] (spread 136.7 ticks, 127.4%) -- averaging, widening whiskers to the union
+  note: 17.9594 MiB (random) has 5 overlapping summary rows with medians [39.1, 192.0, 203.4, 195.6, 234.5] (spread 195.4 ticks, 113.0%) -- averaging, widening whiskers to the union
+  note: 18.2206 MiB (random) has 5 overlapping summary rows with medians [38.6, 193.0, 206.2, 202.7, 227.5] (spread 188.9 ticks, 108.8%) -- averaging, widening whiskers to the union
+  note: 18.4856 MiB (random) has 5 overlapping summary rows with medians [38.7, 201.8, 190.0, 213.0, 230.7] (spread 192.0 ticks, 109.8%) -- averaging, widening whiskers to the union
+  note: 18.7545 MiB (random) has 5 overlapping summary rows with medians [38.8, 215.1, 204.0, 197.4, 234.0] (spread 195.2 ticks, 109.8%) -- averaging, widening whiskers to the union
+  note: 19.3041 MiB (random) has 5 overlapping summary rows with medians [38.9, 204.4, 206.9, 220.8, 240.3] (spread 201.4 ticks, 110.5%) -- averaging, widening whiskers to the union
+  note: 19.5849 MiB (random) has 5 overlapping summary rows with medians [39.0, 211.1, 218.0, 216.9, 244.8] (spread 205.8 ticks, 110.7%) -- averaging, widening whiskers to the union
+  note: 19.8697 MiB (random) has 5 overlapping summary rows with medians [39.2, 222.0, 210.5, 212.7, 246.4] (spread 207.2 ticks, 111.3%) -- averaging, widening whiskers to the union
+  note: 20.1587 MiB (random) has 2 overlapping summary rows with medians [38.7, 220.3] (spread 181.7 ticks, 140.3%) -- averaging, widening whiskers to the union
+  note: 20.452 MiB (random) has 5 overlapping summary rows with medians [38.8, 219.3, 220.1, 229.5, 243.6] (spread 204.7 ticks, 107.6%) -- averaging, widening whiskers to the union
+  note: 21.0512 MiB (random) has 5 overlapping summary rows with medians [38.9, 234.7, 229.4, 223.0, 249.7] (spread 210.7 ticks, 108.0%) -- averaging, widening whiskers to the union
+  note: 21.3574 MiB (random) has 2 overlapping summary rows with medians [39.1, 230.5] (spread 191.4 ticks, 142.0%) -- averaging, widening whiskers to the union
+  note: 21.6681 MiB (random) has 5 overlapping summary rows with medians [39.2, 234.3, 230.6, 231.9, 261.6] (spread 222.4 ticks, 111.5%) -- averaging, widening whiskers to the union
+  note: 21.9833 MiB (random) has 5 overlapping summary rows with medians [39.2, 234.1, 234.9, 241.2, 263.3] (spread 224.1 ticks, 110.6%) -- averaging, widening whiskers to the union
+  note: 22.303 MiB (random) has 5 overlapping summary rows with medians [38.9, 235.4, 236.5, 241.6, 262.1] (spread 223.2 ticks, 110.0%) -- averaging, widening whiskers to the union
+  note: 22.9565 MiB (random) has 5 overlapping summary rows with medians [39.1, 242.2, 245.2, 241.2, 265.6] (spread 226.5 ticks, 109.6%) -- averaging, widening whiskers to the union
+  note: 23.2905 MiB (random) has 2 overlapping summary rows with medians [39.1, 246.3] (spread 207.2 ticks, 145.2%) -- averaging, widening whiskers to the union
+  note: 23.6292 MiB (random) has 4 overlapping summary rows with medians [39.2, 235.8, 240.6, 263.5] (spread 224.3 ticks, 115.2%) -- averaging, widening whiskers to the union
+  note: 23.9729 MiB (random) has 5 overlapping summary rows with medians [39.4, 255.5, 252.1, 247.4, 267.0] (spread 227.6 ticks, 107.2%) -- averaging, widening whiskers to the union
+  note: 24.3216 MiB (random) has 5 overlapping summary rows with medians [39.0, 251.1, 250.4, 253.8, 266.9] (spread 227.9 ticks, 107.4%) -- averaging, widening whiskers to the union
+  note: 25.0343 MiB (random) has 5 overlapping summary rows with medians [39.1, 257.8, 256.4, 251.1, 277.0] (spread 237.8 ticks, 110.0%) -- averaging, widening whiskers to the union
+  note: 25.3984 MiB (random) has 5 overlapping summary rows with medians [39.2, 257.8, 254.6, 259.1, 275.3] (spread 236.1 ticks, 108.7%) -- averaging, widening whiskers to the union
+  note: 25.7678 MiB (random) has 2 overlapping summary rows with medians [39.4, 258.7] (spread 219.3 ticks, 147.2%) -- averaging, widening whiskers to the union
+  note: 26.1426 MiB (random) has 2 overlapping summary rows with medians [39.0, 258.8] (spread 219.8 ticks, 147.6%) -- averaging, widening whiskers to the union
+  note: 26.5229 MiB (random) has 5 overlapping summary rows with medians [39.1, 268.0, 261.5, 264.6, 287.2] (spread 248.1 ticks, 110.7%) -- averaging, widening whiskers to the union
+  note: 27.3001 MiB (random) has 5 overlapping summary rows with medians [39.4, 263.8, 266.3, 270.8, 284.5] (spread 245.0 ticks, 108.9%) -- averaging, widening whiskers to the union
+  note: 27.6972 MiB (random) has 5 overlapping summary rows with medians [39.7, 270.8, 265.2, 271.9, 283.2] (spread 243.5 ticks, 107.7%) -- averaging, widening whiskers to the union
+  note: 28.1 MiB (random) has 5 overlapping summary rows with medians [39.1, 271.4, 266.7, 270.2, 280.8] (spread 241.7 ticks, 107.1%) -- averaging, widening whiskers to the union
+  note: 28.5088 MiB (random) has 2 overlapping summary rows with medians [39.2, 271.3] (spread 232.1 ticks, 149.5%) -- averaging, widening whiskers to the union
+  note: 28.9234 MiB (random) has 5 overlapping summary rows with medians [39.7, 274.2, 271.7, 273.3, 286.4] (spread 246.8 ticks, 107.7%) -- averaging, widening whiskers to the union
+  note: 29.7709 MiB (random) has 4 overlapping summary rows with medians [41.6, 277.0, 276.9, 291.8] (spread 250.2 ticks, 112.8%) -- averaging, widening whiskers to the union
+  note: 30.204 MiB (random) has 5 overlapping summary rows with medians [39.4, 277.9, 274.4, 276.8, 296.7] (spread 257.3 ticks, 110.4%) -- averaging, widening whiskers to the union
+  note: 30.6433 MiB (random) has 5 overlapping summary rows with medians [40.3, 274.0, 281.0, 278.6, 291.7] (spread 251.4 ticks, 107.9%) -- averaging, widening whiskers to the union
+  note: 31.089 MiB (random) has 5 overlapping summary rows with medians [42.5, 279.2, 279.6, 280.0, 294.5] (spread 252.0 ticks, 107.1%) -- averaging, widening whiskers to the union
+  note: 31.5412 MiB (random) has 2 overlapping summary rows with medians [45.0, 286.5] (spread 241.5 ticks, 145.7%) -- averaging, widening whiskers to the union
+  note: 32.4654 MiB (random) has 5 overlapping summary rows with medians [45.1, 283.1, 283.2, 286.5, 295.5] (spread 250.4 ticks, 104.9%) -- averaging, widening whiskers to the union
+  note: 32.9377 MiB (random) has 5 overlapping summary rows with medians [50.5, 288.1, 285.1, 285.8, 297.6] (spread 247.1 ticks, 102.4%) -- averaging, widening whiskers to the union
+  note: 33.4168 MiB (random) has 5 overlapping summary rows with medians [55.7, 288.5, 288.1, 286.3, 295.8] (spread 240.2 ticks, 98.9%) -- averaging, widening whiskers to the union
+  note: 33.9028 MiB (random) has 5 overlapping summary rows with medians [60.7, 292.3, 287.4, 288.4, 300.5] (spread 239.8 ticks, 97.5%) -- averaging, widening whiskers to the union
+  note: 34.3959 MiB (random) has 5 overlapping summary rows with medians [75.2, 290.1, 288.2, 286.5, 302.6] (spread 227.4 ticks, 91.5%) -- averaging, widening whiskers to the union
+  note: 35.4038 MiB (random) has 2 overlapping summary rows with medians [75.6, 292.6] (spread 217.0 ticks, 117.9%) -- averaging, widening whiskers to the union
+  note: 35.9188 MiB (random) has 2 overlapping summary rows with medians [80.4, 293.5] (spread 213.1 ticks, 114.0%) -- averaging, widening whiskers to the union
+  note: 36.4412 MiB (random) has 5 overlapping summary rows with medians [84.7, 295.4, 292.9, 294.8, 305.0] (spread 220.2 ticks, 86.5%) -- averaging, widening whiskers to the union
+  note: 36.9713 MiB (random) has 5 overlapping summary rows with medians [89.1, 296.9, 294.8, 293.5, 304.1] (spread 215.0 ticks, 84.1%) -- averaging, widening whiskers to the union
+  note: 37.509 MiB (random) has 5 overlapping summary rows with medians [93.9, 294.6, 294.2, 295.5, 303.6] (spread 209.8 ticks, 81.8%) -- averaging, widening whiskers to the union
+  note: 38.6081 MiB (random) has 5 overlapping summary rows with medians [102.3, 296.0, 296.2, 297.3, 306.5] (spread 204.2 ticks, 78.6%) -- averaging, widening whiskers to the union
+  note: 39.1697 MiB (random) has 5 overlapping summary rows with medians [106.8, 300.3, 297.2, 298.5, 307.2] (spread 200.5 ticks, 76.5%) -- averaging, widening whiskers to the union
+  note: 39.7394 MiB (random) has 2 overlapping summary rows with medians [110.8, 301.5] (spread 190.7 ticks, 92.5%) -- averaging, widening whiskers to the union
+  note: 40.3175 MiB (random) has 4 overlapping summary rows with medians [114.4, 300.4, 300.4, 309.9] (spread 195.5 ticks, 76.3%) -- averaging, widening whiskers to the union
+  note: 40.9039 MiB (random) has 5 overlapping summary rows with medians [128.8, 302.5, 301.8, 301.7, 312.2] (spread 183.4 ticks, 68.1%) -- averaging, widening whiskers to the union
+  note: 42.1025 MiB (random) has 5 overlapping summary rows with medians [125.2, 304.8, 303.7, 303.1, 310.4] (spread 185.2 ticks, 68.7%) -- averaging, widening whiskers to the union
+  note: 42.7149 MiB (random) has 2 overlapping summary rows with medians [129.4, 304.8] (spread 175.4 ticks, 80.8%) -- averaging, widening whiskers to the union
+  note: 43.3362 MiB (random) has 5 overlapping summary rows with medians [132.6, 306.2, 303.5, 303.4, 314.8] (spread 182.3 ticks, 67.0%) -- averaging, widening whiskers to the union
+  note: 43.9665 MiB (random) has 2 overlapping summary rows with medians [136.1, 304.2] (spread 168.1 ticks, 76.4%) -- averaging, widening whiskers to the union
+  note: 44.606 MiB (random) has 5 overlapping summary rows with medians [140.8, 305.4, 307.3, 307.5, 314.8] (spread 174.0 ticks, 63.2%) -- averaging, widening whiskers to the union
+  note: 45.9131 MiB (random) has 5 overlapping summary rows with medians [146.6, 311.0, 310.1, 307.9, 316.4] (spread 169.9 ticks, 61.0%) -- averaging, widening whiskers to the union
+  note: 46.5809 MiB (random) has 2 overlapping summary rows with medians [149.9, 311.2] (spread 161.3 ticks, 70.0%) -- averaging, widening whiskers to the union
+  note: 47.2584 MiB (random) has 5 overlapping summary rows with medians [155.2, 309.9, 310.6, 314.5, 318.1] (spread 162.8 ticks, 57.8%) -- averaging, widening whiskers to the union
+  note: 47.9458 MiB (random) has 5 overlapping summary rows with medians [157.5, 309.3, 315.7, 311.3, 317.3] (spread 159.8 ticks, 56.6%) -- averaging, widening whiskers to the union
+  note: 48.6432 MiB (random) has 5 overlapping summary rows with medians [159.4, 311.8, 317.7, 311.4, 317.5] (spread 158.4 ticks, 55.8%) -- averaging, widening whiskers to the union
+  note: 50.0686 MiB (random) has 5 overlapping summary rows with medians [172.6, 312.4, 311.9, 313.1, 319.5] (spread 146.8 ticks, 51.4%) -- averaging, widening whiskers to the union
+  note: 50.7968 MiB (random) has 5 overlapping summary rows with medians [170.4, 312.0, 313.3, 313.9, 320.9] (spread 150.5 ticks, 52.6%) -- averaging, widening whiskers to the union
+  note: 51.5357 MiB (random) has 2 overlapping summary rows with medians [171.8, 317.0] (spread 145.2 ticks, 59.4%) -- averaging, widening whiskers to the union
+  note: 52.2853 MiB (random) has 2 overlapping summary rows with medians [175.6, 315.1] (spread 139.5 ticks, 56.9%) -- averaging, widening whiskers to the union
+  note: 53.0458 MiB (random) has 2 overlapping summary rows with medians [189.9, 324.1] (spread 134.3 ticks, 52.2%) -- averaging, widening whiskers to the union
+  note: 54.6002 MiB (random) has 5 overlapping summary rows with medians [183.2, 315.7, 316.1, 316.6, 323.0] (spread 139.8 ticks, 48.0%) -- averaging, widening whiskers to the union
+  note: 55.3943 MiB (random) has 4 overlapping summary rows with medians [186.2, 315.9, 319.1, 324.1] (spread 138.0 ticks, 48.2%) -- averaging, widening whiskers to the union
+  note: 56.2001 MiB (random) has 5 overlapping summary rows with medians [219.4, 317.8, 317.0, 319.0, 324.1] (spread 104.6 ticks, 34.9%) -- averaging, widening whiskers to the union
+  note: 57.0175 MiB (random) has 2 overlapping summary rows with medians [192.3, 317.7] (spread 125.4 ticks, 49.2%) -- averaging, widening whiskers to the union
+  note: 57.8469 MiB (random) has 2 overlapping summary rows with medians [194.4, 318.7] (spread 124.3 ticks, 48.4%) -- averaging, widening whiskers to the union
+  note: 59.5419 MiB (random) has 5 overlapping summary rows with medians [199.1, 320.0, 320.8, 321.4, 326.6] (spread 127.5 ticks, 42.8%) -- averaging, widening whiskers to the union
+  note: 60.408 MiB (random) has 5 overlapping summary rows with medians [202.6, 322.6, 321.2, 321.3, 329.7] (spread 127.2 ticks, 42.5%) -- averaging, widening whiskers to the union
+  note: 61.2866 MiB (random) has 5 overlapping summary rows with medians [204.3, 320.4, 321.0, 322.0, 329.2] (spread 124.9 ticks, 41.7%) -- averaging, widening whiskers to the union
+  note: 62.178 MiB (random) has 5 overlapping summary rows with medians [207.6, 321.8, 320.9, 321.8, 326.7] (spread 119.1 ticks, 39.7%) -- averaging, widening whiskers to the union
+  note: 63.0824 MiB (random) has 2 overlapping summary rows with medians [210.7, 323.6] (spread 112.9 ticks, 42.3%) -- averaging, widening whiskers to the union
+  note: 64.9309 MiB (random) has 2 overlapping summary rows with medians [238.4, 325.3] (spread 86.9 ticks, 30.8%) -- averaging, widening whiskers to the union
+  note: 65.8753 MiB (random) has 2 overlapping summary rows with medians [222.0, 324.2] (spread 102.2 ticks, 37.4%) -- averaging, widening whiskers to the union
+  note: 66.8335 MiB (random) has 2 overlapping summary rows with medians [219.4, 325.2] (spread 105.9 ticks, 38.9%) -- averaging, widening whiskers to the union
+  note: 67.8056 MiB (random) has 5 overlapping summary rows with medians [262.9, 324.4, 324.9, 325.2, 330.1] (spread 67.2 ticks, 21.4%) -- averaging, widening whiskers to the union
+  note: 68.7919 MiB (random) has 2 overlapping summary rows with medians [255.7, 325.1] (spread 69.4 ticks, 23.9%) -- averaging, widening whiskers to the union
+  note: 70.8076 MiB (random) has 2 overlapping summary rows with medians [263.5, 326.8] (spread 63.3 ticks, 21.4%) -- averaging, widening whiskers to the union
+  note: 73.9426 MiB (random) has 4 overlapping summary rows with medians [264.6, 329.2, 328.3, 330.8] (spread 66.3 ticks, 21.2%) -- averaging, widening whiskers to the union
+  note: 78.3394 MiB (random) has 2 overlapping summary rows with medians [250.9, 329.7] (spread 78.8 ticks, 27.2%) -- averaging, widening whiskers to the union
+  note: 79.4789 MiB (random) has 2 overlapping summary rows with medians [268.8, 329.6] (spread 60.8 ticks, 20.3%) -- averaging, widening whiskers to the union
+  note: 86.6723 MiB (random) has 5 overlapping summary rows with medians [270.9, 332.4, 332.5, 335.6, 335.6] (spread 64.7 ticks, 20.1%) -- averaging, widening whiskers to the union
+  note: 100.137 MiB (random) has 2 overlapping summary rows with medians [267.7, 335.2] (spread 67.5 ticks, 22.4%) -- averaging, widening whiskers to the union
+  note: 101.594 MiB (random) has 2 overlapping summary rows with medians [269.6, 335.1] (spread 65.5 ticks, 21.7%) -- averaging, widening whiskers to the union
+  note: 103.071 MiB (random) has 2 overlapping summary rows with medians [272.9, 337.7] (spread 64.8 ticks, 21.2%) -- averaging, widening whiskers to the union
+  note: 104.571 MiB (random) has 2 overlapping summary rows with medians [274.1, 335.7] (spread 61.6 ticks, 20.2%) -- averaging, widening whiskers to the union
+  note: 11.6452 MiB (random) has 3 overlapping summary rows with medians [46.2, 45.7, 65.5] (spread 19.8 ticks, 37.8%) -- averaging, widening whiskers to the union
+  note: 14.2544 MiB (random) has 3 overlapping summary rows with medians [132.0, 60.5, 158.3] (spread 97.7 ticks, 83.6%) -- averaging, widening whiskers to the union
+  note: 14.8855 MiB (random) has 3 overlapping summary rows with medians [164.7, 113.3, 163.0] (spread 51.5 ticks, 35.0%) -- averaging, widening whiskers to the union
+  note: 16 MiB (random) has 3 overlapping summary rows with medians [143.0, 155.0, 193.9] (spread 50.9 ticks, 31.0%) -- averaging, widening whiskers to the union
+  note: 17.7019 MiB (random) has 3 overlapping summary rows with medians [192.9, 182.8, 232.9] (spread 50.1 ticks, 24.7%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_turin/capacity/plots/capacity_curve.pdf and .png
+Wrote data_processed/hazel_turin/capacity/plots/capacity_boxplots.pdf and .png
+-- compressing raw CSVs --
+== done ==
+== plots: data_processed/hazel_turin/capacity/plots/capacity_curve.{png,pdf}, data_processed/hazel_turin/capacity/plots/capacity_boxplots.{png,pdf} ==
+== detected boundaries (bytes): 1143480 33554432 36591368 43514712 ==
+== record in data_raw/hazel_turin/README.md: core=160, seed=12345, samples=1000000, timestamp=20260915T010343Z ==
+== full transcript saved to: data_raw/hazel_turin/capacity/run_capacity_full_20260915T010343Z.log ==
+
+=== Done ===
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 837636
+    Job name          : hw1_capacity
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-14T21:03:21
+    Started           : 2026-09-14T21:03:42
+    Wait time         : 21 sec
+    Elapsed (wall)    : 01:33:39
+    Nodes             : 1 (n0405)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 5558.74 sec  (user 5530.17, sys 28.58)
+    CPU efficiency    : 98.9%
+    Memory in use     : 528.48 MB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 837636
+------------------------------------------------------------
