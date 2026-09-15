@@ -1,0 +1,505 @@
+== run_line_size: machine=hazel_cascadelake core=24 seed=12345 ==
+== timestamp=20260915T014348Z boundaries=32768,1048576,16777216 coarse_strides=8,16,32,64,128,256 ==
+
+############################################################
+## LEVEL boundary=32768B -- Method A window=[4096,131072] bytes
+############################################################
+-- [L32768 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_8_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_8_random_summary.csv
+-- [L32768 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_8_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_8_sequential_summary.csv
+-- [L32768 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_16_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_16_random_summary.csv
+-- [L32768 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_16_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_16_sequential_summary.csv
+-- [L32768 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_32_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_32_random_summary.csv
+-- [L32768 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_32_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_32_sequential_summary.csv
+-- [L32768 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_64_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_64_random_summary.csv
+-- [L32768 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_64_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_64_sequential_summary.csv
+-- [L32768 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_128_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_128_random_summary.csv
+-- [L32768 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_128_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_128_sequential_summary.csv
+-- [L32768 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_256_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_256_random_summary.csv
+-- [L32768 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/family_256_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/family_256_sequential_summary.csv
+-- [L32768 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_cascadelake/line_size/level_32768/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: None, 16B: 65536, 32B: 52000, 64B: 36736, 128B: 36736, 256B: 36608}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~36608 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_cascadelake/line_size/level_32768/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_cascadelake/line_size/level_32768/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L32768 A] no candidate given for this level -- inspect
+   data_processed/hazel_cascadelake/line_size/level_32768/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L32768 B] single-curve method, footprint_bytes=65536 (2.0x boundary) --
+-- [L32768 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/singlecurve_coarse_random_20260915T014348Z.csv
+  wrote 128002 lines -> data_raw/hazel_cascadelake/line_size/level_32768/singlecurve_coarse_sequential_20260915T014348Z.csv
+Wrote 128 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_cascadelake/line_size/level_32768/singlecurve_coarse_sequential_summary.csv
+-- [L32768 B] detected line-size estimate (bytes): none --
+-- [L32768 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L32768 B] generating single-curve plots --
+  note: flagged 4 isolated spike stride(s) as probable page-aliasing artifacts: [8, 256, 512, 1024]
+Wrote data_processed/hazel_cascadelake/line_size/level_32768/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_cascadelake/line_size/level_32768/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 32768 --
+
+############################################################
+## LEVEL boundary=1048576B -- Method A window=[131072,4194304] bytes
+############################################################
+-- [L1048576 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_8_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_8_random_summary.csv
+-- [L1048576 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_8_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_8_sequential_summary.csv
+-- [L1048576 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_16_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_16_random_summary.csv
+-- [L1048576 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_16_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_16_sequential_summary.csv
+-- [L1048576 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_32_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_32_random_summary.csv
+-- [L1048576 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_32_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_32_sequential_summary.csv
+-- [L1048576 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_64_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_64_random_summary.csv
+-- [L1048576 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_64_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_64_sequential_summary.csv
+-- [L1048576 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_128_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_128_random_summary.csv
+-- [L1048576 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_128_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_128_sequential_summary.csv
+-- [L1048576 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_256_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_256_random_summary.csv
+-- [L1048576 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/family_256_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/family_256_sequential_summary.csv
+-- [L1048576 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_cascadelake/line_size/level_1048576/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 2965816, 16B: 3736688, 32B: 3328992, 64B: 1482880, 128B: 1482880, 256B: 1482752}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~1482752 bytes) is 64B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_cascadelake/line_size/level_1048576/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_cascadelake/line_size/level_1048576/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L1048576 A] no candidate given for this level -- inspect
+   data_processed/hazel_cascadelake/line_size/level_1048576/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L1048576 B] single-curve method, footprint_bytes=2097152 (2.0x boundary) --
+-- [L1048576 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/singlecurve_coarse_random_20260915T014348Z.csv
+  wrote 128002 lines -> data_raw/hazel_cascadelake/line_size/level_1048576/singlecurve_coarse_sequential_20260915T014348Z.csv
+Wrote 128 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_cascadelake/line_size/level_1048576/singlecurve_coarse_sequential_summary.csv
+-- [L1048576 B] detected line-size estimate (bytes): none --
+-- [L1048576 B] no transition detected in the coarse sweep; skipping dense/repeat stages --
+-- [L1048576 B] generating single-curve plots --
+  note: flagged 5 isolated spike stride(s) as probable page-aliasing artifacts: [128, 216, 256, 512, 1024]
+Wrote data_processed/hazel_cascadelake/line_size/level_1048576/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_cascadelake/line_size/level_1048576/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 1048576 --
+
+############################################################
+## LEVEL boundary=16777216B -- Method A window=[2097152,67108864] bytes
+############################################################
+-- [L16777216 A coarse] stride=8B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_8_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_8_random_summary.csv
+-- [L16777216 A coarse] stride=8B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_8_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_8_sequential_summary.csv
+-- [L16777216 A coarse] stride=16B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_16_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_16_random_summary.csv
+-- [L16777216 A coarse] stride=16B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_16_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_16_sequential_summary.csv
+-- [L16777216 A coarse] stride=32B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_32_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_32_random_summary.csv
+-- [L16777216 A coarse] stride=32B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_32_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_32_sequential_summary.csv
+-- [L16777216 A coarse] stride=64B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_64_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_64_random_summary.csv
+-- [L16777216 A coarse] stride=64B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_64_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_64_sequential_summary.csv
+-- [L16777216 A coarse] stride=128B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_128_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_128_random_summary.csv
+-- [L16777216 A coarse] stride=128B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_128_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_128_sequential_summary.csv
+-- [L16777216 A coarse] stride=256B pattern=random offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_256_random_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_256_random_summary.csv
+-- [L16777216 A coarse] stride=256B pattern=sequential offset=0B --
+  wrote 31002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/family_256_sequential_20260915T014348Z.csv
+Wrote 31 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/family_256_sequential_summary.csv
+-- [L16777216 A steps 1-3] generating coarse family-of-curves plots --
+Wrote data_processed/hazel_cascadelake/line_size/level_16777216/plots/line_size_family_curve.pdf and .png
+-- per-stride elbow (bytes): {8B: 11863280, 16B: 7473392, 32B: 33554432, 64B: 3328960, 128B: 5284480, 256B: 7473152}
+-- line-size estimate: smallest candidate stride whose elbow agrees with largest tested stride (~7473152 bytes) is 16B -- see infer_line_size's docstring caveat on the fixed grid resolution before citing this as a clean line-size number on its own
+Wrote data_processed/hazel_cascadelake/line_size/level_16777216/plots/line_size_family_boxplots.pdf and .png
+   (the per-stride elbow / line-size-estimate lines just above are
+   plot_line_size_family.py's own diagnostic guess from ONE un-repeated coarse
+   sweep -- NOT auto-applied below; see data_processed/hazel_cascadelake/line_size/level_16777216/plots/line_size_family_curve.png
+   and decide the step-4 candidate yourself)
+== [L16777216 A] no candidate given for this level -- inspect
+   data_processed/hazel_cascadelake/line_size/level_16777216/plots/line_size_family_curve.png yourself and re-run with an
+   explicit candidate stride in candidate_overrides_csv for this level (no
+   auto-detection: it proved unreliable across runs/cores, see the script's
+   header comment). Skipping Method-A step 4.
+
+-- [L16777216 B] single-curve method, footprint_bytes=33554432 (2.0x boundary) --
+-- [L16777216 B coarse] stride 8-1024 bytes (step 8) --
+  wrote 128002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/singlecurve_coarse_random_20260915T014348Z.csv
+  wrote 128002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/singlecurve_coarse_sequential_20260915T014348Z.csv
+Wrote 128 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/singlecurve_coarse_random_summary.csv
+Wrote 128 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/singlecurve_coarse_sequential_summary.csv
+-- [L16777216 B] detected line-size estimate (bytes): 200 --
+-- [L16777216 B] dense sweep around estimate 200 bytes: 100-401 (step 1) --
+  wrote 302002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_random_20260915T014348Z.csv
+  wrote 302002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_sequential_20260915T014348Z.csv
+Wrote 302 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_random_summary.csv
+Wrote 302 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_sequential_summary.csv
+  -- [L16777216 B] repeat 1/2 of the dense window --
+  wrote 302002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_rep1_random_20260915T014348Z.csv
+  wrote 302002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_rep1_sequential_20260915T014348Z.csv
+Wrote 302 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_rep1_random_summary.csv
+Wrote 302 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_rep1_sequential_summary.csv
+  -- [L16777216 B] repeat 2/2 of the dense window --
+  wrote 302002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_rep2_random_20260915T014348Z.csv
+  wrote 302002 lines -> data_raw/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_rep2_sequential_20260915T014348Z.csv
+Wrote 302 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_rep2_random_summary.csv
+Wrote 302 summary rows to data_processed/hazel_cascadelake/line_size/level_16777216/singlecurve_dense_rep2_sequential_summary.csv
+-- [L16777216 B] generating single-curve plots --
+  note: 112B (random) has 4 overlapping summary rows with medians [256.2, 252.2, 148.6, 250.9] (spread 107.6 ticks, 47.4%) -- averaging, widening whiskers to the union
+  note: 120B (random) has 4 overlapping summary rows with medians [256.8, 250.0, 90.3, 249.8] (spread 166.5 ticks, 78.7%) -- averaging, widening whiskers to the union
+  note: 128B (random) has 4 overlapping summary rows with medians [253.7, 249.7, 197.6, 249.9] (spread 56.2 ticks, 23.6%) -- averaging, widening whiskers to the union
+  note: 376B (random) has 4 overlapping summary rows with medians [256.3, 252.8, 258.5, 71.2] (spread 187.3 ticks, 89.3%) -- averaging, widening whiskers to the union
+  note: 384B (random) has 4 overlapping summary rows with medians [254.0, 243.3, 255.5, 113.5] (spread 142.0 ticks, 65.6%) -- averaging, widening whiskers to the union
+  note: 392B (random) has 4 overlapping summary rows with medians [255.8, 248.4, 257.7, 66.4] (spread 191.3 ticks, 92.4%) -- averaging, widening whiskers to the union
+  note: 400B (random) has 4 overlapping summary rows with medians [256.0, 247.5, 253.9, 65.5] (spread 190.5 ticks, 92.6%) -- averaging, widening whiskers to the union
+  note: 113B (random) has 3 overlapping summary rows with medians [257.1, 149.0, 256.5] (spread 108.1 ticks, 48.9%) -- averaging, widening whiskers to the union
+  note: 114B (random) has 3 overlapping summary rows with medians [255.0, 117.2, 256.8] (spread 139.6 ticks, 66.6%) -- averaging, widening whiskers to the union
+  note: 115B (random) has 3 overlapping summary rows with medians [257.1, 119.1, 258.4] (spread 139.3 ticks, 65.8%) -- averaging, widening whiskers to the union
+  note: 116B (random) has 3 overlapping summary rows with medians [253.3, 99.4, 254.5] (spread 155.2 ticks, 76.7%) -- averaging, widening whiskers to the union
+  note: 117B (random) has 3 overlapping summary rows with medians [256.9, 113.7, 257.9] (spread 144.1 ticks, 68.8%) -- averaging, widening whiskers to the union
+  note: 118B (random) has 3 overlapping summary rows with medians [254.5, 91.2, 254.9] (spread 163.8 ticks, 81.8%) -- averaging, widening whiskers to the union
+  note: 119B (random) has 3 overlapping summary rows with medians [255.6, 98.1, 255.1] (spread 157.5 ticks, 77.6%) -- averaging, widening whiskers to the union
+  note: 123B (random) has 3 overlapping summary rows with medians [257.2, 189.8, 259.7] (spread 69.9 ticks, 29.7%) -- averaging, widening whiskers to the union
+  note: 124B (random) has 3 overlapping summary rows with medians [254.0, 86.0, 253.3] (spread 168.0 ticks, 85.0%) -- averaging, widening whiskers to the union
+  note: 125B (random) has 3 overlapping summary rows with medians [257.2, 153.4, 257.4] (spread 104.0 ticks, 46.7%) -- averaging, widening whiskers to the union
+  note: 126B (random) has 3 overlapping summary rows with medians [257.5, 103.0, 254.2] (spread 154.5 ticks, 75.4%) -- averaging, widening whiskers to the union
+  note: 127B (random) has 3 overlapping summary rows with medians [256.3, 189.6, 255.2] (spread 66.7 ticks, 28.5%) -- averaging, widening whiskers to the union
+  note: 129B (random) has 3 overlapping summary rows with medians [256.5, 198.6, 261.4] (spread 62.8 ticks, 26.3%) -- averaging, widening whiskers to the union
+  note: 131B (random) has 3 overlapping summary rows with medians [256.5, 69.1, 257.5] (spread 188.4 ticks, 97.0%) -- averaging, widening whiskers to the union
+  note: 133B (random) has 3 overlapping summary rows with medians [254.0, 128.2, 256.1] (spread 127.9 ticks, 60.1%) -- averaging, widening whiskers to the union
+  note: 372B (random) has 3 overlapping summary rows with medians [246.5, 263.0, 191.5] (spread 71.5 ticks, 30.6%) -- averaging, widening whiskers to the union
+  note: 374B (random) has 3 overlapping summary rows with medians [253.7, 262.6, 190.3] (spread 72.3 ticks, 30.7%) -- averaging, widening whiskers to the union
+  note: 375B (random) has 3 overlapping summary rows with medians [252.8, 265.0, 109.5] (spread 155.5 ticks, 74.4%) -- averaging, widening whiskers to the union
+  note: 377B (random) has 3 overlapping summary rows with medians [255.2, 263.2, 98.4] (spread 164.9 ticks, 80.2%) -- averaging, widening whiskers to the union
+  note: 378B (random) has 3 overlapping summary rows with medians [256.4, 260.7, 74.1] (spread 186.6 ticks, 94.7%) -- averaging, widening whiskers to the union
+  note: 379B (random) has 3 overlapping summary rows with medians [254.8, 262.0, 81.6] (spread 180.4 ticks, 90.5%) -- averaging, widening whiskers to the union
+  note: 380B (random) has 3 overlapping summary rows with medians [250.8, 258.2, 67.6] (spread 190.6 ticks, 99.2%) -- averaging, widening whiskers to the union
+  note: 381B (random) has 3 overlapping summary rows with medians [250.5, 266.0, 76.5] (spread 189.5 ticks, 95.9%) -- averaging, widening whiskers to the union
+  note: 382B (random) has 3 overlapping summary rows with medians [245.6, 263.5, 72.6] (spread 190.9 ticks, 98.4%) -- averaging, widening whiskers to the union
+  note: 383B (random) has 3 overlapping summary rows with medians [245.7, 264.3, 70.4] (spread 193.9 ticks, 100.2%) -- averaging, widening whiskers to the union
+  note: 385B (random) has 3 overlapping summary rows with medians [247.8, 263.1, 69.6] (spread 193.4 ticks, 100.0%) -- averaging, widening whiskers to the union
+  note: 386B (random) has 3 overlapping summary rows with medians [247.9, 262.9, 67.8] (spread 195.1 ticks, 101.2%) -- averaging, widening whiskers to the union
+  note: 387B (random) has 3 overlapping summary rows with medians [251.8, 264.3, 70.5] (spread 193.8 ticks, 99.1%) -- averaging, widening whiskers to the union
+  note: 388B (random) has 3 overlapping summary rows with medians [246.0, 262.1, 67.9] (spread 194.2 ticks, 101.2%) -- averaging, widening whiskers to the union
+  note: 389B (random) has 3 overlapping summary rows with medians [256.3, 263.5, 70.2] (spread 193.2 ticks, 98.3%) -- averaging, widening whiskers to the union
+  note: 390B (random) has 3 overlapping summary rows with medians [233.5, 262.9, 68.1] (spread 194.8 ticks, 103.6%) -- averaging, widening whiskers to the union
+  note: 391B (random) has 3 overlapping summary rows with medians [246.3, 263.9, 67.8] (spread 196.1 ticks, 101.8%) -- averaging, widening whiskers to the union
+  note: 393B (random) has 3 overlapping summary rows with medians [248.2, 264.6, 67.9] (spread 196.8 ticks, 101.7%) -- averaging, widening whiskers to the union
+  note: 394B (random) has 3 overlapping summary rows with medians [249.2, 263.2, 67.9] (spread 195.3 ticks, 101.0%) -- averaging, widening whiskers to the union
+  note: 395B (random) has 3 overlapping summary rows with medians [249.1, 264.9, 70.2] (spread 194.7 ticks, 100.0%) -- averaging, widening whiskers to the union
+  note: 396B (random) has 3 overlapping summary rows with medians [250.0, 262.0, 67.7] (spread 194.3 ticks, 100.5%) -- averaging, widening whiskers to the union
+  note: 397B (random) has 3 overlapping summary rows with medians [255.6, 262.6, 67.3] (spread 195.2 ticks, 100.0%) -- averaging, widening whiskers to the union
+  note: 398B (random) has 3 overlapping summary rows with medians [254.0, 260.8, 67.0] (spread 193.8 ticks, 99.9%) -- averaging, widening whiskers to the union
+  note: 399B (random) has 3 overlapping summary rows with medians [254.6, 260.9, 67.3] (spread 193.6 ticks, 99.6%) -- averaging, widening whiskers to the union
+  note: 401B (random) has 3 overlapping summary rows with medians [255.6, 258.0, 67.3] (spread 190.7 ticks, 98.5%) -- averaging, widening whiskers to the union
+  note: 104B (sequential) has 4 overlapping summary rows with medians [47.6, 43.6, 48.2, 39.2] (spread 8.9 ticks, 20.0%) -- averaging, widening whiskers to the union
+  note: 120B (sequential) has 4 overlapping summary rows with medians [63.3, 58.9, 63.3, 50.6] (spread 12.6 ticks, 21.4%) -- averaging, widening whiskers to the union
+  note: 136B (sequential) has 4 overlapping summary rows with medians [94.1, 91.2, 94.3, 66.6] (spread 27.6 ticks, 31.9%) -- averaging, widening whiskers to the union
+  note: 144B (sequential) has 4 overlapping summary rows with medians [103.6, 100.6, 102.0, 83.3] (spread 20.4 ticks, 20.9%) -- averaging, widening whiskers to the union
+  note: 160B (sequential) has 4 overlapping summary rows with medians [126.5, 118.4, 129.6, 82.3] (spread 47.3 ticks, 41.4%) -- averaging, widening whiskers to the union
+  note: 168B (sequential) has 4 overlapping summary rows with medians [121.2, 116.4, 119.6, 87.7] (spread 33.5 ticks, 30.1%) -- averaging, widening whiskers to the union
+  note: 176B (sequential) has 4 overlapping summary rows with medians [131.6, 124.6, 128.8, 95.8] (spread 35.7 ticks, 29.7%) -- averaging, widening whiskers to the union
+  note: 200B (sequential) has 4 overlapping summary rows with medians [139.2, 136.6, 135.2, 111.2] (spread 28.0 ticks, 21.5%) -- averaging, widening whiskers to the union
+  note: 208B (sequential) has 4 overlapping summary rows with medians [143.4, 140.7, 105.2, 87.9] (spread 55.5 ticks, 46.5%) -- averaging, widening whiskers to the union
+  note: 216B (sequential) has 4 overlapping summary rows with medians [146.6, 136.8, 136.7, 104.5] (spread 42.1 ticks, 32.1%) -- averaging, widening whiskers to the union
+  note: 248B (sequential) has 4 overlapping summary rows with medians [147.6, 143.9, 142.5, 98.4] (spread 49.2 ticks, 37.0%) -- averaging, widening whiskers to the union
+  note: 256B (sequential) has 4 overlapping summary rows with medians [157.3, 148.5, 149.2, 90.9] (spread 66.4 ticks, 48.6%) -- averaging, widening whiskers to the union
+  note: 264B (sequential) has 4 overlapping summary rows with medians [156.0, 145.9, 142.5, 60.3] (spread 95.7 ticks, 75.9%) -- averaging, widening whiskers to the union
+  note: 272B (sequential) has 4 overlapping summary rows with medians [153.1, 146.6, 143.6, 62.2] (spread 90.9 ticks, 71.9%) -- averaging, widening whiskers to the union
+  note: 280B (sequential) has 4 overlapping summary rows with medians [153.1, 146.3, 145.0, 59.1] (spread 94.0 ticks, 74.7%) -- averaging, widening whiskers to the union
+  note: 288B (sequential) has 4 overlapping summary rows with medians [157.0, 147.0, 145.9, 52.5] (spread 104.5 ticks, 83.2%) -- averaging, widening whiskers to the union
+  note: 296B (sequential) has 4 overlapping summary rows with medians [156.6, 145.2, 144.7, 96.6] (spread 60.0 ticks, 44.2%) -- averaging, widening whiskers to the union
+  note: 304B (sequential) has 4 overlapping summary rows with medians [156.4, 144.7, 148.3, 47.4] (spread 109.0 ticks, 87.8%) -- averaging, widening whiskers to the union
+  note: 320B (sequential) has 4 overlapping summary rows with medians [158.1, 117.5, 148.9, 157.4] (spread 40.5 ticks, 27.9%) -- averaging, widening whiskers to the union
+  note: 328B (sequential) has 4 overlapping summary rows with medians [158.2, 83.3, 144.5, 153.0] (spread 74.9 ticks, 55.6%) -- averaging, widening whiskers to the union
+  note: 336B (sequential) has 4 overlapping summary rows with medians [159.0, 54.8, 142.8, 152.6] (spread 104.2 ticks, 81.8%) -- averaging, widening whiskers to the union
+  note: 344B (sequential) has 4 overlapping summary rows with medians [158.2, 46.5, 86.8, 146.5] (spread 111.7 ticks, 102.0%) -- averaging, widening whiskers to the union
+  note: 352B (sequential) has 4 overlapping summary rows with medians [156.8, 45.3, 121.5, 149.8] (spread 111.5 ticks, 94.2%) -- averaging, widening whiskers to the union
+  note: 360B (sequential) has 4 overlapping summary rows with medians [158.0, 41.2, 113.0, 154.3] (spread 116.8 ticks, 100.2%) -- averaging, widening whiskers to the union
+  note: 368B (sequential) has 4 overlapping summary rows with medians [155.9, 41.7, 122.3, 144.0] (spread 114.2 ticks, 98.5%) -- averaging, widening whiskers to the union
+  note: 376B (sequential) has 4 overlapping summary rows with medians [155.6, 41.6, 107.1, 147.2] (spread 114.0 ticks, 101.0%) -- averaging, widening whiskers to the union
+  note: 384B (sequential) has 4 overlapping summary rows with medians [153.7, 42.3, 120.3, 130.5] (spread 111.4 ticks, 99.7%) -- averaging, widening whiskers to the union
+  note: 392B (sequential) has 4 overlapping summary rows with medians [155.6, 40.8, 58.6, 141.8] (spread 114.9 ticks, 115.8%) -- averaging, widening whiskers to the union
+  note: 400B (sequential) has 4 overlapping summary rows with medians [149.6, 40.6, 59.5, 146.1] (spread 109.0 ticks, 110.1%) -- averaging, widening whiskers to the union
+  note: 102B (sequential) has 3 overlapping summary rows with medians [41.9, 44.9, 36.6] (spread 8.2 ticks, 20.0%) -- averaging, widening whiskers to the union
+  note: 105B (sequential) has 3 overlapping summary rows with medians [43.0, 46.3, 37.3] (spread 9.0 ticks, 21.3%) -- averaging, widening whiskers to the union
+  note: 108B (sequential) has 3 overlapping summary rows with medians [45.9, 49.5, 40.2] (spread 9.3 ticks, 20.5%) -- averaging, widening whiskers to the union
+  note: 113B (sequential) has 3 overlapping summary rows with medians [48.7, 53.2, 42.9] (spread 10.2 ticks, 21.2%) -- averaging, widening whiskers to the union
+  note: 117B (sequential) has 3 overlapping summary rows with medians [51.8, 55.9, 44.3] (spread 11.5 ticks, 22.7%) -- averaging, widening whiskers to the union
+  note: 118B (sequential) has 3 overlapping summary rows with medians [52.3, 55.4, 44.3] (spread 11.1 ticks, 21.9%) -- averaging, widening whiskers to the union
+  note: 119B (sequential) has 3 overlapping summary rows with medians [52.7, 55.8, 44.9] (spread 10.9 ticks, 21.4%) -- averaging, widening whiskers to the union
+  note: 121B (sequential) has 3 overlapping summary rows with medians [53.9, 57.2, 45.3] (spread 11.9 ticks, 22.8%) -- averaging, widening whiskers to the union
+  note: 122B (sequential) has 3 overlapping summary rows with medians [54.9, 58.8, 46.2] (spread 12.6 ticks, 23.6%) -- averaging, widening whiskers to the union
+  note: 123B (sequential) has 3 overlapping summary rows with medians [55.0, 59.4, 46.4] (spread 13.0 ticks, 24.2%) -- averaging, widening whiskers to the union
+  note: 124B (sequential) has 3 overlapping summary rows with medians [58.8, 63.0, 49.3] (spread 13.7 ticks, 24.1%) -- averaging, widening whiskers to the union
+  note: 125B (sequential) has 3 overlapping summary rows with medians [58.0, 61.5, 48.9] (spread 12.6 ticks, 22.5%) -- averaging, widening whiskers to the union
+  note: 126B (sequential) has 3 overlapping summary rows with medians [61.6, 64.9, 50.6] (spread 14.4 ticks, 24.3%) -- averaging, widening whiskers to the union
+  note: 127B (sequential) has 3 overlapping summary rows with medians [66.2, 69.6, 55.0] (spread 14.7 ticks, 23.1%) -- averaging, widening whiskers to the union
+  note: 129B (sequential) has 3 overlapping summary rows with medians [67.5, 70.6, 56.2] (spread 14.4 ticks, 22.2%) -- averaging, widening whiskers to the union
+  note: 130B (sequential) has 3 overlapping summary rows with medians [65.3, 69.5, 54.7] (spread 14.8 ticks, 23.4%) -- averaging, widening whiskers to the union
+  note: 133B (sequential) has 3 overlapping summary rows with medians [65.8, 71.3, 49.4] (spread 21.9 ticks, 35.2%) -- averaging, widening whiskers to the union
+  note: 134B (sequential) has 3 overlapping summary rows with medians [69.0, 72.3, 53.3] (spread 19.0 ticks, 29.3%) -- averaging, widening whiskers to the union
+  note: 135B (sequential) has 3 overlapping summary rows with medians [69.2, 72.5, 53.3] (spread 19.2 ticks, 29.5%) -- averaging, widening whiskers to the union
+  note: 137B (sequential) has 3 overlapping summary rows with medians [72.6, 77.1, 56.3] (spread 20.9 ticks, 30.4%) -- averaging, widening whiskers to the union
+  note: 138B (sequential) has 3 overlapping summary rows with medians [77.2, 80.6, 57.7] (spread 22.9 ticks, 31.9%) -- averaging, widening whiskers to the union
+  note: 139B (sequential) has 3 overlapping summary rows with medians [76.4, 80.7, 59.4] (spread 21.2 ticks, 29.4%) -- averaging, widening whiskers to the union
+  note: 141B (sequential) has 3 overlapping summary rows with medians [81.6, 84.7, 68.5] (spread 16.2 ticks, 20.7%) -- averaging, widening whiskers to the union
+  note: 142B (sequential) has 3 overlapping summary rows with medians [84.6, 88.7, 71.9] (spread 16.8 ticks, 20.6%) -- averaging, widening whiskers to the union
+  note: 143B (sequential) has 3 overlapping summary rows with medians [83.6, 88.7, 70.2] (spread 18.5 ticks, 22.9%) -- averaging, widening whiskers to the union
+  note: 145B (sequential) has 3 overlapping summary rows with medians [88.2, 90.9, 73.4] (spread 17.5 ticks, 20.8%) -- averaging, widening whiskers to the union
+  note: 146B (sequential) has 3 overlapping summary rows with medians [93.1, 97.1, 76.2] (spread 21.0 ticks, 23.6%) -- averaging, widening whiskers to the union
+  note: 147B (sequential) has 3 overlapping summary rows with medians [92.0, 96.7, 75.7] (spread 21.0 ticks, 23.8%) -- averaging, widening whiskers to the union
+  note: 148B (sequential) has 3 overlapping summary rows with medians [100.1, 101.6, 81.5] (spread 20.2 ticks, 21.3%) -- averaging, widening whiskers to the union
+  note: 149B (sequential) has 3 overlapping summary rows with medians [91.8, 93.7, 76.0] (spread 17.7 ticks, 20.3%) -- averaging, widening whiskers to the union
+  note: 153B (sequential) has 3 overlapping summary rows with medians [103.0, 107.6, 82.9] (spread 24.7 ticks, 25.3%) -- averaging, widening whiskers to the union
+  note: 154B (sequential) has 3 overlapping summary rows with medians [105.4, 110.2, 87.6] (spread 22.5 ticks, 22.3%) -- averaging, widening whiskers to the union
+  note: 155B (sequential) has 3 overlapping summary rows with medians [106.2, 108.2, 83.1] (spread 25.0 ticks, 25.2%) -- averaging, widening whiskers to the union
+  note: 156B (sequential) has 3 overlapping summary rows with medians [109.6, 112.3, 84.4] (spread 27.9 ticks, 27.4%) -- averaging, widening whiskers to the union
+  note: 157B (sequential) has 3 overlapping summary rows with medians [106.9, 114.1, 82.1] (spread 32.1 ticks, 31.7%) -- averaging, widening whiskers to the union
+  note: 158B (sequential) has 3 overlapping summary rows with medians [108.9, 115.4, 78.7] (spread 36.8 ticks, 36.4%) -- averaging, widening whiskers to the union
+  note: 159B (sequential) has 3 overlapping summary rows with medians [106.8, 112.0, 76.6] (spread 35.4 ticks, 36.0%) -- averaging, widening whiskers to the union
+  note: 161B (sequential) has 3 overlapping summary rows with medians [109.8, 116.3, 80.0] (spread 36.3 ticks, 35.6%) -- averaging, widening whiskers to the union
+  note: 162B (sequential) has 3 overlapping summary rows with medians [112.9, 118.7, 85.7] (spread 33.0 ticks, 31.2%) -- averaging, widening whiskers to the union
+  note: 163B (sequential) has 3 overlapping summary rows with medians [113.3, 120.4, 85.2] (spread 35.2 ticks, 33.1%) -- averaging, widening whiskers to the union
+  note: 164B (sequential) has 3 overlapping summary rows with medians [115.4, 124.1, 85.6] (spread 38.6 ticks, 35.6%) -- averaging, widening whiskers to the union
+  note: 165B (sequential) has 3 overlapping summary rows with medians [114.6, 122.6, 93.1] (spread 29.4 ticks, 26.7%) -- averaging, widening whiskers to the union
+  note: 166B (sequential) has 3 overlapping summary rows with medians [115.1, 122.5, 92.3] (spread 30.2 ticks, 27.5%) -- averaging, widening whiskers to the union
+  note: 167B (sequential) has 3 overlapping summary rows with medians [116.3, 122.2, 90.2] (spread 32.0 ticks, 29.2%) -- averaging, widening whiskers to the union
+  note: 169B (sequential) has 3 overlapping summary rows with medians [114.8, 120.9, 94.7] (spread 26.3 ticks, 23.9%) -- averaging, widening whiskers to the union
+  note: 170B (sequential) has 3 overlapping summary rows with medians [114.8, 119.4, 96.5] (spread 22.9 ticks, 20.8%) -- averaging, widening whiskers to the union
+  note: 171B (sequential) has 3 overlapping summary rows with medians [113.3, 116.9, 88.9] (spread 28.0 ticks, 26.3%) -- averaging, widening whiskers to the union
+  note: 173B (sequential) has 3 overlapping summary rows with medians [118.9, 120.9, 97.2] (spread 23.6 ticks, 21.0%) -- averaging, widening whiskers to the union
+  note: 174B (sequential) has 3 overlapping summary rows with medians [120.5, 124.3, 97.0] (spread 27.3 ticks, 24.0%) -- averaging, widening whiskers to the union
+  note: 175B (sequential) has 3 overlapping summary rows with medians [121.1, 122.8, 98.1] (spread 24.7 ticks, 21.7%) -- averaging, widening whiskers to the union
+  note: 177B (sequential) has 3 overlapping summary rows with medians [123.5, 122.2, 100.1] (spread 23.5 ticks, 20.4%) -- averaging, widening whiskers to the union
+  note: 198B (sequential) has 3 overlapping summary rows with medians [136.7, 146.4, 119.3] (spread 27.1 ticks, 20.2%) -- averaging, widening whiskers to the union
+  note: 202B (sequential) has 3 overlapping summary rows with medians [136.3, 139.6, 111.9] (spread 27.7 ticks, 21.4%) -- averaging, widening whiskers to the union
+  note: 204B (sequential) has 3 overlapping summary rows with medians [135.2, 92.5, 119.0] (spread 42.7 ticks, 37.0%) -- averaging, widening whiskers to the union
+  note: 205B (sequential) has 3 overlapping summary rows with medians [134.9, 100.4, 118.9] (spread 34.6 ticks, 29.3%) -- averaging, widening whiskers to the union
+  note: 206B (sequential) has 3 overlapping summary rows with medians [136.9, 97.4, 101.0] (spread 39.5 ticks, 35.4%) -- averaging, widening whiskers to the union
+  note: 207B (sequential) has 3 overlapping summary rows with medians [136.4, 102.3, 100.5] (spread 35.9 ticks, 31.7%) -- averaging, widening whiskers to the union
+  note: 209B (sequential) has 3 overlapping summary rows with medians [135.9, 112.2, 94.1] (spread 41.8 ticks, 36.7%) -- averaging, widening whiskers to the union
+  note: 210B (sequential) has 3 overlapping summary rows with medians [138.6, 95.0, 89.3] (spread 49.4 ticks, 45.9%) -- averaging, widening whiskers to the union
+  note: 211B (sequential) has 3 overlapping summary rows with medians [137.5, 94.2, 91.5] (spread 46.0 ticks, 42.7%) -- averaging, widening whiskers to the union
+  note: 212B (sequential) has 3 overlapping summary rows with medians [139.9, 94.9, 99.9] (spread 45.0 ticks, 40.3%) -- averaging, widening whiskers to the union
+  note: 213B (sequential) has 3 overlapping summary rows with medians [138.9, 96.5, 100.0] (spread 42.4 ticks, 38.0%) -- averaging, widening whiskers to the union
+  note: 214B (sequential) has 3 overlapping summary rows with medians [139.6, 162.5, 100.3] (spread 62.2 ticks, 46.4%) -- averaging, widening whiskers to the union
+  note: 215B (sequential) has 3 overlapping summary rows with medians [138.7, 140.9, 111.2] (spread 29.7 ticks, 22.8%) -- averaging, widening whiskers to the union
+  note: 217B (sequential) has 3 overlapping summary rows with medians [140.1, 139.2, 112.3] (spread 27.8 ticks, 21.3%) -- averaging, widening whiskers to the union
+  note: 218B (sequential) has 3 overlapping summary rows with medians [138.4, 138.9, 109.3] (spread 29.5 ticks, 22.9%) -- averaging, widening whiskers to the union
+  note: 219B (sequential) has 3 overlapping summary rows with medians [139.1, 138.8, 105.3] (spread 33.9 ticks, 26.5%) -- averaging, widening whiskers to the union
+  note: 220B (sequential) has 3 overlapping summary rows with medians [140.4, 138.9, 99.0] (spread 41.5 ticks, 32.9%) -- averaging, widening whiskers to the union
+  note: 221B (sequential) has 3 overlapping summary rows with medians [138.2, 139.0, 102.8] (spread 36.3 ticks, 28.6%) -- averaging, widening whiskers to the union
+  note: 222B (sequential) has 3 overlapping summary rows with medians [138.7, 140.9, 105.6] (spread 35.3 ticks, 27.5%) -- averaging, widening whiskers to the union
+  note: 246B (sequential) has 3 overlapping summary rows with medians [146.6, 143.5, 103.6] (spread 42.9 ticks, 32.7%) -- averaging, widening whiskers to the union
+  note: 247B (sequential) has 3 overlapping summary rows with medians [146.1, 143.6, 104.8] (spread 41.3 ticks, 31.4%) -- averaging, widening whiskers to the union
+  note: 249B (sequential) has 3 overlapping summary rows with medians [145.1, 143.7, 111.5] (spread 33.5 ticks, 25.1%) -- averaging, widening whiskers to the union
+  note: 250B (sequential) has 3 overlapping summary rows with medians [146.9, 144.5, 89.5] (spread 57.4 ticks, 45.2%) -- averaging, widening whiskers to the union
+  note: 252B (sequential) has 3 overlapping summary rows with medians [145.0, 144.2, 64.5] (spread 80.5 ticks, 68.3%) -- averaging, widening whiskers to the union
+  note: 253B (sequential) has 3 overlapping summary rows with medians [145.0, 144.5, 68.6] (spread 76.4 ticks, 64.0%) -- averaging, widening whiskers to the union
+  note: 254B (sequential) has 3 overlapping summary rows with medians [145.6, 145.3, 65.6] (spread 80.1 ticks, 67.4%) -- averaging, widening whiskers to the union
+  note: 255B (sequential) has 3 overlapping summary rows with medians [145.6, 146.2, 68.7] (spread 77.6 ticks, 64.6%) -- averaging, widening whiskers to the union
+  note: 257B (sequential) has 3 overlapping summary rows with medians [146.0, 147.8, 67.4] (spread 80.3 ticks, 66.7%) -- averaging, widening whiskers to the union
+  note: 258B (sequential) has 3 overlapping summary rows with medians [146.5, 148.4, 63.5] (spread 84.9 ticks, 71.1%) -- averaging, widening whiskers to the union
+  note: 259B (sequential) has 3 overlapping summary rows with medians [148.3, 148.0, 65.6] (spread 82.8 ticks, 68.6%) -- averaging, widening whiskers to the union
+  note: 260B (sequential) has 3 overlapping summary rows with medians [147.7, 144.8, 67.6] (spread 80.1 ticks, 66.7%) -- averaging, widening whiskers to the union
+  note: 261B (sequential) has 3 overlapping summary rows with medians [145.9, 146.3, 66.0] (spread 80.3 ticks, 67.3%) -- averaging, widening whiskers to the union
+  note: 262B (sequential) has 3 overlapping summary rows with medians [145.2, 144.9, 63.0] (spread 82.2 ticks, 69.9%) -- averaging, widening whiskers to the union
+  note: 263B (sequential) has 3 overlapping summary rows with medians [147.1, 145.1, 65.3] (spread 81.7 ticks, 68.6%) -- averaging, widening whiskers to the union
+  note: 265B (sequential) has 3 overlapping summary rows with medians [145.7, 145.8, 110.8] (spread 34.9 ticks, 26.1%) -- averaging, widening whiskers to the union
+  note: 267B (sequential) has 3 overlapping summary rows with medians [145.2, 147.1, 86.1] (spread 61.0 ticks, 48.4%) -- averaging, widening whiskers to the union
+  note: 268B (sequential) has 3 overlapping summary rows with medians [146.3, 145.2, 116.5] (spread 29.9 ticks, 22.0%) -- averaging, widening whiskers to the union
+  note: 269B (sequential) has 3 overlapping summary rows with medians [147.5, 146.4, 87.3] (spread 60.2 ticks, 47.4%) -- averaging, widening whiskers to the union
+  note: 270B (sequential) has 3 overlapping summary rows with medians [147.2, 145.6, 86.8] (spread 60.3 ticks, 47.7%) -- averaging, widening whiskers to the union
+  note: 271B (sequential) has 3 overlapping summary rows with medians [148.3, 146.6, 86.1] (spread 62.2 ticks, 49.0%) -- averaging, widening whiskers to the union
+  note: 273B (sequential) has 3 overlapping summary rows with medians [148.0, 146.0, 66.0] (spread 82.0 ticks, 68.3%) -- averaging, widening whiskers to the union
+  note: 274B (sequential) has 3 overlapping summary rows with medians [147.1, 148.0, 63.6] (spread 84.4 ticks, 70.6%) -- averaging, widening whiskers to the union
+  note: 275B (sequential) has 3 overlapping summary rows with medians [147.8, 149.2, 74.0] (spread 75.2 ticks, 60.8%) -- averaging, widening whiskers to the union
+  note: 276B (sequential) has 3 overlapping summary rows with medians [147.5, 146.4, 84.9] (spread 62.6 ticks, 49.5%) -- averaging, widening whiskers to the union
+  note: 277B (sequential) has 3 overlapping summary rows with medians [148.3, 146.8, 86.0] (spread 62.3 ticks, 49.1%) -- averaging, widening whiskers to the union
+  note: 278B (sequential) has 3 overlapping summary rows with medians [147.7, 146.7, 83.1] (spread 64.6 ticks, 51.3%) -- averaging, widening whiskers to the union
+  note: 279B (sequential) has 3 overlapping summary rows with medians [148.0, 148.7, 68.3] (spread 80.4 ticks, 66.0%) -- averaging, widening whiskers to the union
+  note: 281B (sequential) has 3 overlapping summary rows with medians [148.5, 146.9, 62.5] (spread 86.0 ticks, 72.1%) -- averaging, widening whiskers to the union
+  note: 282B (sequential) has 3 overlapping summary rows with medians [147.6, 145.8, 60.6] (spread 87.0 ticks, 73.7%) -- averaging, widening whiskers to the union
+  note: 283B (sequential) has 3 overlapping summary rows with medians [148.5, 147.9, 103.8] (spread 44.7 ticks, 33.5%) -- averaging, widening whiskers to the union
+  note: 284B (sequential) has 3 overlapping summary rows with medians [148.1, 147.5, 50.1] (spread 98.0 ticks, 85.1%) -- averaging, widening whiskers to the union
+  note: 285B (sequential) has 3 overlapping summary rows with medians [149.4, 148.0, 105.9] (spread 43.4 ticks, 32.3%) -- averaging, widening whiskers to the union
+  note: 286B (sequential) has 3 overlapping summary rows with medians [148.7, 148.3, 78.2] (spread 70.5 ticks, 56.4%) -- averaging, widening whiskers to the union
+  note: 287B (sequential) has 3 overlapping summary rows with medians [149.6, 148.6, 69.1] (spread 80.5 ticks, 65.7%) -- averaging, widening whiskers to the union
+  note: 289B (sequential) has 3 overlapping summary rows with medians [148.1, 149.1, 54.0] (spread 95.1 ticks, 81.2%) -- averaging, widening whiskers to the union
+  note: 290B (sequential) has 3 overlapping summary rows with medians [147.0, 150.1, 109.2] (spread 41.0 ticks, 30.3%) -- averaging, widening whiskers to the union
+  note: 291B (sequential) has 3 overlapping summary rows with medians [149.2, 150.6, 91.3] (spread 59.3 ticks, 45.5%) -- averaging, widening whiskers to the union
+  note: 292B (sequential) has 3 overlapping summary rows with medians [145.8, 146.7, 59.9] (spread 86.8 ticks, 73.9%) -- averaging, widening whiskers to the union
+  note: 293B (sequential) has 3 overlapping summary rows with medians [148.4, 147.3, 112.2] (spread 36.2 ticks, 26.6%) -- averaging, widening whiskers to the union
+  note: 295B (sequential) has 3 overlapping summary rows with medians [150.2, 148.8, 50.7] (spread 99.4 ticks, 85.3%) -- averaging, widening whiskers to the union
+  note: 297B (sequential) has 3 overlapping summary rows with medians [150.5, 149.4, 66.7] (spread 83.8 ticks, 68.6%) -- averaging, widening whiskers to the union
+  note: 298B (sequential) has 3 overlapping summary rows with medians [150.0, 150.2, 71.3] (spread 78.9 ticks, 63.7%) -- averaging, widening whiskers to the union
+  note: 299B (sequential) has 3 overlapping summary rows with medians [151.2, 150.7, 55.8] (spread 95.5 ticks, 80.1%) -- averaging, widening whiskers to the union
+  note: 309B (sequential) has 3 overlapping summary rows with medians [144.8, 152.9, 100.5] (spread 52.4 ticks, 39.5%) -- averaging, widening whiskers to the union
+  note: 310B (sequential) has 3 overlapping summary rows with medians [141.5, 149.6, 51.5] (spread 98.2 ticks, 86.0%) -- averaging, widening whiskers to the union
+  note: 315B (sequential) has 3 overlapping summary rows with medians [128.8, 147.8, 179.1] (spread 50.4 ticks, 33.2%) -- averaging, widening whiskers to the union
+  note: 316B (sequential) has 3 overlapping summary rows with medians [119.5, 147.6, 169.5] (spread 50.0 ticks, 34.4%) -- averaging, widening whiskers to the union
+  note: 317B (sequential) has 3 overlapping summary rows with medians [117.4, 149.7, 169.1] (spread 51.7 ticks, 35.6%) -- averaging, widening whiskers to the union
+  note: 318B (sequential) has 3 overlapping summary rows with medians [118.5, 151.5, 162.6] (spread 44.1 ticks, 30.6%) -- averaging, widening whiskers to the union
+  note: 319B (sequential) has 3 overlapping summary rows with medians [122.0, 153.4, 161.1] (spread 39.1 ticks, 26.9%) -- averaging, widening whiskers to the union
+  note: 321B (sequential) has 3 overlapping summary rows with medians [123.9, 153.4, 161.8] (spread 37.9 ticks, 25.9%) -- averaging, widening whiskers to the union
+  note: 322B (sequential) has 3 overlapping summary rows with medians [127.1, 151.0, 160.3] (spread 33.2 ticks, 22.7%) -- averaging, widening whiskers to the union
+  note: 323B (sequential) has 3 overlapping summary rows with medians [129.2, 151.5, 161.2] (spread 32.0 ticks, 21.7%) -- averaging, widening whiskers to the union
+  note: 324B (sequential) has 3 overlapping summary rows with medians [123.0, 150.5, 159.2] (spread 36.2 ticks, 25.1%) -- averaging, widening whiskers to the union
+  note: 325B (sequential) has 3 overlapping summary rows with medians [127.5, 152.3, 160.3] (spread 32.8 ticks, 22.4%) -- averaging, widening whiskers to the union
+  note: 326B (sequential) has 3 overlapping summary rows with medians [100.9, 151.3, 159.0] (spread 58.1 ticks, 42.4%) -- averaging, widening whiskers to the union
+  note: 327B (sequential) has 3 overlapping summary rows with medians [101.5, 150.4, 159.5] (spread 58.1 ticks, 42.3%) -- averaging, widening whiskers to the union
+  note: 329B (sequential) has 3 overlapping summary rows with medians [95.6, 148.1, 158.2] (spread 62.6 ticks, 46.7%) -- averaging, widening whiskers to the union
+  note: 330B (sequential) has 3 overlapping summary rows with medians [98.2, 150.5, 157.5] (spread 59.3 ticks, 43.8%) -- averaging, widening whiskers to the union
+  note: 331B (sequential) has 3 overlapping summary rows with medians [104.9, 149.2, 157.0] (spread 52.1 ticks, 38.0%) -- averaging, widening whiskers to the union
+  note: 332B (sequential) has 3 overlapping summary rows with medians [120.8, 147.6, 155.2] (spread 34.4 ticks, 24.4%) -- averaging, widening whiskers to the union
+  note: 333B (sequential) has 3 overlapping summary rows with medians [95.2, 149.1, 156.7] (spread 61.5 ticks, 46.0%) -- averaging, widening whiskers to the union
+  note: 334B (sequential) has 3 overlapping summary rows with medians [73.9, 150.6, 155.1] (spread 81.2 ticks, 64.1%) -- averaging, widening whiskers to the union
+  note: 335B (sequential) has 3 overlapping summary rows with medians [75.3, 152.2, 155.9] (spread 80.7 ticks, 63.1%) -- averaging, widening whiskers to the union
+  note: 337B (sequential) has 3 overlapping summary rows with medians [72.3, 146.6, 156.8] (spread 84.6 ticks, 67.5%) -- averaging, widening whiskers to the union
+  note: 338B (sequential) has 3 overlapping summary rows with medians [70.9, 146.1, 155.2] (spread 84.3 ticks, 67.9%) -- averaging, widening whiskers to the union
+  note: 339B (sequential) has 3 overlapping summary rows with medians [72.1, 147.6, 154.4] (spread 82.2 ticks, 66.0%) -- averaging, widening whiskers to the union
+  note: 340B (sequential) has 3 overlapping summary rows with medians [63.5, 142.4, 149.8] (spread 86.4 ticks, 72.8%) -- averaging, widening whiskers to the union
+  note: 341B (sequential) has 3 overlapping summary rows with medians [75.3, 144.0, 148.1] (spread 72.7 ticks, 59.4%) -- averaging, widening whiskers to the union
+  note: 342B (sequential) has 3 overlapping summary rows with medians [75.1, 142.3, 148.7] (spread 73.5 ticks, 60.3%) -- averaging, widening whiskers to the union
+  note: 343B (sequential) has 3 overlapping summary rows with medians [73.3, 144.3, 152.5] (spread 79.1 ticks, 64.1%) -- averaging, widening whiskers to the union
+  note: 345B (sequential) has 3 overlapping summary rows with medians [74.1, 145.9, 156.4] (spread 82.2 ticks, 65.5%) -- averaging, widening whiskers to the union
+  note: 346B (sequential) has 3 overlapping summary rows with medians [69.5, 144.8, 155.4] (spread 85.9 ticks, 69.7%) -- averaging, widening whiskers to the union
+  note: 347B (sequential) has 3 overlapping summary rows with medians [61.2, 147.0, 155.5] (spread 94.3 ticks, 77.8%) -- averaging, widening whiskers to the union
+  note: 348B (sequential) has 3 overlapping summary rows with medians [63.1, 144.2, 154.1] (spread 91.0 ticks, 75.5%) -- averaging, widening whiskers to the union
+  note: 349B (sequential) has 3 overlapping summary rows with medians [61.4, 145.1, 154.6] (spread 93.2 ticks, 77.4%) -- averaging, widening whiskers to the union
+  note: 350B (sequential) has 3 overlapping summary rows with medians [62.0, 143.2, 153.8] (spread 91.9 ticks, 76.8%) -- averaging, widening whiskers to the union
+  note: 351B (sequential) has 3 overlapping summary rows with medians [66.5, 143.5, 151.9] (spread 85.4 ticks, 70.8%) -- averaging, widening whiskers to the union
+  note: 353B (sequential) has 3 overlapping summary rows with medians [69.3, 143.9, 152.7] (spread 83.4 ticks, 68.4%) -- averaging, widening whiskers to the union
+  note: 354B (sequential) has 3 overlapping summary rows with medians [61.7, 143.0, 151.5] (spread 89.8 ticks, 75.7%) -- averaging, widening whiskers to the union
+  note: 355B (sequential) has 3 overlapping summary rows with medians [62.3, 143.8, 153.7] (spread 91.5 ticks, 76.3%) -- averaging, widening whiskers to the union
+  note: 356B (sequential) has 3 overlapping summary rows with medians [52.2, 142.1, 149.5] (spread 97.3 ticks, 84.9%) -- averaging, widening whiskers to the union
+  note: 357B (sequential) has 3 overlapping summary rows with medians [59.3, 145.7, 150.6] (spread 91.3 ticks, 77.0%) -- averaging, widening whiskers to the union
+  note: 358B (sequential) has 3 overlapping summary rows with medians [49.1, 144.7, 155.3] (spread 106.2 ticks, 91.3%) -- averaging, widening whiskers to the union
+  note: 359B (sequential) has 3 overlapping summary rows with medians [53.0, 147.8, 156.8] (spread 103.8 ticks, 87.1%) -- averaging, widening whiskers to the union
+  note: 361B (sequential) has 3 overlapping summary rows with medians [47.7, 146.9, 157.7] (spread 110.1 ticks, 93.7%) -- averaging, widening whiskers to the union
+  note: 362B (sequential) has 3 overlapping summary rows with medians [46.4, 145.4, 154.8] (spread 108.4 ticks, 93.8%) -- averaging, widening whiskers to the union
+  note: 363B (sequential) has 3 overlapping summary rows with medians [46.8, 146.1, 154.2] (spread 107.4 ticks, 92.8%) -- averaging, widening whiskers to the union
+  note: 364B (sequential) has 3 overlapping summary rows with medians [43.6, 150.7, 161.8] (spread 118.1 ticks, 99.5%) -- averaging, widening whiskers to the union
+  note: 365B (sequential) has 3 overlapping summary rows with medians [47.8, 147.5, 158.2] (spread 110.4 ticks, 93.7%) -- averaging, widening whiskers to the union
+  note: 366B (sequential) has 3 overlapping summary rows with medians [45.5, 144.4, 157.2] (spread 111.7 ticks, 96.5%) -- averaging, widening whiskers to the union
+  note: 367B (sequential) has 3 overlapping summary rows with medians [48.9, 145.3, 150.5] (spread 101.6 ticks, 88.4%) -- averaging, widening whiskers to the union
+  note: 369B (sequential) has 3 overlapping summary rows with medians [46.7, 143.0, 147.8] (spread 101.1 ticks, 89.9%) -- averaging, widening whiskers to the union
+  note: 370B (sequential) has 3 overlapping summary rows with medians [49.3, 145.3, 148.5] (spread 99.2 ticks, 86.8%) -- averaging, widening whiskers to the union
+  note: 371B (sequential) has 3 overlapping summary rows with medians [49.6, 145.1, 154.3] (spread 104.7 ticks, 90.0%) -- averaging, widening whiskers to the union
+  note: 372B (sequential) has 3 overlapping summary rows with medians [44.2, 74.1, 164.4] (spread 120.3 ticks, 127.6%) -- averaging, widening whiskers to the union
+  note: 373B (sequential) has 3 overlapping summary rows with medians [46.9, 143.2, 158.7] (spread 111.8 ticks, 96.2%) -- averaging, widening whiskers to the union
+  note: 374B (sequential) has 3 overlapping summary rows with medians [45.0, 137.4, 152.8] (spread 107.8 ticks, 96.5%) -- averaging, widening whiskers to the union
+  note: 375B (sequential) has 3 overlapping summary rows with medians [45.7, 135.9, 143.4] (spread 97.7 ticks, 90.2%) -- averaging, widening whiskers to the union
+  note: 377B (sequential) has 3 overlapping summary rows with medians [47.3, 136.0, 152.0] (spread 104.7 ticks, 93.7%) -- averaging, widening whiskers to the union
+  note: 379B (sequential) has 3 overlapping summary rows with medians [44.9, 134.8, 158.7] (spread 113.9 ticks, 101.0%) -- averaging, widening whiskers to the union
+  note: 380B (sequential) has 3 overlapping summary rows with medians [43.6, 129.1, 158.0] (spread 114.4 ticks, 103.8%) -- averaging, widening whiskers to the union
+  note: 381B (sequential) has 3 overlapping summary rows with medians [45.0, 141.9, 150.2] (spread 105.2 ticks, 93.6%) -- averaging, widening whiskers to the union
+  note: 382B (sequential) has 3 overlapping summary rows with medians [44.0, 131.5, 149.9] (spread 105.9 ticks, 97.6%) -- averaging, widening whiskers to the union
+  note: 383B (sequential) has 3 overlapping summary rows with medians [43.6, 134.1, 143.4] (spread 99.8 ticks, 93.2%) -- averaging, widening whiskers to the union
+  note: 385B (sequential) has 3 overlapping summary rows with medians [44.2, 133.3, 158.7] (spread 114.5 ticks, 102.2%) -- averaging, widening whiskers to the union
+  note: 386B (sequential) has 3 overlapping summary rows with medians [44.1, 126.8, 162.5] (spread 118.4 ticks, 106.5%) -- averaging, widening whiskers to the union
+  note: 387B (sequential) has 3 overlapping summary rows with medians [44.9, 115.3, 165.1] (spread 120.1 ticks, 110.8%) -- averaging, widening whiskers to the union
+  note: 388B (sequential) has 3 overlapping summary rows with medians [43.9, 108.6, 160.0] (spread 116.2 ticks, 111.5%) -- averaging, widening whiskers to the union
+  note: 389B (sequential) has 3 overlapping summary rows with medians [49.4, 124.3, 164.5] (spread 115.1 ticks, 102.1%) -- averaging, widening whiskers to the union
+  note: 390B (sequential) has 3 overlapping summary rows with medians [45.0, 114.7, 157.8] (spread 112.8 ticks, 106.6%) -- averaging, widening whiskers to the union
+  note: 391B (sequential) has 3 overlapping summary rows with medians [45.6, 102.4, 160.3] (spread 114.8 ticks, 111.7%) -- averaging, widening whiskers to the union
+  note: 393B (sequential) has 3 overlapping summary rows with medians [45.3, 80.9, 160.3] (spread 114.9 ticks, 120.4%) -- averaging, widening whiskers to the union
+  note: 394B (sequential) has 3 overlapping summary rows with medians [45.3, 111.8, 164.4] (spread 119.1 ticks, 111.1%) -- averaging, widening whiskers to the union
+  note: 395B (sequential) has 3 overlapping summary rows with medians [45.5, 109.9, 166.8] (spread 121.3 ticks, 112.9%) -- averaging, widening whiskers to the union
+  note: 396B (sequential) has 3 overlapping summary rows with medians [43.2, 57.7, 160.5] (spread 117.2 ticks, 134.5%) -- averaging, widening whiskers to the union
+  note: 397B (sequential) has 3 overlapping summary rows with medians [44.7, 85.7, 166.9] (spread 122.2 ticks, 123.3%) -- averaging, widening whiskers to the union
+  note: 398B (sequential) has 3 overlapping summary rows with medians [44.8, 111.8, 165.7] (spread 120.9 ticks, 112.5%) -- averaging, widening whiskers to the union
+  note: 399B (sequential) has 3 overlapping summary rows with medians [45.0, 141.7, 166.3] (spread 121.3 ticks, 103.1%) -- averaging, widening whiskers to the union
+  note: 401B (sequential) has 3 overlapping summary rows with medians [45.3, 140.9, 164.7] (spread 119.4 ticks, 102.1%) -- averaging, widening whiskers to the union
+  note: flagged 3 isolated spike stride(s) as probable page-aliasing artifacts: [378, 568, 1024]
+Wrote data_processed/hazel_cascadelake/line_size/level_16777216/plots/line_size_curve.pdf and .png
+Wrote data_processed/hazel_cascadelake/line_size/level_16777216/plots/line_size_boxplots.pdf and .png
+-- compressing raw CSVs for level 16777216 --
+
+############################################################
+## step 5: cross-level, cross-method agreement summary
+############################################################
+   level boundary=32768B -> method A (family of curves) = noneB, method B (single curve) = noneB
+   level boundary=1048576B -> method A (family of curves) = noneB, method B (single curve) = noneB
+   level boundary=16777216B -> method A (family of curves) = noneB, method B (single curve) = 200B
+== every level/method that produced an estimate AGREES on 200B -- strong Phase-I evidence ==
+== done: all levels, both methods, complete ==
+== this is a FROZEN PHASE-I TIMING-ONLY result -- compare against PMU counters
+   and the documented/system-reported line size in Phase II before treating it as
+   confirmed (see README.md's Phase I/II/III discipline).
+== plots per level: data_processed/hazel_cascadelake/line_size/level_<boundary>/plots/line_size_family_{curve,boxplots}.{png,pdf} (A, steps 1-3),
+          .../line_size_offset_{elbow,boxplots}.{png,pdf} (A, step 4), .../line_size_{curve,boxplots}.{png,pdf} (B) ==
+== record in data_raw/hazel_cascadelake/README.md: boundaries=32768,1048576,16777216, core=24,
+   seed=12345, samples=1000000, coarse_strides=8,16,32,64,128,256, per-level/per-method estimates as above,
+   timestamp=20260915T014348Z ==
+== full transcript saved to: data_raw/hazel_cascadelake/line_size/run_line_size_20260915T014348Z.log ==

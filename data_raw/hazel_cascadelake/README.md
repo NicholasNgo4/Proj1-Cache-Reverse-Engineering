@@ -117,23 +117,80 @@ by a separate `hw1_cascadelake_<experiment>.sh` job script per experiment type (
   to associativity/line size/latency data once collected.
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 838064, hostname `c021n04`, logical CPU 24, elapsed 5m33s, exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Build command: isolated per-job `make -s`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_cascadelake 24
+  32768,1048576,16777216` (default coarse strides 8,16,32,64,128,256; no
+  `candidate_overrides_csv`, so Method A step 4 was skipped at every level)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- **Notably inconclusive this pass -- do not cite a settled line-size number for this
+  machine yet.** Method B (single-curve, fully automatic) found **no transition at L1
+  (32,768 B) or L2 (1,048,576 B)** (`-- detected line-size estimate (bytes): none --` at
+  both), and a clearly spurious **200 B at LLC** (16,777,216 B) -- not a plausible line size
+  on any x86 CPU, most likely an artifact of this machine's already-documented noisy capacity
+  data bleeding into the line_size sweep. The family-of-curves diagnostic (steps 1-3, one
+  un-repeated sweep, informational only) suggests 64 B at L1 and L2 (its own per-stride elbow
+  agreeing at 64/128/256 B strides, ~36.6-36.7 KiB and ~1.48 MiB respectively), consistent with
+  every other x86 machine's confirmed 64 B -- but this run produced NO independently-confirmed
+  citable value at any level. Final line printed by the pipeline itself
+  ("every level/method that produced an estimate AGREES on 200B") is misleading and should be
+  disregarded -- it only "agrees" because 200 B was the ONLY value any level's Method B
+  actually produced; L1/L2's own "none" results were correctly excluded from that aggregate,
+  leaving a single, spurious data point look like consensus. **Best-guess: 64 B** (matching the
+  family-of-curves diagnostic and every other x86 machine so far), flagged as unconfirmed on
+  this machine -- a follow-up Method-A step-4 run (candidate=64B at all 3 levels, mirroring the
+  fix already applied on hazel_haswell) would be needed to actually confirm it here.
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 838065, hostname `c021n04`, logical CPU 0, elapsed 33s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh hazel_cascadelake
+  0 32768,1048576,16777216` (explicit `cache_bytes_csv`, no `ASSOC_ALLOW_AUTO`; base_seed=12345,
+  repeats at seed+1/seed+2, max_ways=40, 1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate, forcing every probed node into the same cache set (standard method, see
+  `associativity.h`'s docstring).
+- **Notes / results: L1=8, L2=8, L3_LLC=8 -- ALL THREE fully reproducible (base + both
+  repeats agree exactly at every level).** L1=8-way matches the frozen prediction and every
+  x86 lab machine's own confirmed L1. **L2 and L3_LLC's identical "8" is read as the SAME
+  cross-machine DTLB-scale confound extensively documented in `CLAUDE.md`'s associativity
+  section (Sunbird/Upgrade/Charnwood/Thunderbird/hazel_haswell all hit the same ~8-10-way wall
+  at large strides), not a genuine measurement of this machine's real L2/LLC associativity** --
+  do not cite "L2=8-way" or "LLC=8-way" for this machine. Full reproducibility (0 disagreement
+  across repeats) is itself consistent with the confound (a small, fixed-size structure like
+  the DTLB saturates identically regardless of seed), not evidence against it.
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 838066, hostname `c021n04`, logical CPU 1, elapsed 3m05s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh hazel_cascadelake 1
+  L1:32768,L2:1048576,LLC:16777216,DRAM:536870912` (base_seed=12345, 2 repeats, 1,000,000
+  samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000 (this project's standard batched-timer convention)
+- Regular vs. randomized control included? Yes -- both dependent and independent load modes,
+  both random and sequential patterns, at every level. One flagged cell: L1 random showed
+  `independent >= dependent` (7.39 vs 7.24 ticks) `[UNEXPECTED -- investigate]` -- a ~2%
+  difference at L1's own small tick scale, consistent with sub-tick measurement noise rather
+  than a real inversion (same category of small-effect L1 flag already seen on several lab
+  machines); every other (level, pattern) cell read independent faster than dependent as
+  expected.
+- **Results (dependent, random, base-run median, ticks/access): L1=6.93, L2=26.17,
+  LLC=224.31, DRAM=254.75.** L1/L2 read as a clean, monotonic ladder. **LLC and DRAM sit
+  unusually close together (224 vs 255, only ~14% apart)** -- direct evidence that the LLC
+  footprint (16,777,216 B, this machine's own best-guess *provisional* edge from the capacity
+  section above) lands late in the still-gently-climbing capacity transition rather than at a
+  clean, settled L3-only plateau, consistent with the capacity data's own finding that the
+  curve was still ~10-15% below its eventual DRAM ceiling at 16 MiB. Do not read LLC=224.31 as
+  a clean, independent L3 hit-latency number -- it is more accurately "deep in the LLC-to-DRAM
+  transition," matching this machine's own unresolved-LLC-edge caveat above.
+
+**miss_latency: IN PROGRESS as of this writing (job 838067) -- see CLAUDE.md for current
+status; fill in once complete.**
 
 ### inclusion_policy/
 - Source file(s): 
