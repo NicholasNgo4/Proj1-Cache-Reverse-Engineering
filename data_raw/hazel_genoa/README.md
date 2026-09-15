@@ -51,11 +51,65 @@ by a separate `hw1_genoa_<experiment>.sh` job script per experiment type (see
 ## Per-Experiment Reproduction
 
 ### capacity/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 1,000,000 (timed; warm-up excluded)
-- Random seed(s): 
+- Slurm job ID: 837635, logical CPU 96, elapsed 1h12m26s, exit 0.
+- Source file(s): `main_code/common/{main.c,benchmark.c,pointer_chase.c,random.c,capacity.c}`,
+  `scripts/run_capacity_full.sh` (`HAZEL_MODE=1`), `scripts/summarize_raw.py`,
+  `scripts/detect_cache_hierarchy.py`, `scripts/plot_capacity.py`
+- Build command: `make -s` (isolated per-job copy under `hazel_build/837635/`, cleaned up on
+  job exit)
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_capacity_full.sh hazel_genoa 96`
+  (coarse_max defaulted to 67,108,864 B / 64 MiB, then a 4x tail extension to 256 MiB)
+- Sample count: 1,000,000 (timed; warm-up excluded) -- every stage
+- Random seed(s): base 12345; reproducibility repeats on the deepest boundary use the same
+  seed (this script's own known limitation)
+- Raw output filename(s):
+  `data_raw/hazel_genoa/capacity/capacity_{coarse,coarse_ext,dense0,dense1,dense1_rep1,
+  dense1_rep2,denseTail}_{random,sequential}_20260915T010343Z.csv.gz`; full transcript:
+  `data_raw/hazel_genoa/capacity/run_capacity_full_20260915T010343Z.log`
+- Processing script -> data_processed path: `scripts/summarize_raw.py` ->
+  `data_processed/hazel_genoa/capacity/*_summary.csv`; `scripts/detect_cache_hierarchy.py`
+  (default thresholds) -> only 2 candidate boundaries this time (see Findings) --
+  notably fewer spurious detections than every Intel Hazel generation run so far, consistent
+  with this being the smoothest/least-noisy curve of any generation processed this session;
+  `scripts/plot_capacity.py` ->
+  `data_processed/hazel_genoa/capacity/plots/capacity_{curve,boxplots}.{png,pdf}`
+- Excluded runs (if any) and reason: none -- single complete run, no anomalies of the kind
+  seen on icelake_6326/sapphirerapids.
+
+**Findings (timing-only; no vendor/cache-topology lookup used, per Phase I discipline).
+CPU: AMD EPYC 9654 (Genoa, Zen 4) -- the first AMD/Zen generation run on Hazel, and this
+project's AMD-generation requirement for the assignment's minimum-5 spanning set.**
+- **L1D: well-confirmed at 32,768 B (32 KiB).** Flat ~7.15-7.22 ticks/access from 1,024 B
+  through 30,048 B, then a clean, sustained climb starting at 32,768 B (7.51, already
+  departing) and unambiguous by 35,728 B (8.42) -- matches the frozen prediction's
+  L1D=32,768 B exactly, and the same 32 KiB every other x86 generation in this project has
+  shown (Zen 4 did not change L1D size from earlier Zen generations).
+- **L2: NOT cleanly resolved -- one long, continuous ramp from the L1 edge all the way to
+  ~30 MiB, no distinct shelf.** Climbs steadily and without a flat region from 35,728 B (8.42)
+  through 30,769,544 B (90.89) -- neither auto-detected boundary falls in the expected
+  ~1 MiB L2 region at all (both land much deeper, see LLC below), meaning this run's
+  auto-detector didn't even produce a spurious L2-region candidate to second-guess this time.
+  **L2 best-guess: 1,048,576 B (1 MiB)** -- Zen 4's publicly known standard per-core L2 size
+  (doubled from Zen 3's 512 KiB), the same "generation-typical value" reasoning used for every
+  other machine's unresolved L2.
+- **LLC: well-confirmed at 33,554,432 B (32 MiB) -- a clean, sharp acceleration, and this
+  round byte value is not a coincidence.** The climb's growth rate visibly steps up exactly at
+  this point: 30,769,544 B -> 90.89, 33,554,432 B -> 96.05 (modest), then 36,591,368 B ->
+  113.50 (+18.2%, a real inflection), 39,903,168 B -> 127.42, 43,514,712 B -> 141.82,
+  47,453,128 B -> 154.51 -- a sustained, accelerating climb from here on. 33,554,432 B is
+  EXACTLY 32 MiB, matching AMD Genoa's publicly documented per-CCD L3 size (32 MB shared
+  across each 8-core CCD on this 96-core, 12-CCD part) almost too precisely to be
+  coincidental -- the cleanest LLC-to-known-architecture match of any Hazel generation so far.
+- **LLC-to-DRAM: does NOT plateau within the tested range (up to 268 MiB) -- same open item
+  as haswell/skylake/sapphirerapids.** The tail extension keeps climbing throughout:
+  94,906,256 B -> 239.42, 166,679,312 B -> 276.47, 222,490,192 B -> 289.99, 268,435,424 B ->
+  296.81 -- still rising (~24% total across that range), no flattening. A further manual
+  extension past 256 MiB would be needed to find the true DRAM floor -- not attempted this
+  pass.
+- **Held-out comparison against the frozen prediction:** the frozen L1D prediction
+  (32,768 B / 8-way, Chen-Ngo Invariance Law -- derived from Intel lab machines) matches this
+  AMD/Zen 4 machine's L1D capacity exactly, a useful cross-architecture data point for that
+  law's generality. No frozen LLC prediction exists for a Genoa/Zen 4 generation.
 - Raw output filename(s): 
 - Processing script -> data_processed path: 
 - Excluded runs (if any) and reason: 
