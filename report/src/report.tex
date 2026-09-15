@@ -16,6 +16,8 @@
 \usepackage{subcaption}
 \usepackage{grffile} % allows underscores and multiple dots in \includegraphics paths
 \usepackage{pifont}
+\usepackage{seqsplit} % allows line-breaking inside long unbroken \texttt{} tokens
+                       % (e.g. file paths with no spaces) inside narrow table columns
 \newcommand{\cmark}{\ding{51}}
 \newcommand{\xmark}{\ding{55}}
 
@@ -3203,31 +3205,31 @@ List the code components, scripts, benchmark modules, build files, and infrastru
 \hline
 \endhead
 
-\texttt{main\_code/common/\{main,benchmark,pointer\_chase,random,capacity\}.\{c,h\}} & Primary author: capacity engine, benchmark/pointer-chase primitives, main CLI driver and dispatch & Co-edited: benchmark.c/random.c shared review & \texttt{8fb1467}, \texttt{e343732}, \texttt{7be6dac}\\
+\texttt{\seqsplit{main\_code/common/\{main,benchmark,pointer\_chase,random,capacity\}.\{c,h\}}} & Primary author: capacity engine, benchmark/pointer-chase primitives, main CLI driver and dispatch & Co-edited: benchmark.c/random.c shared review & \texttt{\seqsplit{8fb1467}}, \texttt{\seqsplit{e343732}}, \texttt{\seqsplit{7be6dac}}\\
 \hline
 
-\texttt{main\_code/common/\{associativity,latency,inclusion\_policy\}.\{c,h\}} & Primary author: associativity engine (incl.\ derived-stride-scan, huge-page DTLB control), hit/miss latency, inclusion/exclusion classifier design & Reviewed for cross-experiment consistency with line\_size.c's conventions & \texttt{22104d6}, \texttt{e343732}, \texttt{7be6dac}\\
+\texttt{\seqsplit{main\_code/common/\{associativity,latency,inclusion\_policy\}.\{c,h\}}} & Primary author: associativity engine (incl.\ derived-stride-scan, huge-page DTLB control), hit/miss latency, inclusion/exclusion classifier design & Reviewed for cross-experiment consistency with line\_size.c's conventions & \texttt{\seqsplit{22104d6}}, \texttt{\seqsplit{e343732}}, \texttt{\seqsplit{7be6dac}}\\
 \hline
 
-\texttt{main\_code/common/line\_size.\{c,h\}}, \texttt{access\_pattern.h} & Reviewed against capacity.c's sweep-loop conventions & Primary author: both line-size methods (single-curve + family-of-curves), offset cross-check & \texttt{1689b22}\\
+\texttt{\seqsplit{main\_code/common/line\_size.\{c,h\}}}, \texttt{\seqsplit{access\_pattern.h}} & Reviewed against capacity.c's sweep-loop conventions & Primary author: both line-size methods (single-curve + family-of-curves), offset cross-check & \texttt{\seqsplit{1689b22}}\\
 \hline
 
-\texttt{main\_code/x86\_64/timer\_x86.h}, \texttt{main\_code/aarch64/timer\_arm.h}, \texttt{main\_code/common/timer.h} & Reviewed x86/ARM timer-overhead characterization & Primary author: portable timer dispatch, RDTSC/RDTSCP and CNTVCT\_EL0 serialization sequences & \texttt{e0f2538}\\
+\texttt{\seqsplit{main\_code/x86\_64/timer\_x86.h}}, \texttt{\seqsplit{main\_code/aarch64/timer\_arm.h}}, \texttt{\seqsplit{main\_code/common/timer.h}} & Reviewed x86/ARM timer-overhead characterization & Primary author: portable timer dispatch, RDTSC/RDTSCP and CNTVCT\_EL0 serialization sequences & \texttt{\seqsplit{e0f2538}}\\
 \hline
 
-\texttt{main\_code/software\_hit\_rate/software\_hit\_rate.\{c,h\}} & Reviewed PMU-validation-mode rationale & Primary author: ROC/Youden's-J threshold selection, Rogan--Gladen estimator, bootstrap CI, PMU-validation decoupled-calibration mode & (2026-09-14 commits)\\
+\texttt{\seqsplit{main\_code/software\_hit\_rate/software\_hit\_rate.\{c,h\}}} & Reviewed PMU-validation-mode rationale & Primary author: ROC/Youden's-J threshold selection, Rogan--Gladen estimator, bootstrap CI, PMU-validation decoupled-calibration mode & (2026-09-14 commits)\\
 \hline
 
-\texttt{scripts/run\_\{capacity,associativity,hit\_latency,miss\_latency,inclusion\_policy\}\_full.sh}, \texttt{run\_associativity\_stride\_scan.sh}, \texttt{run\_capacity\_\{sweep,validate\}.sh}, \texttt{plot\_\{capacity,associativity,hit\_latency,miss\_latency,inclusion\_policy,chronological\_master,eight\_counters\_master\}.py}, \texttt{detect\_associativity.py}, \texttt{detect\_cache\_hierarchy.py}, \texttt{classify\_inclusion\_policy.py} & Primary author & Reviewed for cross-script CLI-convention consistency & \texttt{scripts/}\\
+\texttt{\seqsplit{scripts/run\_\{capacity,associativity,hit\_latency,miss\_latency,inclusion\_policy\}\_full.sh}}, \texttt{\seqsplit{run\_associativity\_stride\_scan.sh}}, \texttt{\seqsplit{run\_capacity\_\{sweep,validate\}.sh}}, \texttt{\seqsplit{plot\_\{capacity,associativity,hit\_latency,miss\_latency,inclusion\_policy,chronological\_master,eight\_counters\_master\}.py}}, \texttt{\seqsplit{detect\_associativity.py}}, \texttt{\seqsplit{detect\_cache\_hierarchy.py}}, \texttt{\seqsplit{classify\_inclusion\_policy.py}} & Primary author & Reviewed for cross-script CLI-convention consistency & \texttt{\seqsplit{scripts/}}\\
 \hline
 
-\texttt{scripts/run\_line\_size\{,\_full,\_sweep\}.sh}, \texttt{run\_software\_hit\_rate\_sweep.sh}, \texttt{run\_\{pmu\_verification,hit\_rate\_pmu\_validation,standardized\_benchmarks\}.sh}, \texttt{detect\_line\_size.py}, \texttt{plot\_line\_size\{,\_family,\_offset\}.py}, \texttt{plot\_software\_hit\_rate.py}, \texttt{compare\_hit\_rate\_pmu.py}, \texttt{summarize\_\{pmu,eight\_counters,software\_hit\_rate,raw\}.py} & Reviewed for cross-script CLI-convention consistency & Primary author & \texttt{scripts/}\\
+\texttt{\seqsplit{scripts/run\_line\_size\{,\_full,\_sweep\}.sh}}, \texttt{\seqsplit{run\_software\_hit\_rate\_sweep.sh}}, \texttt{\seqsplit{run\_\{pmu\_verification,hit\_rate\_pmu\_validation,standardized\_benchmarks\}.sh}}, \texttt{\seqsplit{detect\_line\_size.py}}, \texttt{\seqsplit{plot\_line\_size\{,\_family,\_offset\}.py}}, \texttt{\seqsplit{plot\_software\_hit\_rate.py}}, \texttt{\seqsplit{compare\_hit\_rate\_pmu.py}}, \texttt{\seqsplit{summarize\_\{pmu,eight\_counters,software\_hit\_rate,raw\}.py}} & Reviewed for cross-script CLI-convention consistency & Primary author & \texttt{\seqsplit{scripts/}}\\
 \hline
 
-\texttt{Makefile}, \texttt{cache\_bench.c} main dispatch, GitHub repository scaffolding/folder structure & Reviewed & Primary author (build config, initial repo scaffolding) & \texttt{7be6dac}\\
+\texttt{\seqsplit{Makefile}}, \texttt{\seqsplit{cache\_bench.c}} main dispatch, GitHub repository scaffolding/folder structure & Reviewed & Primary author (build config, initial repo scaffolding) & \texttt{\seqsplit{7be6dac}}\\
 \hline
 
-\texttt{hpc\_slurm/} (all Hazel Slurm job scripts, all 9 generations) & Reviewed job-script conventions against lab-machine pipeline & Primary author (sole author of the entire Hazel HPC run, 9 partitions) & \texttt{hpc\_slurm/}\\
+\texttt{\seqsplit{hpc\_slurm/}} (all Hazel Slurm job scripts, all 9 generations) & Reviewed job-script conventions against lab-machine pipeline & Primary author (sole author of the entire Hazel HPC run, 9 partitions) & \texttt{\seqsplit{hpc\_slurm/}}\\
 \hline
 
 \end{longtable}
