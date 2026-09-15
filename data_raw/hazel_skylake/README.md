@@ -51,8 +51,62 @@ by a separate `hw1_skylake_<experiment>.sh` job script per experiment type (see
 ## Per-Experiment Reproduction
 
 ### capacity/
-- Source file(s): 
-- Build command: 
+- Slurm job ID: 837630, hostname (see job log), logical CPU 16, elapsed 53m13s, exit 0.
+- Source file(s): `main_code/common/{main.c,benchmark.c,pointer_chase.c,random.c,capacity.c}`,
+  `scripts/run_capacity_full.sh` (`HAZEL_MODE=1`), `scripts/summarize_raw.py`,
+  `scripts/detect_cache_hierarchy.py`, `scripts/plot_capacity.py`
+- Build command: `make -s` (isolated per-job copy under `hazel_build/837630/`, cleaned up on
+  job exit)
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_capacity_full.sh hazel_skylake 16`
+  (coarse_max defaulted to 67,108,864 B / 64 MiB, then a 4x tail extension to 256 MiB)
+- Sample count: 1,000,000 (timed; warm-up excluded) -- every stage
+- Random seed(s): base 12345; reproducibility repeats on the deepest boundary use the same
+  seed (this script's own known limitation)
+- Raw output filename(s):
+  `data_raw/hazel_skylake/capacity/capacity_{coarse,coarse_ext,dense0..dense3,dense3_rep1,
+  dense3_rep2,denseTail}_{random,sequential}_20260915T010343Z.csv.gz`; full transcript:
+  `data_raw/hazel_skylake/capacity/run_capacity_full_20260915T010343Z.log`
+- Processing script -> data_processed path: `scripts/summarize_raw.py` ->
+  `data_processed/hazel_skylake/capacity/*_summary.csv`;
+  `scripts/detect_cache_hierarchy.py` (default thresholds) -> 4 candidate boundaries (see
+  Findings); `scripts/plot_capacity.py` ->
+  `data_processed/hazel_skylake/capacity/plots/capacity_{curve,boxplots}.{png,pdf}`
+- Excluded runs (if any) and reason: none -- single complete run, no repeats discarded.
+
+**Findings (timing-only; no vendor/cache-topology lookup used, per Phase I discipline). This
+is the cleanest capacity curve of any Hazel generation run so far -- both boundaries below are
+confirmed by an actual sharp knee, not a best-guess pick from a noisy/continuous ramp:**
+- **L1D: well-confirmed at 32,768 B (32 KiB).** Flat ~4.77-4.80 ticks/access from 1,216 B
+  through 30,048 B, then a clean, sustained climb starting at 32,768 B itself (4.92, already
+  departing) and clearly climbing by the next point, 35,728 B (5.32) -- matches the frozen
+  prediction's L1D=32,768 B exactly.
+- **L2: a genuine (if not perfectly sharp) transition region, 512 KiB-2 MiB, distinct from
+  both L1's plateau below and a second, much flatter shelf above.** Latency climbs steadily
+  from 524,288 B (12.19) through 1,923,096 B (32.14), then the growth rate drops sharply --
+  2,097,152 B (29.61, actually a slight DIP) through 21,757,352 B (46.20) is a comparatively
+  flat, slow-climbing shelf (only +56% across a 10x size range, vs. +78% across less than 2x
+  in the transition just below it) -- read as the genuine LLC-resident plateau, not still-L2.
+  **L2 best-guess: 1,048,576 B (1 MiB)** -- sits inside the observed 512 KiB-2 MiB transition
+  region at the architecturally-standard per-core L2 size for Skylake-SP (same reasoning
+  category as haswell's/cascadelake's own L2 best-guesses), not an independently sharp knee.
+- **LLC: well-confirmed at 23,726,560 B (~22.6 MiB) -- a genuinely sharp, clean knee, the
+  cleanest LLC edge of any Hazel generation so far.** The shelf above holds flat through
+  21,757,352 B (46.20), then the very next tested point, 23,726,560 B, already departs (50.03),
+  followed by a sharp, sustained acceleration: 25,874,000 B -> 65.93, 28,215,800 B -> 78.44,
+  30,769,544 B -> 89.85, 33,554,432 B -> 102.69. This is a real inflection, not a noise
+  artifact -- the auto-detector's own 2 boundaries in this region (23,726,560 / 30,769,544 B)
+  bracket exactly this one clean transition.
+- **LLC-to-DRAM: does NOT fully plateau within the default tail extension (up to 256 MiB) --
+  same open item as haswell.** Medians keep climbing through the whole tail: 67,108,864 B ->
+  145.47, 136,169,968 B -> 170.39, 181,765,096 B -> 181.80, 268,435,456 B -> 182.53 -- still
+  rising, though the rate has clearly slowed (roughly +26% total across the last 4x of the
+  range vs. the sharp +180% climb from 21.7 to 33.5 MiB). A further manual extension past
+  256 MiB (mirroring every lab machine's own capacity/ follow-up) would be needed to find the
+  true DRAM floor -- not attempted this pass.
+- **Held-out comparison against the frozen prediction:** the frozen L1D prediction
+  (32,768 B / 8-way, Chen-Ngo Invariance Law) matches this run's timing-derived L1D capacity
+  exactly. No frozen LLC prediction exists specifically for a Skylake-SP generation
+  (`PREDICTION_FREEZE.md` covers only the 8 lab machines).
 - Run command + arguments: 
 - Sample count: 1,000,000 (timed; warm-up excluded)
 - Random seed(s): 
