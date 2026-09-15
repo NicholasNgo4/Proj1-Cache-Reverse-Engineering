@@ -173,7 +173,16 @@ before citing any number from this machine; only L1 gets even a best-guess-quali
   quiet" flag. LLC/DRAM are also closer together (~11%) than most other machines. Do not cite
   any of these four numbers as clean, independent per-level latencies.
 
-**miss_latency: pending as of this writing.**
+**miss_latency (Slurm job 838214, elapsed 1h21m02s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh
+  hazel_icelake_8358 34 L1_to_L2:32768:1310720,L2_to_LLC:1310720:50331648,
+  LLC_to_DRAM:50331648:536870912`
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=90.0, L2_to_LLC=558.0,
+  LLC_to_DRAM=716.0** -- monotonically increasing despite this machine's own pervasive noise.
+  Substantial repeat spread throughout (48.8-79.1%), consistent with the capacity/
+  associativity/hit_latency sections' own documented noise on this machine -- not re-run.
 
 ### inclusion_policy/
 - Source file(s): 
