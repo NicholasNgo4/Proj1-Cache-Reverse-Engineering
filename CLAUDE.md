@@ -56,9 +56,9 @@ table and the two Team Cache Laws. This gates all real Hazel cache-experiment ru
     `short`, capped at **2h wall time** (`sacctmgr show qos`) -- this is why full-suite
     jobs are split one-experiment-type-per-job rather than one job per generation.
 
-- **haswell: capacity, associativity, line_size, hit_latency all done and committed.
-  miss_latency IN PROGRESS -- see the explicit next-step below, don't skip it.**
-  Boundaries used throughout (see `data_raw/hazel_haswell/README.md`'s capacity/ section
+- **haswell: capacity, associativity, line_size, hit_latency, miss_latency, and
+  inclusion_policy are ALL DONE (2026-09-14) -- haswell's full Phase-I experiment suite is
+  complete.** Boundaries used throughout (see `data_raw/hazel_haswell/README.md`'s capacity/ section
   for the full reasoning): **L1=32,768 B (confirmed by timing)**, **L2=262,144 B
   (reasoned/provisional -- NOT independently confirmed, no visible knee in the capacity
   sweep)**, **LLC=25,165,824 B / 24 MiB (provisional edge -- where the LLC-to-DRAM climb
@@ -77,23 +77,27 @@ table and the two Team Cache Laws. This gates all real Hazel cache-experiment ru
     provisional boundaries).
   - hit_latency (job 834510, 3m35s): clean monotonic ladder, L1=8.46 / L2=16.74 /
     LLC=53.79 / DRAM=206.18 ticks (dependent, random, median). No `[UNEXPECTED]` flags.
-  - **miss_latency (job 834511) TIMED OUT after 1h** -- L1_to_L2 and L2_to_LLC transitions
-    completed cleanly, but the LLC_to_DRAM transition's 512 MiB eviction (the expensive
-    stage, same as documented on several lab machines) only got through base+rep1 before
-    being killed mid-rep2. **Fix already applied and committed**:
-    `hpc_slurm/hw1_haswell_miss_latency.sh`'s `--time` bumped from `01:00:00` to
-    `01:55:00`. **NOT YET RESUBMITTED as of this note** -- the very next action on this
-    machine should be `sbatch hpc_slurm/hw1_haswell_miss_latency.sh`, then wait for it,
-    then fill in `data_raw/hazel_haswell/README.md`'s miss_latency portion of the
-    latency/ section (the hit_latency portion is already filled in) and commit.
-  - **inclusion_policy: NOT STARTED, no job script written yet.** Needs
-    `hpc_slurm/hw1_haswell_inclusion_policy.sh` (mirror the other `hw1_haswell_*.sh`
-    scripts, `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh hazel_haswell <core>
-    <spec>`) and MUST run after miss_latency completes (its calibration reads
-    miss_latency's own raw output for the matching transition -- see
-    `run_inclusion_policy_full.sh`'s header comment). Suggested pairings/specs, matching
-    this project's established convention: `L1_vs_L2:32768:262144:L1_to_L2`,
-    `L2_vs_LLC:262144:25165824:L2_to_LLC`, `L1_vs_LLC:32768:25165824:LLC_to_DRAM`.
+  - **miss_latency (job 834511 originally TIMED OUT after 1h; fixed by bumping
+    `hpc_slurm/hw1_haswell_miss_latency.sh`'s `--time` to `01:55:00` and resubmitting as
+    job 836433, 1h08m29s, exit 0)**: L1_to_L2=104.0 / L2_to_LLC=270.0 / LLC_to_DRAM=497.0
+    ticks (random, base-run median) -- increasing as expected. All 3 transitions flagged
+    >20% repeat-to-repeat spread on at least one pattern (same as every lab machine's own
+    miss_latency section), not re-run. No single-shot fixed-overhead control measured on
+    this machine.
+  - **inclusion_policy (job 836440, submitted with `--dependency=afterok:836433` right
+    after miss_latency, 1m48s, exit 0)**: script `hpc_slurm/hw1_haswell_inclusion_policy.sh`
+    written this session, pairings `L1_vs_L2:32768:262144:L1_to_L2`,
+    `L2_vs_LLC:262144:25165824:L2_to_LLC`, `L1_vs_LLC:32768:25165824:LLC_to_DRAM`
+    (`ASSUMED_LINE_SIZE_BYTES` default 64, this machine's only measured value).
+    **L1_vs_L2: UNCERTAIN** (28.5% survived-like/70.5% ambiguous, unlike every lab
+    machine's own clean EXCLUSIVE verdict at this pairing -- a genuine, machine-specific
+    open question, not investigated further). **L2_vs_LLC: EXCLUSIVE/NON-INCLUSIVE**
+    (80.5% survived-like; lowest-confidence per the usual L2-target-doesn't-fit-one-page
+    caveat). **L1_vs_LLC (skip-level): EXCLUSIVE/NON-INCLUSIVE**, cleanest of the three
+    (97.5% survived-like). Best-guess overall: LLC reads non-inclusive of both L1 and L2 on
+    this machine, matching Skylark/Upgrade/Crux's own uniformly-non-inclusive pattern rather
+    than Sunbird's mixed result. Full detail: `data_raw/hazel_haswell/README.md`'s
+    `latency/` and `inclusion_policy/` sections.
 
 - **Other 8 generations (broadwell, skylake, cascadelake, icelake_6326, icelake_8358,
   sapphirerapids, genoa, turin): only the access-check pilot has run on each. No capacity
