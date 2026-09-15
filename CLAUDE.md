@@ -2614,6 +2614,23 @@ differs), same base+2-reproducibility-repeat convention.
 
 ## Known constraints from prior sessions
 
+- **`scripts/run_line_size.sh` did NOT gzip its own raw per-point CSVs, unlike every
+  other pipeline (`run_capacity_full.sh`/`run_miss_latency_full.sh`/
+  `run_inclusion_policy_full.sh` all do) -- FIXED 2026-09-15 (now gzips each level's
+  raw CSVs at the end of that level's processing, same convention as the others).**
+  Before this fix, line_size's raw `family_*`/`singlecurve_*`/`refine_*` CSVs stayed
+  uncompressed, and `data_raw/**/*.csv` is gitignored (see the note near the top of
+  `.gitignore`) -- so those files were silently never committed at all on any machine
+  that ran this script before the fix (discovered on hazel_haswell: 426 MB of raw
+  line_size CSVs across both the original run and a step-4 follow-up had never been
+  committed since job 834508; fixed by hand-gzipping and force-adding, ~55 MB
+  compressed). **If you pull an older checkout of this script (predating this
+  fix) on a different machine, or find an existing machine's `data_processed/
+  <machine>/line_size/` plots/summaries with no matching `data_raw/<machine>/
+  line_size/level_*/*.csv.gz` alongside them, that's this same gap** -- gzip and
+  commit the raw CSVs by hand (`gzip data_raw/<machine>/line_size/level_*/*.csv`)
+  before assuming the fixed script already covered it. Any run using the current
+  script (post-2026-09-15) gets this automatically, nothing to do by hand.
 - Compile baseline is `-O0 -g -std=c11 -Wall -Wextra -fno-omit-frame-pointer`
   (see `Makefile`) — do not add optimization or drop `-g`/frame-pointer
   without updating the disassembly-inspection evidence too.
