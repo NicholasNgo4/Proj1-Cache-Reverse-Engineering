@@ -176,6 +176,49 @@ brevity, but confirmed matching for `c207n01` in this run's own log,
     since Method A step 4 (the actual confirmation step) never ran at any level.
   - Final cross-level/method agreement: **64 B** (the only value any level/method produced).
 
+**Follow-up: Method A step 4, candidate=64 B forced at all 3 levels (Slurm job 837261,
+hostname `c207n08`, logical CPU 10, elapsed 9m00s, exit 0):**
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_haswell 10
+  32768,262144,25165824 8,16,32,64,128,256 64,64,64` -- re-runs the full pipeline (steps 1-3
+  always re-run regardless) and adds step 4, forcing the offset-invariance confirmation test
+  at 64 B for every level (L1/L2/LLC), since 64 B was the only line-size value this machine had
+  produced anywhere so far and had not yet been cross-checked for alignment-independence past
+  L1.
+- **All 3 levels: candidate stride 64 B reports an elbow stable across all 8/8 tested offsets
+  (0,8,...,56 B)** -- no missing offsets, no gap warning triggered:
+  - L1 (32,768 B): elbow 36,736 B at every offset (0.0% spread, perfectly stable).
+  - L2 (262,144 B): elbow ranges 330,240-416,128 B across the 8 offsets (1.26x spread) --
+    noisier than L1's, but the script's own step-4 verdict still reads this as "consistent
+    with a genuine, alignment-independent transition" (a real elbow exists at every offset,
+    just at a somewhat different footprint each time -- not the "no elbow at some offsets"
+    failure mode the method is designed to catch).
+  - LLC (25,165,824 B): elbow 39,948,224 B at every offset (0.0% spread, as stable as L1's).
+  - **This is new, positive evidence that 64 B is offset-invariant at L2 and LLC, not just
+    L1** -- the first time any method on this machine has tested alignment-independence past
+    L1. Combined with L1's own already-clean result, Method A now supports 64 B as this
+    machine's line size at all three levels, not merely "the only value produced anywhere."
+- **Caveat, worth flagging plainly: this same re-run's Method B (single-curve, fully
+  automatic, no candidate involved) detected 80 B at L1 this time, not the 64 B job 834508
+  originally found** (`-- [L32768 B] detected line-size estimate (bytes): 80 --`) -- Method
+  B's own L1 answer is evidently not stable run-to-run on this machine, even at the same
+  seed=12345 (most likely session-to-session timing-curve noise on this shared cluster,
+  consistent with this project's broader documented experience elsewhere; not independently
+  root-caused this pass). Method B at L2/LLC again found no transition (`none`), unchanged
+  from before. **Do not treat Method B's L1 read as settled** -- Method A's own step-4
+  confirmation (the more rigorous, multi-offset check) is the more trustworthy evidence here,
+  and it agrees with the original 64 B across two separate runs.
+- Also worth noting: the family-of-curves diagnostic's own single-sweep automatic guess (steps
+  1-3, informational only, never auto-applied) landed on 64 B at L1 and L2 but **32 B at LLC**
+  this run (`per-stride elbow` disagreeing at the largest tested stride) -- the manually-forced
+  64 B candidate was tested anyway per this session's explicit direction, and it held up under
+  the offset-invariance check regardless of what the un-repeated diagnostic guessed.
+- New plots: `data_processed/hazel_haswell/line_size/level_{32768,262144,25165824}/plots/
+  line_size_offset_{elbow,boxplots}.{png,pdf}` (Method A step 4 -- these did not exist after
+  the original run).
+- **Updated final cross-level/method agreement: 64 B, now confirmed offset-invariant at all
+  three levels via Method A's step-4 check** (not just "the only value any level/method
+  produced," as job 834508's run alone could say).
+
 ### associativity/
 - Slurm job ID: 834509, hostname `c207n02`, logical CPU 10, elapsed 33s, exit 0.
 - Source file(s): `main_code/common/associativity.{c,h}`,
@@ -222,19 +265,91 @@ brevity, but confirmed matching for `c207n01` in this run's own log,
   footprints), a same-run internal cross-check. L2 and LLC numbers are only as trustworthy as
   their underlying (reasoned/provisional) footprint choices -- see capacity/'s findings above.
 
-**miss_latency (Slurm job 834511 TIMED OUT after 1h -- L1_to_L2 and L2_to_LLC transitions
-completed cleanly; LLC_to_DRAM's 512 MiB eviction, the expensive stage per this project's own
-documented lab-machine experience, got through base+rep1 before being killed mid-rep2.
-Job resubmitted with a longer walltime -- see below once it completes.):**
+**miss_latency (Slurm job 834511 originally TIMED OUT after 1h -- L1_to_L2 and L2_to_LLC
+transitions completed cleanly; LLC_to_DRAM's 512 MiB eviction, the expensive stage per this
+project's own documented lab-machine experience, got through base+rep1 before being killed
+mid-rep2. Fixed by bumping `hpc_slurm/hw1_haswell_miss_latency.sh`'s `--time` from `01:00:00`
+to `01:55:00` and resubmitting as job 836433, hostname `c207n08`, logical CPU 10, elapsed
+1h08m29s, exit 0 -- completed within the new budget with room to spare.):**
 - Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
   (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
-- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh hazel_haswell 14
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh hazel_haswell 10
   L1_to_L2:32768:262144,L2_to_LLC:262144:25165824,LLC_to_DRAM:25165824:536870912`
+- Sample count: 200 single-shot trials per (transition, pattern, run) -- this project's
+  established miss_latency convention (distinct from hit_latency's 1,000,000 batched samples;
+  see `latency.h`'s own docstring for why single-shot is used here). base_seed=12345, 2
+  reproducibility repeats (seed+1/seed+2).
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=104.0, L2_to_LLC=270.0,
+  LLC_to_DRAM=497.0** -- an increasing sequence as expected of crossing 3 successive levels,
+  consistent in relative ordering with the hit_latency ladder above (L1=8.46 < L2=16.74 <
+  LLC=53.79 < DRAM=206.18). All three transitions show substantial repeat-to-repeat spread,
+  flagged by the pipeline's own overlapping-summary check at plot time: L1_to_L2 32.9%/47.3%
+  (random/sequential), L2_to_LLC 65.9%/77.5%, LLC_to_DRAM 24.2% (random; sequential ~9.5%,
+  below the 20% flag threshold) -- not re-run, consistent with the same "real reload latency +
+  substantial repeat variance" pattern already documented for every lab machine's own
+  miss_latency section in `CLAUDE.md` (Sunbird/Crux/Ookay/Charnwood/Artemisia/Skylark all
+  showed 2+ of their own 6 (transition, pattern) cells exceeding 20%). No dedicated single-shot
+  fixed-overhead control was run this pass (not part of this automated pipeline, and no ad hoc
+  follow-up attempted) -- `latency.h`'s own KNOWN LIMITATION (single-shot timing carries a
+  machine-specific fixed overhead atop real reload latency, documented via a direct
+  measurement on every lab machine) applies here too, just unmeasured on this machine: these
+  numbers should be read as "real reload latency + fixed overhead", not a clean isolated
+  number.
+- Full transcript: `data_raw/hazel_haswell/latency/run_miss_latency_full_20260914T223457Z.log`
 
 ### inclusion_policy/
-- Source file(s): 
-- Run command + arguments: 
-- Eviction/reload construction: 
+**(Slurm job 836440, hostname `c207n01`, logical CPU 10, elapsed 1m48s, exit 0 -- submitted
+with `--dependency=afterok:836433` so it started automatically once miss_latency's raw output
+existed, per the calibration dependency documented in `run_inclusion_policy_full.sh`'s header
+comment.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh hazel_haswell 10
+  L1_vs_L2:32768:262144:L1_to_L2,L2_vs_LLC:262144:25165824:L2_to_LLC,L1_vs_LLC:32768:25165824:LLC_to_DRAM`
+  (pairings/spec per `CLAUDE.md`'s suggested convention; `ASSUMED_LINE_SIZE_BYTES` left at its
+  default, 64 -- haswell's own line_size/ section above only produced a citable estimate at L1
+  (64 B, matching the frozen prediction), so 64 is the only measured value anywhere on this
+  machine, not a blind carry-over of the pipeline default.)
+- Eviction/reload construction: target + an untouched control line, both freshly page-aligned;
+  eviction buffer at one node per page (stride 4096 B, fixed sub-page offset 2048 B, distinct
+  from target/control's own offset 0), scaled up from each pairing's lower-level byte capacity
+  by `page_size/ASSUMED_LINE_SIZE_BYTES` (4096/64 = 64x) per `inclusion_policy.h`'s method (see
+  its docstring for the full rationale and the two load-bearing caveats -- line-size scaling
+  assumption and single-shot/DTLB confound risk at large scaled footprints -- both apply here
+  unmodified). 200 single-shot trials/channel/pattern/run, base_seed=12345, 2 repeats.
+- **Results (each pairing's calibration + classification, from the run's own output):**
+  - **L1_vs_L2** (evict_bytes scaled to 16,777,216 B): survived-class (single-shot) 51.08
+    ticks, invalidated-class (from this run's own miss_latency L1_to_L2 data) 95.00 ticks,
+    boundary 69.66 ticks. Target: 28.5% survived-like / 1.0% invalidated-like (70.5%
+    ambiguous); control: 91.5% survived-like. Paired check: target read slower than its own
+    trial's control in 89.5% of trials. **Verdict: UNCERTAIN (mixed result)** -- unlike every
+    lab machine's own L1_vs_L2 pairing (Sunbird/Thunderbird/Charnwood/Skylark/Upgrade/Ookay/Crux
+    all read a clean EXCLUSIVE/NON-INCLUSIVE at this pairing), this machine's absolute-tick
+    classification landed mostly ambiguous even though the paired check still shows a consistent
+    target-slower-than-control signal -- read as a real, machine-specific result, not
+    dismissed to match the lab-machine pattern; not further investigated this pass.
+  - **L2_vs_LLC** (evict_bytes scaled to 1,610,612,736 B): survived-class 62.33 ticks,
+    invalidated-class (own L2_to_LLC data) 279.00 ticks, boundary 131.87 ticks. Target: 80.5%
+    survived-like / 18.5% invalidated-like; control: 85.5% survived-like. Paired check: 78.5%.
+    **Verdict: EXCLUSIVE / NON-INCLUSIVE.** Per `inclusion_policy.h`'s own caveat, this is the
+    lowest-confidence pairing structurally (an L2-sized target's index does not fit within one
+    page, so the eviction construction's "avoids target's own set" guarantee does not hold here
+    the way it does for an L1 target) -- read with that caveat, same as every lab machine's own
+    L2_vs_LLC result.
+  - **L1_vs_LLC** (skip-level; evict_bytes scaled to 1,610,612,736 B): survived-class 49.53
+    ticks, invalidated-class (own LLC_to_DRAM data) 616.50 ticks, boundary 174.74 ticks. Target:
+    97.5% survived-like / 1.5% invalidated-like; control: 98.5% survived-like. Paired check:
+    85.0%. **Verdict: EXCLUSIVE / NON-INCLUSIVE**, the cleanest/most confident result of the
+    three (least ambiguous target channel, small target correctly avoids the large-scale
+    eviction).
+  - **Best-guess overall reading:** LLC reads as non-inclusive of both L1 and L2 on this
+    machine (both LLC-involving pairings agree, L1_vs_LLC especially cleanly) -- a different
+    shape from Sunbird's own mixed non-inclusive-L2/leaning-inclusive-LLC-as-snoop-filter
+    reading, but matching the uniformly-non-inclusive pattern already seen on Skylark/Upgrade/
+    Crux. L1_vs_L2's own UNCERTAIN verdict is this machine's one open question -- do not cite a
+    global "this machine's cache hierarchy is inclusive/exclusive" claim without noting it.
+- Full transcript: `data_raw/hazel_haswell/inclusion_policy/run_inclusion_policy_full_20260914T234331Z.log`
 
 ### pmu/ (Phase II only — leave blank until Phase I is frozen)
 - `perf list` output filename: 

@@ -434,6 +434,16 @@ for idx in "${!BOUNDARIES[@]}"; do
           "unaffected; regenerate standalone once matplotlib is available." >&2
 
   LEVEL_ESTIMATES_B+=("${BOUNDARY}:${B_ESTIMATE:-none}")
+
+  # ---- compress this level's raw per-point CSVs (data_raw/**/*.csv is gitignored --
+  # commit the .csv.gz, not a decompressed copy; mirrors every other pipeline's own
+  # gzip step, e.g. run_capacity_full.sh/run_miss_latency_full.sh/
+  # run_inclusion_policy_full.sh. Missing here for a long time -- see CLAUDE.md's
+  # Known constraints section -- silently meant this experiment's raw CSVs never
+  # actually got committed on hazel_haswell until that gap was caught and fixed by
+  # hand; every machine run from here on gets it automatically instead. ----
+  echo "-- compressing raw CSVs for level ${BOUNDARY} --"
+  gzip -f "${RAW_LEVEL_DIR}"/*.csv 2>/dev/null || true
 done
 
 ### Step 5: infer, freeze, cross-level AND cross-method agreement, remind about Phase II ###
