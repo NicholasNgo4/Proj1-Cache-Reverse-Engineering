@@ -19,6 +19,27 @@
 #     --export=ALL,MACHINE_ARG=hazel_broadwell/line_size_rerun,CORE_ARG=22,BOUNDARIES_ARG=25874000 \
 #     hpc_slurm/hw1_line_size_relook.sh
 #
+# Multi-boundary example (re-testing BOTH L2 and L3 in one job):
+#   sbatch --constraint=genoa \
+#     --output=data_raw/hazel_genoa/hw1_line_size_relook_%j.log \
+#     --error=data_raw/hazel_genoa/hw1_line_size_relook_%j.err.log \
+#     --export=ALL,MACHINE_ARG=hazel_genoa/line_size_rerun,CORE_ARG=6,BOUNDARIES_ARG=1048576+33554432 \
+#     hpc_slurm/hw1_line_size_relook.sh
+#
+# BOUNDARIES_ARG uses '+' (NOT ',') to separate multiple boundary values --
+# real bug found 2026-09-15: sbatch's --export parser splits its whole
+# argument on top-level commas to find each NAME=VALUE pair, with no
+# escaping/quoting for a comma that's meant to be part of one value. A
+# first attempt at passing BOUNDARIES_ARG=<L2>,<L3> for the 4 generations
+# needing both levels (genoa, icelake_8358, sapphirerapids, turin) had
+# sbatch itself split that into "BOUNDARIES_ARG=<L2>" and a second,
+# malformed "<L3>" token -- silently truncating BOUNDARIES_ARG to just the
+# L2 value with no error, so L3 was never re-run in that first batch (caught
+# only by noticing the missing level_<L3>/ output, then resubmitted
+# separately per machine). '+' never collides with sbatch's own parsing, so
+# this script now accepts it and converts back to the comma-separated form
+# scripts/run_line_size.sh actually expects.
+#
 #SBATCH --job-name=hw1_ls_relook
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
@@ -30,7 +51,12 @@ set -euo pipefail
 
 : "${MACHINE_ARG:?must set MACHINE_ARG via --export, e.g. hazel_broadwell/line_size_rerun}"
 : "${CORE_ARG:?must set CORE_ARG via --export}"
-: "${BOUNDARIES_ARG:?must set BOUNDARIES_ARG via --export, e.g. 25874000 or 1048576,33554432}"
+: "${BOUNDARIES_ARG:?must set BOUNDARIES_ARG via --export, e.g. 25874000 or 1048576+33554432 (use '+' to separate multiple boundaries -- see header comment)}"
+
+# BOUNDARIES_ARG comes in '+'-separated (sbatch --export is comma-delimited
+# at the top level, so a literal ',' here would get silently truncated --
+# see header comment); run_line_size.sh itself wants the usual comma-separated form.
+BOUNDARIES_CSV="${BOUNDARIES_ARG//+/,}"
 
 echo "=== Machine identification (Phase Discipline whitelist only) ==="
 hostname
@@ -46,8 +72,8 @@ fi
 
 source hpc_slurm/hazel_python_env.sh
 
-echo "=== Running scripts/run_line_size.sh (HAZEL_MODE=1) for ${MACHINE_ARG}, boundaries=${BOUNDARIES_ARG} ==="
-HAZEL_MODE=1 ./scripts/run_line_size.sh "${MACHINE_ARG}" "${CORE_ARG}" "${BOUNDARIES_ARG}"
+echo "=== Running scripts/run_line_size.sh (HAZEL_MODE=1) for ${MACHINE_ARG}, boundaries=${BOUNDARIES_CSV} ==="
+HAZEL_MODE=1 ./scripts/run_line_size.sh "${MACHINE_ARG}" "${CORE_ARG}" "${BOUNDARIES_CSV}"
 
 echo
 echo "=== Done ==="
