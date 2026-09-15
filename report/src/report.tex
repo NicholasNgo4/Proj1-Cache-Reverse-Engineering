@@ -1463,7 +1463,7 @@ the 80\% threshold either way); a parenthetical lean is given for UNC verdicts w
 target/control gap still favors a direction. L2\_vs\_LLC uses an L2 target and therefore
 carries the least confidence on every machine (Section~\ref{sec:inclusion}, caveat 3).}
 \label{tab:inclusion-crossmachine}
-\begin{tabular}{|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|l|X|X|X|}
 \hline
 \textbf{Machine} & \textbf{ISA/Vendor} & \textbf{L1\_vs\_L2} & \textbf{L2\_vs\_LLC} & \textbf{L1\_vs\_LLC (skip-level)} \\
 \hline
@@ -1476,7 +1476,7 @@ Ookay       & x86-64/Intel  & NI  & UNC (lean INC) & UNC (lean INC) \\
 Crux        & x86-64/Intel  & NI  & NI (lean)       & UNC (barely lean NI) \\
 Charnwood   & x86-64/Intel  & NI  & UNC (lean INC) & UNC (lean INC, moderate) \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \textbf{Known limitation, stated directly in the source:} the avoidance guarantee (the
@@ -1578,7 +1578,7 @@ snoop-filter design) alongside a non-inclusive L2.
 \begin{table}[H]
 \centering\scriptsize
 \caption{Final inferred cache table, Sunbird (Phase I best guess; PMU agreement in parentheses, Section~\ref{sec:pmu}).}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
 \hline
 Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks/ns) & Miss/next lat.\ (ticks) & Sharing & Inclusion vs.\ below\\
 \hline
@@ -1587,7 +1587,7 @@ L2 & 262,144\,B & 64\,B & 8-way (512) -- PMU exact & 26.83 / 10.73 & 284 & Priva
 LLC & $\sim$31.46\,MB (PMU exact) & 64\,B & 9-way $\to$ PMU \textbf{20-way} ($\sim$54,613 $\to$ PMU 24,576 sets) & 58.42 / 23.37 & 622 & PMU: whole socket, 24 CPUs, 2.5\,MiB/core & Uncertain (lean INC)\\
 DRAM & -- & -- & -- & 207.10 / 82.8 & -- & -- & --\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 LLC associativity is the one field Phase I got wrong here (9 vs.\ PMU's 20-way, outside even
 Agner Fog's quoted 12--16-way family range for this generation, since this is a 12-core
@@ -1658,7 +1658,7 @@ synthesis matches Sunbird's: LLC inclusive toward L1, non-inclusive L2.
 \begin{table}[H]
 \centering\scriptsize
 \caption{Final inferred cache table, Charnwood.}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
 \hline
 Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks/ns) & Miss/next lat.\ (ticks) & Sharing & Inclusion vs.\ below\\
 \hline
@@ -1667,7 +1667,7 @@ L2 & 262,144\,B & 64\,B & 8-way $\to$ PMU \textbf{4-way} (512 $\to$ PMU 1,024) &
 LLC & 8,388,608\,B -- PMU exact & 64\,B & 8-way $\to$ PMU \textbf{16-way} (16,384, PMU) & 108 / 31.76 & 852 & Whole chip, 4c/8t, 2.0\,MiB/core & Leans inclusive (moderate conf.)\\
 DRAM & -- & -- & -- & 394.7 / 116.1 & -- & -- & --\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Ookay (2017, Intel Kaby Lake)}
@@ -1727,7 +1727,7 @@ Sunbird's and Charnwood's: an LLC inclusive of what is resident above it.
 \begin{table}[H]
 \centering\scriptsize
 \caption{Final inferred cache table, Ookay.}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
 \hline
 Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks/ns) & Miss/next lat.\ (ticks) & Sharing & Inclusion vs.\ below\\
 \hline
@@ -1736,7 +1736,7 @@ L2 & 262,144\,B & 64\,B & 8-way $\to$ PMU \textbf{4-way} (1,024 sets, PMU) & 18.
 LLC & 8,388,608\,B -- PMU exact & 64\,B & 8-way $\to$ PMU \textbf{16-way} (8,192 sets, PMU) & 74.78 / 20.77 & 693 & Whole chip, 4c/8t, 2.0\,MiB/core & Leans inclusive (moderate-strong)\\
 DRAM & -- & -- & -- & 284.45 / 79.02 & -- & -- & --\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Upgrade (2017, Intel Coffee Lake)}
@@ -1800,7 +1800,7 @@ read but for a different underlying vendor/generation reason.
 \begin{table}[H]
 \centering\scriptsize
 \caption{Final inferred cache table, Upgrade.}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
 \hline
 Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks/ns) & Miss/next lat.\ (ticks) & Sharing & Inclusion vs.\ below\\
 \hline
@@ -1809,7 +1809,7 @@ L2 & 262,144\,B & 64\,B & 8-way $\to$ PMU \textbf{4-way} (1,024 sets, PMU) & 16.
 LLC & 12,582,912\,B -- PMU exact & 64\,B & 8-way $\to$ PMU \textbf{16-way} (12,288 sets, PMU) & 155.05 / 48.45 & 605 & Whole chip, 6c/12t, 2.0\,MiB/core & Uncertain (reasoned lean NI)\\
 DRAM & -- & -- & -- & 251.56 / 78.61 & -- & -- & --\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Crux (2019, Intel Coffee Lake Refresh)}
@@ -1869,7 +1869,7 @@ genuine point of contrast with Sunbird's own inclusive-LLC-toward-L1 reading.
 \begin{table}[H]
 \centering\scriptsize
 \caption{Final inferred cache table, Crux.}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
 \hline
 Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks/ns) & Miss/next lat.\ (ticks) & Sharing & Inclusion vs.\ below\\
 \hline
@@ -1878,7 +1878,7 @@ L2 & 262,144\,B & 64\,B & 8-way $\to$ PMU \textbf{4-way} (1,024 sets, PMU) & 14.
 LLC & 8,388,608\,B $\to$ PMU \textbf{12,582,912\,B (1.5x)} & 64\,B & 8-way $\to$ PMU \textbf{12-way} (16,384 sets, PMU) & 43.23 / 14.41 & 437 & Whole chip, 8c, 1.5\,MiB/core & Uncertain (barely lean NI)\\
 DRAM & -- & -- & -- & 236.80 / 78.93 & -- & -- & --\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 Crux's LLC \emph{size} was one of only 3 machines (with Skylark, Artemisia) where Phase I's
 capacity estimate itself, not just associativity, was later found too small by PMU/system
@@ -1943,7 +1943,7 @@ forming this reading).
 \begin{table}[H]
 \centering\scriptsize
 \caption{Final inferred cache table, Skylark.}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
 \hline
 Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks/ns) & Miss/next lat.\ (ticks) & Sharing & Inclusion vs.\ below\\
 \hline
@@ -1952,7 +1952,7 @@ L2 & 524,288\,B & 64\,B & 8-way -- PMU exact, agrees! (1,024 sets, PMU) & 16.15 
 LLC & 8,388,608\,B $\to$ PMU \textbf{16,777,216\,B (2x, confirmed underestimate)} & \textbf{128\,B} (vs.\ 64\,B at L1/L2) & 8-way $\to$ PMU \textbf{16-way} (16,384 sets, PMU) & 27.22 / 11.34 & 360 & 2 cores/CCX only, 8.0\,MiB/core & Non-inclusive\\
 DRAM & -- & -- & -- & 274.87 / 114.5 & -- & -- & --\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 Skylark's LLC sharing domain (2 cores per L3 instance, not the whole socket) is itself a
 Phase-II finding that would have been invisible to timing alone -- an AMD Rome
@@ -2021,7 +2021,7 @@ avoidance guarantee even for L1-target pairings here.
 \begin{table}[H]
 \centering\scriptsize
 \caption{Final inferred cache table, Thunderbird.}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
 \hline
 Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks/ns) & Miss/next lat.\ (ticks/ns) & Sharing & Inclusion vs.\ below\\
 \hline
@@ -2030,7 +2030,7 @@ L2 & 1,048,576\,B & 64\,B & 12-way $\to$ PMU \textbf{8-way} (2,048 sets, PMU) & 
 LLC & $\sim$31.46\,MB (lit.\ 32\,MiB, $\approx$94\% match; no system-report entry) & \textbf{128\,B} (vs.\ 64\,B at L1/L2) & 10-way $\to$ lit.\ 16-way (24,576 sets, Phase I) & 0.907 / 36.3 & 4.0 / 160 & \textbf{ALL 80 cores} (lit.), 0.4\,MiB/core & Leans non-inclusive\\
 DRAM & -- & -- & -- & 2.336 / 93.4 & -- & -- & --\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 Thunderbird's LLC sharing domain -- all 80 cores of the SoC, per the vendor datasheet -- is
 architecturally unlike every other machine's per-socket LLC, and its L1/L2 associativity
@@ -2103,7 +2103,7 @@ oversized L2 eviction footprint rather than a real ambiguity in hardware behavio
 \begin{table}[H]
 \centering\scriptsize
 \caption{Final inferred cache table, Artemisia.}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
 \hline
 Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks/ns) & Miss/next lat.\ (ticks) & Sharing & Inclusion vs.\ below\\
 \hline
@@ -2112,7 +2112,7 @@ L2 & 2,097,152\,B* & 64\,B & 16-way -- PMU exact, agrees! (2,048 sets, PMU) & 28
 LLC & 31,457,280\,B $\to$ PMU \textbf{55,050,240\,B (1.75x, confirmed)} & 64\,B (unmeasured at LLC) & 16-way $\to$ PMU \textbf{15-way, close} (57,344 sets, PMU) & 94.38 / 47.19 & 582 & 1 socket, 56 CPUs, 1.875\,MiB/core & Inclusive\\
 DRAM & -- & -- & -- & 305.58 / 152.79 & -- & -- & --\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 {\scriptsize *L2's own capacity is a \texttt{CAPACITY\_RESULTS.md} placeholder this
 machine's own sweep never independently confirmed; Phase-II system-report and Intel ARK both
@@ -2171,7 +2171,7 @@ Section~\ref{sec:permachine}'s final tables).
 \centering\scriptsize
 \caption{Phase I (timing) vs.\ Phase II (PMU/system-report) size and associativity agreement, all 8 lab machines. \cmark\ = exact match, \xmark\ = disagreement (Phase II value shown).}
 \label{tab:phase2-summary}
-\begin{tabular}{|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|l|l|l|X|l|X|}
 \hline
 Machine & L1D size & L1D assoc. & L2 assoc. & LLC size & LLC assoc. & Notes\\
 \hline
@@ -2184,7 +2184,7 @@ Skylark & \cmark & \cmark & \cmark & \xmark\ (2x) & \xmark\ (16w) & LLC line 128
 Thunderbird & \cmark & \cmark & \xmark\ (8w) & (no sys.\ entry; lit.\ $\approx$94\%) & (lit.\ 16w) & ARM, no sysfs cache tree exposed\\
 Artemisia & \cmark & \cmark & \cmark & \xmark\ (1.75x) & \xmark\ (15w, close) & Largest LLC size gap on the team\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \textbf{Headline finding: L1D is the one cache level this entire project measured
@@ -2562,7 +2562,7 @@ with every column: \texttt{CHRONOLOGICAL\_MASTER\_TABLE.md}. Plots are produced 
 \begin{table}[H]
 \centering\tiny
 \caption{Chronological master table (condensed) -- L1D row per machine, oldest to newest. Ways column shows Phase I $\to$ PMU where they disagree.}
-\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|l|l|X|l|l|l|l|l|l|}
 \hline
 Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size & Ways & Sets & Line & Hit lat.\ (ticks/ns)\\
 \hline
@@ -2575,7 +2575,7 @@ Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size & Ways & Sets & Li
 2020 & Ampere AArch64 & Neoverse N1 & Q80-30 (Thunderbird) & 7\,nm & 65,536\,B & 4 & 256 & 64\,B & 0.130 / 5.0\\
 2023 & Intel x86-64 & Sapphire Rapids & 2x Xeon Gold 5420+ (Artemisia) & 10\,nm/Intel 7 & 49,152\,B & 12 & 64 & 64\,B & 9.87 / 4.94\\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 L2/LLC/DRAM columns (including the many Phase I $\to$ PMU disagreements documented in
