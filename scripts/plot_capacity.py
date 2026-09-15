@@ -133,8 +133,11 @@ PATTERN_STYLE = {
 }
 
 
-def plot_curve(by_pattern, machine, out_prefix, title_suffix, log_y):
-    fig, ax = plt.subplots(figsize=(7.5, 5))
+def plot_curve(by_pattern, machine, out_prefix, title_suffix, log_y, patterns=None):
+    if patterns is not None:
+        by_pattern = {p: sizes for p, sizes in by_pattern.items() if p in patterns}
+
+    fig, ax = plt.subplots(figsize=(10, 5.5))
 
     all_sizes = []
     for pattern, sizes in sorted(by_pattern.items()):
@@ -154,23 +157,37 @@ def plot_curve(by_pattern, machine, out_prefix, title_suffix, log_y):
     ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: human_bytes(int(v))))
     # The default log-scale locator doesn't reliably land a tick on the
     # actual largest swept size, so the right edge of the sweep can be
-    # unlabeled even though data extends to it. Force ticks at every 3rd
-    # octave (8x) from the smallest to largest size actually plotted, and
-    # always add the exact max/min so the swept range's edges are labeled.
-    # A regular-grid tick that lands too close (in log space) to the exact
-    # min/max is dropped rather than kept alongside it, since two labels a
-    # couple octaves apart otherwise overlap/clip at this figure width.
+    # unlabeled even though data extends to it. Force one tick per OCTAVE
+    # (every power of two) from the smallest to largest size actually
+    # plotted -- denser than a coarser every-Nth-octave grid so specific
+    # reference sizes (e.g. is a bend at 32 KiB or 48 KiB?) are directly
+    # readable -- plus 48 KiB (49,152 B) force-included whenever it falls
+    # in range, since it's a real L1 boundary on some machines (Sapphire
+    # Rapids/Turin) but isn't a power of two so the octave ladder alone
+    # would otherwise skip it. Always add the exact max/min so the swept
+    # range's edges are labeled. A regular-grid tick that lands almost
+    # exactly on top of the true min/max is dropped rather than doubled up
+    # right next to it; the suppression window is intentionally small
+    # (unlike the old coarser layout, the goal here is more labels, not
+    # fewer).
     import math
     true_min, true_max = min(all_sizes), max(all_sizes)
     lo_oct = math.floor(math.log2(true_min))
     hi_oct = math.ceil(math.log2(true_max))
-    min_gap_octaves = 2
-    regular = [2 ** e for e in range(lo_oct, hi_oct + 1, 3)
-               if abs(e - math.log2(true_min)) > min_gap_octaves
-               and abs(e - math.log2(true_max)) > min_gap_octaves]
+    min_gap_octaves = 0.25
+    ASSUMED_48KIB = 48 * 1024
+    candidates = [2 ** e for e in range(lo_oct, hi_oct + 1)]
+    if true_min <= ASSUMED_48KIB <= true_max:
+        candidates.append(ASSUMED_48KIB)
+    regular = [c for c in candidates
+               if abs(math.log2(c) - math.log2(true_min)) > min_gap_octaves
+               and abs(math.log2(c) - math.log2(true_max)) > min_gap_octaves]
     tick_locs = sorted(set(regular + [true_min, true_max]))
     ax.set_xticks(tick_locs)
     ax.set_xticks([], minor=True)
+    ax.tick_params(axis="x", labelrotation=40, labelsize=9)
+    for label in ax.get_xticklabels():
+        label.set_horizontalalignment("right")
     if log_y:
         ax.set_yscale("log", base=2)
     ax.set_xlabel("Working-set size")
@@ -315,6 +332,11 @@ def main():
                      help="which pattern's box plots to draw (default: random)")
     ap.add_argument("--log-y", action="store_true",
                      help="use a log y-axis on the capacity curve")
+    ap.add_argument("--skip-boxplots", action="store_true",
+                     help="only (re)generate the capacity_curve plot(s), leave "
+                          "capacity_boxplots untouched (e.g. when re-plotting a curve "
+                          "without the --boundary args needed to reproduce the "
+                          "existing box plots)")
     args = ap.parse_args()
 
     import os
@@ -327,8 +349,16 @@ def main():
 
     plot_curve(by_pattern, args.machine, os.path.join(args.out_dir, "capacity_curve"),
                args.title_suffix, args.log_y)
-    plot_boxplots(by_pattern, args.machine, os.path.join(args.out_dir, "capacity_boxplots"),
-                  args.title_suffix, args.box_pattern, args.boundary)
+    if "random" in by_pattern:
+        plot_curve(by_pattern, args.machine,
+                   os.path.join(args.out_dir, "capacity_curve_random_only"),
+                   args.title_suffix, args.log_y, patterns=["random"])
+    else:
+        print("No 'random' pattern rows found; skipping random-only curve.", file=sys.stderr)
+
+    if not args.skip_boxplots:
+        plot_boxplots(by_pattern, args.machine, os.path.join(args.out_dir, "capacity_boxplots"),
+                      args.title_suffix, args.box_pattern, args.boundary)
     return 0
 
 
