@@ -176,7 +176,44 @@ project's AMD-generation requirement for the assignment's minimum-5 spanning set
   latency doesn't scale down with core speed, so a faster core "sees" proportionally more
   ticks for the same physical DRAM access.
 
-**miss_latency: pending as of this writing.**
+**miss_latency (Slurm job 838204, elapsed 1h45m47s, exit 0 -- close to the 1h55m budget but
+completed without needing a timeout fix):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh hazel_genoa 97
+  L1_to_L2:32768:1048576,L2_to_LLC:1048576:33554432,LLC_to_DRAM:33554432:536870912`
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=240.0, L2_to_LLC=504.0,
+  LLC_to_DRAM=864.0** -- cleanly increasing. Substantial repeat spread on several
+  (transition, pattern) cells (23.1-81.8%), not re-run.
+
+### inclusion_policy/
+**(Slurm job 838205, elapsed 2m12s, exit 0. All three pairings came back UNCERTAIN -- same
+total-non-answer category as hazel_broadwell's own result, and notably the SECOND AMD
+machine in a row (after turin, see that machine's own bullet below) to land here.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh hazel_genoa
+  97 L1_vs_L2:32768:1048576:L1_to_L2,L2_vs_LLC:1048576:33554432:L2_to_LLC,
+  L1_vs_LLC:32768:33554432:LLC_to_DRAM` (`ASSUMED_LINE_SIZE_BYTES` default 64).
+- **Results:**
+  - **L1_vs_L2**: target 0.0% survived-like / 1.5% invalidated-like / 197 ambiguous, control
+    0.0% survived-like / 3.5% invalidated-like / 193 ambiguous -- both channels almost
+    entirely ambiguous (target and control medians are IDENTICAL at 168.0 ticks). **Verdict:
+    UNCERTAIN (mixed result)** -- unlike every other machine's own clean L1_vs_L2 pairing.
+  - **L2_vs_LLC**: confound warning fired -- **control read 94.0% invalidated-like**, despite
+    never being touched. **Verdict: UNCERTAIN (confound suspected)**.
+  - **L1_vs_LLC (skip-level)**: confound warning fired again -- **control read 91.5%
+    invalidated-like**. **Verdict: UNCERTAIN (confound suspected)**.
+  - **Best-guess overall reading: none -- no directional claim is supportable from this
+    machine's data, same as hazel_broadwell.** Worth flagging as a possible cross-machine
+    pattern rather than pure coincidence: both AMD generations tested this session
+    (genoa/Zen 4 here, turin/Zen 5 below) produced a total inclusion_policy non-answer, while
+    5 of 6 Intel generations produced at least a partial directional read -- but with only
+    2 AMD data points (and one Intel machine, broadwell, ALSO landing here), this is not
+    strong enough evidence to call it an AMD-specific effect, just a pattern worth watching
+    if more AMD machines are ever added.
+- Full transcript: see `data_raw/hazel_genoa/inclusion_policy/run_inclusion_policy_full_*.log`
 
 ### inclusion_policy/
 - Source file(s): 

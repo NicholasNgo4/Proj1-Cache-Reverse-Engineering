@@ -1,0 +1,142 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+n0398
+Linux n0398 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: AMD EPYC 9654 96-Core Processor
+Assigned logical CPU: 96, SLURM_JOB_ID=838205
+
+=== Running scripts/run_inclusion_policy_full.sh (HAZEL_MODE=1) ===
+== run_inclusion_policy_full: machine=hazel_genoa core=96 base_seed=12345 ==
+== assumed_line_size_bytes=64 (confirmed for Sunbird 2026-09-11; verify for other machines) ==
+== timestamp=20260915T041225Z ==
+
+== L1_vs_L2: target_bytes=32768 lower_level_bytes=1048576 -> evict_bytes=67108864 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 116.064 ticks
+  invalidated-class (from data_processed/hazel_genoa/latency/miss/L1_to_L2/base_random_summary_20260915T022618Z.csv): 240.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_L2/inclusion_policy_base_random_20260915T041225Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_L2/base_random_summary_20260915T041225Z.csv
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_L2/inclusion_policy_base_sequential_20260915T041225Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_L2/base_sequential_summary_20260915T041225Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_random_20260915T041225Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_L2/rep1_random_summary_20260915T041225Z.csv
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_sequential_20260915T041225Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_L2/rep1_sequential_summary_20260915T041225Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_random_20260915T041225Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_L2/rep2_random_summary_20260915T041225Z.csv
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_sequential_20260915T041225Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_L2/rep2_sequential_summary_20260915T041225Z.csv
+Survived-class (upper-level hit) median:       116.06 ticks
+Invalidated-class (beyond-lower-level) median: 240.00 ticks
+Classification boundary (geometric mean):      166.90 ticks
+
+TARGET channel  (n=200): median=168.0 mean=162.8 ticks -- 0 survived-like (0.0%), 197 ambiguous, 3 invalidated-like (1.5%)
+CONTROL channel (n=200): median=168.0 mean=166.2 ticks -- 0 survived-like (0.0%), 193 ambiguous, 7 invalidated-like (3.5%)
+Paired check: target read slower than its own trial's control in 14.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: UNCERTAIN (mixed result -- do not claim a global policy from this alone)
+-- generating plots for L1_vs_L2 --
+Wrote data_processed/hazel_genoa/inclusion_policy/L1_vs_L2/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_L2 --
+
+== L2_vs_LLC: target_bytes=1048576 lower_level_bytes=33554432 -> evict_bytes=2147483648 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 140.16 ticks
+  invalidated-class (from data_processed/hazel_genoa/latency/miss/L2_to_LLC/base_random_summary_20260915T022618Z.csv): 504.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L2_vs_LLC/inclusion_policy_base_random_20260915T041225Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L2_vs_LLC/base_random_summary_20260915T041225Z.csv
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L2_vs_LLC/inclusion_policy_base_sequential_20260915T041225Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L2_vs_LLC/base_sequential_summary_20260915T041225Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_random_20260915T041225Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L2_vs_LLC/rep1_random_summary_20260915T041225Z.csv
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_sequential_20260915T041225Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L2_vs_LLC/rep1_sequential_summary_20260915T041225Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_random_20260915T041225Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L2_vs_LLC/rep2_random_summary_20260915T041225Z.csv
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_sequential_20260915T041225Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L2_vs_LLC/rep2_sequential_summary_20260915T041225Z.csv
+WARNING: control channel shows 94.0% invalidated-like trials, but control is never touched by the eviction walk by construction -- this suggests the avoidance construction is compromised on this machine/level (e.g. DTLB pressure from a large eviction footprint, or the upper level's index range exceeding one page -- see inclusion_policy.h's KNOWN LIMITATION). Treat the target verdict below as UNCERTAIN regardless of its own fraction.
+Survived-class (upper-level hit) median:       140.16 ticks
+Invalidated-class (beyond-lower-level) median: 504.00 ticks
+Classification boundary (geometric mean):      265.78 ticks
+
+TARGET channel  (n=200): median=744.0 mean=797.6 ticks -- 1 survived-like (0.5%), 1 ambiguous, 198 invalidated-like (99.0%)
+CONTROL channel (n=200): median=456.0 mean=465.1 ticks -- 12 survived-like (6.0%), 0 ambiguous, 188 invalidated-like (94.0%)
+Paired check: target read slower than its own trial's control in 91.5% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: UNCERTAIN (confound suspected -- see warning above)
+-- generating plots for L2_vs_LLC --
+Wrote data_processed/hazel_genoa/inclusion_policy/L2_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L2_vs_LLC --
+
+== L1_vs_LLC: target_bytes=32768 lower_level_bytes=33554432 -> evict_bytes=2147483648 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 115.152 ticks
+  invalidated-class (from data_processed/hazel_genoa/latency/miss/LLC_to_DRAM/base_random_summary_20260915T022618Z.csv): 864.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_LLC/inclusion_policy_base_random_20260915T041225Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_LLC/base_random_summary_20260915T041225Z.csv
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_LLC/inclusion_policy_base_sequential_20260915T041225Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_LLC/base_sequential_summary_20260915T041225Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_random_20260915T041225Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_LLC/rep1_random_summary_20260915T041225Z.csv
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_sequential_20260915T041225Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_LLC/rep1_sequential_summary_20260915T041225Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_random_20260915T041225Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_LLC/rep2_random_summary_20260915T041225Z.csv
+  wrote 402 lines -> data_raw/hazel_genoa/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_sequential_20260915T041225Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/hazel_genoa/inclusion_policy/L1_vs_LLC/rep2_sequential_summary_20260915T041225Z.csv
+WARNING: control channel shows 91.5% invalidated-like trials, but control is never touched by the eviction walk by construction -- this suggests the avoidance construction is compromised on this machine/level (e.g. DTLB pressure from a large eviction footprint, or the upper level's index range exceeding one page -- see inclusion_policy.h's KNOWN LIMITATION). Treat the target verdict below as UNCERTAIN regardless of its own fraction.
+Survived-class (upper-level hit) median:       115.15 ticks
+Invalidated-class (beyond-lower-level) median: 864.00 ticks
+Classification boundary (geometric mean):      315.42 ticks
+
+TARGET channel  (n=200): median=456.0 mean=644.9 ticks -- 2 survived-like (1.0%), 0 ambiguous, 198 invalidated-like (99.0%)
+CONTROL channel (n=200): median=432.0 mean=459.5 ticks -- 16 survived-like (8.0%), 1 ambiguous, 183 invalidated-like (91.5%)
+Paired check: target read slower than its own trial's control in 83.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: UNCERTAIN (confound suspected -- see warning above)
+-- generating plots for L1_vs_LLC --
+  note: ('target', 'random') has 3 overlapping summary rows with medians [456.0, 744.0, 432.0] (spread 312.0 ticks, 57.4%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_genoa/inclusion_policy/L1_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_LLC --
+
+== done ==
+== L1_vs_L2: VERDICT: UNCERTAIN (mixed result -- do not claim a global policy from this alone) ==
+== L2_vs_LLC: VERDICT: UNCERTAIN (confound suspected -- see warning above) ==
+== L1_vs_LLC: VERDICT: UNCERTAIN (confound suspected -- see warning above) ==
+== record in data_raw/hazel_genoa/README.md: core=96, base_seed=12345 (repeats use base_seed+index), trials=200, assumed_line_size_bytes=64, timestamp=20260915T041225Z ==
+== full transcript saved to: data_raw/hazel_genoa/inclusion_policy/run_inclusion_policy_full_20260915T041225Z.log ==
+
+=== Done ===
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 838205
+    Job name          : hw1_inclusion_policy
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-14T22:25:53
+    Started           : 2026-09-15T00:12:24
+    Wait time         : 6391 sec
+    Elapsed (wall)    : 00:02:12
+    Nodes             : 1 (n0398)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 127.28 sec  (user 121.69, sys 5.60)
+    CPU efficiency    : 96.4%
+    Memory in use     : 2.03 GB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 838205
+------------------------------------------------------------

@@ -179,7 +179,41 @@ hazel_genoa's own Zen 4.**
   for the same physical DRAM latency" effect already noted for genoa, just more pronounced
   given Zen 5's even lower baseline.
 
-**miss_latency: pending as of this writing.**
+**miss_latency (Slurm job 838247, elapsed 1h38m43s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh hazel_turin 144
+  L1_to_L2:49152:1048576,L2_to_LLC:1048576:33554432,LLC_to_DRAM:33554432:536870912`
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=130.0, L2_to_LLC=442.0,
+  LLC_to_DRAM=780.0** -- cleanly increasing. Only one (transition, pattern) cell flagged
+  >20% spread (L1_to_L2 random, 21.4%), the least noisy miss_latency result of any Hazel
+  generation so far -- consistent with this machine already having the cleanest DRAM-plateau
+  result in the capacity section.
+
+### inclusion_policy/
+**(Slurm job 838248, elapsed 1m59s, exit 0. All three pairings came back UNCERTAIN -- same
+total-non-answer category as hazel_broadwell's and hazel_genoa's own results; see genoa's
+own bullet for the cross-machine "both AMD generations" observation.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh hazel_turin
+  144 L1_vs_L2:49152:1048576:L1_to_L2,L2_vs_LLC:1048576:33554432:L2_to_LLC,
+  L1_vs_LLC:49152:33554432:LLC_to_DRAM` (`ASSUMED_LINE_SIZE_BYTES` default 64).
+- **Results:**
+  - **L1_vs_L2**: target 0.0% survived-like / 32.0% invalidated-like / 136 ambiguous, control
+    2.5% survived-like / 0.5% invalidated-like / 194 ambiguous -- both channels mostly
+    ambiguous. **Verdict: UNCERTAIN (mixed result)**.
+  - **L2_vs_LLC**: confound warning fired -- **control read 21.5% invalidated-like**, despite
+    never being touched. **Verdict: UNCERTAIN (confound suspected)**.
+  - **L1_vs_LLC (skip-level)**: confound warning fired, more severely -- **control read
+    46.0% invalidated-like**, and target itself read a stark 100.0% invalidated-like (0
+    survived, 0 ambiguous). **Verdict: UNCERTAIN (confound suspected)** despite the target's
+    own extreme reading, because the control contamination means that reading cannot be
+    trusted as reflecting the target's real behavior.
+  - **Best-guess overall reading: none -- no directional claim is supportable from this
+    machine's data**, same as hazel_broadwell's and hazel_genoa's own results.
+- Full transcript: see `data_raw/hazel_turin/inclusion_policy/run_inclusion_policy_full_*.log`
 
 ### inclusion_policy/
 - Source file(s): 
