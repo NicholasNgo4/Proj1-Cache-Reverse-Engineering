@@ -74,7 +74,13 @@ table and the two Team Cache Laws. This gates all real Hazel cache-experiment ru
     confirmation the same confound exists on Hazel hardware too.
   - line_size (job 834508, 2m33s): only L1's Method B produced an estimate, 64 B (matches
     frozen prediction). L2/LLC's Method B found no transition (consistent with their
-    provisional boundaries).
+    provisional boundaries). **Follow-up (job 837261, 9m): Method A step 4 with candidate=64B
+    forced at all 3 levels confirms 64 B is offset-invariant (stable across all 8/8 tested
+    offsets) at L1, L2, AND LLC** -- new positive evidence past L1. Caveat: this same re-run's
+    Method B flipped to 80B at L1 (not reproducing job 834508's own 64B), so Method B's L1
+    read is not stable run-to-run here; Method A's step-4 result is the more trustworthy
+    number. Final answer: **64 B at all 3 levels**, per `data_raw/hazel_haswell/README.md`'s
+    line_size/ section.
   - hit_latency (job 834510, 3m35s): clean monotonic ladder, L1=8.46 / L2=16.74 /
     LLC=53.79 / DRAM=206.18 ticks (dependent, random, median). No `[UNEXPECTED]` flags.
   - **miss_latency (job 834511 originally TIMED OUT after 1h; fixed by bumping

@@ -176,6 +176,49 @@ brevity, but confirmed matching for `c207n01` in this run's own log,
     since Method A step 4 (the actual confirmation step) never ran at any level.
   - Final cross-level/method agreement: **64 B** (the only value any level/method produced).
 
+**Follow-up: Method A step 4, candidate=64 B forced at all 3 levels (Slurm job 837261,
+hostname `c207n08`, logical CPU 10, elapsed 9m00s, exit 0):**
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_haswell 10
+  32768,262144,25165824 8,16,32,64,128,256 64,64,64` -- re-runs the full pipeline (steps 1-3
+  always re-run regardless) and adds step 4, forcing the offset-invariance confirmation test
+  at 64 B for every level (L1/L2/LLC), since 64 B was the only line-size value this machine had
+  produced anywhere so far and had not yet been cross-checked for alignment-independence past
+  L1.
+- **All 3 levels: candidate stride 64 B reports an elbow stable across all 8/8 tested offsets
+  (0,8,...,56 B)** -- no missing offsets, no gap warning triggered:
+  - L1 (32,768 B): elbow 36,736 B at every offset (0.0% spread, perfectly stable).
+  - L2 (262,144 B): elbow ranges 330,240-416,128 B across the 8 offsets (1.26x spread) --
+    noisier than L1's, but the script's own step-4 verdict still reads this as "consistent
+    with a genuine, alignment-independent transition" (a real elbow exists at every offset,
+    just at a somewhat different footprint each time -- not the "no elbow at some offsets"
+    failure mode the method is designed to catch).
+  - LLC (25,165,824 B): elbow 39,948,224 B at every offset (0.0% spread, as stable as L1's).
+  - **This is new, positive evidence that 64 B is offset-invariant at L2 and LLC, not just
+    L1** -- the first time any method on this machine has tested alignment-independence past
+    L1. Combined with L1's own already-clean result, Method A now supports 64 B as this
+    machine's line size at all three levels, not merely "the only value produced anywhere."
+- **Caveat, worth flagging plainly: this same re-run's Method B (single-curve, fully
+  automatic, no candidate involved) detected 80 B at L1 this time, not the 64 B job 834508
+  originally found** (`-- [L32768 B] detected line-size estimate (bytes): 80 --`) -- Method
+  B's own L1 answer is evidently not stable run-to-run on this machine, even at the same
+  seed=12345 (most likely session-to-session timing-curve noise on this shared cluster,
+  consistent with this project's broader documented experience elsewhere; not independently
+  root-caused this pass). Method B at L2/LLC again found no transition (`none`), unchanged
+  from before. **Do not treat Method B's L1 read as settled** -- Method A's own step-4
+  confirmation (the more rigorous, multi-offset check) is the more trustworthy evidence here,
+  and it agrees with the original 64 B across two separate runs.
+- Also worth noting: the family-of-curves diagnostic's own single-sweep automatic guess (steps
+  1-3, informational only, never auto-applied) landed on 64 B at L1 and L2 but **32 B at LLC**
+  this run (`per-stride elbow` disagreeing at the largest tested stride) -- the manually-forced
+  64 B candidate was tested anyway per this session's explicit direction, and it held up under
+  the offset-invariance check regardless of what the un-repeated diagnostic guessed.
+- New plots: `data_processed/hazel_haswell/line_size/level_{32768,262144,25165824}/plots/
+  line_size_offset_{elbow,boxplots}.{png,pdf}` (Method A step 4 -- these did not exist after
+  the original run).
+- **Updated final cross-level/method agreement: 64 B, now confirmed offset-invariant at all
+  three levels via Method A's step-4 check** (not just "the only value any level/method
+  produced," as job 834508's run alone could say).
+
 ### associativity/
 - Slurm job ID: 834509, hostname `c207n02`, logical CPU 10, elapsed 33s, exit 0.
 - Source file(s): `main_code/common/associativity.{c,h}`,
