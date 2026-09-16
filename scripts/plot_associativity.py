@@ -33,6 +33,7 @@ import sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
 
 REQUIRED_COLS = {"num_ways_probed", "pattern", "median", "q1", "q3", "p5", "p95",
                   "n_outliers", "n"}
@@ -156,7 +157,7 @@ def plot_curve(by_pattern, machine, level, cache_bytes, out_prefix, title_suffix
 
     ax.set_xlabel("Same-set nodes probed (num_ways_probed)")
     ax.set_ylabel("Median latency (timer ticks / access)")
-    ax.xaxis.get_major_locator().set_params(integer=True)
+    ax.xaxis.set_major_locator(MultipleLocator(4))
     title = f"{machine}: associativity sweep"
     if level:
         title += f", {level}"
