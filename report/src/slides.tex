@@ -277,15 +277,14 @@ LLC hit latency does \textbf{not} track LLC capacity monotonically -- topology
 \includegraphics[width=0.48\linewidth]{law1_l2_capacity_heldout.png}\hfill
 \includegraphics[width=0.48\linewidth]{law2_l1d_invariance_heldout.png}
 \begin{block}{Finding}
-\footnotesize
+\scriptsize
 \textbf{Law 1 (Doubling):} $C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/3}$, fit Sunbird 2014
-$\to$ Artemisia 2023 ($8\times$ over 9 years, step-wise not smooth). Dashed line = frozen
-extrapolation to 2028 ($\sim$6.35\,MiB). Hazel's own L2 boundary never resolved --
-\textbf{untestable this pass}.\\[2pt]
+$\to$ Artemisia 2023 ($8\times$/9\,yr, step-wise). Dashed = frozen extrapolation to 2028
+($\sim$6.35\,MiB). Hazel's own L2 boundary never resolved -- \textbf{untestable this pass}.\\[1pt]
 \textbf{Law 2 (Invariance):} L1D capacity/assoc./line size constant across a decade, 3
-vendors (32,768\,B / 8-way / 64\,B, 6 of 8 machines); dashed line reverts to that
-majority value, not a fit through Artemisia's outlier. Hazel-Haswell (star) matched
-exactly -- \textbf{supported}.
+vendors (32,768\,B / 8-way / 64\,B, 6 of 8 machines); dashed line reverts to that majority
+value, not a fit through Artemisia's outlier. Hazel-Haswell (star) matched exactly --
+\textbf{supported}.
 \end{block}
 \end{frame}
 
