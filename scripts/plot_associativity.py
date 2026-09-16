@@ -287,6 +287,15 @@ def main():
                      help="detected associativity (ways); box plots bracket this value")
     ap.add_argument("--box-pattern", default="random",
                      help="which pattern's box plots to draw (default: random)")
+    ap.add_argument("--curve-basename", default="associativity_curve",
+                     help="output filename (no extension) for the curve plot -- override to "
+                          "avoid overwriting an existing associativity_curve.{png,pdf} when "
+                          "generating an alternate version (e.g. one with no detected-"
+                          "associativity marker) from the same input data")
+    ap.add_argument("--curve-only", action="store_true",
+                     help="skip the box-plot figure entirely (it has no equivalent "
+                          "'no estimate' variant, since box placement itself depends on "
+                          "--estimate)")
     args = ap.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
@@ -297,11 +306,12 @@ def main():
         return 1
 
     plot_curve(by_pattern, args.machine, args.level, cache_bytes,
-               os.path.join(args.out_dir, "associativity_curve"), args.title_suffix,
+               os.path.join(args.out_dir, args.curve_basename), args.title_suffix,
                args.estimate)
-    plot_boxplots(by_pattern, args.machine, args.level,
-                  os.path.join(args.out_dir, "associativity_boxplots"), args.title_suffix,
-                  args.box_pattern, args.estimate)
+    if not args.curve_only:
+        plot_boxplots(by_pattern, args.machine, args.level,
+                      os.path.join(args.out_dir, "associativity_boxplots"), args.title_suffix,
+                      args.box_pattern, args.estimate)
     return 0
 
 
