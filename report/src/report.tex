@@ -2979,7 +2979,7 @@ Skylark (AMD) shows a striking and reproducible dTLB anomaly: at LLC-sized and b
 \section{Software-Only Cache Metric}
 \label{sec:hitrate}
 
-The required deliverable is a timing-derived cache hit-rate estimator,
+The software-only cache metric is a timing-derived cache hit-rate estimator,
 $\widehat{H} = N_{\text{classified hits}} / N_{\text{timed accesses}}$, that never reads a
 PMU counter. \textbf{What is varied:} which workload's hit rate is being estimated
 (\texttt{test\_bytes}); the calibration classes themselves are fixed, self-generated
@@ -3183,6 +3183,102 @@ flaw hidden from the reader.
 \section{Chronological Cache Evolution Analysis}
 \label{sec:evolution}
 
+\subsection{Chronological Master Table (Full Fleet, 14 Machines)}
+\label{sec:master-table-full}
+
+Table~\ref{tab:master-full-l1} and Table~\ref{tab:master-full-l2llc} give the assignment's
+required chronological master table: one row per measured machine/CPU generation, sorted
+oldest to newest by first public introduction year of the specific
+microarchitecture/processor generation (Section~\ref{sec:platforms}'s year convention),
+with the required identifying columns (Year, Vendor/ISA, Microarchitecture, Machine/CPU,
+Process node) followed by the measured cache columns. This covers all \textbf{14} machines
+discussed anywhere in this report -- the 8 ECE lab machines (Section~\ref{sec:permachine})
+and the 6 additional Hazel HPC generations (Section~\ref{sec:permachine-hazel}).
+\textbf{Hazel-Haswell is deliberately excluded}: it is the held-out generation the frozen
+lab-only prediction (Section~\ref{sec:cachelaws}) is evaluated against
+(Section~\ref{sec:hazel}), and folding its own measurements into this master table before
+that evaluation would defeat the point of holding it out.
+
+Every cache-column cell's primary entry is the \textbf{Phase I timing-only inferred value}
+-- never silently replaced by a PMU or vendor-published number. Where a second, independent
+value exists, it is appended as \emph{Phase\,I~$\to$~verification} with an explicit
+\cmark/\xmark\ agreement flag: for the 8 lab machines this is Phase II
+PMU/system-report/literature (Section~\ref{sec:pmu}, full detail
+\texttt{data\_processed/<machine>/PHASE2\_VALIDATION\_TABLE.md}); Hazel has no PMU access
+(Section~\ref{sec:hazel}'s Phase Discipline), so its second value is vendor/literature-only,
+newly compiled in \texttt{HAZEL\_PUBLISHED\_CACHE\_SPECS.md} and cited per-cell below.
+$\dagger$ marks a Phase I value already flagged in Section~\ref{sec:permachine-hazel} as
+arithmetically invalid (fails the sets-must-be-a-whole-number check) -- not directly
+comparable to the verification value, shown for completeness only, not as a real
+disagreement.
+
+\begin{table}[H]
+\centering\tiny
+\caption{Required chronological master table, part 1 of 2: identifying columns, L1D, line size, and L1 hit latency. All 14 machines, oldest to newest.}
+\label{tab:master-full-l1}
+\begin{tabularx}{\textwidth}{|l|l|l|X|l|l|l|l|l|}
+\hline
+Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size (Phase I $\to$ verify) & L1D ways (Phase I $\to$ verify) & Line & L1 hit lat.\\
+\hline
+2014 & Intel / x86-64 & Haswell & 2x Xeon E5-2680 v3 (Sunbird) & 22\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 10.35\,ticks / 4.14\,ns\\
+2015 & Intel / x86-64 & Skylake & Core i7-6700 (Charnwood) & 14\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 7.98\,ticks / 2.35\,ns\\
+2016 & Intel / x86-64 & Broadwell-EP & Xeon E5-2650 v4 (Hazel-Broadwell) & 14\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 8 $\to$ 8 (lit.) \cmark & 64\,B & 7.85\,ticks (no Hazel PMU)\\
+2017 & Intel / x86-64 & Kaby Lake & Core i7-7700 (Ookay) & 14\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 7.49\,ticks / 2.08\,ns\\
+2017 & Intel / x86-64 & Skylake-SP & Xeon Gold 6130 (Hazel-Skylake) & 14\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 8 $\to$ 8 (lit.) \cmark & 64\,B (unconfirmed) & 9.54\,ticks (no Hazel PMU)\\
+2017 & Intel / x86-64 & Coffee Lake & Core i7-8700 (Upgrade) & 14\,nm & 32,768\,B & 8 $\to$ 4 \xmark & 64\,B & 6.17\,ticks / 1.93\,ns\\
+2019 & Intel / x86-64 & Coffee Lake Refresh & Core i7-9700 (Crux) & 14\,nm & 32,768\,B & 8 $\to$ 4 \xmark & 64\,B & 7.42\,ticks / 2.47\,ns\\
+2019 & Intel / x86-64 & Cascade Lake-SP Refresh & Xeon Gold 6226R (Hazel-Cascadelake) & 14\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 8 $\to$ 8 (lit.) \cmark & 64\,B (unconfirmed) & 6.93\,ticks (no Hazel PMU)\\
+2019 & AMD / x86-64 & Zen 2 & 2x EPYC 7532 (Skylark) & 7\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 6.24\,ticks / 2.60\,ns\\
+2020 & Ampere / AArch64 & Neoverse N1 & Ampere Q80-30 (Thunderbird) & 7\,nm & 65,536\,B & 4 $\to$ 4 \cmark & 64\,B & 0.130\,ticks / 5.0\,ns\\
+2021 & Intel / x86-64 & Ice Lake-SP & Xeon Gold 6326 (Hazel-Icelake6326) & 10\,nm & 65,536\,B $\to$ 49,152\,B (lit.) \xmark & 9$^\dagger$ $\to$ 12 (lit.) & 64\,B & 21.92\,ticks (no Hazel PMU)\\
+2022 & AMD / x86-64 & Zen 4 & EPYC 9654 (Hazel-Genoa) & 5\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 9$^\dagger$ $\to$ 8 (lit.) & 64\,B & 7.49\,ticks (no Hazel PMU)\\
+2023 & Intel / x86-64 & Sapphire Rapids & 2x Xeon Gold 5420+ (Artemisia) & 10\,nm / Intel 7 & 49,152\,B & 12 $\to$ 12 \cmark & 64\,B & 9.87\,ticks / 4.94\,ns\\
+2023 & Intel / x86-64 & Sapphire Rapids & Xeon Platinum 8462Y+ (Hazel-Sapphirerapids) & 10\,nm / Intel 7 & 65,536\,B $\to$ 49,152\,B (lit.) \xmark$^\ddagger$ & 12 $\to$ 12 (lit.) \cmark & 64\,B (unconfirmed) & 17.45\,ticks (no Hazel PMU)\\
+\hline
+\end{tabularx}
+\end{table}
+
+$\ddagger$ Hazel-Sapphirerapids' own README first read this identical raw timing data as
+$\approx$49,152\,B before \texttt{CAPACITY\_RESULTS.md}'s hand-corrected reading moved it to
+65,536\,B (Section~\ref{sec:permachine-hazel}); the literature value confirms the
+\emph{original} 49,152\,B read was the physically correct one, an informative disagreement
+kept rather than silently resolved in either direction.
+
+\begin{table}[H]
+\centering\tiny
+\caption{Required chronological master table, part 2 of 2: L2 and LLC organization, same 14 machines/row order as Table~\ref{tab:master-full-l1}.}
+\label{tab:master-full-l2llc}
+\begin{tabularx}{\textwidth}{|X|l|l|l|l|X|}
+\hline
+Machine & L2 size (Phase I $\to$ verify) & L2 ways (Phase I $\to$ verify) & LLC size (Phase I $\to$ verify) & LLC ways (Phase I $\to$ verify) & Verified against\\
+\hline
+Sunbird & 262,144\,B & 8 $\to$ 8 \cmark & 31,457,280\,B (exact) \cmark & 9 $\to$ 20 \xmark & PMU + sys.-report + lit.\\
+Charnwood & 262,144\,B & 8 $\to$ 4 \xmark & 8,388,608\,B (exact) \cmark & 8 $\to$ 16 \xmark & PMU + sys.-report + lit.\\
+Hazel-Broadwell & 262,144\,B (best guess) $\to$ 262,144\,B (lit.) \cmark & 4$^\dagger$ $\to$ 8 (lit.) & 33,554,432\,B $\to$ 31,457,280\,B (lit., 30\,MiB) \xmark & 9$^\dagger$ $\to$ 20 (lit.) & Lit.\ only (no Hazel PMU; \texttt{HAZEL\_PUBLISHED\_CACHE\_SPECS.md})\\
+Ookay & 262,144\,B & 8 $\to$ 4 \xmark & 8,388,608\,B (exact) \cmark & 8 $\to$ 16 \xmark & PMU + sys.-report + lit.\\
+Hazel-Skylake & 1,048,576\,B (best guess) $\to$ 1,048,576\,B (lit., 1\,MiB) \cmark & 8$^\dagger$ $\to$ 16 (lit.) & 23,726,560\,B $\to$ 23,068,672\,B (lit., 22\,MiB) \cmark & 8$^\dagger$ $\to$ 11 (lit.) & Lit.\ only (no Hazel PMU)\\
+Upgrade & 262,144\,B & 8 $\to$ 4 \xmark & 12,582,912\,B (exact) \cmark & 8 $\to$ 16 \xmark & PMU + sys.-report + lit.\\
+Crux & 262,144\,B & 8 $\to$ 4 \xmark & 8,388,608\,B $\to$ 12,582,912\,B \xmark (1.5x) & 8 $\to$ 12 \xmark & PMU + sys.-report + lit.\\
+Hazel-Cascadelake & 1,048,576\,B (best guess) $\to$ 1,048,576\,B (lit., 1\,MiB) \cmark & 8$^\dagger$ $\to$ 16 (lit.) & 16,777,216\,B (provisional) $\to$ 23,068,672\,B (lit., 22\,MiB) \xmark & 8$^\dagger$ $\to$ 11 (lit.) & Lit.\ only (no Hazel PMU)\\
+Skylark & 524,288\,B & 8 $\to$ 8 \cmark & 8,388,608\,B $\to$ 16,777,216\,B \xmark (2x) & 8 $\to$ 16 \xmark & PMU + sys.-report + lit.\\
+Thunderbird & 1,048,576\,B & 12 $\to$ 8 \xmark & 31,457,280\,B (no sys.-report; lit.\ 32\,MiB, $\approx$94\% match) & 10 $\to$ 16 (lit., unresolved) & PMU (partial) + lit.\\
+Hazel-Icelake6326 & 1,310,720\,B (best guess) $\to$ 1,310,720\,B (lit., 1.25\,MiB) \cmark & 12$^\dagger$ $\to$ 20 (lit., weak) & 25,874,000\,B $\to$ 25,165,824\,B (lit., 24\,MiB) \cmark & 9/12$^\dagger$ (disagreeing) $\to$ 12 (lit.) & Lit.\ only (no Hazel PMU)\\
+Hazel-Genoa & 262,144\,B (best guess) $\to$ 1,048,576\,B (lit., 1\,MiB) \xmark & 9$^\dagger$ $\to$ 8 (lit., weak) & 33,554,432\,B $\to$ 32\,MiB/CCD slice of 384\,MiB total (lit.) \cmark$^{\S}$ & 8/9$^\dagger$ (disagreeing) $\to$ 16 (lit., weak) & Lit.\ only (no Hazel PMU)\\
+Artemisia & 2,097,152\,B$^{*}$ & 16 $\to$ 16 \cmark & 31,457,280\,B $\to$ 55,050,240\,B \xmark (1.75x) & 16 $\to$ 15 (close) & PMU + sys.-report + lit.\\
+Hazel-Sapphirerapids & 2,097,152\,B (best guess) $\to$ 2,097,152\,B (lit., 2\,MiB) \cmark & 12$^\dagger$ $\to$ unconfirmed in lit. & 50,331,648\,B (best guess) $\to$ 62,914,560\,B (lit., 60\,MiB, whole-socket) \xmark & 12$^\dagger$ $\to$ unconfirmed in lit. & Lit.\ only (no Hazel PMU)\\
+\hline
+\end{tabularx}
+\end{table}
+
+$^{*}$ Artemisia's L2 size is a \texttt{CAPACITY\_RESULTS.md} placeholder this machine's own
+capacity sweep never independently confirmed as a real boundary; Phase II system-report and
+Intel ARK both match it exactly regardless. $^{\S}$ Hazel-Genoa's Phase I capacity edge
+(33,554,432\,B) is \emph{not} an underestimate of AMD's published 384\,MiB total L3 -- it is
+an exact match (384\,MiB $\div$ 12 CCDs = 32\,MiB) to the one CCD-private L3 slice a
+single-core benchmark can ever observe, since Zen 4's 12-CCD Genoa die never presents its
+L3 as one socket-wide pool (\texttt{HAZEL\_PUBLISHED\_CACHE\_SPECS.md}, finding 3) -- the
+cleanest Phase I/literature reconciliation among the 6 Hazel generations.
+
 This section combines all eight lab machines' Phase-I timing-only results
 (Section~\ref{sec:permachine}) into one chronological dataset, sorted by processor
 introduction year (Section~\ref{sec:platforms}'s year convention: the first public
@@ -3190,9 +3286,15 @@ introduction year of the specific microarchitecture/processor generation, not pu
 date). Full backing data:
 \texttt{data\_processed/master/chronological\_master\_table.csv}; full reconciled table
 with every column: \texttt{CHRONOLOGICAL\_MASTER\_TABLE.md}. Plots are produced by
-\texttt{scripts/plot\_chronological\_master.py} from that CSV.
+\texttt{scripts/plot\_chronological\_master.py} from that CSV. \textbf{The remainder of
+this section (trend-fitting, plots, and interpretation) is scoped to these 8 lab
+machines only}, per this project's own Phase Discipline: the lab-only prediction was
+frozen (Section~\ref{sec:cachelaws}) before any Hazel cache experiment ran, so the 6
+additional Hazel generations above are reported (Table~\ref{tab:master-full-l1},
+Table~\ref{tab:master-full-l2llc}) but intentionally excluded from the trend this section
+fits.
 
-\subsection{Chronological Master Table}
+\subsection{Lab-Only Master Table (8-Machine Trend-Fitting Subset)}
 
 \begin{table}[H]
 \centering\tiny
