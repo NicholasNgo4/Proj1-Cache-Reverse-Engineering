@@ -272,18 +272,20 @@ LLC hit latency does \textbf{not} track LLC capacity monotonically -- topology
 \end{frame}
 
 % ============================================================
-\begin{frame}{Our Laws}
-\begin{block}{Law 1 -- Chen--Ngo Cache Capacity Doubling Law}
-$C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/\tau}$, $\tau = 3$ years (fit: Sunbird 2014
-$\to$ Artemisia 2023, an exact $8\times$ over 9 years, step-wise not smooth).
-\emph{Hazel-Haswell:} evaluated at the model's own 2014 fit endpoint (256\,KiB) --
-\textbf{untestable this pass}, Hazel's own L2 boundary was never cleanly resolved.
-\end{block}
-\begin{block}{Law 2 -- Chen--Ngo Cache Invariance Law}
-L1D capacity/associativity/line size are approximately constant across a decade and 3
-vendors (32,768\,B / 8-way / 64\,B on 6 of 8 machines). \emph{Hazel-Haswell:}
-\textbf{supported, exact match} on all three -- the law's own stated scope (an x86 Xeon
-target) is precisely where it held with no exceptions.
+\begin{frame}{Our Laws: Frozen Predictions vs.\ Held-Out Hazel}
+\centering
+\includegraphics[width=0.48\linewidth]{law1_l2_capacity_heldout.png}\hfill
+\includegraphics[width=0.48\linewidth]{law2_l1d_invariance_heldout.png}
+\begin{block}{Finding}
+\footnotesize
+\textbf{Law 1 (Doubling):} $C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/3}$, fit Sunbird 2014
+$\to$ Artemisia 2023 ($8\times$ over 9 years, step-wise not smooth). Dashed line = frozen
+extrapolation to 2028 ($\sim$6.35\,MiB). Hazel's own L2 boundary never resolved --
+\textbf{untestable this pass}.\\[2pt]
+\textbf{Law 2 (Invariance):} L1D capacity/assoc./line size constant across a decade, 3
+vendors (32,768\,B / 8-way / 64\,B, 6 of 8 machines); dashed line reverts to that
+majority value, not a fit through Artemisia's outlier. Hazel-Haswell (star) matched
+exactly -- \textbf{supported}.
 \end{block}
 \end{frame}
 

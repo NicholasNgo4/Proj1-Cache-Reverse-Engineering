@@ -2614,6 +2614,36 @@ differs), same base+2-reproducibility-repeat convention.
 
 ## Known constraints from prior sessions
 
+- **The report's two Cache Law "evidence plots" (Section~\ref{sec:cachelaws}) originally
+  reused the plain `chrono_05_l2_capacity.png`/`chrono_01_l1_capacity.png` figures directly,
+  with no dashed extrapolation and no Hazel overlay at all -- violating `PROJECT 1.pdf`'s
+  plot-line-style rule ("solid markers/lines for examined years; dashed line only for
+  future-year prediction/extrapolation beyond the last measured training-year point; never a
+  dashed overlay across already-measured years") and Section 9.1 items 5-7 (evidence plot with
+  a dashed law-extrapolation line, plus a distinct star/diamond marker for the later Hazel
+  held-out measurement, without refitting the frozen dashed line). **FIXED 2026-09-16 by
+  Kevin (commit `c93a6180`, "Add held-out prediction figures, final combined comparison, and
+  table formatting fixes")** -- two new functions in `scripts/plot_chronological_master.py`,
+  `plot_law_heldout()` and `plot_final_combined()`, generating `law1_l2_capacity_heldout.png`,
+  `law2_l1d_invariance_heldout.png` (both laws: solid 8-lab-machine line, dashed frozen-model
+  extrapolation from the last measured point [Artemisia, 2023] to the 2028 "~5 years beyond"
+  prediction with an uncertainty bar, open diamond at Hazel's target year showing the
+  prediction, filled star for the actual Hazel-Haswell reveal where resolved) and
+  `final_01_l1_capacity_with_hazel.png`/`final_02_l2_capacity_with_hazel.png` (a new
+  post-validation "Final Combined Chronological Comparison" subsection folding Hazel-Haswell
+  back into one 9-system dataset). Also fixed a real data bug found while building that
+  section: Upgrade/Crux's L1D-ways column had been showing their L2 disagreement value
+  instead of their own confirmed 8-way match. **An earlier same-day session independently
+  built a different, now-superseded fix for this identical gap** (a standalone
+  `scripts/plot_cache_laws.py` producing `cache_law1_l2_capacity_doubling.png`/
+  `cache_law2_l1_invariance.png`) -- discarded in favor of Kevin's more complete version
+  (uncertainty bars + the Final Combined section) once the two were found to conflict on the
+  same `\label{fig:law1-plot}`/`\label{fig:law2-plot}` figures during a merge; if you see any
+  reference to `plot_cache_laws.py` or `cache_law1_l2_capacity_doubling.*` anywhere, it's
+  stale -- `plot_law_heldout()`/`plot_final_combined()` in `plot_chronological_master.py` are
+  the real, checked-in implementation. `report/src/slides.tex`'s "Our Laws" slide was updated
+  to reference the two `law*_heldout.png` files (not the discarded `cache_law*` names).
+
 - **`scripts/run_line_size.sh` did NOT gzip its own raw per-point CSVs, unlike every
   other pipeline (`run_capacity_full.sh`/`run_miss_latency_full.sh`/
   `run_inclusion_policy_full.sh` all do) -- FIXED 2026-09-15 (now gzips each level's
