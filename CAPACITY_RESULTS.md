@@ -56,9 +56,9 @@ file yet.
 | Hazel-Broadwell | 32,768 B (32 KiB) | well-confirmed |
 | Hazel-Skylake | 32,768 B (32 KiB) | well-confirmed, sharpest edge of any Hazel gen |
 | Hazel-Cascadelake | 32,768 B (32 KiB) | well-confirmed |
-| Hazel-Icelake-6326 | 32,768 B (32 KiB) | best-guess only, small-size region itself noisy |
-| Hazel-Icelake-8358 | 32,768 B (32 KiB) | best-guess only, small-size region itself noisy |
-| Hazel-Sapphirerapids | 49,152 B (48 KiB) | best-guess; genuine deviation from the usual 32 KiB (Golden-Cove-derived L1D) |
+| Hazel-Icelake-6326 | 65,536 B (64 KiB) | best-guess only, small-size region itself noisy |
+| Hazel-Icelake-8358 | 65,536 B (64 KiB) | best-guess only, small-size region itself noisy |
+| Hazel-Sapphirerapids | 65,536 B (64 KiB) | best-guess; genuine deviation from the usual 32 KiB (Golden-Cove-derived L1D) |
 | Hazel-Genoa | 32,768 B (32 KiB) | well-confirmed |
 | Hazel-Turin | 49,152 B (48 KiB) | best-guess; same deviation pattern as Hazel-Sapphirerapids |
 
@@ -80,14 +80,14 @@ independently corroborated via a clean associativity knee at that stride.
 | Crux | 262,144 B (256 KiB) | |
 | Ookay | 262,144 B (256 KiB) | |
 | Upgrade | 262,144 B (256 KiB) | |
-| Hazel-Haswell | not resolved | one continuous noisy ramp, no shelf found |
+| Hazel-Haswell | 262,144 B (256 KiB)| one continuous noisy ramp, no shelf found |
 | Hazel-Broadwell | 262,144 B (256 KiB) | best-guess, noisy region but centered on this value |
 | Hazel-Skylake | 1,048,576 B (1 MiB) | best-guess, not an independent knee |
 | Hazel-Cascadelake | 1,048,576 B (1 MiB) | provisional/reasoned, generation-typical value only, not independently confirmed |
 | Hazel-Icelake-6326 | 1,310,720 B (1.25 MiB) | not resolved; generation-typical placeholder |
 | Hazel-Icelake-8358 | 1,310,720 B (1.25 MiB) | not resolved; generation-typical placeholder |
 | Hazel-Sapphirerapids | 2,097,152 B (2 MiB) | not resolved; generation-typical placeholder |
-| Hazel-Genoa | 1,048,576 B (1 MiB) | not resolved; generation-typical placeholder |
+| Hazel-Genoa | 262,144 B (256 KiB) | not resolved; generation-typical placeholder |
 | Hazel-Turin | 1,048,576 B (1 MiB) | not resolved; generation-typical placeholder |
 
 
@@ -104,12 +104,12 @@ independently corroborated via a clean associativity knee at that stride.
 | Ookay | ~8 MiB | |
 | Upgrade | ~12 MiB | |
 | Hazel-Haswell | ~22-24 MiB (22,020,096-25,165,824 B) | provisional, no clean knee; plateau never reached even at 256 MiB tail. 2026-09-15 reproducibility re-run exists but is uninterpreted and looks contention-poisoned from ~6 MiB onward — do not use it to revise this value without further diagnosis |
-| Hazel-Broadwell | ~24.68 MiB (25,874,000 B) | provisional edge; tail noisy, no plateau found |
+| Hazel-Broadwell | 32 MiB (33,554,432 B) | |
 | Hazel-Skylake | ~22.6 MiB (23,726,560 B) | well-confirmed, cleanest LLC edge of any Hazel gen; tail still climbing at 256 MiB, no plateau |
 | Hazel-Cascadelake | 16 MiB (16,777,216 B) | provisional best-guess (curve nearly flat by this point, not a sharp knee); plateau reached and confirmed (only Hazel gen to fully plateau on the original run) |
 | Hazel-Icelake-6326 | ~24.68 MiB (25,874,000 B) | well-confirmed sharp knee, matches this SKU's public 24 MB L3 spec almost exactly; plateau reached and confirmed |
 | Hazel-Icelake-8358 | ~48 MiB (50,331,648 B) | not resolved; pure spec placeholder — noisiest Hazel run, "likely needs a full re-run when quiet" per its own README |
-| Hazel-Sapphirerapids | ~38.05 MiB (39,903,168 B) | provisional edge, notably below this SKU's published 60 MB spec; no plateau found |
+| Hazel-Sapphirerapids | ~48 MiB (50,331,648 B) | provisional edge, notably below this SKU's published 60 MB spec; no plateau found |
 | Hazel-Genoa | 32 MiB (33,554,432 B) | well-confirmed, exact match to AMD's published per-CCD 32 MB L3 spec; tail still climbing, no plateau |
 | Hazel-Turin | 32 MiB (33,554,432 B) | best-guess, lower confidence than Hazel-Genoa's; original run reports plateau reached, but a 2026-09-15 reproducibility re-run (uninterpreted) shows the tail still climbing at 268 MiB, casting doubt on the plateau claim — flagged, not resolved |
 

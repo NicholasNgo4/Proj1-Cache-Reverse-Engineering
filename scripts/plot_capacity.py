@@ -161,24 +161,33 @@ def plot_curve(by_pattern, machine, out_prefix, title_suffix, log_y, patterns=No
     # (every power of two) from the smallest to largest size actually
     # plotted -- denser than a coarser every-Nth-octave grid so specific
     # reference sizes (e.g. is a bend at 32 KiB or 48 KiB?) are directly
-    # readable -- plus 48 KiB (49,152 B) force-included whenever it falls
-    # in range, since it's a real L1 boundary on some machines (Sapphire
-    # Rapids/Turin) but isn't a power of two so the octave ladder alone
-    # would otherwise skip it. Always add the exact max/min so the swept
-    # range's edges are labeled. A regular-grid tick that lands almost
-    # exactly on top of the true min/max is dropped rather than doubled up
-    # right next to it; the suppression window is intentionally small
-    # (unlike the old coarser layout, the goal here is more labels, not
-    # fewer).
+    # readable -- plus 48 KiB (49,152 B), 24 MiB (25,165,824 B), and 48 MiB
+    # (50,331,648 B) force-included whenever they fall in range, since
+    # they're real cache boundaries on some machines (48 KiB = Sapphire
+    # Rapids/Turin's L1; 24 MiB = Hazel haswell's provisional LLC-to-DRAM
+    # edge; 48 MiB = Hazel icelake_8358's LLC best-guess, see CLAUDE.md /
+    # CAPACITY_RESULTS.md) but none of them is a power of two so the octave
+    # ladder alone would otherwise skip them. Always add the exact max/min
+    # so the swept range's edges are labeled. A regular-grid tick that
+    # lands almost exactly on top of the true min/max is dropped rather
+    # than doubled up right next to it; the suppression window is
+    # intentionally small (unlike the old coarser layout, the goal here is
+    # more labels, not fewer).
     import math
     true_min, true_max = min(all_sizes), max(all_sizes)
     lo_oct = math.floor(math.log2(true_min))
     hi_oct = math.ceil(math.log2(true_max))
     min_gap_octaves = 0.25
     ASSUMED_48KIB = 48 * 1024
+    ASSUMED_24MIB = 24 * 1024 * 1024
+    ASSUMED_48MIB = 48 * 1024 * 1024
     candidates = [2 ** e for e in range(lo_oct, hi_oct + 1)]
     if true_min <= ASSUMED_48KIB <= true_max:
         candidates.append(ASSUMED_48KIB)
+    if true_min <= ASSUMED_24MIB <= true_max:
+        candidates.append(ASSUMED_24MIB)
+    if true_min <= ASSUMED_48MIB <= true_max:
+        candidates.append(ASSUMED_48MIB)
     regular = [c for c in candidates
                if abs(math.log2(c) - math.log2(true_min)) > min_gap_octaves
                and abs(math.log2(c) - math.log2(true_max)) > min_gap_octaves]
