@@ -1,0 +1,47 @@
+== run_software_hit_rate_sweep: machine=hazel_icelake_6326/phase1_v2 core=31 seed=12345 ==
+== boundaries=L1:65536,L2:1310720,LLC:25874000,DRAM:536870912 ==
+== timestamp=20260916T055420Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=146.0000 sensitivity=0.9929 specificity=0.9984 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=72.0000 sensitivity=0.9920 specificity=0.9998 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=72.0000 sensitivity=0.9922 specificity=0.9997 p_obs=0.9996 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=72.0000 sensitivity=0.9921 specificity=0.9999 p_obs=0.9981 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0001 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=72.0000 sensitivity=0.9921 specificity=0.9999 p_obs=0.9929 Hhat=1.0000 ci_lower=0.9993 ci_upper=1.0000 bootstrap_mean=0.9999 bootstrap_std=0.0007 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=140.0000 sensitivity=0.9930 specificity=0.9983 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=1048576 ==
+  # result tau_ticks=70.0000 sensitivity=0.9921 specificity=0.9997 p_obs=0.2358 Hhat=0.2375 ci_lower=0.2338 ci_upper=0.2412 bootstrap_mean=0.2374 bootstrap_std=0.0019 bootstrap_reps=2000
+== test_bytes=1310720 ==
+  # result tau_ticks=72.0000 sensitivity=0.9918 specificity=0.9992 p_obs=0.4183 Hhat=0.4213 ci_lower=0.4172 ci_upper=0.8005 bootstrap_mean=0.4895 bootstrap_std=0.1437 bootstrap_reps=2000
+== test_bytes=4194304 ==
+  # result tau_ticks=70.0000 sensitivity=0.9922 specificity=0.9998 p_obs=0.1377 Hhat=0.1386 ci_lower=0.1353 ci_upper=0.1417 bootstrap_mean=0.1385 bootstrap_std=0.0016 bootstrap_reps=2000
+== test_bytes=8388608 ==
+  # result tau_ticks=70.0000 sensitivity=0.9921 specificity=0.9999 p_obs=0.0920 Hhat=0.0926 ci_lower=0.0900 ci_upper=0.1016 bootstrap_mean=0.0929 bootstrap_std=0.0022 bootstrap_reps=2000
+== test_bytes=16777216 ==
+  # result tau_ticks=72.0000 sensitivity=0.9922 specificity=0.9998 p_obs=0.0513 Hhat=0.0516 ci_lower=0.0496 ci_upper=0.1011 bootstrap_mean=0.0541 bootstrap_std=0.0110 bootstrap_reps=2000
+== test_bytes=25874000 ==
+  # result tau_ticks=70.0000 sensitivity=0.9921 specificity=0.9997 p_obs=0.0343 Hhat=0.0342 ci_lower=0.0326 ci_upper=0.0358 bootstrap_mean=0.0342 bootstrap_std=0.0008 bootstrap_reps=2000
+== test_bytes=31457280 ==
+  # result tau_ticks=70.0000 sensitivity=0.9921 specificity=0.9997 p_obs=0.0308 Hhat=0.0308 ci_lower=0.0292 ci_upper=0.0323 bootstrap_mean=0.0308 bootstrap_std=0.0008 bootstrap_reps=2000
+== test_bytes=67108864 ==
+  # result tau_ticks=70.0000 sensitivity=0.9921 specificity=0.9997 p_obs=0.0128 Hhat=0.0126 ci_lower=0.0117 ci_upper=0.0137 bootstrap_mean=0.0127 bootstrap_std=0.0005 bootstrap_reps=2000
+== test_bytes=134217728 ==
+  # result tau_ticks=70.0000 sensitivity=0.9921 specificity=0.9997 p_obs=0.0033 Hhat=0.0030 ci_lower=0.0025 ci_upper=0.0036 bootstrap_mean=0.0030 bootstrap_std=0.0003 bootstrap_reps=2000
+== test_bytes=268435456 ==
+  # result tau_ticks=70.0000 sensitivity=0.9921 specificity=0.9999 p_obs=0.0012 Hhat=0.0011 ci_lower=0.0007 ci_upper=0.0014 bootstrap_mean=0.0011 bootstrap_std=0.0002 bootstrap_reps=2000
+== test_bytes=536870912 ==
+  # result tau_ticks=72.0000 sensitivity=0.9919 specificity=0.9999 p_obs=0.0003 Hhat=0.0001 ci_lower=0.0000 ci_upper=0.0003 bootstrap_mean=0.0001 bootstrap_std=0.0001 bootstrap_reps=2000
+wrote 17 rows -> data_raw/hazel_icelake_6326/phase1_v2/software_hit_rate/hit_rate_sweep_20260916T055420Z.csv
+-- generating plots --
+wrote data_processed/hazel_icelake_6326/phase1_v2/software_hit_rate/plots/calibration_distributions.{png,pdf}
+wrote data_processed/hazel_icelake_6326/phase1_v2/software_hit_rate/plots/hit_rate_sweep.{png,pdf}
+-- compressing raw per-access CSVs --
+
+== done ==
+== summary: data_raw/hazel_icelake_6326/phase1_v2/software_hit_rate/hit_rate_sweep_20260916T055420Z.csv ==
+== record in data_raw/hazel_icelake_6326/phase1_v2/README.md: core=31, seed=12345, timestamp=20260916T055420Z ==
+== full transcript saved to: data_raw/hazel_icelake_6326/phase1_v2/software_hit_rate/run_software_hit_rate_sweep_20260916T055420Z.log ==

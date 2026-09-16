@@ -1,0 +1,150 @@
+== run_hit_latency_full: machine=hazel_skylake/phase1_v2 core=16 base_seed=12345 ==
+== timestamp=20260916T043745Z ==
+
+== level L1: footprint_bytes=32768 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_base_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/base_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_base_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/base_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_base_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/base_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_base_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/base_independent_sequential_summary_20260916T043745Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_rep1_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/rep1_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_rep1_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/rep1_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_rep1_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/rep1_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_rep1_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/rep1_independent_sequential_summary_20260916T043745Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_rep2_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/rep2_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_rep2_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/rep2_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_rep2_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/rep2_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L1/hit_latency_rep2_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L1/rep2_independent_sequential_summary_20260916T043745Z.csv
+-- generating plots for L1 --
+  note: ('dependent', 'random') has 3 overlapping summary rows with medians [10.2, 9.7, 18.2] (spread 8.5 ticks, 67.2%) -- averaging, widening whiskers to the union
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [17.8, 17.9, 9.0] (spread 8.9 ticks, 59.6%) -- averaging, widening whiskers to the union
+  note: ('independent', 'sequential') has 3 overlapping summary rows with medians [12.0, 16.8, 16.9] (spread 4.9 ticks, 32.1%) -- averaging, widening whiskers to the union
+random: independent < dependent (9.68 vs 12.68 ticks) [expected]
+sequential: independent >= dependent (15.24 vs 14.92 ticks) [UNEXPECTED -- investigate]
+Wrote data_processed/hazel_skylake/phase1_v2/latency/hit/L1/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: footprint_bytes=1048576 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_base_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/base_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_base_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/base_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_base_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/base_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_base_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/base_independent_sequential_summary_20260916T043745Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_rep1_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/rep1_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_rep1_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/rep1_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_rep1_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/rep1_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_rep1_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/rep1_independent_sequential_summary_20260916T043745Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_rep2_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/rep2_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_rep2_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/rep2_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_rep2_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/rep2_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/L2/hit_latency_rep2_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/L2/rep2_independent_sequential_summary_20260916T043745Z.csv
+-- generating plots for L2 --
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [10.5, 8.9, 8.1] (spread 2.4 ticks, 25.9%) -- averaging, widening whiskers to the union
+random: independent < dependent (8.82 vs 17.36 ticks) [expected]
+sequential: independent < dependent (8.82 vs 9.17 ticks) [expected]
+Wrote data_processed/hazel_skylake/phase1_v2/latency/hit/L2/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level LLC: footprint_bytes=23726560 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_base_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/base_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_base_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/base_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_base_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/base_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_base_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/base_independent_sequential_summary_20260916T043745Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_rep1_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/rep1_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_rep1_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/rep1_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_rep1_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/rep1_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_rep1_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/rep1_independent_sequential_summary_20260916T043745Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_rep2_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/rep2_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_rep2_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/rep2_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_rep2_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/rep2_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/LLC/hit_latency_rep2_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/rep2_independent_sequential_summary_20260916T043745Z.csv
+-- generating plots for LLC --
+random: independent < dependent (32.39 vs 51.46 ticks) [expected]
+sequential: independent < dependent (4.71 vs 4.82 ticks) [expected]
+Wrote data_processed/hazel_skylake/phase1_v2/latency/hit/LLC/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC --
+
+== level DRAM: footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_base_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/base_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_base_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/base_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_base_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/base_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_base_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/base_independent_sequential_summary_20260916T043745Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_rep1_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/rep1_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_rep1_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/rep1_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_rep1_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/rep1_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_rep1_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/rep1_independent_sequential_summary_20260916T043745Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_rep2_dependent_random_20260916T043745Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/rep2_dependent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_rep2_dependent_sequential_20260916T043745Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/rep2_dependent_sequential_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_rep2_independent_random_20260916T043745Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/rep2_independent_random_summary_20260916T043745Z.csv
+  wrote 1002 lines -> data_raw/hazel_skylake/phase1_v2/latency/hit/DRAM/hit_latency_rep2_independent_sequential_20260916T043745Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/rep2_independent_sequential_summary_20260916T043745Z.csv
+-- generating plots for DRAM --
+random: independent < dependent (39.00 vs 187.44 ticks) [expected]
+sequential: independent < dependent (4.79 vs 4.84 ticks) [expected]
+Wrote data_processed/hazel_skylake/phase1_v2/latency/hit/DRAM/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for DRAM --
+
+== done ==
+== L1: footprint_bytes=32768 ==
+== L2: footprint_bytes=1048576 ==
+== LLC: footprint_bytes=23726560 ==
+== DRAM: footprint_bytes=536870912 ==
+== record in data_raw/hazel_skylake/phase1_v2/README.md: core=16, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260916T043745Z ==
+== full transcript saved to: data_raw/hazel_skylake/phase1_v2/latency/run_hit_latency_full_20260916T043745Z.log ==

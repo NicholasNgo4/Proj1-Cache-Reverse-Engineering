@@ -1,0 +1,3 @@
+/var/spool/slurmd/job848675/slurm_script: line 53: CORE_ARG: must set CORE_ARG via --export
+[2026-09-16T00:28:54.402] error: *** JOB 848675 ON c021n01 CANCELLED AT 2026-09-16T00:28:54 DUE to SIGNAL Terminated ***
+[2026-09-16T00:28:54.405] error: --task-epilog failed status=15

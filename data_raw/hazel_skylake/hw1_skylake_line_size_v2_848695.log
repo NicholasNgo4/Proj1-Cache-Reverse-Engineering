@@ -1,0 +1,24 @@
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 848695
+    Job name          : hw1_ls_relook
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-16T00:27:54
+    Started           : 2026-09-16T00:28:06
+    Wait time         : 12 sec
+    Elapsed (wall)    : 00:00:14
+    Nodes             : 1 (c051n03)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 0.05 sec  (user 0.01, sys 0.05)
+    CPU efficiency    : 0.4%
+    Memory in use     : 2.92 MB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 848695
+------------------------------------------------------------

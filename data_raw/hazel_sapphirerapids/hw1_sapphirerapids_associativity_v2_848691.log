@@ -1,0 +1,152 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+n0407
+Linux n0407 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) Platinum 8462Y+
+Assigned logical CPU: 41, SLURM_JOB_ID=848691
+
+=== Running scripts/run_associativity_full.sh (HAZEL_MODE=1) for hazel_sapphirerapids/phase1_v2, cache_bytes=65536,2097152,50331648 ===
+== run_associativity_full: machine=hazel_sapphirerapids/phase1_v2 core=41 base_seed=12345 max_ways=40 ==
+== timestamp=20260916T042807Z ==
+-- using explicit cache_bytes override: 65536 2097152 50331648 --
+
+== level L1: cache_bytes=65536 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L1/associativity_base_random_20260916T042807Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L1/associativity_base_sequential_20260916T042807Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L1/base_random_summary_20260916T042807Z.csv
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L1/base_sequential_summary_20260916T042807Z.csv
+-- detected associativity estimate: 12 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L1/associativity_rep1_random_20260916T042807Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L1/associativity_rep1_sequential_20260916T042807Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L1/rep1_random_summary_20260916T042807Z.csv
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L1/rep1_sequential_summary_20260916T042807Z.csv
+     repeat 1 detected estimate: 12
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L1/associativity_rep2_random_20260916T042807Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L1/associativity_rep2_sequential_20260916T042807Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L1/rep2_random_summary_20260916T042807Z.csv
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L1/rep2_sequential_summary_20260916T042807Z.csv
+     repeat 2 detected estimate: 12
+-- generating plots for L1 --
+  note: num_ways=2 (random) has 3 overlapping summary rows with medians [17.7, 18.0, 29.9] (spread 12.1 ticks, 55.4%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (random) has 3 overlapping summary rows with medians [19.2, 20.9, 11.0] (spread 9.9 ticks, 58.4%) -- averaging, widening whiskers to the union
+  note: num_ways=5 (random) has 3 overlapping summary rows with medians [9.5, 6.8, 9.9] (spread 3.1 ticks, 35.8%) -- averaging, widening whiskers to the union
+  note: num_ways=6 (random) has 3 overlapping summary rows with medians [7.4, 9.5, 9.9] (spread 2.4 ticks, 27.4%) -- averaging, widening whiskers to the union
+  note: num_ways=7 (random) has 3 overlapping summary rows with medians [9.3, 12.1, 12.1] (spread 2.8 ticks, 25.1%) -- averaging, widening whiskers to the union
+  note: num_ways=8 (random) has 3 overlapping summary rows with medians [9.5, 12.1, 12.1] (spread 2.6 ticks, 22.9%) -- averaging, widening whiskers to the union
+  note: num_ways=9 (random) has 3 overlapping summary rows with medians [9.8, 12.1, 12.1] (spread 2.3 ticks, 20.3%) -- averaging, widening whiskers to the union
+  note: num_ways=34 (random) has 3 overlapping summary rows with medians [16.1, 21.5, 16.1] (spread 5.4 ticks, 29.9%) -- averaging, widening whiskers to the union
+  note: num_ways=35 (random) has 3 overlapping summary rows with medians [16.1, 21.4, 16.1] (spread 5.3 ticks, 29.4%) -- averaging, widening whiskers to the union
+  note: num_ways=36 (random) has 3 overlapping summary rows with medians [16.1, 21.2, 16.1] (spread 5.1 ticks, 28.4%) -- averaging, widening whiskers to the union
+  note: num_ways=37 (random) has 3 overlapping summary rows with medians [16.1, 21.3, 16.1] (spread 5.2 ticks, 29.0%) -- averaging, widening whiskers to the union
+  note: num_ways=38 (random) has 3 overlapping summary rows with medians [16.1, 21.8, 21.2] (spread 5.7 ticks, 28.8%) -- averaging, widening whiskers to the union
+  note: num_ways=39 (random) has 3 overlapping summary rows with medians [17.3, 21.8, 22.7] (spread 5.4 ticks, 26.1%) -- averaging, widening whiskers to the union
+  note: num_ways=40 (random) has 3 overlapping summary rows with medians [17.5, 21.6, 27.0] (spread 9.5 ticks, 43.0%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (sequential) has 3 overlapping summary rows with medians [15.0, 19.2, 19.2] (spread 4.2 ticks, 23.6%) -- averaging, widening whiskers to the union
+  note: num_ways=4 (sequential) has 3 overlapping summary rows with medians [10.7, 13.3, 13.3] (spread 2.6 ticks, 21.2%) -- averaging, widening whiskers to the union
+  note: num_ways=6 (sequential) has 3 overlapping summary rows with medians [6.5, 9.6, 5.5] (spread 4.0 ticks, 55.8%) -- averaging, widening whiskers to the union
+  note: num_ways=34 (sequential) has 3 overlapping summary rows with medians [16.1, 21.5, 16.1] (spread 5.4 ticks, 29.9%) -- averaging, widening whiskers to the union
+  note: num_ways=35 (sequential) has 3 overlapping summary rows with medians [21.4, 21.4, 16.1] (spread 5.3 ticks, 26.9%) -- averaging, widening whiskers to the union
+  note: num_ways=40 (sequential) has 3 overlapping summary rows with medians [21.9, 22.1, 27.2] (spread 5.3 ticks, 22.4%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_sapphirerapids/phase1_v2/associativity/L1/plots/associativity_curve.pdf and .png
+Wrote data_processed/hazel_sapphirerapids/phase1_v2/associativity/L1/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: cache_bytes=2097152 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L2/associativity_base_random_20260916T042807Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L2/associativity_base_sequential_20260916T042807Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L2/base_random_summary_20260916T042807Z.csv
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L2/base_sequential_summary_20260916T042807Z.csv
+-- detected associativity estimate: 12 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L2/associativity_rep1_random_20260916T042807Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L2/associativity_rep1_sequential_20260916T042807Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L2/rep1_random_summary_20260916T042807Z.csv
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L2/rep1_sequential_summary_20260916T042807Z.csv
+     repeat 1 detected estimate: 12
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L2/associativity_rep2_random_20260916T042807Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L2/associativity_rep2_sequential_20260916T042807Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L2/rep2_random_summary_20260916T042807Z.csv
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L2/rep2_sequential_summary_20260916T042807Z.csv
+     repeat 2 detected estimate: 12
+-- generating plots for L2 --
+  note: num_ways=3 (random) has 3 overlapping summary rows with medians [15.0, 19.5, 17.8] (spread 4.5 ticks, 25.8%) -- averaging, widening whiskers to the union
+  note: num_ways=4 (random) has 3 overlapping summary rows with medians [14.9, 13.4, 8.1] (spread 6.7 ticks, 55.6%) -- averaging, widening whiskers to the union
+  note: num_ways=18 (random) has 3 overlapping summary rows with medians [38.8, 29.2, 30.6] (spread 9.6 ticks, 29.3%) -- averaging, widening whiskers to the union
+  note: num_ways=2 (sequential) has 3 overlapping summary rows with medians [19.2, 25.8, 15.9] (spread 9.9 ticks, 48.9%) -- averaging, widening whiskers to the union
+  note: num_ways=7 (sequential) has 3 overlapping summary rows with medians [9.5, 9.6, 5.1] (spread 4.5 ticks, 55.6%) -- averaging, widening whiskers to the union
+  note: num_ways=8 (sequential) has 3 overlapping summary rows with medians [9.6, 5.8, 9.6] (spread 3.9 ticks, 46.3%) -- averaging, widening whiskers to the union
+  note: num_ways=9 (sequential) has 3 overlapping summary rows with medians [9.5, 5.1, 6.4] (spread 4.4 ticks, 63.4%) -- averaging, widening whiskers to the union
+  note: num_ways=10 (sequential) has 3 overlapping summary rows with medians [9.5, 5.1, 9.5] (spread 4.4 ticks, 55.1%) -- averaging, widening whiskers to the union
+  note: num_ways=18 (sequential) has 3 overlapping summary rows with medians [29.7, 30.5, 40.3] (spread 10.6 ticks, 31.6%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_sapphirerapids/phase1_v2/associativity/L2/plots/associativity_curve.pdf and .png
+Wrote data_processed/hazel_sapphirerapids/phase1_v2/associativity/L2/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level L3_LLC: cache_bytes=50331648 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/associativity_base_random_20260916T042807Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/associativity_base_sequential_20260916T042807Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/base_random_summary_20260916T042807Z.csv
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/base_sequential_summary_20260916T042807Z.csv
+-- detected associativity estimate: 12 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/associativity_rep1_random_20260916T042807Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/associativity_rep1_sequential_20260916T042807Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/rep1_random_summary_20260916T042807Z.csv
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/rep1_sequential_summary_20260916T042807Z.csv
+     repeat 1 detected estimate: 12
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/associativity_rep2_random_20260916T042807Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/associativity_rep2_sequential_20260916T042807Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/rep2_random_summary_20260916T042807Z.csv
+Wrote 39 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/rep2_sequential_summary_20260916T042807Z.csv
+     repeat 2 detected estimate: 12
+-- generating plots for L3_LLC --
+  note: num_ways=2 (random) has 3 overlapping summary rows with medians [25.8, 19.3, 18.5] (spread 7.3 ticks, 34.3%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (random) has 3 overlapping summary rows with medians [16.8, 14.3, 19.1] (spread 4.8 ticks, 28.9%) -- averaging, widening whiskers to the union
+  note: num_ways=5 (random) has 3 overlapping summary rows with medians [9.6, 6.1, 9.7] (spread 3.7 ticks, 43.2%) -- averaging, widening whiskers to the union
+  note: num_ways=2 (sequential) has 3 overlapping summary rows with medians [29.8, 18.6, 15.9] (spread 13.9 ticks, 65.0%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (sequential) has 3 overlapping summary rows with medians [20.8, 16.8, 17.1] (spread 4.0 ticks, 21.8%) -- averaging, widening whiskers to the union
+  note: num_ways=4 (sequential) has 3 overlapping summary rows with medians [14.1, 11.6, 11.6] (spread 2.5 ticks, 20.4%) -- averaging, widening whiskers to the union
+  note: num_ways=5 (sequential) has 3 overlapping summary rows with medians [5.3, 9.5, 9.7] (spread 4.4 ticks, 54.4%) -- averaging, widening whiskers to the union
+  note: num_ways=6 (sequential) has 3 overlapping summary rows with medians [9.5, 5.1, 9.5] (spread 4.5 ticks, 55.2%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/plots/associativity_curve.pdf and .png
+Wrote data_processed/hazel_sapphirerapids/phase1_v2/associativity/L3_LLC/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L3_LLC --
+
+== done ==
+== L1: cache_bytes=65536 -> associativity=12 (repeats: 12 12) ==
+== L2: cache_bytes=2097152 -> associativity=12 (repeats: 12 12) ==
+== L3_LLC: cache_bytes=50331648 -> associativity=12 (repeats: 12 12) ==
+== record in data_raw/hazel_sapphirerapids/phase1_v2/README.md: core=41, base_seed=12345 (repeats use base_seed+index), samples=1000000, max_ways=40, timestamp=20260916T042807Z ==
+== full transcript saved to: data_raw/hazel_sapphirerapids/phase1_v2/associativity/run_associativity_full_20260916T042807Z.log ==
+
+=== Done ===
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 848691
+    Job name          : hw1_assoc_relook
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-16T00:27:53
+    Started           : 2026-09-16T00:28:06
+    Wait time         : 13 sec
+    Elapsed (wall)    : 00:01:33
+    Nodes             : 1 (n0407)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 24.41 sec  (user 19.25, sys 5.17)
+    CPU efficiency    : 26.2%
+    Memory in use     : 95.26 MB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 848691
+------------------------------------------------------------

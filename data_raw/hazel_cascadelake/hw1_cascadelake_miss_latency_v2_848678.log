@@ -1,0 +1,85 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+c022n04
+Linux c022n04 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz
+Assigned logical CPU: 17, SLURM_JOB_ID=848678
+
+=== Running scripts/run_miss_latency_full.sh (HAZEL_MODE=1) for hazel_cascadelake/phase1_v2, transitions=L1_to_L2:32768:1048576,L2_to_LLC:1048576:16777216,LLC_to_DRAM:16777216:536870912 ===
+== run_miss_latency_full: machine=hazel_cascadelake/phase1_v2 core=17 base_seed=12345 ==
+== timestamp=20260916T042806Z ==
+
+== transition L1_to_L2: target_bytes=32768 evict_bytes=1048576 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_base_random_20260916T042806Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/base_random_summary_20260916T042806Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_base_sequential_20260916T042806Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/base_sequential_summary_20260916T042806Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep1_random_20260916T042806Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/rep1_random_summary_20260916T042806Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep1_sequential_20260916T042806Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/rep1_sequential_summary_20260916T042806Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep2_random_20260916T042806Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/rep2_random_summary_20260916T042806Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep2_sequential_20260916T042806Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/rep2_sequential_summary_20260916T042806Z.csv
+-- found source-level (L1) hit_latency data for penalty annotation: data_processed/hazel_cascadelake/phase1_v2/latency/hit/L1/base_dependent_random_summary_20260916T042807Z.csv --
+-- generating plots for L1_to_L2 --
+  note: pattern=random has 3 overlapping summary rows with medians [74.0, 76.0, 112.0] (spread 38.0 ticks, 43.5%) -- averaging, widening whiskers to the union
+  note: pattern=sequential has 3 overlapping summary rows with medians [76.0, 128.0, 76.0] (spread 52.0 ticks, 55.7%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1_to_L2 --
+
+== transition L2_to_LLC: target_bytes=1048576 evict_bytes=16777216 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_base_random_20260916T042806Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/base_random_summary_20260916T042806Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_base_sequential_20260916T042806Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/base_sequential_summary_20260916T042806Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_rep1_random_20260916T042806Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/rep1_random_summary_20260916T042806Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_rep1_sequential_20260916T042806Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/rep1_sequential_summary_20260916T042806Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_rep2_random_20260916T042806Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/rep2_random_summary_20260916T042806Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_rep2_sequential_20260916T042806Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/rep2_sequential_summary_20260916T042806Z.csv
+-- found source-level (L2) hit_latency data for penalty annotation: data_processed/hazel_cascadelake/phase1_v2/latency/hit/L2/base_dependent_random_summary_20260916T042807Z.csv data_processed/hazel_cascadelake/phase1_v2/latency/hit/L2/rep1_dependent_random_summary_20260916T042807Z.csv data_processed/hazel_cascadelake/phase1_v2/latency/hit/L2/rep2_dependent_random_summary_20260916T042807Z.csv --
+-- generating plots for L2_to_LLC --
+  note: pattern=random has 3 overlapping summary rows with medians [498.0, 500.0, 284.0] (spread 216.0 ticks, 50.5%) -- averaging, widening whiskers to the union
+  note: pattern=sequential has 3 overlapping summary rows with medians [390.0, 534.0, 562.0] (spread 172.0 ticks, 34.7%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2_to_LLC --
+
+== transition LLC_to_DRAM: target_bytes=16777216 evict_bytes=536870912 ==
+-- base (seed=12345) --
+[2026-09-16T00:31:52.561] error: *** STEP 848678.12 ON c022n04 CANCELLED AT 2026-09-16T00:31:52 DUE to SIGNAL Terminated ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: c022n04: task 0: Terminated
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 848678
+    Job name          : hw1_misslat_relook
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-16T00:27:52
+    Started           : 2026-09-16T00:28:06
+    Wait time         : 14 sec
+    Elapsed (wall)    : 00:03:46
+    Nodes             : 1 (c022n04)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 164.03 sec  (user 162.38, sys 1.66)
+    CPU efficiency    : 72.6%
+    Memory in use     : 1.04 GB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 848678
+------------------------------------------------------------

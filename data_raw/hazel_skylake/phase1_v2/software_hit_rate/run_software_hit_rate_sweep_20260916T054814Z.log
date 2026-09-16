@@ -1,0 +1,45 @@
+== run_software_hit_rate_sweep: machine=hazel_skylake/phase1_v2 core=16 seed=12345 ==
+== boundaries=L1:32768,L2:1048576,LLC:23726560,DRAM:536870912 ==
+== timestamp=20260916T054814Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=50.0000 sensitivity=0.9935 specificity=0.9989 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=50.0000 sensitivity=0.9934 specificity=0.9989 p_obs=0.9993 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=50.0000 sensitivity=0.9933 specificity=0.9989 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=50.0000 sensitivity=0.9935 specificity=0.9988 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=50.0000 sensitivity=0.9936 specificity=0.9989 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=50.0000 sensitivity=0.9936 specificity=0.9989 p_obs=0.9995 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=1048576 ==
+  # result tau_ticks=50.0000 sensitivity=0.9934 specificity=0.9989 p_obs=0.8248 Hhat=0.8301 ci_lower=0.8265 ci_upper=0.8336 bootstrap_mean=0.8301 bootstrap_std=0.0018 bootstrap_reps=2000
+== test_bytes=4194304 ==
+  # result tau_ticks=50.0000 sensitivity=0.9934 specificity=0.9989 p_obs=0.2059 Hhat=0.2064 ci_lower=0.2027 ci_upper=0.2100 bootstrap_mean=0.2064 bootstrap_std=0.0018 bootstrap_reps=2000
+== test_bytes=8388608 ==
+  # result tau_ticks=50.0000 sensitivity=0.9934 specificity=0.9988 p_obs=0.1006 Hhat=0.1002 ci_lower=0.0974 ci_upper=0.1030 bootstrap_mean=0.1002 bootstrap_std=0.0014 bootstrap_reps=2000
+== test_bytes=16777216 ==
+  # result tau_ticks=50.0000 sensitivity=0.9934 specificity=0.9989 p_obs=0.0496 Hhat=0.0488 ci_lower=0.0469 ci_upper=0.0508 bootstrap_mean=0.0490 bootstrap_std=0.0047 bootstrap_reps=2000
+== test_bytes=23726560 ==
+  # result tau_ticks=50.0000 sensitivity=0.9934 specificity=0.9988 p_obs=0.0349 Hhat=0.0340 ci_lower=0.0323 ci_upper=0.0357 bootstrap_mean=0.0340 bootstrap_std=0.0009 bootstrap_reps=2000
+== test_bytes=31457280 ==
+  # result tau_ticks=50.0000 sensitivity=0.9936 specificity=0.9989 p_obs=0.0265 Hhat=0.0255 ci_lower=0.0240 ci_upper=0.0270 bootstrap_mean=0.0255 bootstrap_std=0.0008 bootstrap_reps=2000
+== test_bytes=67108864 ==
+  # result tau_ticks=50.0000 sensitivity=0.9934 specificity=0.9988 p_obs=0.0116 Hhat=0.0105 ci_lower=0.0095 ci_upper=0.0116 bootstrap_mean=0.0105 bootstrap_std=0.0005 bootstrap_reps=2000
+== test_bytes=134217728 ==
+  # result tau_ticks=50.0000 sensitivity=0.9934 specificity=0.9988 p_obs=0.0059 Hhat=0.0048 ci_lower=0.0039 ci_upper=0.0056 bootstrap_mean=0.0048 bootstrap_std=0.0004 bootstrap_reps=2000
+== test_bytes=268435456 ==
+  # result tau_ticks=54.0000 sensitivity=0.9935 specificity=0.9988 p_obs=0.0033 Hhat=0.0021 ci_lower=0.0015 ci_upper=0.0105 bootstrap_mean=0.0043 bootstrap_std=0.0029 bootstrap_reps=2000
+== test_bytes=536870912 ==
+  # result tau_ticks=50.0000 sensitivity=0.9935 specificity=0.9987 p_obs=0.0014 Hhat=0.0001 ci_lower=0.0000 ci_upper=0.0006 bootstrap_mean=0.0002 bootstrap_std=0.0002 bootstrap_reps=2000
+wrote 16 rows -> data_raw/hazel_skylake/phase1_v2/software_hit_rate/hit_rate_sweep_20260916T054814Z.csv
+-- generating plots --
+wrote data_processed/hazel_skylake/phase1_v2/software_hit_rate/plots/calibration_distributions.{png,pdf}
+wrote data_processed/hazel_skylake/phase1_v2/software_hit_rate/plots/hit_rate_sweep.{png,pdf}
+-- compressing raw per-access CSVs --
+
+== done ==
+== summary: data_raw/hazel_skylake/phase1_v2/software_hit_rate/hit_rate_sweep_20260916T054814Z.csv ==
+== record in data_raw/hazel_skylake/phase1_v2/README.md: core=16, seed=12345, timestamp=20260916T054814Z ==
+== full transcript saved to: data_raw/hazel_skylake/phase1_v2/software_hit_rate/run_software_hit_rate_sweep_20260916T054814Z.log ==

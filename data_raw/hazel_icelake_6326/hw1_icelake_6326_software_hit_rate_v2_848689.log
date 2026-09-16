@@ -1,0 +1,40 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+c060n04
+Linux c060n04 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) Gold 6326 CPU @ 2.90GHz
+Assigned logical CPU: 16, SLURM_JOB_ID=848689
+
+=== Running scripts/run_software_hit_rate_sweep.sh (HAZEL_MODE=1) for hazel_icelake_6326/phase1_v2 ===
+== run_software_hit_rate_sweep: machine=hazel_icelake_6326/phase1_v2 core=16 seed=12345 ==
+== boundaries=L1:65536,L2:1310720,LLC:25874000,DRAM:536870912 ==
+== timestamp=20260916T042807Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=70.0000 sensitivity=0.9921 specificity=0.9997 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+[2026-09-16T00:31:52.567] error: *** STEP 848689.1 ON c060n04 CANCELLED AT 2026-09-16T00:31:52 DUE to SIGNAL Terminated ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: c060n04: task 0: Terminated
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 848689
+    Job name          : hw1_swhitrate_relook
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-16T00:27:53
+    Started           : 2026-09-16T00:28:06
+    Wait time         : 13 sec
+    Elapsed (wall)    : 00:03:46
+    Nodes             : 1 (c060n04)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 53.74 sec  (user 51.85, sys 1.89)
+    CPU efficiency    : 23.8%
+    Memory in use     : 1.05 GB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 848689
+------------------------------------------------------------

@@ -1,0 +1,50 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+c051n03
+Linux c051n03 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) Gold 6130 CPU @ 2.10GHz
+Assigned logical CPU: 20, SLURM_JOB_ID=848699
+
+=== Running scripts/run_software_hit_rate_sweep.sh (HAZEL_MODE=1) for hazel_skylake/phase1_v2 ===
+== run_software_hit_rate_sweep: machine=hazel_skylake/phase1_v2 core=20 seed=12345 ==
+== boundaries=L1:32768,L2:1048576,LLC:23726560,DRAM:536870912 ==
+== timestamp=20260916T042807Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=50.0000 sensitivity=0.9935 specificity=0.9989 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=50.0000 sensitivity=0.9935 specificity=0.9987 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=70.0000 sensitivity=0.9933 specificity=0.9988 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=52.0000 sensitivity=0.9933 specificity=0.9987 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=54.0000 sensitivity=0.9935 specificity=0.9989 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=52.0000 sensitivity=0.9933 specificity=0.9988 p_obs=0.9995 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=1048576 ==
+[2026-09-16T00:31:55.572] error: *** STEP 848699.6 ON c051n03 CANCELLED AT 2026-09-16T00:31:55 DUE to SIGNAL Terminated ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: c051n03: task 0: Terminated
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 848699
+    Job name          : hw1_swhitrate_relook
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-16T00:27:55
+    Started           : 2026-09-16T00:28:06
+    Wait time         : 11 sec
+    Elapsed (wall)    : 00:03:49
+    Nodes             : 1 (c051n03)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 191.04 sec  (user 182.92, sys 8.12)
+    CPU efficiency    : 83.4%
+    Memory in use     : 1.01 GB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 848699
+------------------------------------------------------------
