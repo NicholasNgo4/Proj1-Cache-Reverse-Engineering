@@ -4020,26 +4020,98 @@ Record project meetings or substantial synchronous work sessions, if any. Includ
 \hline
 \endhead
 
-29Aug2026, 3pm &
-Meet Team Members, start on project &
+29Aug2026 &
+Meet team members, start on project &
 Yes &
 Yes &
-Github + overleaf report created, tested access to machines, filled out Table 1, begin building micro benchmark\\
+Github + Overleaf report created, tested access to machines, filled out Table 1, began building micro benchmark. \\
 \hline
 
-& & & & \\
+31Aug2026 &
+Build core timing/benchmark infrastructure &
+No &
+Yes &
+Added timer, benchmark, random-address, and pointer-chase files for \texttt{cache\_bench}. \\
 \hline
 
-& & & & \\
+01Sep2026 &
+Build capacity benchmark skeleton &
+Yes &
+Yes &
+Added Makefile/\texttt{main.c}, a machine-availability checker, and the Phase-I capacity sweep with batched distribution capture. \\
 \hline
 
-& & & & \\
+07Sep2026 &
+Add pointer-chase capacity benchmark skeleton &
+Yes &
+No &
+Added the \texttt{cache\_bench} pointer-chase capacity benchmark skeleton and merged it into main. \\
+\hline
+
+08Sep2026 &
+Run Phase I capacity experiment across lab machines &
+Yes &
+Yes &
+Built the x86 capacity-sweep/plotting protocol and collected initial capacity data for Skylark, Upgrade, Crux, Charnwood, Thunderbird, and Ookay; added the line-size benchmark. \\
+\hline
+
+09Sep2026 &
+Finish capacity plotting; redo noisy runs &
+Yes &
+Yes &
+Added Ookay capacity plots and line-size plots/data, and redid Artemisia's capacity experiment on a confirmed-idle core. \\
+\hline
+
+10Sep2026 &
+Build associativity experiment; reconcile capacity boundaries &
+Yes &
+No &
+Added the associativity experiment (confirmed Sunbird L1 = 8-way), reconciled cross-machine capacity boundaries, and began investigating a DTLB-aliasing confound above L1. \\
+\hline
+
+11Sep2026 &
+Harden associativity/line-size methodology per Phase I discipline &
+Yes &
+Yes &
+Retracted a CPUID-based root-cause check (outside Phase I's allowed command whitelist), hardened the associativity pipeline, and confirmed 64B line size on Sunbird. \\
+\hline
+
+12Sep2026 &
+Consolidate capacity results; run associativity on remaining machines &
+Yes &
+Yes &
+Added \texttt{CAPACITY\_RESULTS.md} as the authoritative boundary table and ran the associativity pipeline on Upgrade, Thunderbird, Charnwood, Skylark, Crux, Ookay, and Artemisia. \\
+\hline
+
+13Sep2026 &
+Complete hit/miss latency, inclusion policy, and Phase II PMU verification &
+Yes &
+Yes &
+Implemented and ran hit\_latency/miss\_latency and inclusion\_policy on all 8 lab machines, added Phase II PMU/system-report/literature validation for all 8, and started the chronological master table and software-only hit-rate estimator. \\
+\hline
+
+14Sep2026 &
+Freeze lab-only predictions; begin Hazel HPC Phase III &
+Yes &
+Yes &
+Completed Problem 8.4/8.5 cross-machine analyses, froze and tagged the lab-only prediction table, ran Hazel access-check pilots on all 9 generations plus haswell's full Phase-I suite, and began the report/slide-deck writeup. \\
+\hline
+
+15Sep2026 &
+Finish Phase-I suites on remaining Hazel generations &
+No &
+Yes &
+Completed miss\_latency/inclusion\_policy for broadwell, genoa, and turin, closing out full Phase-I suites on all 9 Hazel generations, and reran flagged line-size levels. \\
+\hline
+
+16Sep2026 &
+Finalize Hazel reruns and report/slide-deck figures &
+Yes &
+Yes &
+Reran noisy Hazel capacity/associativity data, added the cross-generation master table and held-out Cache-Law prediction figures, and finalized report and slide-deck formatting. \\
 \hline
 
 \end{longtable}
-
-Add rows as needed. If the team had no formal meetings, state that explicitly and describe how coordination occurred.
-
 
 \subsection{Code Contribution}
 
