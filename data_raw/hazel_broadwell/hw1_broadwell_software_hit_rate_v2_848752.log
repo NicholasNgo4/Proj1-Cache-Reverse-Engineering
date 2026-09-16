@@ -1,0 +1,78 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+c205n03
+Linux c205n03 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz
+Assigned logical CPU: 12, SLURM_JOB_ID=848752
+
+=== Running scripts/run_software_hit_rate_sweep.sh (HAZEL_MODE=1) for hazel_broadwell/phase1_v2 ===
+== run_software_hit_rate_sweep: machine=hazel_broadwell/phase1_v2 core=12 seed=12345 ==
+== boundaries=L1:32768,L2:262144,LLC:33554432,DRAM:536870912 ==
+== timestamp=20260916T054946Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=61.0000 sensitivity=0.9929 specificity=0.9998 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=61.0000 sensitivity=0.9929 specificity=0.9998 p_obs=0.9998 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=60.0000 sensitivity=0.9928 specificity=0.9999 p_obs=0.9997 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=61.0000 sensitivity=0.9929 specificity=0.9999 p_obs=0.9979 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=61.0000 sensitivity=0.9929 specificity=0.9999 p_obs=0.8832 Hhat=0.8895 ci_lower=0.8861 ci_upper=0.8925 bootstrap_mean=0.8894 bootstrap_std=0.0016 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=61.0000 sensitivity=0.9929 specificity=0.9998 p_obs=0.7320 Hhat=0.7372 ci_lower=0.7331 ci_upper=0.7412 bootstrap_mean=0.7372 bootstrap_std=0.0021 bootstrap_reps=2000
+== test_bytes=1048576 ==
+  # result tau_ticks=61.0000 sensitivity=0.9926 specificity=0.9998 p_obs=0.1933 Hhat=0.1946 ci_lower=0.1911 ci_upper=0.1980 bootstrap_mean=0.1946 bootstrap_std=0.0018 bootstrap_reps=2000
+== test_bytes=4194304 ==
+  # result tau_ticks=58.0000 sensitivity=0.9929 specificity=0.9998 p_obs=0.0492 Hhat=0.0494 ci_lower=0.0475 ci_upper=0.0512 bootstrap_mean=0.0494 bootstrap_std=0.0010 bootstrap_reps=2000
+== test_bytes=8388608 ==
+  # result tau_ticks=58.0000 sensitivity=0.9930 specificity=0.9998 p_obs=0.0251 Hhat=0.0251 ci_lower=0.0238 ci_upper=0.0265 bootstrap_mean=0.0251 bootstrap_std=0.0007 bootstrap_reps=2000
+== test_bytes=16777216 ==
+  # result tau_ticks=61.0000 sensitivity=0.9929 specificity=0.9999 p_obs=0.0117 Hhat=0.0116 ci_lower=0.0106 ci_upper=0.0126 bootstrap_mean=0.0116 bootstrap_std=0.0005 bootstrap_reps=2000
+== test_bytes=31457280 ==
+  # result tau_ticks=61.0000 sensitivity=0.9928 specificity=0.9999 p_obs=0.0065 Hhat=0.0064 ci_lower=0.0057 ci_upper=0.0071 bootstrap_mean=0.0064 bootstrap_std=0.0004 bootstrap_reps=2000
+== test_bytes=33554432 ==
+  # result tau_ticks=61.0000 sensitivity=0.9929 specificity=0.9998 p_obs=0.0061 Hhat=0.0060 ci_lower=0.0053 ci_upper=0.0067 bootstrap_mean=0.0060 bootstrap_std=0.0004 bootstrap_reps=2000
+== test_bytes=67108864 ==
+  # result tau_ticks=58.0000 sensitivity=0.9929 specificity=0.9998 p_obs=0.0023 Hhat=0.0021 ci_lower=0.0017 ci_upper=0.0026 bootstrap_mean=0.0021 bootstrap_std=0.0002 bootstrap_reps=2000
+== test_bytes=134217728 ==
+  # result tau_ticks=61.0000 sensitivity=0.9930 specificity=0.9998 p_obs=0.0015 Hhat=0.0013 ci_lower=0.0009 ci_upper=0.0018 bootstrap_mean=0.0013 bootstrap_std=0.0002 bootstrap_reps=2000
+== test_bytes=268435456 ==
+  # result tau_ticks=61.0000 sensitivity=0.9927 specificity=0.9999 p_obs=0.0007 Hhat=0.0006 ci_lower=0.0003 ci_upper=0.0008 bootstrap_mean=0.0006 bootstrap_std=0.0001 bootstrap_reps=2000
+== test_bytes=536870912 ==
+  # result tau_ticks=61.0000 sensitivity=0.9929 specificity=0.9998 p_obs=0.0003 Hhat=0.0001 ci_lower=0.0000 ci_upper=0.0003 bootstrap_mean=0.0001 bootstrap_std=0.0001 bootstrap_reps=2000
+wrote 16 rows -> data_raw/hazel_broadwell/phase1_v2/software_hit_rate/hit_rate_sweep_20260916T054946Z.csv
+-- generating plots --
+wrote data_processed/hazel_broadwell/phase1_v2/software_hit_rate/plots/calibration_distributions.{png,pdf}
+wrote data_processed/hazel_broadwell/phase1_v2/software_hit_rate/plots/hit_rate_sweep.{png,pdf}
+-- compressing raw per-access CSVs --
+
+== done ==
+== summary: data_raw/hazel_broadwell/phase1_v2/software_hit_rate/hit_rate_sweep_20260916T054946Z.csv ==
+== record in data_raw/hazel_broadwell/phase1_v2/README.md: core=12, seed=12345, timestamp=20260916T054946Z ==
+== full transcript saved to: data_raw/hazel_broadwell/phase1_v2/software_hit_rate/run_software_hit_rate_sweep_20260916T054946Z.log ==
+
+=== Done ===
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 848752
+    Job name          : hw1_swhitrate_relook
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-16T00:34:12
+    Started           : 2026-09-16T01:49:45
+    Wait time         : 4533 sec
+    Elapsed (wall)    : 00:10:42
+    Nodes             : 1 (c205n03)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 637.28 sec  (user 620.28, sys 17.01)
+    CPU efficiency    : 99.3%
+    Memory in use     : 1.01 GB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 848752
+------------------------------------------------------------

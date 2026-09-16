@@ -1,0 +1,75 @@
+== run_miss_latency_full: machine=hazel_cascadelake/phase1_v2 core=16 base_seed=12345 ==
+== timestamp=20260916T044250Z ==
+
+== transition L1_to_L2: target_bytes=32768 evict_bytes=1048576 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_base_random_20260916T044250Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/base_random_summary_20260916T044250Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_base_sequential_20260916T044250Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/base_sequential_summary_20260916T044250Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep1_random_20260916T044250Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/rep1_random_summary_20260916T044250Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep1_sequential_20260916T044250Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/rep1_sequential_summary_20260916T044250Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep2_random_20260916T044250Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/rep2_random_summary_20260916T044250Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep2_sequential_20260916T044250Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/rep2_sequential_summary_20260916T044250Z.csv
+-- found source-level (L1) hit_latency data for penalty annotation: data_processed/hazel_cascadelake/phase1_v2/latency/hit/L1/base_dependent_random_summary_20260916T043948Z.csv data_processed/hazel_cascadelake/phase1_v2/latency/hit/L1/rep1_dependent_random_summary_20260916T043948Z.csv data_processed/hazel_cascadelake/phase1_v2/latency/hit/L1/rep2_dependent_random_summary_20260916T043948Z.csv --
+-- generating plots for L1_to_L2 --
+  note: pattern=sequential has 3 overlapping summary rows with medians [132.0, 74.0, 74.0] (spread 58.0 ticks, 62.1%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_cascadelake/phase1_v2/latency/miss/L1_to_L2/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1_to_L2 --
+
+== transition L2_to_LLC: target_bytes=1048576 evict_bytes=16777216 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_base_random_20260916T044250Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/base_random_summary_20260916T044250Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_base_sequential_20260916T044250Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/base_sequential_summary_20260916T044250Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_rep1_random_20260916T044250Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/rep1_random_summary_20260916T044250Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_rep1_sequential_20260916T044250Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/rep1_sequential_summary_20260916T044250Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_rep2_random_20260916T044250Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/rep2_random_summary_20260916T044250Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/miss_latency_rep2_sequential_20260916T044250Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/rep2_sequential_summary_20260916T044250Z.csv
+-- found source-level (L2) hit_latency data for penalty annotation: data_processed/hazel_cascadelake/phase1_v2/latency/hit/L2/base_dependent_random_summary_20260916T043948Z.csv data_processed/hazel_cascadelake/phase1_v2/latency/hit/L2/rep1_dependent_random_summary_20260916T043948Z.csv data_processed/hazel_cascadelake/phase1_v2/latency/hit/L2/rep2_dependent_random_summary_20260916T043948Z.csv --
+-- generating plots for L2_to_LLC --
+  note: pattern=sequential has 3 overlapping summary rows with medians [297.0, 540.0, 383.0] (spread 243.0 ticks, 59.8%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_cascadelake/phase1_v2/latency/miss/L2_to_LLC/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2_to_LLC --
+
+== transition LLC_to_DRAM: target_bytes=16777216 evict_bytes=536870912 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/miss_latency_base_random_20260916T044250Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/base_random_summary_20260916T044250Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/miss_latency_base_sequential_20260916T044250Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/base_sequential_summary_20260916T044250Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/miss_latency_rep1_random_20260916T044250Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/rep1_random_summary_20260916T044250Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/miss_latency_rep1_sequential_20260916T044250Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/rep1_sequential_summary_20260916T044250Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/miss_latency_rep2_random_20260916T044250Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/rep2_random_summary_20260916T044250Z.csv
+  wrote 202 lines -> data_raw/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/miss_latency_rep2_sequential_20260916T044250Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/rep2_sequential_summary_20260916T044250Z.csv
+-- found source-level (LLC) hit_latency data for penalty annotation: data_processed/hazel_cascadelake/phase1_v2/latency/hit/LLC/base_dependent_random_summary_20260916T043948Z.csv data_processed/hazel_cascadelake/phase1_v2/latency/hit/LLC/rep1_dependent_random_summary_20260916T043948Z.csv data_processed/hazel_cascadelake/phase1_v2/latency/hit/LLC/rep2_dependent_random_summary_20260916T043948Z.csv --
+-- generating plots for LLC_to_DRAM --
+  note: pattern=random has 3 overlapping summary rows with medians [712.0, 917.0, 840.0] (spread 205.0 ticks, 24.9%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_cascadelake/phase1_v2/latency/miss/LLC_to_DRAM/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC_to_DRAM --
+
+== done ==
+== L1_to_L2: target_bytes=32768 evict_bytes=1048576 ==
+== L2_to_LLC: target_bytes=1048576 evict_bytes=16777216 ==
+== LLC_to_DRAM: target_bytes=16777216 evict_bytes=536870912 ==
+== record in data_raw/hazel_cascadelake/phase1_v2/README.md: core=16, base_seed=12345 (repeats use base_seed+index), trials=200, timestamp=20260916T044250Z ==
+== full transcript saved to: data_raw/hazel_cascadelake/phase1_v2/latency/run_miss_latency_full_20260916T044250Z.log ==

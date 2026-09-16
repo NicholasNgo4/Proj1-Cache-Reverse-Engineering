@@ -1,0 +1,9 @@
+Survived-class (upper-level hit) median:       88.14 ticks
+Invalidated-class (beyond-lower-level) median: 513.00 ticks
+Classification boundary (geometric mean):      212.64 ticks
+
+TARGET channel  (n=200): median=311.0 mean=354.6 ticks -- 0 survived-like (0.0%), 0 ambiguous, 200 invalidated-like (100.0%)
+CONTROL channel (n=200): median=85.0 mean=104.4 ticks -- 184 survived-like (92.0%), 0 ambiguous, 16 invalidated-like (8.0%)
+Paired check: target read slower than its own trial's control in 94.5% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: INCLUSIVE (lower-level eviction consistently removed the upper-level copy)

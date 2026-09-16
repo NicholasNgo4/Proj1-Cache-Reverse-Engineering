@@ -1,0 +1,52 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+n0407
+Linux n0407 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) Platinum 8462Y+
+Assigned logical CPU: 44, SLURM_JOB_ID=848694
+
+=== Running scripts/run_software_hit_rate_sweep.sh (HAZEL_MODE=1) for hazel_sapphirerapids/phase1_v2 ===
+== run_software_hit_rate_sweep: machine=hazel_sapphirerapids/phase1_v2 core=44 seed=12345 ==
+== boundaries=L1:65536,L2:2097152,LLC:50331648,DRAM:536870912 ==
+== timestamp=20260916T042807Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=64.0000 sensitivity=0.9929 specificity=0.9972 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=62.0000 sensitivity=0.9928 specificity=0.9971 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=64.0000 sensitivity=0.9922 specificity=0.9973 p_obs=0.9998 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=64.0000 sensitivity=0.9922 specificity=0.9976 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=64.0000 sensitivity=0.9922 specificity=0.9971 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=64.0000 sensitivity=0.9921 specificity=0.9973 p_obs=0.9995 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=1048576 ==
+  # result tau_ticks=64.0000 sensitivity=0.9921 specificity=0.9973 p_obs=0.9953 Hhat=1.0000 ci_lower=0.9794 ci_upper=1.0000 bootstrap_mean=0.9952 bootstrap_std=0.0084 bootstrap_reps=2000
+== test_bytes=2097152 ==
+[2026-09-16T00:31:53.569] error: *** STEP 848694.7 ON n0407 CANCELLED AT 2026-09-16T00:31:53 DUE to SIGNAL Terminated ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: n0407: task 0: Terminated
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 848694
+    Job name          : hw1_swhitrate_relook
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-16T00:27:54
+    Started           : 2026-09-16T00:28:06
+    Wait time         : 12 sec
+    Elapsed (wall)    : 00:03:47
+    Nodes             : 1 (n0407)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 209.13 sec  (user 204.49, sys 4.64)
+    CPU efficiency    : 92.1%
+    Memory in use     : 1.01 GB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 848694
+------------------------------------------------------------

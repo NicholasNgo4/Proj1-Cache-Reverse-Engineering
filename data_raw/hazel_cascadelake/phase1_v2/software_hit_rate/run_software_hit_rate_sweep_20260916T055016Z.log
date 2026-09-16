@@ -1,0 +1,43 @@
+== run_software_hit_rate_sweep: machine=hazel_cascadelake/phase1_v2 core=17 seed=12345 ==
+== boundaries=L1:32768,L2:1048576,LLC:16777216,DRAM:536870912 ==
+== timestamp=20260916T055016Z ==
+== test_bytes=4096 ==
+  # result tau_ticks=194.0000 sensitivity=0.9936 specificity=0.9987 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=16384 ==
+  # result tau_ticks=216.0000 sensitivity=0.9936 specificity=0.9987 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=32768 ==
+  # result tau_ticks=204.0000 sensitivity=0.9937 specificity=0.9983 p_obs=1.0000 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=65536 ==
+  # result tau_ticks=192.0000 sensitivity=0.9936 specificity=0.9983 p_obs=0.9997 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=131072 ==
+  # result tau_ticks=200.0000 sensitivity=0.9936 specificity=0.9984 p_obs=0.9999 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=262144 ==
+  # result tau_ticks=196.0000 sensitivity=0.9936 specificity=0.9983 p_obs=0.9988 Hhat=1.0000 ci_lower=1.0000 ci_upper=1.0000 bootstrap_mean=1.0000 bootstrap_std=0.0000 bootstrap_reps=2000
+== test_bytes=1048576 ==
+  # result tau_ticks=194.0000 sensitivity=0.9934 specificity=0.9984 p_obs=0.9728 Hhat=0.9793 ci_lower=0.8695 ci_upper=0.9809 bootstrap_mean=0.9591 bootstrap_std=0.0333 bootstrap_reps=2000
+== test_bytes=4194304 ==
+  # result tau_ticks=196.0000 sensitivity=0.9936 specificity=0.9986 p_obs=0.2693 Hhat=0.2700 ci_lower=0.2651 ci_upper=0.2738 bootstrap_mean=0.2693 bootstrap_std=0.0068 bootstrap_reps=2000
+== test_bytes=8388608 ==
+  # result tau_ticks=194.0000 sensitivity=0.9937 specificity=0.9984 p_obs=0.1156 Hhat=0.1149 ci_lower=0.1122 ci_upper=0.1272 bootstrap_mean=0.1187 bootstrap_std=0.0051 bootstrap_reps=2000
+== test_bytes=16777216 ==
+  # result tau_ticks=186.0000 sensitivity=0.9936 specificity=0.9983 p_obs=0.0637 Hhat=0.0625 ci_lower=0.0602 ci_upper=0.0648 bootstrap_mean=0.0625 bootstrap_std=0.0012 bootstrap_reps=2000
+== test_bytes=31457280 ==
+  # result tau_ticks=190.0000 sensitivity=0.9936 specificity=0.9984 p_obs=0.0330 Hhat=0.0316 ci_lower=0.0299 ci_upper=0.0333 bootstrap_mean=0.0316 bootstrap_std=0.0008 bootstrap_reps=2000
+== test_bytes=67108864 ==
+  # result tau_ticks=188.0000 sensitivity=0.9938 specificity=0.9986 p_obs=0.0142 Hhat=0.0129 ci_lower=0.0113 ci_upper=0.0141 bootstrap_mean=0.0129 bootstrap_std=0.0007 bootstrap_reps=2000
+== test_bytes=134217728 ==
+  # result tau_ticks=186.0000 sensitivity=0.9937 specificity=0.9983 p_obs=0.0077 Hhat=0.0061 ci_lower=0.0052 ci_upper=0.0073 bootstrap_mean=0.0062 bootstrap_std=0.0006 bootstrap_reps=2000
+== test_bytes=268435456 ==
+  # result tau_ticks=192.0000 sensitivity=0.9936 specificity=0.9983 p_obs=0.0040 Hhat=0.0023 ci_lower=0.0016 ci_upper=0.0031 bootstrap_mean=0.0023 bootstrap_std=0.0004 bootstrap_reps=2000
+== test_bytes=536870912 ==
+  # result tau_ticks=70.0000 sensitivity=0.9931 specificity=0.9988 p_obs=0.0014 Hhat=0.0002 ci_lower=0.0000 ci_upper=0.0008 bootstrap_mean=0.0002 bootstrap_std=0.0002 bootstrap_reps=2000
+wrote 15 rows -> data_raw/hazel_cascadelake/phase1_v2/software_hit_rate/hit_rate_sweep_20260916T055016Z.csv
+-- generating plots --
+wrote data_processed/hazel_cascadelake/phase1_v2/software_hit_rate/plots/calibration_distributions.{png,pdf}
+wrote data_processed/hazel_cascadelake/phase1_v2/software_hit_rate/plots/hit_rate_sweep.{png,pdf}
+-- compressing raw per-access CSVs --
+
+== done ==
+== summary: data_raw/hazel_cascadelake/phase1_v2/software_hit_rate/hit_rate_sweep_20260916T055016Z.csv ==
+== record in data_raw/hazel_cascadelake/phase1_v2/README.md: core=17, seed=12345, timestamp=20260916T055016Z ==
+== full transcript saved to: data_raw/hazel_cascadelake/phase1_v2/software_hit_rate/run_software_hit_rate_sweep_20260916T055016Z.log ==

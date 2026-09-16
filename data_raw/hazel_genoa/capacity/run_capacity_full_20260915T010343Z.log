@@ -1,0 +1,48 @@
+== run_capacity_full: machine=hazel_genoa core=96 coarse_max=67108864 seed=12345 ==
+== timestamp=20260915T010343Z ==
+-- coarse sweep 1024-67108864 bytes --
+  wrote 129002 lines -> data_raw/hazel_genoa/capacity/capacity_coarse_random_20260915T010343Z.csv
+  wrote 129002 lines -> data_raw/hazel_genoa/capacity/capacity_coarse_sequential_20260915T010343Z.csv
+Wrote 129 summary rows to data_processed/hazel_genoa/capacity/coarse_random_summary.csv
+Wrote 129 summary rows to data_processed/hazel_genoa/capacity/coarse_sequential_summary.csv
+-- tail-extension sweep 67108864-268435456 bytes --
+  wrote 17002 lines -> data_raw/hazel_genoa/capacity/capacity_coarse_ext_random_20260915T010343Z.csv
+  wrote 17002 lines -> data_raw/hazel_genoa/capacity/capacity_coarse_ext_sequential_20260915T010343Z.csv
+Wrote 17 summary rows to data_processed/hazel_genoa/capacity/coarse_ext_random_summary.csv
+Wrote 17 summary rows to data_processed/hazel_genoa/capacity/coarse_ext_sequential_summary.csv
+-- detected boundaries (bytes): 33554432 47453128 --
+-- dense sweep around boundary 33554432 bytes: 4194304-268435456 --
+  wrote 289002 lines -> data_raw/hazel_genoa/capacity/capacity_dense0_random_20260915T010343Z.csv
+  wrote 289002 lines -> data_raw/hazel_genoa/capacity/capacity_dense0_sequential_20260915T010343Z.csv
+Wrote 289 summary rows to data_processed/hazel_genoa/capacity/dense0_random_summary.csv
+Wrote 289 summary rows to data_processed/hazel_genoa/capacity/dense0_sequential_summary.csv
+-- dense sweep around boundary 47453128 bytes: 5931641-268435456 --
+  wrote 265002 lines -> data_raw/hazel_genoa/capacity/capacity_dense1_random_20260915T010343Z.csv
+  wrote 265002 lines -> data_raw/hazel_genoa/capacity/capacity_dense1_sequential_20260915T010343Z.csv
+Wrote 265 summary rows to data_processed/hazel_genoa/capacity/dense1_random_summary.csv
+Wrote 265 summary rows to data_processed/hazel_genoa/capacity/dense1_sequential_summary.csv
+  -- repeat 1/2 of deepest boundary's dense window --
+  wrote 265002 lines -> data_raw/hazel_genoa/capacity/capacity_dense1_rep1_random_20260915T010343Z.csv
+  wrote 265002 lines -> data_raw/hazel_genoa/capacity/capacity_dense1_rep1_sequential_20260915T010343Z.csv
+Wrote 265 summary rows to data_processed/hazel_genoa/capacity/dense1_rep1_random_summary.csv
+Wrote 265 summary rows to data_processed/hazel_genoa/capacity/dense1_rep1_sequential_summary.csv
+  -- repeat 2/2 of deepest boundary's dense window --
+  wrote 265002 lines -> data_raw/hazel_genoa/capacity/capacity_dense1_rep2_random_20260915T010343Z.csv
+  wrote 265002 lines -> data_raw/hazel_genoa/capacity/capacity_dense1_rep2_sequential_20260915T010343Z.csv
+Wrote 265 summary rows to data_processed/hazel_genoa/capacity/dense1_rep2_random_summary.csv
+Wrote 265 summary rows to data_processed/hazel_genoa/capacity/dense1_rep2_sequential_summary.csv
+-- dense sweep past deepest boundary, checking for a further plateau: 94906256-268435456 --
+  wrote 73002 lines -> data_raw/hazel_genoa/capacity/capacity_denseTail_random_20260915T010343Z.csv
+  wrote 73002 lines -> data_raw/hazel_genoa/capacity/capacity_denseTail_sequential_20260915T010343Z.csv
+Wrote 73 summary rows to data_processed/hazel_genoa/capacity/denseTail_random_summary.csv
+Wrote 73 summary rows to data_processed/hazel_genoa/capacity/denseTail_sequential_summary.csv
+-- generating plots --
+  note: 26.1426 MiB (random) has 3 overlapping summary rows with medians [85.6, 73.8, 91.4] (spread 17.6 ticks, 21.1%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_genoa/capacity/plots/capacity_curve.pdf and .png
+Wrote data_processed/hazel_genoa/capacity/plots/capacity_boxplots.pdf and .png
+-- compressing raw CSVs --
+== done ==
+== plots: data_processed/hazel_genoa/capacity/plots/capacity_curve.{png,pdf}, data_processed/hazel_genoa/capacity/plots/capacity_boxplots.{png,pdf} ==
+== detected boundaries (bytes): 33554432 47453128 ==
+== record in data_raw/hazel_genoa/README.md: core=96, seed=12345, samples=1000000, timestamp=20260915T010343Z ==
+== full transcript saved to: data_raw/hazel_genoa/capacity/run_capacity_full_20260915T010343Z.log ==

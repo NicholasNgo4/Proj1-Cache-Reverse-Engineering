@@ -1,0 +1,65 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+n0407
+Linux n0407 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) Platinum 8462Y+
+Assigned logical CPU: 43, SLURM_JOB_ID=848693
+
+=== Running scripts/run_miss_latency_full.sh (HAZEL_MODE=1) for hazel_sapphirerapids/phase1_v2, transitions=L1_to_L2:65536:2097152,L2_to_LLC:2097152:50331648,LLC_to_DRAM:50331648:536870912 ===
+== run_miss_latency_full: machine=hazel_sapphirerapids/phase1_v2 core=43 base_seed=12345 ==
+== timestamp=20260916T042807Z ==
+
+== transition L1_to_L2: target_bytes=65536 evict_bytes=2097152 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/miss_latency_base_random_20260916T042807Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/base_random_summary_20260916T042807Z.csv
+  wrote 202 lines -> data_raw/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/miss_latency_base_sequential_20260916T042807Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/base_sequential_summary_20260916T042807Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep1_random_20260916T042807Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/rep1_random_summary_20260916T042807Z.csv
+  wrote 202 lines -> data_raw/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep1_sequential_20260916T042807Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/rep1_sequential_summary_20260916T042807Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep2_random_20260916T042807Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/rep2_random_summary_20260916T042807Z.csv
+  wrote 202 lines -> data_raw/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/miss_latency_rep2_sequential_20260916T042807Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/rep2_sequential_summary_20260916T042807Z.csv
+-- found source-level (L1) hit_latency data for penalty annotation: data_processed/hazel_sapphirerapids/phase1_v2/latency/hit/L1/base_dependent_random_summary_20260916T042807Z.csv --
+-- generating plots for L1_to_L2 --
+Wrote data_processed/hazel_sapphirerapids/phase1_v2/latency/miss/L1_to_L2/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1_to_L2 --
+
+== transition L2_to_LLC: target_bytes=2097152 evict_bytes=50331648 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_sapphirerapids/phase1_v2/latency/miss/L2_to_LLC/miss_latency_base_random_20260916T042807Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/latency/miss/L2_to_LLC/base_random_summary_20260916T042807Z.csv
+  wrote 202 lines -> data_raw/hazel_sapphirerapids/phase1_v2/latency/miss/L2_to_LLC/miss_latency_base_sequential_20260916T042807Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/phase1_v2/latency/miss/L2_to_LLC/base_sequential_summary_20260916T042807Z.csv
+-- rep1 (seed=12346) --
+[2026-09-16T00:31:52.567] error: *** STEP 848693.8 ON n0407 CANCELLED AT 2026-09-16T00:31:52 DUE to SIGNAL Terminated ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: n0407: task 0: Terminated
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 848693
+    Job name          : hw1_misslat_relook
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-16T00:27:54
+    Started           : 2026-09-16T00:28:06
+    Wait time         : 12 sec
+    Elapsed (wall)    : 00:03:46
+    Nodes             : 1 (n0407)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 169.85 sec  (user 169.01, sys 0.84)
+    CPU efficiency    : 75.2%
+    Memory in use     : 108.52 MB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 848693
+------------------------------------------------------------

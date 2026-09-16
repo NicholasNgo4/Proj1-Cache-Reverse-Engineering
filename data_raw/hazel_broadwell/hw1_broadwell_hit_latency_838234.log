@@ -1,0 +1,185 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+c205n14
+Linux c205n14 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz
+Assigned logical CPU: 12, SLURM_JOB_ID=838234
+
+=== Running scripts/run_hit_latency_full.sh (HAZEL_MODE=1) ===
+== run_hit_latency_full: machine=hazel_broadwell core=12 base_seed=12345 ==
+== timestamp=20260915T023857Z ==
+
+== level L1: footprint_bytes=32768 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_base_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/base_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_base_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/base_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_base_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/base_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_base_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/base_independent_sequential_summary_20260915T023857Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_rep1_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/rep1_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_rep1_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/rep1_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_rep1_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/rep1_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_rep1_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/rep1_independent_sequential_summary_20260915T023857Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_rep2_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/rep2_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_rep2_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/rep2_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_rep2_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/rep2_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L1/hit_latency_rep2_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L1/rep2_independent_sequential_summary_20260915T023857Z.csv
+-- generating plots for L1 --
+  note: ('independent', 'sequential') has 3 overlapping summary rows with medians [6.3, 6.4, 8.7] (spread 2.4 ticks, 33.2%) -- averaging, widening whiskers to the union
+random: independent < dependent (6.43 vs 7.85 ticks) [expected]
+sequential: independent < dependent (7.14 vs 7.77 ticks) [expected]
+Wrote data_processed/hazel_broadwell/latency/hit/L1/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: footprint_bytes=262144 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_base_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/base_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_base_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/base_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_base_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/base_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_base_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/base_independent_sequential_summary_20260915T023857Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_rep1_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/rep1_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_rep1_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/rep1_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_rep1_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/rep1_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_rep1_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/rep1_independent_sequential_summary_20260915T023857Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_rep2_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/rep2_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_rep2_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/rep2_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_rep2_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/rep2_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/L2/hit_latency_rep2_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/L2/rep2_independent_sequential_summary_20260915T023857Z.csv
+-- generating plots for L2 --
+  note: ('dependent', 'random') has 3 overlapping summary rows with medians [18.1, 26.8, 19.5] (spread 8.7 ticks, 40.7%) -- averaging, widening whiskers to the union
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [7.7, 10.6, 10.1] (spread 2.9 ticks, 30.8%) -- averaging, widening whiskers to the union
+  note: ('independent', 'random') has 3 overlapping summary rows with medians [8.8, 14.5, 9.0] (spread 5.8 ticks, 53.5%) -- averaging, widening whiskers to the union
+  note: ('independent', 'sequential') has 3 overlapping summary rows with medians [6.4, 8.4, 6.4] (spread 2.0 ticks, 28.6%) -- averaging, widening whiskers to the union
+random: independent < dependent (10.76 vs 21.47 ticks) [expected]
+sequential: independent < dependent (7.02 vs 9.48 ticks) [expected]
+Wrote data_processed/hazel_broadwell/latency/hit/L2/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level LLC: footprint_bytes=25874000 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_base_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/base_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_base_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/base_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_base_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/base_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_base_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/base_independent_sequential_summary_20260915T023857Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_rep1_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/rep1_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_rep1_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/rep1_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_rep1_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/rep1_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_rep1_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/rep1_independent_sequential_summary_20260915T023857Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_rep2_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/rep2_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_rep2_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/rep2_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_rep2_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/rep2_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/LLC/hit_latency_rep2_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/LLC/rep2_independent_sequential_summary_20260915T023857Z.csv
+-- generating plots for LLC --
+random: independent < dependent (28.78 vs 47.51 ticks) [expected]
+sequential: independent < dependent (8.36 vs 10.13 ticks) [expected]
+Wrote data_processed/hazel_broadwell/latency/hit/LLC/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC --
+
+== level DRAM: footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_base_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/base_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_base_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/base_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_base_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/base_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_base_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/base_independent_sequential_summary_20260915T023857Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_rep1_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/rep1_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_rep1_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/rep1_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_rep1_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/rep1_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_rep1_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/rep1_independent_sequential_summary_20260915T023857Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_rep2_dependent_random_20260915T023857Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/rep2_dependent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_rep2_dependent_sequential_20260915T023857Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/rep2_dependent_sequential_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_rep2_independent_random_20260915T023857Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/rep2_independent_random_summary_20260915T023857Z.csv
+  wrote 1002 lines -> data_raw/hazel_broadwell/latency/hit/DRAM/hit_latency_rep2_independent_sequential_20260915T023857Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_broadwell/latency/hit/DRAM/rep2_independent_sequential_summary_20260915T023857Z.csv
+-- generating plots for DRAM --
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [10.1, 7.7, 7.7] (spread 2.4 ticks, 28.7%) -- averaging, widening whiskers to the union
+random: independent < dependent (33.10 vs 181.50 ticks) [expected]
+sequential: independent < dependent (6.36 vs 8.51 ticks) [expected]
+Wrote data_processed/hazel_broadwell/latency/hit/DRAM/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for DRAM --
+
+== done ==
+== L1: footprint_bytes=32768 ==
+== L2: footprint_bytes=262144 ==
+== LLC: footprint_bytes=25874000 ==
+== DRAM: footprint_bytes=536870912 ==
+== record in data_raw/hazel_broadwell/README.md: core=12, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260915T023857Z ==
+== full transcript saved to: data_raw/hazel_broadwell/latency/run_hit_latency_full_20260915T023857Z.log ==
+
+=== Done ===
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 838234
+    Job name          : hw1_hit_latency
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-14T22:38:51
+    Started           : 2026-09-14T22:38:56
+    Wait time         : 5 sec
+    Elapsed (wall)    : 00:03:23
+    Nodes             : 1 (c205n14)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 190.88 sec  (user 184.47, sys 6.42)
+    CPU efficiency    : 94.0%
+    Memory in use     : 1.06 GB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 838234
+------------------------------------------------------------

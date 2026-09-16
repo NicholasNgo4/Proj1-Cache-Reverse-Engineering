@@ -1,0 +1,111 @@
+== run_capacity_full: machine=hazel_skylake core=16 coarse_max=67108864 seed=12345 ==
+== timestamp=20260915T010343Z ==
+-- coarse sweep 1024-67108864 bytes --
+  wrote 129002 lines -> data_raw/hazel_skylake/capacity/capacity_coarse_random_20260915T010343Z.csv
+  wrote 129002 lines -> data_raw/hazel_skylake/capacity/capacity_coarse_sequential_20260915T010343Z.csv
+Wrote 129 summary rows to data_processed/hazel_skylake/capacity/coarse_random_summary.csv
+Wrote 129 summary rows to data_processed/hazel_skylake/capacity/coarse_sequential_summary.csv
+-- tail-extension sweep 67108864-268435456 bytes --
+  wrote 17002 lines -> data_raw/hazel_skylake/capacity/capacity_coarse_ext_random_20260915T010343Z.csv
+  wrote 17002 lines -> data_raw/hazel_skylake/capacity/capacity_coarse_ext_sequential_20260915T010343Z.csv
+Wrote 17 summary rows to data_processed/hazel_skylake/capacity/coarse_ext_random_summary.csv
+Wrote 17 summary rows to data_processed/hazel_skylake/capacity/coarse_ext_sequential_summary.csv
+-- detected boundaries (bytes): 961544 1359832 23726560 30769544 --
+-- dense sweep around boundary 961544 bytes: 120193-7692352 --
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense0_random_20260915T010343Z.csv
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense0_sequential_20260915T010343Z.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense0_random_summary.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense0_sequential_summary.csv
+-- dense sweep around boundary 1359832 bytes: 169979-10878656 --
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense1_random_20260915T010343Z.csv
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense1_sequential_20260915T010343Z.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense1_random_summary.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense1_sequential_summary.csv
+-- dense sweep around boundary 23726560 bytes: 2965820-189812480 --
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense2_random_20260915T010343Z.csv
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense2_sequential_20260915T010343Z.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense2_random_summary.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense2_sequential_summary.csv
+-- dense sweep around boundary 30769544 bytes: 3846193-246156352 --
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense3_random_20260915T010343Z.csv
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense3_sequential_20260915T010343Z.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense3_random_summary.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense3_sequential_summary.csv
+  -- repeat 1/2 of deepest boundary's dense window --
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense3_rep1_random_20260915T010343Z.csv
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense3_rep1_sequential_20260915T010343Z.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense3_rep1_random_summary.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense3_rep1_sequential_summary.csv
+  -- repeat 2/2 of deepest boundary's dense window --
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense3_rep2_random_20260915T010343Z.csv
+  wrote 289002 lines -> data_raw/hazel_skylake/capacity/capacity_dense3_rep2_sequential_20260915T010343Z.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense3_rep2_random_summary.csv
+Wrote 289 summary rows to data_processed/hazel_skylake/capacity/dense3_rep2_sequential_summary.csv
+-- dense sweep past deepest boundary, checking for a further plateau: 67108864-268435456 --
+  wrote 97002 lines -> data_raw/hazel_skylake/capacity/capacity_denseTail_random_20260915T010343Z.csv
+  wrote 97002 lines -> data_raw/hazel_skylake/capacity/capacity_denseTail_sequential_20260915T010343Z.csv
+Wrote 97 summary rows to data_processed/hazel_skylake/capacity/denseTail_random_summary.csv
+Wrote 97 summary rows to data_processed/hazel_skylake/capacity/denseTail_sequential_summary.csv
+-- generating plots --
+  note: 117.375 KiB (random) has 2 overlapping summary rows with medians [8.7, 16.9] (spread 8.3 ticks, 64.7%) -- averaging, widening whiskers to the union
+  note: 165.992 KiB (random) has 3 overlapping summary rows with medians [9.0, 9.0, 15.3] (spread 6.2 ticks, 56.2%) -- averaging, widening whiskers to the union
+  note: 8.72406 MiB (random) has 4 overlapping summary rows with medians [42.6, 107.6, 42.6, 42.6] (spread 65.1 ticks, 110.6%) -- averaging, widening whiskers to the union
+  note: 14.6721 MiB (random) has 5 overlapping summary rows with medians [44.6, 44.0, 173.9, 44.0, 44.0] (spread 129.9 ticks, 185.4%) -- averaging, widening whiskers to the union
+  note: 20.7494 MiB (random) has 4 overlapping summary rows with medians [46.2, 61.6, 46.7, 46.1] (spread 15.6 ticks, 31.0%) -- averaging, widening whiskers to the union
+  note: 7.99999 MiB (random) has 4 overlapping summary rows with medians [42.0, 71.6, 42.0, 42.0] (spread 29.6 ticks, 60.0%) -- averaging, widening whiskers to the union
+  note: 8.4757 MiB (random) has 4 overlapping summary rows with medians [42.3, 64.6, 42.3, 42.3] (spread 22.3 ticks, 46.5%) -- averaging, widening whiskers to the union
+  note: 8.59898 MiB (random) has 4 overlapping summary rows with medians [42.4, 130.0, 42.5, 42.5] (spread 87.5 ticks, 136.0%) -- averaging, widening whiskers to the union
+  note: 8.85095 MiB (random) has 4 overlapping summary rows with medians [42.7, 55.2, 42.7, 42.7] (spread 12.6 ticks, 27.5%) -- averaging, widening whiskers to the union
+  note: 9.65203 MiB (random) has 4 overlapping summary rows with medians [43.3, 64.6, 43.3, 43.3] (spread 21.3 ticks, 43.7%) -- averaging, widening whiskers to the union
+  note: 9.79242 MiB (random) has 4 overlapping summary rows with medians [43.4, 78.6, 43.4, 43.4] (spread 35.2 ticks, 67.4%) -- averaging, widening whiskers to the union
+  note: 15.3216 MiB (random) has 4 overlapping summary rows with medians [44.2, 91.2, 44.3, 44.4] (spread 47.0 ticks, 83.8%) -- averaging, widening whiskers to the union
+  note: 15.7706 MiB (random) has 4 overlapping summary rows with medians [44.5, 60.5, 44.4, 44.6] (spread 16.1 ticks, 33.3%) -- averaging, widening whiskers to the union
+  note: 16 MiB (random) has 4 overlapping summary rows with medians [44.0, 147.3, 44.1, 44.1] (spread 103.3 ticks, 147.8%) -- averaging, widening whiskers to the union
+  note: 16.2327 MiB (random) has 4 overlapping summary rows with medians [44.1, 160.4, 44.1, 44.0] (spread 116.3 ticks, 159.1%) -- averaging, widening whiskers to the union
+  note: 16.4688 MiB (random) has 4 overlapping summary rows with medians [44.2, 171.2, 44.2, 44.1] (spread 127.1 ticks, 167.4%) -- averaging, widening whiskers to the union
+  note: 16.7084 MiB (random) has 4 overlapping summary rows with medians [44.3, 138.5, 44.2, 44.3] (spread 94.3 ticks, 139.0%) -- averaging, widening whiskers to the union
+  note: 16.9514 MiB (random) has 4 overlapping summary rows with medians [44.6, 113.4, 44.4, 44.4] (spread 69.1 ticks, 112.0%) -- averaging, widening whiskers to the union
+  note: 17.198 MiB (random) has 4 overlapping summary rows with medians [44.5, 55.0, 45.4, 44.5] (spread 10.5 ticks, 22.2%) -- averaging, widening whiskers to the union
+  note: 19.3041 MiB (random) has 4 overlapping summary rows with medians [45.6, 54.9, 45.4, 45.3] (spread 9.6 ticks, 20.0%) -- averaging, widening whiskers to the union
+  note: 20.1587 MiB (random) has 4 overlapping summary rows with medians [44.7, 132.0, 44.9, 44.5] (spread 87.4 ticks, 131.4%) -- averaging, widening whiskers to the union
+  note: 20.4519 MiB (random) has 4 overlapping summary rows with medians [45.0, 130.0, 45.5, 47.9] (spread 85.0 ticks, 126.7%) -- averaging, widening whiskers to the union
+  note: 21.0512 MiB (random) has 4 overlapping summary rows with medians [46.8, 73.5, 47.4, 47.6] (spread 26.8 ticks, 49.7%) -- averaging, widening whiskers to the union
+  note: 21.3574 MiB (random) has 4 overlapping summary rows with medians [48.9, 137.5, 49.7, 48.7] (spread 88.8 ticks, 124.7%) -- averaging, widening whiskers to the union
+  note: 21.6681 MiB (random) has 4 overlapping summary rows with medians [49.6, 125.0, 49.7, 49.7] (spread 75.5 ticks, 110.2%) -- averaging, widening whiskers to the union
+  note: 22.303 MiB (random) has 4 overlapping summary rows with medians [48.4, 87.8, 48.5, 48.7] (spread 39.3 ticks, 67.4%) -- averaging, widening whiskers to the union
+  note: 39.1697 MiB (random) has 4 overlapping summary rows with medians [117.2, 146.2, 117.4, 117.0] (spread 29.3 ticks, 23.5%) -- averaging, widening whiskers to the union
+  note: 40.3175 MiB (random) has 4 overlapping summary rows with medians [119.7, 179.0, 118.8, 118.8] (spread 60.2 ticks, 44.9%) -- averaging, widening whiskers to the union
+  note: 40.9039 MiB (random) has 4 overlapping summary rows with medians [120.2, 179.6, 120.3, 121.2] (spread 59.4 ticks, 43.9%) -- averaging, widening whiskers to the union
+  note: 44.606 MiB (random) has 4 overlapping summary rows with medians [126.3, 176.9, 126.3, 126.2] (spread 50.7 ticks, 36.5%) -- averaging, widening whiskers to the union
+  note: 45.2548 MiB (random) has 4 overlapping summary rows with medians [127.2, 169.9, 127.9, 127.0] (spread 42.9 ticks, 31.1%) -- averaging, widening whiskers to the union
+  note: 46.5809 MiB (random) has 4 overlapping summary rows with medians [129.2, 177.9, 129.1, 129.0] (spread 48.9 ticks, 34.6%) -- averaging, widening whiskers to the union
+  note: 47.2584 MiB (random) has 4 overlapping summary rows with medians [129.7, 182.8, 129.5, 130.1] (spread 53.3 ticks, 37.2%) -- averaging, widening whiskers to the union
+  note: 49.3507 MiB (random) has 4 overlapping summary rows with medians [132.2, 183.1, 133.1, 133.1] (spread 51.0 ticks, 35.1%) -- averaging, widening whiskers to the union
+  note: 51.5357 MiB (random) has 4 overlapping summary rows with medians [135.3, 182.0, 134.8, 134.9] (spread 47.1 ticks, 32.1%) -- averaging, widening whiskers to the union
+  note: 52.2853 MiB (random) has 4 overlapping summary rows with medians [135.7, 180.9, 135.3, 135.6] (spread 45.5 ticks, 31.0%) -- averaging, widening whiskers to the union
+  note: 17.9594 MiB (random) has 3 overlapping summary rows with medians [55.2, 44.9, 45.5] (spread 10.3 ticks, 21.2%) -- averaging, widening whiskers to the union
+  note: 19.8697 MiB (random) has 3 overlapping summary rows with medians [59.2, 46.4, 46.4] (spread 12.8 ticks, 25.3%) -- averaging, widening whiskers to the union
+  note: 21.9833 MiB (random) has 3 overlapping summary rows with medians [174.7, 51.6, 53.3] (spread 123.1 ticks, 132.1%) -- averaging, widening whiskers to the union
+  note: 22.9565 MiB (random) has 3 overlapping summary rows with medians [97.4, 53.7, 52.6] (spread 44.8 ticks, 66.0%) -- averaging, widening whiskers to the union
+  note: 39.7394 MiB (random) has 3 overlapping summary rows with medians [175.0, 118.3, 118.3] (spread 56.8 ticks, 41.4%) -- averaging, widening whiskers to the union
+  note: 41.4989 MiB (random) has 3 overlapping summary rows with medians [178.5, 121.4, 121.4] (spread 57.2 ticks, 40.7%) -- averaging, widening whiskers to the union
+  note: 42.1025 MiB (random) has 3 overlapping summary rows with medians [167.5, 121.9, 122.5] (spread 45.6 ticks, 33.2%) -- averaging, widening whiskers to the union
+  note: 42.7149 MiB (random) has 3 overlapping summary rows with medians [181.3, 123.0, 123.4] (spread 58.4 ticks, 40.9%) -- averaging, widening whiskers to the union
+  note: 43.3362 MiB (random) has 3 overlapping summary rows with medians [175.8, 124.4, 124.4] (spread 51.4 ticks, 36.3%) -- averaging, widening whiskers to the union
+  note: 43.9665 MiB (random) has 3 overlapping summary rows with medians [178.5, 125.6, 125.6] (spread 52.9 ticks, 36.9%) -- averaging, widening whiskers to the union
+  note: 45.9131 MiB (random) has 3 overlapping summary rows with medians [179.8, 132.8, 128.6] (spread 51.2 ticks, 34.8%) -- averaging, widening whiskers to the union
+  note: 47.9458 MiB (random) has 3 overlapping summary rows with medians [179.1, 130.7, 131.4] (spread 48.4 ticks, 32.9%) -- averaging, widening whiskers to the union
+  note: 48.6432 MiB (random) has 3 overlapping summary rows with medians [178.5, 132.3, 131.6] (spread 46.9 ticks, 31.8%) -- averaging, widening whiskers to the union
+  note: 50.0686 MiB (random) has 3 overlapping summary rows with medians [179.8, 133.0, 133.2] (spread 46.7 ticks, 31.4%) -- averaging, widening whiskers to the union
+  note: 50.7968 MiB (random) has 3 overlapping summary rows with medians [183.7, 134.4, 134.1] (spread 49.6 ticks, 32.9%) -- averaging, widening whiskers to the union
+  note: 117.375 KiB (sequential) has 2 overlapping summary rows with medians [4.8, 9.4] (spread 4.6 ticks, 64.5%) -- averaging, widening whiskers to the union
+  note: 165.992 KiB (sequential) has 3 overlapping summary rows with medians [4.8, 4.8, 7.1] (spread 2.3 ticks, 41.4%) -- averaging, widening whiskers to the union
+  note: 6.0804 MiB (sequential) has 4 overlapping summary rows with medians [4.8, 4.8, 6.4, 4.8] (spread 1.5 ticks, 29.7%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_skylake/capacity/plots/capacity_curve.pdf and .png
+Wrote data_processed/hazel_skylake/capacity/plots/capacity_boxplots.pdf and .png
+-- compressing raw CSVs --
+== done ==
+== plots: data_processed/hazel_skylake/capacity/plots/capacity_curve.{png,pdf}, data_processed/hazel_skylake/capacity/plots/capacity_boxplots.{png,pdf} ==
+== detected boundaries (bytes): 961544 1359832 23726560 30769544 ==
+== record in data_raw/hazel_skylake/README.md: core=16, seed=12345, samples=1000000, timestamp=20260915T010343Z ==
+== full transcript saved to: data_raw/hazel_skylake/capacity/run_capacity_full_20260915T010343Z.log ==

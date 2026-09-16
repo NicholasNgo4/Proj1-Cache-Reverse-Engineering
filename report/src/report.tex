@@ -1489,6 +1489,9 @@ the end of each subsection and detailed fleet-wide in Section~\ref{sec:pmu}. Ful
 per-pairing reasoning, raw numbers, and caveats for every cell live in each machine's own
 \texttt{data\_processed/<machine>/FINAL\_CACHE\_TABLE.md}, which this section condenses.
 Machines are presented oldest to newest (Section~\ref{sec:evolution}'s year convention).
+Section~\ref{sec:permachine-hazel} extends this same per-machine treatment to 6 additional
+CPU generations available only on NC State's Hazel HPC cluster (Section~\ref{sec:hazel}),
+which has no PMU access.
 
 \subsection{Sunbird (2014, Intel Haswell-EP)}
 \label{sec:machine-sunbird}
@@ -1510,6 +1513,18 @@ retracted as sitting inside the already-documented continuous ramps, not genuine
 Both the single-curve (ramp-saturation) and family-of-curves methods agree at
 \textbf{64\,B} at all three levels, cross-checked with an offset sweep
 (Figure~\ref{fig:linesize-plot}, Section~\ref{sec:linesize}).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{sunbird_linesize_L2.png}
+\caption{Line-size sweep, Sunbird L2 (262,144\,B footprint), family-of-curves method: confirmed 64\,B, agreeing with L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{sunbird_linesize_L3_LLC.png}
+\caption{Line-size sweep, Sunbird LLC (31,457,280\,B footprint), family-of-curves method: also confirmed 64\,B, agreeing with L1/L2.}
+\end{figure}
 
 \subsubsection{Cache Associativity}
 \assocthreepanel{sunbird_assoc_L1.png}{sunbird_assoc_L2.png}{sunbird_assoc_L3_LLC.png}{Associativity sweeps, Sunbird. L1: clean knee at num\_ways=8$\to$9, \textbf{8-way, confirmed}. L2/LLC: both candidates -- spanning a $>$50x byte range -- break near the same num\_ways$\approx$9--10 regardless of capacity, the shared small-structure confound (Section~\ref{sec:assoc}); best guess \textbf{L2 = 8-way} (corroborated by Upgrade's derived-stride scan at an equivalent stride) and \textbf{LLC = 9-way} (most reproducible empirical wall, reported as an effective lower bound).}
@@ -1589,6 +1604,18 @@ split + step-4 offset check, one flagged-then-explained outlier).
 \caption{Line-size sweep, Charnwood L1.}
 \end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{charnwood_linesize_L2.png}
+\caption{Line-size sweep, Charnwood L2 (262,144\,B footprint), family-of-curves method: 64\,B, 2 independent lines of evidence.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{charnwood_linesize_L3_LLC.png}
+\caption{Line-size sweep, Charnwood LLC (8,388,608\,B footprint), family-of-curves method: 64\,B, with one flagged-then-explained outlier.}
+\end{figure}
+
 \subsubsection{Cache Associativity}
 \assocthreepanel{charnwood_assoc_L1.png}{charnwood_assoc_L2.png}{charnwood_assoc_L3_LLC.png}{Associativity sweeps, Charnwood. L1: \textbf{8-way, confirmed} (0 disagreement, base+2 repeats). L2 and LLC curves are numerically indistinguishable to within $\approx$0.05 ticks/access at every num\_ways=2--23 despite a 32x byte-capacity difference -- one of the cleanest on-machine confound demonstrations on the team; best guess \textbf{L2 = LLC = 8-way} (matching L1, via the second staircase jump at num\_ways=9).}
 S=C/(A$\times$B) at 8-way uniformly: 64 / 512 / 16,384 sets, both ratios (8x, 32x) matching
@@ -1657,8 +1684,20 @@ flat DRAM plateau ($\approx$286--297 ticks/access).
 weak/uncontradicted evidence for the same value (no competing measurement).
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.70\textwidth]{ookay_linesize.png}
+\includegraphics[width=0.75\textwidth]{ookay_linesize.png}
 \caption{Line-size sweep, Ookay L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{ookay_linesize_L2.png}
+\caption{Line-size sweep, Ookay L2 (262,144\,B footprint), family-of-curves method: weak, uncontradicted 64\,B evidence (no competing measurement).}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{ookay_linesize_L3_LLC.png}
+\caption{Line-size sweep, Ookay LLC (8,388,608\,B footprint), family-of-curves method: weak, uncontradicted 64\,B evidence (no competing measurement).}
 \end{figure}
 
 \subsubsection{Cache Associativity}
@@ -1729,6 +1768,18 @@ repeated L2 runs never converged on any \emph{different} value).
 \centering
 \includegraphics[width=0.70\textwidth]{upgrade_linesize.png}
 \caption{Line-size sweep, Upgrade L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{upgrade_linesize_L2.png}
+\caption{Line-size sweep, Upgrade L2 (262,144\,B footprint), family-of-curves method: weak, uncontradicted 64\,B evidence (7+ repeated runs never converged on a different value).}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{upgrade_linesize_L3_LLC.png}
+\caption{Line-size sweep, Upgrade LLC (12,582,912\,B footprint), family-of-curves method: the same weak, uncontradicted 64\,B evidence as L2.}
 \end{figure}
 
 \subsubsection{Cache Associativity}
@@ -1803,6 +1854,18 @@ exactly at 1.00x).
 \caption{Line-size sweep, Crux L1.}
 \end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{crux_linesize_L2.png}
+\caption{Line-size sweep, Crux L2 (262,144\,B footprint), family-of-curves method: 64\,B, part of the team's most-repeated line-size result.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{crux_linesize_L3_LLC.png}
+\caption{Line-size sweep, Crux LLC (8,388,608\,B footprint), family-of-curves method: 64\,B, part of the team's most-repeated line-size result.}
+\end{figure}
+
 \subsubsection{Cache Associativity}
 \assocthreepanel{crux_assoc_L1.png}{crux_assoc_L2.png}{crux_assoc_L3_LLC.png}{Associativity sweeps, Crux. L1: \textbf{8-way, confirmed}. L2 (262,144\,B) and LLC (8,388,608\,B) -- a 32x capacity difference -- both independently report \textbf{raw 4-way}, with full 3/3 reproducibility each; Charnwood tested the exact same two byte values and got the exact same "4" at both, independent cross-machine corroboration this is the shared confound, not real associativity. Best guess \textbf{L2 = LLC = 8-way} (anchored to L1).}
 S=C/(A$\times$B) at 8-way: 64 / 512 / 16,384 -- every count an exact integer, both ratios
@@ -1875,6 +1938,18 @@ split, confirmed by both methods rather than a single noisy run.
 \centering
 \includegraphics[width=0.70\textwidth]{skylark_linesize.png}
 \caption{Line-size sweep, Skylark L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{skylark_linesize_L2.png}
+\caption{Line-size sweep, Skylark L2 (524,288\,B footprint), family-of-curves method: 64\,B, confirmed by two independent methods.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{skylark_linesize_L3_LLC.png}
+\caption{Line-size sweep, Skylark LLC (8,388,608\,B footprint), family-of-curves method: a genuine \textbf{128\,B} split, still unexplained -- the one machine on the team with a real per-level line-size difference.}
 \end{figure}
 
 \subsubsection{Cache Associativity}
@@ -1952,6 +2027,18 @@ reproduced across 2 independent seeds), mirroring Skylark's own per-level split.
 \centering
 \includegraphics[width=0.70\textwidth]{thunderbird_linesize.png}
 \caption{Line-size sweep, Thunderbird L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{thunderbird_linesize_L2.png}
+\caption{Line-size sweep, Thunderbird L2 (1,048,576\,B footprint), family-of-curves method: 64\,B, offset-independent elbow.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{thunderbird_linesize_L3_LLC.png}
+\caption{Line-size sweep, Thunderbird LLC (31,457,280\,B footprint), family-of-curves method: \textbf{128\,B}, the one level that does not share L1/L2's line size (majority agreement at 7/8 tested offsets).}
 \end{figure}
 
 \subsubsection{Cache Associativity}
@@ -2035,6 +2122,18 @@ available default, not a machine-specific measurement at that level.
 \caption{Line-size sweep, Artemisia L1.}
 \end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{artemisia_linesize_L2.png}
+\caption{Line-size sweep, Artemisia L2 (2,097,152\,B footprint), family-of-curves method: best-supported at 64\,B, though the offset-invariance check came back only partially mixed.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{artemisia_linesize_L3_LLC.png}
+\caption{Line-size sweep, Artemisia LLC (31,457,280\,B footprint), family-of-curves method: unresolved -- no detectable transition across 11 independent attempts; 64\,B is carried over as a default, not a measurement.}
+\end{figure}
+
 \subsubsection{Cache Associativity}
 \assocthreepanel{artemisia_assoc_L1.png}{artemisia_assoc_L2.png}{artemisia_assoc_L3_LLC.png}{Associativity sweeps, Artemisia. L1: best guess \textbf{12-way} (clean transition to a low-spread shelf at exactly num\_ways=13 in all 3 runs, though one repeat's raw detector output was a P-state-noise false positive) -- later PMU-confirmed exactly. L2 and LLC candidates -- a 15x byte range -- give numerically indistinguishable curves at every num\_ways=2--40; best guess \textbf{L2 = LLC = 16-way} (structural argument: L2's capacity is an exact power of two, so only a power-of-two associativity gives a clean derived-set count).}
 
@@ -2082,6 +2181,587 @@ match it exactly regardless.} Artemisia's LLC size carries the largest Phase~I/P
 of any machine on the team (1.75x), and its 1.875\,MiB/core figure independently matches
 Chips and Cheese's own published per-core L3 slice figure for this exact SKU -- an external
 cross-check outside this project's own data.
+
+The eight machines above are the ECE lab fleet. NC State's Hazel HPC cluster
+(Section~\ref{sec:hazel}) additionally exposes 9 CPU generations via Slurm
+\texttt{--constraint}; the full timing-only suite (capacity, line size, associativity,
+hit/miss latency, inclusion/exclusion) has been run on 6 of them beyond the
+\texttt{haswell} pilot already detailed in Section~\ref{sec:hazel} itself:
+\texttt{broadwell}, \texttt{skylake}, \texttt{cascadelake}, \texttt{icelake\_6326},
+\label{sec:permachine-hazel}
+\texttt{genoa}, and \texttt{sapphirerapids} (oldest to newest below). Every run used
+identical code, build flags, and sample counts to the lab machines, bound via
+\texttt{srun --cpu-bind=cores} instead of \texttt{taskset} (\texttt{HAZEL\_MODE=1}).
+\textbf{No Phase-II PMU verification has run on Hazel} (no \texttt{perf}/PMU access is
+available there, per the assignment; Section~\ref{sec:hazel}), so unlike the lab
+machines' own final tables, every table below is Phase~I only -- sharing scope is an
+architectural assumption (private per-core L1/L2, whole-socket LLC), not a
+\texttt{lscpu}/\texttt{shared\_cpu\_list} measurement. Capacity boundaries (L1D/L2/LLC
+byte values) are taken from \texttt{CAPACITY\_RESULTS.md}'s hand-corrected values
+(2026-09-16, based on visual inspection of each machine's capacity plot), which in four
+cases below revise the byte value each machine's own \texttt{data\_raw/hazel\_<gen>/
+README.md} first proposed; both readings are noted where they differ.
+
+\subsection{Hazel-Broadwell (2016, Intel Broadwell-EP)}
+\label{sec:machine-hazel-broadwell}
+
+Intel Xeon E5-2650 v4 (10-core SKU, one generation newer than Sunbird's E5-2680 v3 and
+sharing hazel\_haswell's own E5-2650 line), bound to logical CPU 12/22 (socket 1, NUMA
+node 1) via \texttt{srun --cpu-bind=cores}.
+
+\subsubsection{Cache Hierarchy and Capacity}
+\textbf{L1D = 32,768\,B}, well-confirmed: flat $\approx$7.7--7.8 ticks/access through
+32,768\,B, climbing by the very next point. \textbf{L2 = 262,144\,B} (256\,KiB)
+best-guess: a noisy 20--30\% point-to-point region whose center lines up with this
+round value, not a clean knee. \textbf{LLC = 33,554,432\,B} (32\,MiB): a long, flat
+shelf holds $\approx$38--43 ticks/access from $\sim$2--24\,MiB, then a real, sustained
+climb resumes and clearly accelerates by 32--48\,MiB (this run's own README proposed a
+lower provisional edge, $\approx$24.68\,MiB, where the shelf first departs;
+\texttt{CAPACITY\_RESULTS.md}'s hand-corrected reading, used here, places the edge at
+the visually sharper acceleration further out). LLC-to-DRAM is noisy and does not
+settle within the 268\,MiB tail extension.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{hazel_broadwell_capacity.png}
+\caption{Capacity sweep, Hazel-Broadwell.}
+\end{figure}
+
+\subsubsection{Cache Line Size}
+\textbf{L1 = 64\,B}, clean Method-B detection, matching the frozen prediction. L2
+found no transition; LLC's own Method-B estimate (136\,B) is not a standard hardware
+line size and is treated as a spurious large-footprint artifact. \textbf{Best guess:
+64\,B at all three levels.} A same-day rerun at LLC came back \emph{worse}, not
+better (a sharp, low-variance cliff-drop at one footprint, consistent with transient
+shared-node contention rather than a pipeline bug) -- the original data above is
+preferred.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.70\textwidth]{hazel_broadwell_linesize.png}
+\caption{Line-size sweep, Hazel-Broadwell L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_broadwell_linesize_L2.png}
+\caption{Line-size sweep, Hazel-Broadwell L2 (262,144\,B footprint), family-of-curves method: no transition found; best guess 64\,B.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_broadwell_linesize_L3_LLC.png}
+\caption{Line-size sweep, Hazel-Broadwell LLC (25,874,000\,B footprint), family-of-curves method: an implausible 136\,B outlier, treated as a spurious large-footprint artifact; best guess 64\,B.}
+\end{figure}
+
+\subsubsection{Cache Associativity}
+\assocthreepanel{hazel_broadwell_assoc_L1.png}{hazel_broadwell_assoc_L2.png}{hazel_broadwell_assoc_L3_LLC.png}{Associativity sweeps, Hazel-Broadwell. L1: \textbf{8-way, fully reproducible}, matches the frozen prediction. L2: \textbf{4-way, fully reproducible and arithmetically valid} (262,144/64/4 = 1,024 sets, a clean integer) -- distinct from L1's own digit, and the same 4-way this project's Phase-II PMU work already found on several Skylake-family lab machines (Charnwood, Crux, Ookay, Upgrade), a plausible real value even without a PMU cross-check here. LLC: \textbf{9 base, one repeat found no knee at all} (flagged disagreement) and arithmetically invalid (25,874,432/64/9 = 44,920.89 sets) -- the usual confound, not citable.}
+
+\subsubsection{Hit Latency}
+\hitfourpanel{hazel_broadwell_hitlat_L1.png}{hazel_broadwell_hitlat_L2.png}{hazel_broadwell_hitlat_LLC.png}{hazel_broadwell_hitlat_DRAM.png}{Hit latency, Hazel-Broadwell, dependent/random/base-run median: L1 $\approx$7.85, L2 $\approx$18.09, LLC $\approx$47.58, DRAM $\approx$186.79 ticks -- a clean monotonic ladder; no \texttt{[UNEXPECTED]} flags.}
+
+\subsubsection{Miss and Next-Level Latency}
+\missthreepanel{hazel_broadwell_misslat_L1_to_L2.png}{hazel_broadwell_misslat_L2_to_LLC.png}{hazel_broadwell_misslat_LLC_to_DRAM.png}{Miss/next-level latency, Hazel-Broadwell, random/base-run median: L1$\to$L2 $\approx$76.0, L2$\to$LLC $\approx$289.5, LLC$\to$DRAM $\approx$1001.0 ticks -- cleanly increasing, though flagged with substantial (24--55\%) repeat-to-repeat spread throughout, not re-run.}
+
+\subsubsection{Inclusion and Exclusion Behavior}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_broadwell_incl_L1_vs_L2.png}
+\caption{Inclusion/exclusion, Hazel-Broadwell, L1\_vs\_L2.}
+\end{figure}
+\textbf{All three pairings: UNCERTAIN} -- the least informative inclusion/exclusion
+result of any Hazel generation run so far. \textbf{L1 vs.\ L2}: target 26.5\%
+survived-like / 72.5\% ambiguous, control 39.0\% survived-like -- both channels mostly
+ambiguous, unlike every other machine's own clean L1\_vs\_L2 pairing. \textbf{L2 vs.\
+LLC}: the confound warning fired at its most extreme -- control itself read 100.0\%
+invalidated-like despite never being touched. \textbf{L1 vs.\ LLC (skip-level)}:
+control also compromised, 86.0\% invalidated-like. No directional claim is supportable
+from this machine's data at any pairing -- plausibly related to this machine's own
+larger-than-typical scaled eviction footprint (from its higher LLC estimate) or a
+smaller/more-easily-saturated Broadwell-EP DTLB, not independently diagnosed.
+
+\subsubsection{Phase I Summary Table (No PMU on Hazel)}
+\begin{table}[H]
+\centering\scriptsize
+\caption{Phase-I-only inferred cache table, Hazel-Broadwell (no Hazel PMU access; Section~\ref{sec:hazel}).}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
+\hline
+Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks) & Miss/next lat.\ (ticks) & Sharing (assumed) & Inclusion vs.\ below\\
+\hline
+L1D & 32,768\,B & 64\,B & 8-way (64) & 7.85 & 76.0 & Private/core & Uncertain\\
+L2 & 262,144\,B (best guess) & 64\,B & 4-way (1,024), arith.\ valid & 18.09 & 289.5 & Private/core & Uncertain (confound)\\
+LLC & 33,554,432\,B (32\,MiB) & 64\,B (LLC's own 136\,B rejected) & 9-way, unresolved, arith.\ invalid & 47.58 & 1001.0 & Whole socket & Uncertain (confound)\\
+DRAM & -- & -- & -- & 186.79 & -- & -- & --\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Hazel-Skylake (2017, Intel Skylake-SP)}
+\label{sec:machine-hazel-skylake}
+
+Intel Xeon Gold 6130, bound to logical CPU 16 (socket 1, NUMA node 1).
+
+\subsubsection{Cache Hierarchy and Capacity}
+\textbf{L1D = 32,768\,B}, the sharpest L1 edge of any Hazel generation -- flat through
+30,048\,B, already departing at 32,768\,B itself. \textbf{L2 = 1,048,576\,B} (1\,MiB)
+best-guess, sitting inside a genuine (if not perfectly sharp) 512\,KiB--2\,MiB
+transition, distinct from a comparatively flat shelf above it. \textbf{LLC =
+23,726,560\,B} ($\approx$22.6\,MiB), \textbf{well-confirmed -- the cleanest LLC edge of
+any Hazel generation}: the shelf holds flat through 21,757,352\,B, then the very next
+point already departs, followed by a sharp, sustained acceleration. LLC-to-DRAM does
+not fully plateau within the 256\,MiB tail (still climbing, though the rate has clearly
+slowed).
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{hazel_skylake_capacity.png}
+\caption{Capacity sweep, Hazel-Skylake.}
+\end{figure}
+
+\subsubsection{Cache Line Size}
+\textbf{Inconclusive} -- Method B found no transition at any of the 3 levels.
+\textbf{Best guess: 64\,B} (matching the frozen prediction and every other x86
+machine), unconfirmed by this machine's own data. A same-day rerun at LLC improved
+further (a minor blip in the original plot disappeared entirely).
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.70\textwidth]{hazel_skylake_linesize.png}
+\caption{Line-size sweep, Hazel-Skylake L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_skylake_linesize_L2.png}
+\caption{Line-size sweep, Hazel-Skylake L2 (1,048,576\,B footprint), family-of-curves method: no transition found (Method B inconclusive); best guess 64\,B.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_skylake_linesize_L3_LLC.png}
+\caption{Line-size sweep, Hazel-Skylake LLC (23,726,560\,B footprint), family-of-curves method: no transition found (Method B inconclusive); best guess 64\,B.}
+\end{figure}
+
+\subsubsection{Cache Associativity}
+\assocthreepanel{hazel_skylake_assoc_L1.png}{hazel_skylake_assoc_L2.png}{hazel_skylake_assoc_L3_LLC.png}{Associativity sweeps, Hazel-Skylake. L1: \textbf{8-way, fully reproducible} (base + both repeats agree exactly), matches the frozen prediction, arithmetically valid (64 sets). L2 and LLC both also read a fully reproducible \textbf{"8"} -- the same cross-machine DTLB-scale confound documented throughout Section~\ref{sec:assoc}; notably, both L2's and LLC's own "8" pass the sets-must-be-integer arithmetic check too (8 divides the page-line count evenly at any scale), so the load-bearing evidence here is the cross-level digit match with L1, not the arithmetic. Not citable as this machine's real L2/LLC associativity.}
+
+\subsubsection{Hit Latency}
+\hitfourpanel{hazel_skylake_hitlat_L1.png}{hazel_skylake_hitlat_L2.png}{hazel_skylake_hitlat_LLC.png}{hazel_skylake_hitlat_DRAM.png}{Hit latency, Hazel-Skylake, dependent/random/base-run median: L1 $\approx$9.54, L2 $\approx$17.41, LLC $\approx$152.41, DRAM $\approx$194.99 ticks -- LLC and DRAM are well-separated ($\approx$28\% apart), consistent with this machine's independently confirmed LLC boundary.}
+
+\subsubsection{Miss and Next-Level Latency}
+\missthreepanel{hazel_skylake_misslat_L1_to_L2.png}{hazel_skylake_misslat_L2_to_LLC.png}{hazel_skylake_misslat_LLC_to_DRAM.png}{Miss/next-level latency, Hazel-Skylake, random/base-run median: L1$\to$L2 $\approx$58.0, L2$\to$LLC $\approx$378.0, LLC$\to$DRAM $\approx$654.0 ticks -- increasing as expected; all 3 transitions flagged repeat-to-repeat spread (32--71\%).}
+
+\subsubsection{Inclusion and Exclusion Behavior}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_skylake_incl_L1_vs_L2.png}
+\caption{Inclusion/exclusion, Hazel-Skylake, L1\_vs\_L2.}
+\end{figure}
+\textbf{L1 vs.\ L2}: the pipeline's own calibration sanity check \emph{failed} here --
+the invalidated-class median (58.0) is not clearly above the survived-class median
+(60.4), which should not be physically possible if eviction is working. A verdict was
+still produced (98.0\% target / 100\% control survived-like) -- \textbf{nominally
+EXCLUSIVE/NON-INCLUSIVE, but read with this calibration caveat}, unlike every other
+machine's own clean L1\_vs\_L2 result. \textbf{L2 vs.\ LLC: UNCERTAIN} (31.5\%
+survived / 50.5\% invalidated / 36\% ambiguous), the usual lowest-confidence pairing.
+\textbf{L1 vs.\ LLC (skip-level): EXCLUSIVE/NON-INCLUSIVE} (100\%/100\%), though the
+small target/control gap (52.0 vs.\ 46.0 median) makes this a less dramatic separation
+than hazel\_haswell's own equivalent result. Best-guess synthesis: leans non-inclusive
+throughout, but with the least-solid calibration of any Hazel machine to date.
+
+\subsubsection{Phase I Summary Table (No PMU on Hazel)}
+\begin{table}[H]
+\centering\scriptsize
+\caption{Phase-I-only inferred cache table, Hazel-Skylake (no Hazel PMU access; Section~\ref{sec:hazel}).}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
+\hline
+Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks) & Miss/next lat.\ (ticks) & Sharing (assumed) & Inclusion vs.\ below\\
+\hline
+L1D & 32,768\,B & 64\,B (unconfirmed) & 8-way (64) & 9.54 & 58.0 & Private/core & Uncertain (calib.\ caveat)\\
+L2 & 1,048,576\,B (best guess) & 64\,B (unconfirmed) & 8-way, confound-suspected & 17.41 & 378.0 & Private/core & Uncertain\\
+LLC & 23,726,560\,B ($\approx$22.6\,MiB) & 64\,B (unconfirmed) & 8-way, confound-suspected & 152.41 & 654.0 & Whole socket & Non-inclusive\\
+DRAM & -- & -- & -- & 194.99 & -- & -- & --\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Hazel-Cascadelake (2019, Intel Cascade Lake-SP Refresh)}
+\label{sec:machine-hazel-cascadelake}
+
+Intel Xeon Gold 6226R, bound to logical CPU 0/1/20/24 across the suite's different
+jobs (socket 1, NUMA node 1 throughout).
+
+\subsubsection{Cache Hierarchy and Capacity}
+\textbf{L1D = 32,768\,B}, well-confirmed, a clean edge at the expected power-of-two
+boundary. \textbf{L2: NOT cleanly resolved} -- one continuous, noisy ramp with no flat
+shelf, and a genuinely high-variance ($\sim$60--150\%+ run-to-run spread) $\sim$2--10\,MiB
+region; \textbf{best guess 1,048,576\,B} (1\,MiB), Cascade Lake-SP's publicly known
+per-core L2 size, a reasoned/provisional value, not an independently confirmed knee.
+\textbf{LLC: no sharp knee, but the topmost region DOES plateau} within the default
+256\,MiB tail (228--266 ticks/access, no further climb) -- the only Hazel generation to
+fully plateau on its original run; \textbf{best guess 16,777,216\,B} (16\,MiB), the
+provisional edge where the steepest mid-range climb settles into that long, near-flat
+tail.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{hazel_cascadelake_capacity.png}
+\caption{Capacity sweep, Hazel-Cascadelake.}
+\end{figure}
+
+\subsubsection{Cache Line Size}
+\textbf{Notably inconclusive} -- Method B found no transition at L1 or L2, and a
+clearly spurious 200\,B at LLC (not a plausible line size on any x86 CPU). The
+family-of-curves diagnostic (informational only) suggests 64\,B at L1 and L2,
+consistent with every other x86 machine. \textbf{Best guess: 64\,B}, flagged as
+unconfirmed. A same-day rerun at LLC genuinely improved (a dramatic dip-and-recover in
+the original plot's 32\,B-stride curve became a smooth, stable plateau).
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.70\textwidth]{hazel_cascadelake_linesize.png}
+\caption{Line-size sweep, Hazel-Cascadelake L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_cascadelake_linesize_L2.png}
+\caption{Line-size sweep, Hazel-Cascadelake L2 (1,048,576\,B footprint), family-of-curves method: no transition found; the family-of-curves shape itself suggests 64\,B.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_cascadelake_linesize_L3_LLC.png}
+\caption{Line-size sweep, Hazel-Cascadelake LLC (16,777,216\,B footprint), family-of-curves method: a spurious 200\,B outlier (not a plausible line size on any x86 CPU); best guess 64\,B.}
+\end{figure}
+
+\subsubsection{Cache Associativity}
+\assocthreepanel{hazel_cascadelake_assoc_L1.png}{hazel_cascadelake_assoc_L2.png}{hazel_cascadelake_assoc_L3_LLC.png}{Associativity sweeps, Hazel-Cascadelake. L1: \textbf{8-way, fully reproducible}, matches the frozen prediction. L2 and LLC both report a fully reproducible \textbf{"8"} too -- read as the same cross-machine DTLB-scale confound already documented on Sunbird/Upgrade/Charnwood/Thunderbird/hazel\_haswell, not a genuine L2/LLC measurement; full reproducibility (0 disagreement across repeats) is itself consistent with a small, fixed-size structure saturating identically regardless of seed.}
+
+\subsubsection{Hit Latency}
+\hitfourpanel{hazel_cascadelake_hitlat_L1.png}{hazel_cascadelake_hitlat_L2.png}{hazel_cascadelake_hitlat_LLC.png}{hazel_cascadelake_hitlat_DRAM.png}{Hit latency, Hazel-Cascadelake, dependent/random/base-run median: L1 $\approx$6.93, L2 $\approx$26.17, LLC $\approx$224.31, DRAM $\approx$254.75 ticks. LLC and DRAM sit unusually close together ($\approx$14\% apart) -- direct evidence the LLC footprint lands late in the still-climbing capacity transition rather than at a settled L3-only plateau; LLC $\approx$224.31 should be read as "deep in the LLC-to-DRAM transition," not a clean independent L3 number.}
+
+\subsubsection{Miss and Next-Level Latency}
+\missthreepanel{hazel_cascadelake_misslat_L1_to_L2.png}{hazel_cascadelake_misslat_L2_to_LLC.png}{hazel_cascadelake_misslat_LLC_to_DRAM.png}{Miss/next-level latency, Hazel-Cascadelake, random/base-run median: L1$\to$L2 $\approx$194.0, L2$\to$LLC $\approx$574.0, LLC$\to$DRAM $\approx$582.0 ticks. L2$\to$LLC and LLC$\to$DRAM sit almost on top of each other ($\approx$1.4\% apart) -- direct corroboration of the hit-latency finding above. L1$\to$L2/L2$\to$LLC both show substantial (43--58\%) repeat spread; LLC$\to$DRAM stayed under the 20\% flag threshold.}
+
+\subsubsection{Inclusion and Exclusion Behavior}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_cascadelake_incl_L1_vs_L2.png}
+\caption{Inclusion/exclusion, Hazel-Cascadelake, L1\_vs\_L2.}
+\end{figure}
+\textbf{L1 vs.\ L2: EXCLUSIVE/NON-INCLUSIVE} (98.5\% target survived-like, 100\%
+control, the cleanest of the three). \textbf{L2 vs.\ LLC: UNCERTAIN (confound
+suspected)} -- the classifier's own confound check fired: control itself read 23.5\%
+invalidated-like despite never being touched (likely DTLB pressure from the 1\,GiB
+scaled eviction footprint, or L2's index not fitting in one page). No directional lean
+is claimed here. \textbf{L1 vs.\ LLC (skip-level): EXCLUSIVE/NON-INCLUSIVE} (94.5\%
+target / 97.0\% control survived-like, though the paired check itself is only 34.0\%
+informative since target and control read similarly fast). Best-guess synthesis: L1
+reads confidently non-inclusive of both L2 and LLC; the middle pairing is a genuine
+non-answer on this machine, not a lean either way.
+
+\subsubsection{Phase I Summary Table (No PMU on Hazel)}
+\begin{table}[H]
+\centering\scriptsize
+\caption{Phase-I-only inferred cache table, Hazel-Cascadelake (no Hazel PMU access; Section~\ref{sec:hazel}).}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
+\hline
+Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks) & Miss/next lat.\ (ticks) & Sharing (assumed) & Inclusion vs.\ below\\
+\hline
+L1D & 32,768\,B & 64\,B (unconfirmed) & 8-way (64) & 6.93 & 194.0 & Private/core & Non-inclusive\\
+L2 & 1,048,576\,B (best guess, unresolved) & 64\,B (unconfirmed) & 8-way, confound-suspected & 26.17 & 574.0 & Private/core & Uncertain (confound)\\
+LLC & 16,777,216\,B (16\,MiB, provisional) & 64\,B (unconfirmed) & 8-way, confound-suspected & 224.31 & 582.0 & Whole socket & Non-inclusive\\
+DRAM & -- & -- & -- & 254.75 & -- & -- & --\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Hazel-Icelake6326 (2021, Intel Ice Lake-SP)}
+\label{sec:machine-hazel-icelake6326}
+
+Intel Xeon Gold 6326, bound to logical CPU 16. This run shows a genuine, unexplained
+capacity-sweep anomaly (below) that makes several downstream numbers on this machine
+less trustworthy than usual -- flagged throughout, not smoothed over.
+
+\subsubsection{Cache Hierarchy and Capacity}
+\textbf{Anomaly:} a sharp, $\approx$2x latency \emph{drop} between two adjacent
+coarse-sweep points (9,147,840\,B$\to$132.71 ticks, then 9,975,792\,B$\to$65.98) with no
+plausible cache-capacity explanation -- a real boundary can only increase miss cost, so
+this is read as session-level interference, not a cache effect; the small-footprint
+region is also noisier than on any other Hazel generation. \textbf{L1D: not cleanly
+confirmed} by this run's own noisy small-size data; \textbf{best guess (per
+\texttt{CAPACITY\_RESULTS.md}'s hand-corrected reading) 65,536\,B} (64\,KiB) --
+notably \emph{not} the 32,768\,B every other x86 Hazel/lab machine has shown, the
+baseline plateau persisting well past the usual edge before an unambiguous climb
+resumes past $\sim$60\,KiB. \textbf{L2: not resolved} -- one continuous ramp;
+\textbf{best guess 1,310,720\,B} (1.25\,MiB), Ice Lake-SP's generation-typical per-core
+L2 size. \textbf{LLC = 25,874,000\,B} ($\approx$24.68\,MiB), \textbf{well-confirmed once
+read from past the anomaly}: a flat shelf holds from 9,975,792--23,726,560\,B, then a
+sharp, sustained departure -- matching Xeon Gold 6326's publicly documented 24\,MB L3
+almost exactly. LLC-to-DRAM confirms a genuine plateau within the default tail
+extension (flat within $\sim$15\% noise).
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{hazel_icelake_6326_capacity.png}
+\caption{Capacity sweep, Hazel-Icelake6326 (anomalous $\approx$2x drop visible near 10\,MiB).}
+\end{figure}
+
+\subsubsection{Cache Line Size}
+Only \textbf{LLC produced a citable estimate: 64\,B}; L1 (32,768\,B) and L2
+(1,310,720\,B) both found no transition. \textbf{Best guess: 64\,B} for all levels. A
+same-day rerun at LLC came back \emph{worse} despite the original plot already being
+one of the cleanest in the whole project (a clean flat plateau, one clean elbow) -- the
+rerun shows the same category of transient contention cliff-drop documented on
+hazel\_broadwell's own rerun; the original data above is preferred.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.70\textwidth]{hazel_icelake_6326_linesize.png}
+\caption{Line-size sweep, Hazel-Icelake6326 L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_icelake_6326_linesize_L2.png}
+\caption{Line-size sweep, Hazel-Icelake6326 L2 (1,310,720\,B footprint), family-of-curves method: no transition found; best guess 64\,B.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_icelake_6326_linesize_L3_LLC.png}
+\caption{Line-size sweep, Hazel-Icelake6326 LLC (25,874,000\,B footprint), family-of-curves method: the one panel that produced a citable \textbf{64\,B} estimate.}
+\end{figure}
+
+\subsubsection{Cache Associativity}
+\assocthreepanel{hazel_icelake_6326_assoc_L1.png}{hazel_icelake_6326_assoc_L2.png}{hazel_icelake_6326_assoc_L3_LLC.png}{Associativity sweeps, Hazel-Icelake6326. L1: \textbf{"9", fully reproducible -- but arithmetically IMPOSSIBLE}: 32,768/64/9 = 56.89 sets, not a whole number, so a real L1D cannot have this associativity at this capacity -- the first Hazel machine where even the L1 read fails a basic physical-consistency check, consistent with this machine's own capacity-sweep anomaly disturbing the whole session. L2's "12" (1,706.67 sets) and LLC's own two disagreeing values (9: 44,920.89 sets; 12 on both repeats: 33,690.67 sets) are likewise arithmetically invalid. No citable associativity number survives from this machine at any level.}
+
+\subsubsection{Hit Latency}
+\hitfourpanel{hazel_icelake_6326_hitlat_L1.png}{hazel_icelake_6326_hitlat_L2.png}{hazel_icelake_6326_hitlat_LLC.png}{hazel_icelake_6326_hitlat_DRAM.png}{Hit latency, Hazel-Icelake6326, dependent/random/base-run median: L1 $\approx$21.92, L2 $\approx$36.60, LLC $\approx$203.40, DRAM $\approx$248.26 ticks -- a clean monotonic ladder despite the capacity-section anomaly; LLC/DRAM reasonably separated ($\approx$22\%).}
+
+\subsubsection{Miss and Next-Level Latency}
+\missthreepanel{hazel_icelake_6326_misslat_L1_to_L2.png}{hazel_icelake_6326_misslat_L2_to_LLC.png}{hazel_icelake_6326_misslat_LLC_to_DRAM.png}{Miss/next-level latency, Hazel-Icelake6326, random/base-run median: L1$\to$L2 $\approx$212.0, L2$\to$LLC $\approx$530.0, LLC$\to$DRAM $\approx$489.0 ticks -- \textbf{not monotonic} (L2$\to$LLC exceeds LLC$\to$DRAM); all 3 transitions show substantial (60.5--104.0\%) repeat spread, the most likely explanation for the inversion (a single noisy repeat), consistent with this machine's pervasive session-level noise.}
+
+\subsubsection{Inclusion and Exclusion Behavior}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_icelake_6326_incl_L1_vs_L2.png}
+\caption{Inclusion/exclusion, Hazel-Icelake6326, L1\_vs\_L2.}
+\end{figure}
+\textbf{L1 vs.\ L2: EXCLUSIVE/NON-INCLUSIVE} (100\%/100\%, clean, no calibration
+warnings). \textbf{L2 vs.\ LLC: UNCERTAIN} (16.0\% survived / 3.0\% invalidated / 81.0\%
+ambiguous -- the most ambiguous L2\_vs\_LLC result of any machine on the team).
+\textbf{L1 vs.\ LLC (skip-level): EXCLUSIVE/NON-INCLUSIVE} (100\%/100\%). Best-guess
+synthesis: leans non-inclusive throughout (both L1 pairings clean), matching
+hazel\_skylake's own overall shape.
+
+\subsubsection{Phase I Summary Table (No PMU on Hazel)}
+\begin{table}[H]
+\centering\scriptsize
+\caption{Phase-I-only inferred cache table, Hazel-Icelake6326 (no Hazel PMU access; Section~\ref{sec:hazel}).}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
+\hline
+Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks) & Miss/next lat.\ (ticks) & Sharing (assumed) & Inclusion vs.\ below\\
+\hline
+L1D & 65,536\,B (64\,KiB, best guess; capacity-sweep anomaly present) & 64\,B (unconfirmed) & 9-way, arith.\ invalid, not citable & 21.92 & 212.0 & Private/core & Non-inclusive\\
+L2 & 1,310,720\,B (best guess, unresolved) & -- (no transition) & 12-way, arith.\ invalid, not citable & 36.60 & 530.0 & Private/core & Uncertain\\
+LLC & 25,874,000\,B ($\approx$24.68\,MiB, well-confirmed) & 64\,B & 9/12-way, disagreeing, arith.\ invalid & 203.40 & 489.0 (non-monotonic) & Whole socket & Non-inclusive\\
+DRAM & -- & -- & -- & 248.26 & -- & -- & --\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Hazel-Genoa (2022, AMD EPYC 9654, Zen 4)}
+\label{sec:machine-hazel-genoa}
+
+AMD EPYC 9654 (96-core), bound to logical CPU 96/97 -- the first AMD/Zen generation
+run on Hazel, and this project's AMD-generation representative for the assignment's
+minimum-5-spanning-generations requirement on this cluster specifically.
+
+\subsubsection{Cache Hierarchy and Capacity}
+The smoothest, least-noisy capacity curve of any Hazel generation (only 2
+auto-detected boundaries). \textbf{L1D = 32,768\,B}, well-confirmed -- matches the
+frozen prediction and every other x86 generation in this project (Zen 4 did not change
+L1D size from earlier Zen generations). \textbf{L2: not cleanly resolved} -- one long,
+continuous ramp from the L1 edge to $\sim$30\,MiB, with neither auto-detected boundary
+even landing in the expected $\sim$1\,MiB L2 region; \textbf{best guess (per
+\texttt{CAPACITY\_RESULTS.md}'s hand-corrected reading) 262,144\,B} (256\,KiB), a
+generation-typical placeholder, not an independent knee. \textbf{LLC = 33,554,432\,B}
+(exactly 32\,MiB), \textbf{well-confirmed}: the climb's growth rate visibly steps up
+right at this point and keeps accelerating -- an exact match to AMD Genoa's publicly
+documented 32\,MB per-CCD L3 (shared across each 8-core CCD on this 96-core, 12-CCD
+part), the cleanest LLC-to-known-architecture match of any Hazel generation.
+LLC-to-DRAM does not plateau within the 268\,MiB tail (still rising $\sim$24\% across
+that range).
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{hazel_genoa_capacity.png}
+\caption{Capacity sweep, Hazel-Genoa.}
+\end{figure}
+
+\subsubsection{Cache Line Size}
+\textbf{L1 = 64\,B}, a clean Method-B detection, matching the frozen prediction (Zen 4
+did not change line size either). L2 found no transition; LLC's own Method-B estimate
+(112\,B) is not a standard hardware line size and is treated as a spurious
+large-footprint outlier, the same category as hazel\_cascadelake's own implausible
+200\,B LLC reading. \textbf{Best guess: 64\,B at all three levels.} A same-day rerun
+at L2/LLC was essentially unchanged (L2) or slightly better (LLC, only two minor
+single-point spikes).
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.70\textwidth]{hazel_genoa_linesize.png}
+\caption{Line-size sweep, Hazel-Genoa L1.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_genoa_linesize_L2.png}
+\caption{Line-size sweep, Hazel-Genoa L2 (1,048,576\,B footprint), family-of-curves method: no transition found; best guess 64\,B.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_genoa_linesize_L3_LLC.png}
+\caption{Line-size sweep, Hazel-Genoa LLC (33,554,432\,B footprint), family-of-curves method: an implausible 112\,B outlier, the same spurious-large-footprint category as Hazel-Cascadelake's own LLC reading; best guess 128\,B.}
+\end{figure}
+
+\subsubsection{Cache Associativity}
+\assocthreepanel{hazel_genoa_assoc_L1.png}{hazel_genoa_assoc_L2.png}{hazel_genoa_assoc_L3_LLC.png}{Associativity sweeps, Hazel-Genoa. L1: \textbf{"9", fully reproducible -- but arithmetically impossible} (32,768/64/9 = 56.89 sets), unlike every other x86 Hazel/lab machine's own clean L1 = 8-way -- the first AMD/Zen 4 machine to show the same "L1 itself fails the integer-sets check" symptom already seen on several Intel Hazel machines, cross-vendor evidence the confound is not Intel-microarchitecture-specific. L2's identical "9" (1,820.44 sets) is equally invalid; LLC disagrees across repeats (9 base, 9/8 on the two repeats) -- "8" (65,536 sets) is the only arithmetically valid LLC reading among the four, but it is not reproduced. No citable associativity from this machine at any level above L1.}
+
+\subsubsection{Hit Latency}
+\hitfourpanel{hazel_genoa_hitlat_L1.png}{hazel_genoa_hitlat_L2.png}{hazel_genoa_hitlat_LLC.png}{hazel_genoa_hitlat_DRAM.png}{Hit latency, Hazel-Genoa, dependent/random/base-run median: L1 $\approx$7.49, L2 $\approx$30.96, LLC $\approx$215.66, DRAM $\approx$330.04 ticks -- a clean monotonic ladder, consistent with the confirmed 32\,MiB LLC edge. The large DRAM/L1 ratio ($\approx$44x) reflects this chip's very low absolute L1 latency (a fast core), not an unusually slow DRAM path.}
+
+\subsubsection{Miss and Next-Level Latency}
+\missthreepanel{hazel_genoa_misslat_L1_to_L2.png}{hazel_genoa_misslat_L2_to_LLC.png}{hazel_genoa_misslat_LLC_to_DRAM.png}{Miss/next-level latency, Hazel-Genoa, random/base-run median: L1$\to$L2 $\approx$240.0, L2$\to$LLC $\approx$504.0, LLC$\to$DRAM $\approx$864.0 ticks -- cleanly increasing; substantial (23--82\%) repeat spread on several cells, not re-run.}
+
+\subsubsection{Inclusion and Exclusion Behavior}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_genoa_incl_L1_vs_L2.png}
+\caption{Inclusion/exclusion, Hazel-Genoa, L1\_vs\_L2.}
+\end{figure}
+\textbf{All three pairings: UNCERTAIN} -- the same total-non-answer category as
+hazel\_broadwell's own result. \textbf{L1 vs.\ L2}: target and control medians are
+\emph{identical} (168.0 ticks), both almost entirely ambiguous. \textbf{L2 vs.\ LLC}
+and \textbf{L1 vs.\ LLC}: the confound warning fired on both (control read 94.0\% and
+91.5\% invalidated-like respectively, despite never being touched). No directional
+claim is supportable from this machine's data. Worth flagging cautiously: both AMD
+generations tested this session (Genoa here, Turin separately) landed in this
+total-non-answer bucket, while most Intel generations produced at least a partial
+directional read -- but one Intel machine (hazel\_broadwell) also landed here, so with
+only 2 AMD data points this is not strong enough to call an AMD-specific effect.
+
+\subsubsection{Phase I Summary Table (No PMU on Hazel)}
+\begin{table}[H]
+\centering\scriptsize
+\caption{Phase-I-only inferred cache table, Hazel-Genoa (no Hazel PMU access; Section~\ref{sec:hazel}).}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
+\hline
+Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks) & Miss/next lat.\ (ticks) & Sharing (assumed) & Inclusion vs.\ below\\
+\hline
+L1D & 32,768\,B & 64\,B & 9-way, arith.\ invalid, not citable & 7.49 & 240.0 & Private/core & Uncertain\\
+L2 & 262,144\,B (best guess, unresolved) & 64\,B (LLC's own 112\,B rejected) & 9-way, arith.\ invalid, not citable & 30.96 & 504.0 & Private/core & Uncertain\\
+LLC & 33,554,432\,B (32\,MiB, well-confirmed) & 64\,B (LLC's own 112\,B rejected) & 8/9-way, disagreeing & 215.66 & 864.0 & 8-core CCD & Uncertain\\
+DRAM & -- & -- & -- & 330.04 & -- & -- & --\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Hazel-Sapphirerapids (2023, Intel Sapphire Rapids)}
+\label{sec:machine-hazel-sapphirerapids}
+
+Intel Xeon Platinum 8462Y+, bound to logical CPU 32/40. This run shows two separate
+capacity-sweep anomalies (more than any other Hazel generation) alongside a genuine,
+timing-observed deviation from every other machine's L1D size.
+
+\subsubsection{Cache Hierarchy and Capacity}
+\textbf{Anomaly 1:} scattered single-point latency drops recur at several unrelated
+small footprints (2,232\,B, 12,632\,B, 13,776\,B, 17,864\,B, 42,488\,B all land near the
+same $\approx$5.1-tick floor against a $\approx$9.5--9.7 baseline) -- a real cache effect
+would not recur at scattered, unrelated byte values, read as a repeating
+measurement/scheduling artifact. \textbf{L1D: not the usual 32,768\,B} -- \textbf{best
+guess (per \texttt{CAPACITY\_RESULTS.md}'s hand-corrected reading) 65,536\,B}
+(64\,KiB; this machine's own README first read the same underlying data as
+$\approx$49,152\,B/48\,KiB, reasoning from a Golden-Cove-derived core) -- the baseline
+plateau clearly persists past every other machine's 32,768\,B edge, with an unambiguous
+climb only by $\sim$78--85\,KiB, a real, timing-observed deviation, not just noise.
+\textbf{L2: not resolved} -- continuous climb, no distinct shelf; \textbf{best guess
+2,097,152\,B} (2\,MiB), Sapphire Rapids' publicly known per-core L2 size and the
+largest L2 best-guess in this project, consistent with the same core lineage as the
+L1D finding. \textbf{Anomaly 2:} a second sharp $\approx$2.5x drop at a similar
+absolute footprint ($\sim$10--12\,MiB) to hazel\_icelake\_6326's own single anomaly --
+worth flagging as a possible pipeline-level artifact (e.g. a scheduling transition tied
+to elapsed sweep time) rather than two unrelated coincidences, not further diagnosed.
+\textbf{LLC:} a genuine post-anomaly shelf (11,863,280--36,591,368\,B, $\sim$9\% drift)
+followed by a real departure; \textbf{best guess (per \texttt{CAPACITY\_RESULTS.md}'s
+hand-corrected reading) $\approx$48\,MiB (50,331,648\,B)} (this machine's own README
+first proposed a lower provisional edge, $\approx$38.05\,MiB, where the shelf first
+departs) -- either reading sits below this SKU's published 60\,MB total L3, plausibly
+because a single-thread chase on a large, sliced/mesh LLC does not need to fill the
+full die-wide L3 before missing consistently. LLC-to-DRAM does not plateau within the
+256\,MiB tail.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{hazel_sapphirerapids_capacity.png}
+\caption{Capacity sweep, Hazel-Sapphirerapids (two flagged anomalies visible).}
+\end{figure}
+
+\subsubsection{Cache Line Size}
+\textbf{Inconclusive} -- Method B found no transition at any of the 3 levels (tested
+at L1's originally-read 49,152\,B footprint). \textbf{Best guess: 64\,B}, independent
+of this machine's own distinct L1D capacity finding (line size and L1 capacity are
+unrelated properties). A same-day rerun found L2 with a mild, system-wide synchronized
+dip (not real per-stride behavior) and L3 as "arguably the worst plot in this whole
+re-run batch" -- wild, repeated sawtooth spikes across a footprint range this
+machine's own capacity data never resolved to begin with.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.70\textwidth]{hazel_sapphirerapids_linesize.png}
+\caption{Line-size sweep, Hazel-Sapphirerapids L1 (49,152\,B footprint).}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_sapphirerapids_linesize_L2.png}
+\caption{Line-size sweep, Hazel-Sapphirerapids L2 (2,097,152\,B footprint), family-of-curves method: no transition found; best guess 64\,B.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_sapphirerapids_linesize_L3_LLC.png}
+\caption{Line-size sweep, Hazel-Sapphirerapids LLC (39,903,168\,B footprint), family-of-curves method: no transition found (tested at this machine's originally-read $\approx$38.05\,MiB footprint); best guess 64\,B.}
+\end{figure}
+
+\subsubsection{Cache Associativity}
+\assocthreepanel{hazel_sapphirerapids_assoc_L1.png}{hazel_sapphirerapids_assoc_L2.png}{hazel_sapphirerapids_assoc_L3_LLC.png}{Associativity sweeps, Hazel-Sapphirerapids. L1: \textbf{"12", fully reproducible AND arithmetically valid} -- 49,152/64/12 = exactly 64 sets, a clean integer -- \textbf{the cleanest same-run confirmation on any Hazel machine that a non-8-way L1 result can be genuinely self-consistent}, directly corroborating the capacity section's own finding of a larger-than-usual L1D. L2 and LLC report the identical "12" too, but \textbf{both fail the same arithmetic check} (2,730.67 and 51,957.33 sets respectively) -- the same digit as L1 by coincidence (the cross-machine DTLB-scale confound), not a genuine L2/LLC measurement. This machine gives the sharpest same-run separation of real L1 signal from confound-echo of any Hazel generation.}
+
+\subsubsection{Hit Latency}
+\hitfourpanel{hazel_sapphirerapids_hitlat_L1.png}{hazel_sapphirerapids_hitlat_L2.png}{hazel_sapphirerapids_hitlat_LLC.png}{hazel_sapphirerapids_hitlat_DRAM.png}{Hit latency, Hazel-Sapphirerapids, dependent/random/base-run median: L1 $\approx$17.45, L2 $\approx$24.52, LLC $\approx$155.96, DRAM $\approx$283.30 ticks -- a clean monotonic ladder, LLC/DRAM well-separated ($\approx$82\% apart), consistent with LLC-to-DRAM never plateauing in the capacity sweep.}
+
+\subsubsection{Miss and Next-Level Latency}
+\missthreepanel{hazel_sapphirerapids_misslat_L1_to_L2.png}{hazel_sapphirerapids_misslat_L2_to_LLC.png}{hazel_sapphirerapids_misslat_LLC_to_DRAM.png}{Miss/next-level latency, Hazel-Sapphirerapids, random/base-run median: L1$\to$L2 $\approx$214.0, L2$\to$LLC $\approx$566.0, LLC$\to$DRAM $\approx$825.0 ticks -- cleanly increasing (unlike hazel\_icelake\_6326's own inverted result); substantial (40--56.5\%) repeat spread, not re-run.}
+
+\subsubsection{Inclusion and Exclusion Behavior}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{hazel_sapphirerapids_incl_L1_vs_L2.png}
+\caption{Inclusion/exclusion, Hazel-Sapphirerapids, L1\_vs\_L2.}
+\end{figure}
+\textbf{L1 vs.\ L2: EXCLUSIVE/NON-INCLUSIVE} (100\%/100\%, clean, no calibration
+warnings). \textbf{L2 vs.\ LLC: UNCERTAIN} (29.5\% survived / 48.5\% invalidated /
+44\% ambiguous), the usual lowest-confidence pairing. \textbf{L1 vs.\ LLC
+(skip-level): EXCLUSIVE/NON-INCLUSIVE} (99.5\%/100\%). Best-guess synthesis: leans
+non-inclusive throughout, the same overall shape as hazel\_skylake's and
+hazel\_icelake\_6326's own results.
+
+\subsubsection{Phase I Summary Table (No PMU on Hazel)}
+\begin{table}[H]
+\centering\scriptsize
+\caption{Phase-I-only inferred cache table, Hazel-Sapphirerapids (no Hazel PMU access; Section~\ref{sec:hazel}).}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|l|X|X|}
+\hline
+Level & Size & Line & Assoc.\ (Sets) & Hit lat.\ (ticks) & Miss/next lat.\ (ticks) & Sharing (assumed) & Inclusion vs.\ below\\
+\hline
+L1D & 65,536\,B (64\,KiB, best guess; own README first read $\approx$49,152\,B) & 64\,B (unconfirmed) & 12-way (64), arith.\ valid & 17.45 & 214.0 & Private/core & Non-inclusive\\
+L2 & 2,097,152\,B (best guess, unresolved) & 64\,B (unconfirmed) & 12-way, arith.\ invalid, not citable & 24.52 & 566.0 & Private/core & Uncertain\\
+LLC & 50,331,648\,B ($\approx$48\,MiB, best guess; own README first read $\approx$38.05\,MiB) & 64\,B (unconfirmed) & 12-way, arith.\ invalid, not citable & 155.96 & 825.0 & Whole socket & Non-inclusive\\
+DRAM & -- & -- & -- & 283.30 & -- & -- & --\\
+\hline
+\end{tabularx}
+\end{table}
 
 \section{Performance Counter Verification}
 \label{sec:pmu}
@@ -2299,7 +2979,7 @@ Skylark (AMD) shows a striking and reproducible dTLB anomaly: at LLC-sized and b
 \section{Software-Only Cache Metric}
 \label{sec:hitrate}
 
-The required deliverable is a timing-derived cache hit-rate estimator,
+The software-only cache metric is a timing-derived cache hit-rate estimator,
 $\widehat{H} = N_{\text{classified hits}} / N_{\text{timed accesses}}$, that never reads a
 PMU counter. \textbf{What is varied:} which workload's hit rate is being estimated
 (\texttt{test\_bytes}); the calibration classes themselves are fixed, self-generated
@@ -2503,6 +3183,106 @@ flaw hidden from the reader.
 \section{Chronological Cache Evolution Analysis}
 \label{sec:evolution}
 
+\subsection{Chronological Master Table (Full Fleet, 14 Machines)}
+\label{sec:master-table-full}
+
+Table~\ref{tab:master-full-l1} and Table~\ref{tab:master-full-l2llc} give the assignment's
+required chronological master table: one row per measured machine/CPU generation, sorted
+oldest to newest by first public introduction year of the specific
+microarchitecture/processor generation (Section~\ref{sec:platforms}'s year convention),
+with the required identifying columns (Year, Vendor/ISA, Microarchitecture, Machine/CPU,
+Process node) followed by the measured cache columns. This covers all \textbf{14} machines
+discussed anywhere in this report -- the 8 ECE lab machines (Section~\ref{sec:permachine})
+and the 6 additional Hazel HPC generations (Section~\ref{sec:permachine-hazel}).
+\textbf{Hazel-Haswell is deliberately excluded}: it is the held-out generation the frozen
+lab-only prediction (Section~\ref{sec:cachelaws}) is evaluated against
+(Section~\ref{sec:hazel}), and folding its own measurements into this master table before
+that evaluation would defeat the point of holding it out.
+
+Every cache-column cell's primary entry is the \textbf{Phase I timing-only inferred value}
+-- never silently replaced by a PMU or vendor-published number. Where a second, independent
+value exists, it is appended as \emph{Phase\,I~$\to$~verification} with an explicit
+\cmark/\xmark\ agreement flag: for the 8 lab machines this is Phase II
+PMU/system-report/literature (Section~\ref{sec:pmu}, full detail
+\texttt{data\_processed/<machine>/PHASE2\_VALIDATION\_TABLE.md}); Hazel has no PMU access
+(Section~\ref{sec:hazel}'s Phase Discipline), so its second value is vendor/literature-only,
+newly compiled in \texttt{HAZEL\_PUBLISHED\_CACHE\_SPECS.md} and cited per-cell below.
+$\dagger$ marks a Phase I value already flagged in Section~\ref{sec:permachine-hazel} as
+arithmetically invalid (fails the sets-must-be-a-whole-number check) -- not directly
+comparable to the verification value, shown for completeness only, not as a real
+disagreement.
+
+\begin{table}[H]
+\centering
+{\tiny\setlength{\tabcolsep}{3pt}
+\caption{Required chronological master table, part 1 of 2: identifying columns, L1D, line size, and L1 hit latency. All 14 machines, oldest to newest.}
+\label{tab:master-full-l1}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|X|X|X|X|}
+\hline
+Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size (Phase I $\to$ verify) & L1D ways (Phase I $\to$ verify) & Line & L1 hit lat.\\
+\hline
+2014 & Intel / x86-64 & Haswell & 2x Xeon E5-2680 v3 (Sunbird) & 22\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 10.35\,ticks / 4.14\,ns\\
+2015 & Intel / x86-64 & Skylake & Core i7-6700 (Charnwood) & 14\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 7.98\,ticks / 2.35\,ns\\
+2016 & Intel / x86-64 & Broadwell-EP & Xeon E5-2650 v4 (Hazel-Broadwell) & 14\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 8 $\to$ 8 (lit.) \cmark & 64\,B & 7.85\,ticks (no Hazel PMU)\\
+2017 & Intel / x86-64 & Kaby Lake & Core i7-7700 (Ookay) & 14\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 7.49\,ticks / 2.08\,ns\\
+2017 & Intel / x86-64 & Skylake-SP & Xeon Gold 6130 (Hazel-Skylake) & 14\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 8 $\to$ 8 (lit.) \cmark & 64\,B (unconfirmed) & 9.54\,ticks (no Hazel PMU)\\
+2017 & Intel / x86-64 & Coffee Lake & Core i7-8700 (Upgrade) & 14\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 6.17\,ticks / 1.93\,ns\\
+2019 & Intel / x86-64 & Coffee Lake Refresh & Core i7-9700 (Crux) & 14\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 7.42\,ticks / 2.47\,ns\\
+2019 & Intel / x86-64 & Cascade Lake-SP Refresh & Xeon Gold 6226R (Hazel-Cascadelake) & 14\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 8 $\to$ 8 (lit.) \cmark & 64\,B (unconfirmed) & 6.93\,ticks (no Hazel PMU)\\
+2019 & AMD / x86-64 & Zen 2 & 2x EPYC 7532 (Skylark) & 7\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 6.24\,ticks / 2.60\,ns\\
+2020 & Ampere / AArch64 & Neoverse N1 & Ampere Q80-30 (Thunderbird) & 7\,nm & 65,536\,B & 4 $\to$ 4 \cmark & 64\,B & 0.130\,ticks / 5.0\,ns\\
+2021 & Intel / x86-64 & Ice Lake-SP & Xeon Gold 6326 (Hazel-Icelake6326) & 10\,nm & 65,536\,B $\to$ 49,152\,B (lit.) \xmark & 9$^\dagger$ $\to$ 12 (lit.) & 64\,B & 21.92\,ticks (no Hazel PMU)\\
+2022 & AMD / x86-64 & Zen 4 & EPYC 9654 (Hazel-Genoa) & 5\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 9$^\dagger$ $\to$ 8 (lit.) & 64\,B & 7.49\,ticks (no Hazel PMU)\\
+2023 & Intel / x86-64 & Sapphire Rapids & 2x Xeon Gold 5420+ (Artemisia) & 10\,nm / Intel 7 & 49,152\,B & 12 $\to$ 12 \cmark & 64\,B & 9.87\,ticks / 4.94\,ns\\
+2023 & Intel / x86-64 & Sapphire Rapids & Xeon Platinum 8462Y+ (Hazel-Sapphirerapids) & 10\,nm / Intel 7 & 65,536\,B $\to$ 49,152\,B (lit.) \xmark$^\ddagger$ & 12 $\to$ 12 (lit.) \cmark & 64\,B (unconfirmed) & 17.45\,ticks (no Hazel PMU)\\
+\hline
+\end{tabularx}
+}
+\end{table}
+
+$\ddagger$ Hazel-Sapphirerapids' own README first read this identical raw timing data as
+$\approx$49,152\,B before \texttt{CAPACITY\_RESULTS.md}'s hand-corrected reading moved it to
+65,536\,B (Section~\ref{sec:permachine-hazel}); the literature value confirms the
+\emph{original} 49,152\,B read was the physically correct one, an informative disagreement
+kept rather than silently resolved in either direction.
+
+\begin{table}[H]
+\centering
+{\tiny\setlength{\tabcolsep}{3pt}
+\caption{Required chronological master table, part 2 of 2: L2 and LLC organization, same 14 machines/row order as Table~\ref{tab:master-full-l1}.}
+\label{tab:master-full-l2llc}
+\begin{tabularx}{\textwidth}{|X|X|X|X|X|X|}
+\hline
+Machine & L2 size (Phase I $\to$ verify) & L2 ways (Phase I $\to$ verify) & LLC size (Phase I $\to$ verify) & LLC ways (Phase I $\to$ verify) & Verified against\\
+\hline
+Sunbird & 262,144\,B & 8 $\to$ 8 \cmark & 31,457,280\,B (exact) \cmark & 9 $\to$ 20 \xmark & PMU + sys.-report + lit.\\
+Charnwood & 262,144\,B & 8 $\to$ 4 \xmark & 8,388,608\,B (exact) \cmark & 8 $\to$ 16 \xmark & PMU + sys.-report + lit.\\
+Hazel-Broadwell & 262,144\,B (best guess) $\to$ 262,144\,B (lit.) \cmark & 4$^\dagger$ $\to$ 8 (lit.) & 33,554,432\,B $\to$ 31,457,280\,B (lit., 30\,MiB) \xmark & 9$^\dagger$ $\to$ 20 (lit.) & Lit.\ only (no Hazel PMU; \texttt{HAZEL\_PUBLISHED\_CACHE\_SPECS.md})\\
+Ookay & 262,144\,B & 8 $\to$ 4 \xmark & 8,388,608\,B (exact) \cmark & 8 $\to$ 16 \xmark & PMU + sys.-report + lit.\\
+Hazel-Skylake & 1,048,576\,B (best guess) $\to$ 1,048,576\,B (lit., 1\,MiB) \cmark & 8$^\dagger$ $\to$ 16 (lit.) & 23,726,560\,B $\to$ 23,068,672\,B (lit., 22\,MiB) \cmark & 8$^\dagger$ $\to$ 11 (lit.) & Lit.\ only (no Hazel PMU)\\
+Upgrade & 262,144\,B & 8 $\to$ 4 \xmark & 12,582,912\,B (exact) \cmark & 8 $\to$ 16 \xmark & PMU + sys.-report + lit.\\
+Crux & 262,144\,B & 8 $\to$ 4 \xmark & 8,388,608\,B $\to$ 12,582,912\,B \xmark (1.5x) & 8 $\to$ 12 \xmark & PMU + sys.-report + lit.\\
+Hazel-Cascadelake & 1,048,576\,B (best guess) $\to$ 1,048,576\,B (lit., 1\,MiB) \cmark & 8$^\dagger$ $\to$ 16 (lit.) & 16,777,216\,B (provisional) $\to$ 23,068,672\,B (lit., 22\,MiB) \xmark & 8$^\dagger$ $\to$ 11 (lit.) & Lit.\ only (no Hazel PMU)\\
+Skylark & 524,288\,B & 8 $\to$ 8 \cmark & 8,388,608\,B $\to$ 16,777,216\,B \xmark (2x) & 8 $\to$ 16 \xmark & PMU + sys.-report + lit.\\
+Thunderbird & 1,048,576\,B & 12 $\to$ 8 \xmark & 31,457,280\,B (no sys.-report; lit.\ 32\,MiB, $\approx$94\% match) & 10 $\to$ 16 (lit., unresolved) & PMU (partial) + lit.\\
+Hazel-Icelake6326 & 1,310,720\,B (best guess) $\to$ 1,310,720\,B (lit., 1.25\,MiB) \cmark & 12$^\dagger$ $\to$ 20 (lit., weak) & 25,874,000\,B $\to$ 25,165,824\,B (lit., 24\,MiB) \cmark & 9/12$^\dagger$ (disagreeing) $\to$ 12 (lit.) & Lit.\ only (no Hazel PMU)\\
+Hazel-Genoa & 262,144\,B (best guess) $\to$ 1,048,576\,B (lit., 1\,MiB) \xmark & 9$^\dagger$ $\to$ 8 (lit., weak) & 33,554,432\,B $\to$ 32\,MiB/CCD slice of 384\,MiB total (lit.) \cmark$^{\S}$ & 8/9$^\dagger$ (disagreeing) $\to$ 16 (lit., weak) & Lit.\ only (no Hazel PMU)\\
+Artemisia & 2,097,152\,B$^{*}$ & 16 $\to$ 16 \cmark & 31,457,280\,B $\to$ 55,050,240\,B \xmark (1.75x) & 16 $\to$ 15 (close) & PMU + sys.-report + lit.\\
+Hazel-Sapphirerapids & 2,097,152\,B (best guess) $\to$ 2,097,152\,B (lit., 2\,MiB) \cmark & 12$^\dagger$ $\to$ unconfirmed in lit. & 50,331,648\,B (best guess) $\to$ 62,914,560\,B (lit., 60\,MiB, whole-socket) \xmark & 12$^\dagger$ $\to$ unconfirmed in lit. & Lit.\ only (no Hazel PMU)\\
+\hline
+\end{tabularx}
+}
+\end{table}
+
+$^{*}$ Artemisia's L2 size is a \texttt{CAPACITY\_RESULTS.md} placeholder this machine's own
+capacity sweep never independently confirmed as a real boundary; Phase II system-report and
+Intel ARK both match it exactly regardless. $^{\S}$ Hazel-Genoa's Phase I capacity edge
+(33,554,432\,B) is \emph{not} an underestimate of AMD's published 384\,MiB total L3 -- it is
+an exact match (384\,MiB $\div$ 12 CCDs = 32\,MiB) to the one CCD-private L3 slice a
+single-core benchmark can ever observe, since Zen 4's 12-CCD Genoa die never presents its
+L3 as one socket-wide pool (\texttt{HAZEL\_PUBLISHED\_CACHE\_SPECS.md}, finding 3) -- the
+cleanest Phase I/literature reconciliation among the 6 Hazel generations.
+
 This section combines all eight lab machines' Phase-I timing-only results
 (Section~\ref{sec:permachine}) into one chronological dataset, sorted by processor
 introduction year (Section~\ref{sec:platforms}'s year convention: the first public
@@ -2510,14 +3290,22 @@ introduction year of the specific microarchitecture/processor generation, not pu
 date). Full backing data:
 \texttt{data\_processed/master/chronological\_master\_table.csv}; full reconciled table
 with every column: \texttt{CHRONOLOGICAL\_MASTER\_TABLE.md}. Plots are produced by
-\texttt{scripts/plot\_chronological\_master.py} from that CSV.
+\texttt{scripts/plot\_chronological\_master.py} from that CSV. \textbf{The remainder of
+this section (trend-fitting, plots, and interpretation) is scoped to these 8 lab
+machines only}, per this project's own Phase Discipline: the lab-only prediction was
+frozen (Section~\ref{sec:cachelaws}) before any Hazel cache experiment ran, so the 6
+additional Hazel generations above are reported (Table~\ref{tab:master-full-l1},
+Table~\ref{tab:master-full-l2llc}) but intentionally excluded from the trend this section
+fits.
 
-\subsection{Chronological Master Table}
+\subsection{Lab-Only Master Table (8-Machine Trend-Fitting Subset)}
 
 \begin{table}[H]
-\centering\tiny
+\centering
+{\tiny\setlength{\tabcolsep}{3pt}
 \caption{Chronological master table (condensed) -- L1D row per machine, oldest to newest. Ways column shows Phase I $\to$ PMU where they disagree.}
-\begin{tabularx}{\textwidth}{|l|l|l|X|l|l|l|l|l|l|}
+\label{tab:master-lab-condensed}
+\begin{tabularx}{\textwidth}{|l|l|X|X|l|l|l|l|l|l|}
 \hline
 Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size & Ways & Sets & Line & Hit lat.\ (ticks/ns)\\
 \hline
@@ -2531,6 +3319,7 @@ Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size & Ways & Sets & Li
 2023 & Intel x86-64 & Sapphire Rapids & 2x Xeon Gold 5420+ (Artemisia) & 10\,nm/Intel 7 & 49,152\,B & 12 & 64 & 64\,B & 9.87 / 4.94\\
 \hline
 \end{tabularx}
+}
 \end{table}
 
 L2/LLC/DRAM columns (including the many Phase I $\to$ PMU disagreements documented in
@@ -2675,13 +3464,19 @@ represented in this fleet.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{chrono_05_l2_capacity.png}
-\caption{Evidence plot for the Chen--Ngo Cache Capacity Doubling Law: per-core L2 capacity vs.\
-processor introduction year, all 8 lab machines (solid points/line, log$_2$ y-axis) --
-the same underlying data as Section~\ref{sec:evolution}'s required L2-capacity plot. The fitted
-model $C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/3}$ is evaluated at Hazel's \texttt{haswell}
-target generation ($t \approx 2014$, the model's own lower fit endpoint) rather than
-extrapolated forward, per the frozen prediction below.}
+\includegraphics[width=0.85\textwidth]{law1_l2_capacity_heldout.png}
+\caption{Held-out prediction figure for the Chen--Ngo Cache Capacity Doubling Law: per-core L2
+capacity vs.\ processor introduction year. Solid vendor-shaped markers/line are the 8 lab
+observations the model was fit from (same underlying data as Section~\ref{sec:evolution}'s
+required L2-capacity plot); the dashed black segment is the frozen model
+$C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/3}$, drawn starting at the last measured lab point
+(Artemisia, 2023) and extended \emph{only} into the unmeasured year 2028 (the ``5 years beyond''
+prediction of Section~\ref{sec:hazel}), never refit using any Hazel point; the vertical bar at
+2028 is the model's own stated uncertainty band (a continued-flat $\sim$2\,MiB floor to a further
+doubling-burst ceiling, Section~\ref{sec:hazel}). The open gray diamond at Hazel's \texttt{haswell}
+target generation ($t \approx 2014$, the model's own lower fit endpoint) marks that this quantity
+came back \textbf{untestable} on Hazel this pass -- Hazel-Haswell's own L2 boundary was never
+cleanly resolved (Section~\ref{sec:hazel}) -- shown explicitly rather than omitted or faked.}
 \label{fig:law1-plot}
 \end{figure}
 \noindent
@@ -2711,12 +3506,18 @@ for machine classes outside this fleet.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{chrono_01_l1_capacity.png}
-\caption{Evidence plot for the Chen--Ngo Cache Invariance Law: L1D capacity vs.\ processor
-introduction year, all 8 lab machines -- 6 clustered flat at 32\,KiB, with Thunderbird
-(2020, 64\,KiB) and Artemisia (2023, 48\,KiB) as the labeled outliers. Line-size and
-associativity invariance (the other two legs of this law) are shown in the L1D
-associativity and line-size plots in Section~\ref{sec:evolution}.}
+\includegraphics[width=0.85\textwidth]{law2_l1d_invariance_heldout.png}
+\caption{Held-out prediction figure for the Chen--Ngo Cache Invariance Law: L1D capacity vs.\
+processor introduction year. Solid markers/line are the 8 lab observations -- 6 clustered flat at
+32\,KiB, with Thunderbird (2020, 64\,KiB) and Artemisia (2023, 48\,KiB) as the labeled outliers.
+The dashed black segment is the frozen model's constant 32,768\,B majority-baseline prediction,
+drawn from the last lab point (2023) out to 2028, with a vertical uncertainty bar spanning up to
+64\,KiB (the largest deviation the two known outliers have already shown, i.e.\ the wall is soft,
+not absolute, per Section~\ref{sec:cachelaws}'s Wall for Law 2). The filled gold star is the
+held-out Hazel-Haswell reveal (2014): 32,768\,B, 8-way, 64\,B line, an \textbf{exact match} to the
+frozen prediction -- plotted at the same year as, and slightly offset from, Sunbird's own lab point
+for visibility. Line-size and associativity invariance (the other two legs of this law) are shown
+in the L1D associativity and line-size plots in Section~\ref{sec:evolution}.}
 \label{fig:law2-plot}
 \end{figure}
 
@@ -2906,14 +3707,87 @@ meaningfully newer than 2014 would test that.
 \textbf{Further quantitative prediction, $\sim$5 years beyond the newest measured lab
 system} (Artemisia, 2023 $\to$ target year $\approx$2028), per the Capacity Doubling Law:
 $C(2028) = 256\,\text{KiB}\cdot2^{(2028-2014)/3} \approx 256\,\text{KiB}\cdot 2^{4.67}
-\approx 6.5\,\text{MiB}$ per core, with a wide uncertainty band (the model's own step-function
+\approx 6.35\,\text{MiB}$ per core, with a wide uncertainty band (the model's own step-function
 shape, Section~\ref{sec:evolution} item 2, means the true value could land anywhere from a
-continued-flat $\sim$2\,MiB to well above 6.5\,MiB if another rapid-doubling burst occurs) --
-stated with the same future-scaling-wall caveats as Section~\ref{sec:cachelaws}'s own
+continued-flat $\sim$2\,MiB to well above 6.35\,MiB if another rapid-doubling burst occurs) --
+shown as the dashed continuation and vertical uncertainty bar in Figure~\ref{fig:law1-plot}, per
+the required at-least-three-observed-points-plus-dashed-continuation presentation, and stated
+with the same future-scaling-wall caveats as Section~\ref{sec:cachelaws}'s own
 analysis (SRAM density/access-time tradeoff, core-count competition for die area). No
 lab-only or Hazel machine in this dataset can directly test a 2028 prediction; it is recorded
 here as the assignment's required forward-looking estimate, not a claim this project can
 itself validate.
+
+\subsection{Final Combined Chronological Comparison (Post-Validation)}
+\label{sec:final-combined}
+
+With the frozen lab-only prediction now checked against the held-out Hazel-Haswell measurement
+(Table~\ref{tab:hazel-heldout}), the lab-only/Hazel separation that Phase Discipline required
+before the freeze no longer needs to be preserved. Table~\ref{tab:final-combined} folds
+Hazel-Haswell back into one final chronological dataset alongside the 8 lab machines, sorted
+oldest to newest by processor introduction year, for the final historical comparison -- the same
+9-system combination plotted in Figures~\ref{fig:final-l1}--\ref{fig:final-l2} below. This is
+narrower than Table~\ref{tab:master-full-l1}/Table~\ref{tab:master-full-l2llc}'s already-published
+14-machine fleet listing (which includes 5 further Hazel generations with only Phase-I capacity
+data and no held-out prediction to validate against): this table and its two figures specifically
+answer the assignment's post-validation instruction to recombine \emph{only} the systems that were
+actually held out and then validated, not to re-list every machine touched anywhere in this report.
+
+\begin{table}[H]
+\centering
+{\scriptsize\setlength{\tabcolsep}{3pt}
+\caption{Final combined chronological dataset: 8 lab machines + the validated Hazel-Haswell
+generation, sorted oldest to newest. Values are Phase I timing-only (Hazel-Haswell has no PMU
+access, Section~\ref{sec:hazel}). L2/LLC capacity are left blank, not fabricated, for
+Hazel-Haswell since neither boundary was cleanly resolved this pass (Section~\ref{sec:hazel}).}
+\label{tab:final-combined}
+\begin{tabularx}{\textwidth}{|l|l|X|X|X|l|X|}
+\hline
+Year & Machine & L1D size/ways & L2 size/ways & LLC size/ways & L1 hit lat.\ & Inclusion (L1 vs.\ LLC)\\
+\hline
+2014 & Sunbird & 32,768\,B / 8 & 262,144\,B / 8 & 31,457,280\,B / 9$\to$20 & 10.35 ticks & UNCERTAIN (leans INCLUSIVE)\\
+2014 & \textbf{Hazel-Haswell} & 32,768\,B / 8 & untestable & untestable ($\sim$22--24\,MiB edge) & 8.46 ticks & EXCLUSIVE/NON-INCLUSIVE\\
+2015 & Charnwood & 32,768\,B / 8 & 262,144\,B / 8$\to$4 & 8,388,608\,B / 8$\to$16 & 7.98 ticks & leans INCLUSIVE (moderate)\\
+2017 & Ookay & 32,768\,B / 8 & 262,144\,B / 8$\to$4 & 8,388,608\,B / 8$\to$16 & 7.49 ticks & leans INCLUSIVE (moderate)\\
+2017 & Upgrade & 32,768\,B / 8 & 262,144\,B / 8$\to$4 & 12,582,912\,B / 8$\to$16 & 6.17 ticks & NON-INCLUSIVE (leans)\\
+2019 & Crux & 32,768\,B / 8 & 262,144\,B / 8$\to$4 & 8,388,608$\to$12,582,912\,B / 8$\to$12 & 7.42 ticks & UNCERTAIN (barely leans NON-INCLUSIVE)\\
+2019 & Skylark & 32,768\,B / 8 & 524,288\,B / 8 & 8,388,608$\to$16,777,216\,B / 8$\to$16 & 6.24 ticks & NON-INCLUSIVE (confident, 100\%)\\
+2020 & Thunderbird & 65,536\,B / 4 & 1,048,576\,B / 12$\to$8 & 31,457,280\,B / 10 & 0.130 ticks & leans NON-INCLUSIVE (80.5\%)\\
+2023 & Artemisia & 49,152\,B / 12 & 2,097,152\,B / 16 & 31,457,280$\to$55,050,240\,B / 16$\to$15 & 9.87 ticks & INCLUSIVE (confident)\\
+\hline
+\end{tabularx}
+}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{final_01_l1_capacity_with_hazel.png}
+\caption{Final combined comparison, L1D capacity vs.\ year: the 8 lab observations (solid,
+vendor-shaped markers/line, same fit as Figure~\ref{fig:law2-plot}) plus the validated
+Hazel-Haswell generation, drawn as an unconnected filled star at its own introduction year
+rather than blended into the fitted line, per the assignment's visual convention for a
+held-out reveal. Hazel-Haswell's exact-match L1D result sits on top of the lab trend, visually
+confirming the Chen--Ngo Invariance Law's majority baseline now that both are shown together.}
+\label{fig:final-l1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{final_02_l2_capacity_with_hazel.png}
+\caption{Final combined comparison, L2 capacity per core vs.\ year: same 8 lab observations as
+Figure~\ref{fig:law1-plot}, with Hazel-Haswell shown as an open gray diamond rather than a star
+because its L2 boundary was never cleanly resolved this pass (Section~\ref{sec:hazel}) -- an
+honest gap in the final combined dataset rather than an invented data point.}
+\label{fig:final-l2}
+\end{figure}
+
+Reading the two figures together: the quantity the Invariance Law targeted (L1D) now visibly
+closes the loop between frozen prediction and held-out reveal in Figure~\ref{fig:final-l1}, while
+the Capacity Doubling Law's own flagship quantity (L2) in Figure~\ref{fig:final-l2} still cannot
+be closed the same way -- not because the combination step failed, but because Hazel-Haswell's own
+capacity sweep never produced a resolvable L2 boundary (Section~\ref{sec:hazel}). Both outcomes are
+carried forward honestly into this final dataset rather than one being suppressed to make the
+figure pair look more conclusive than the underlying measurements support.
 
 \section{Discussion}
 

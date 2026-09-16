@@ -1,0 +1,111 @@
+== run_inclusion_policy_full: machine=hazel_cascadelake core=2 base_seed=12345 ==
+== assumed_line_size_bytes=64 (confirmed for Sunbird 2026-09-11; verify for other machines) ==
+== timestamp=20260915T025345Z ==
+
+== L1_vs_L2: target_bytes=32768 lower_level_bytes=1048576 -> evict_bytes=67108864 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 52.28 ticks
+  invalidated-class (from data_processed/hazel_cascadelake/latency/miss/L1_to_L2/base_random_summary_20260915T014348Z.csv): 194.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_L2/inclusion_policy_base_random_20260915T025345Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_L2/base_random_summary_20260915T025345Z.csv
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_L2/inclusion_policy_base_sequential_20260915T025345Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_L2/base_sequential_summary_20260915T025345Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_random_20260915T025345Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_L2/rep1_random_summary_20260915T025345Z.csv
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_L2/inclusion_policy_rep1_sequential_20260915T025345Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_L2/rep1_sequential_summary_20260915T025345Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_random_20260915T025345Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_L2/rep2_random_summary_20260915T025345Z.csv
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_L2/inclusion_policy_rep2_sequential_20260915T025345Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_L2/rep2_sequential_summary_20260915T025345Z.csv
+Survived-class (upper-level hit) median:       52.28 ticks
+Invalidated-class (beyond-lower-level) median: 194.00 ticks
+Classification boundary (geometric mean):      100.71 ticks
+
+TARGET channel  (n=200): median=68.0 mean=69.7 ticks -- 197 survived-like (98.5%), 0 ambiguous, 3 invalidated-like (1.5%)
+CONTROL channel (n=200): median=60.0 mean=59.7 ticks -- 200 survived-like (100.0%), 0 ambiguous, 0 invalidated-like (0.0%)
+Paired check: target read slower than its own trial's control in 98.5% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L1_vs_L2 --
+Wrote data_processed/hazel_cascadelake/inclusion_policy/L1_vs_L2/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_L2 --
+
+== L2_vs_LLC: target_bytes=1048576 lower_level_bytes=16777216 -> evict_bytes=1073741824 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 66.924 ticks
+  invalidated-class (from data_processed/hazel_cascadelake/latency/miss/L2_to_LLC/base_random_summary_20260915T014348Z.csv): 574.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L2_vs_LLC/inclusion_policy_base_random_20260915T025345Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L2_vs_LLC/base_random_summary_20260915T025345Z.csv
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L2_vs_LLC/inclusion_policy_base_sequential_20260915T025345Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L2_vs_LLC/base_sequential_summary_20260915T025345Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_random_20260915T025345Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L2_vs_LLC/rep1_random_summary_20260915T025345Z.csv
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L2_vs_LLC/inclusion_policy_rep1_sequential_20260915T025345Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L2_vs_LLC/rep1_sequential_summary_20260915T025345Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_random_20260915T025345Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L2_vs_LLC/rep2_random_summary_20260915T025345Z.csv
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L2_vs_LLC/inclusion_policy_rep2_sequential_20260915T025345Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L2_vs_LLC/rep2_sequential_summary_20260915T025345Z.csv
+WARNING: control channel shows 23.5% invalidated-like trials, but control is never touched by the eviction walk by construction -- this suggests the avoidance construction is compromised on this machine/level (e.g. DTLB pressure from a large eviction footprint, or the upper level's index range exceeding one page -- see inclusion_policy.h's KNOWN LIMITATION). Treat the target verdict below as UNCERTAIN regardless of its own fraction.
+Survived-class (upper-level hit) median:       66.92 ticks
+Invalidated-class (beyond-lower-level) median: 574.00 ticks
+Classification boundary (geometric mean):      196.00 ticks
+
+TARGET channel  (n=200): median=302.0 mean=383.0 ticks -- 35 survived-like (17.5%), 0 ambiguous, 165 invalidated-like (82.5%)
+CONTROL channel (n=200): median=68.0 mean=123.6 ticks -- 153 survived-like (76.5%), 0 ambiguous, 47 invalidated-like (23.5%)
+Paired check: target read slower than its own trial's control in 83.5% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: UNCERTAIN (confound suspected -- see warning above)
+-- generating plots for L2_vs_LLC --
+  note: ('target', 'random') has 3 overlapping summary rows with medians [302.0, 560.0, 296.0] (spread 264.0 ticks, 68.4%) -- averaging, widening whiskers to the union
+  note: ('target', 'sequential') has 3 overlapping summary rows with medians [516.0, 516.0, 270.0] (spread 246.0 ticks, 56.7%) -- averaging, widening whiskers to the union
+  note: ('control', 'sequential') has 3 overlapping summary rows with medians [68.0, 68.0, 256.0] (spread 188.0 ticks, 143.9%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_cascadelake/inclusion_policy/L2_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L2_vs_LLC --
+
+== L1_vs_LLC: target_bytes=32768 lower_level_bytes=16777216 -> evict_bytes=1073741824 (scaled 4096/64x) ==
+-- survived-class calibration (evict_bytes=target_bytes, nothing evicted) --
+  survived-class (single-shot, calibrated here): 65.36 ticks
+  invalidated-class (from data_processed/hazel_cascadelake/latency/miss/LLC_to_DRAM/base_random_summary_20260915T014348Z.csv): 582.0 ticks
+-- base (seed=12345) --
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_LLC/inclusion_policy_base_random_20260915T025345Z.csv (pattern=random seed=12345)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_LLC/base_random_summary_20260915T025345Z.csv
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_LLC/inclusion_policy_base_sequential_20260915T025345Z.csv (pattern=sequential seed=12345)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_LLC/base_sequential_summary_20260915T025345Z.csv
+-- rep1 (seed=12346) --
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_random_20260915T025345Z.csv (pattern=random seed=12346)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_LLC/rep1_random_summary_20260915T025345Z.csv
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_LLC/inclusion_policy_rep1_sequential_20260915T025345Z.csv (pattern=sequential seed=12346)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_LLC/rep1_sequential_summary_20260915T025345Z.csv
+-- rep2 (seed=12347) --
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_random_20260915T025345Z.csv (pattern=random seed=12347)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_LLC/rep2_random_summary_20260915T025345Z.csv
+  wrote 402 lines -> data_raw/hazel_cascadelake/inclusion_policy/L1_vs_LLC/inclusion_policy_rep2_sequential_20260915T025345Z.csv (pattern=sequential seed=12347)
+Wrote 2 summary rows to data_processed/hazel_cascadelake/inclusion_policy/L1_vs_LLC/rep2_sequential_summary_20260915T025345Z.csv
+Survived-class (upper-level hit) median:       65.36 ticks
+Invalidated-class (beyond-lower-level) median: 582.00 ticks
+Classification boundary (geometric mean):      195.04 ticks
+
+TARGET channel  (n=200): median=60.0 mean=76.3 ticks -- 189 survived-like (94.5%), 1 ambiguous, 10 invalidated-like (5.0%)
+CONTROL channel (n=200): median=60.0 mean=69.5 ticks -- 194 survived-like (97.0%), 0 ambiguous, 6 invalidated-like (3.0%)
+Paired check: target read slower than its own trial's control in 34.0% of trials (distribution-free, independent of the class boundary above)
+
+VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction)
+-- generating plots for L1_vs_LLC --
+  note: ('control', 'sequential') has 3 overlapping summary rows with medians [60.0, 250.0, 60.0] (spread 190.0 ticks, 154.1%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_cascadelake/inclusion_policy/L1_vs_LLC/plots/inclusion_policy_boxplots.pdf and .png
+-- compressing raw CSVs for L1_vs_LLC --
+
+== done ==
+== L1_vs_L2: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== L2_vs_LLC: VERDICT: UNCERTAIN (confound suspected -- see warning above) ==
+== L1_vs_LLC: VERDICT: EXCLUSIVE / NON-INCLUSIVE (upper-level copy consistently survived lower-level eviction) ==
+== record in data_raw/hazel_cascadelake/README.md: core=2, base_seed=12345 (repeats use base_seed+index), trials=200, assumed_line_size_bytes=64, timestamp=20260915T025345Z ==
+== full transcript saved to: data_raw/hazel_cascadelake/inclusion_policy/run_inclusion_policy_full_20260915T025345Z.log ==

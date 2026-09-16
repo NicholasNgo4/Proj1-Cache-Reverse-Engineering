@@ -51,8 +51,62 @@ by a separate `hw1_skylake_<experiment>.sh` job script per experiment type (see
 ## Per-Experiment Reproduction
 
 ### capacity/
-- Source file(s): 
-- Build command: 
+- Slurm job ID: 837630, hostname (see job log), logical CPU 16, elapsed 53m13s, exit 0.
+- Source file(s): `main_code/common/{main.c,benchmark.c,pointer_chase.c,random.c,capacity.c}`,
+  `scripts/run_capacity_full.sh` (`HAZEL_MODE=1`), `scripts/summarize_raw.py`,
+  `scripts/detect_cache_hierarchy.py`, `scripts/plot_capacity.py`
+- Build command: `make -s` (isolated per-job copy under `hazel_build/837630/`, cleaned up on
+  job exit)
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_capacity_full.sh hazel_skylake 16`
+  (coarse_max defaulted to 67,108,864 B / 64 MiB, then a 4x tail extension to 256 MiB)
+- Sample count: 1,000,000 (timed; warm-up excluded) -- every stage
+- Random seed(s): base 12345; reproducibility repeats on the deepest boundary use the same
+  seed (this script's own known limitation)
+- Raw output filename(s):
+  `data_raw/hazel_skylake/capacity/capacity_{coarse,coarse_ext,dense0..dense3,dense3_rep1,
+  dense3_rep2,denseTail}_{random,sequential}_20260915T010343Z.csv.gz`; full transcript:
+  `data_raw/hazel_skylake/capacity/run_capacity_full_20260915T010343Z.log`
+- Processing script -> data_processed path: `scripts/summarize_raw.py` ->
+  `data_processed/hazel_skylake/capacity/*_summary.csv`;
+  `scripts/detect_cache_hierarchy.py` (default thresholds) -> 4 candidate boundaries (see
+  Findings); `scripts/plot_capacity.py` ->
+  `data_processed/hazel_skylake/capacity/plots/capacity_{curve,boxplots}.{png,pdf}`
+- Excluded runs (if any) and reason: none -- single complete run, no repeats discarded.
+
+**Findings (timing-only; no vendor/cache-topology lookup used, per Phase I discipline). This
+is the cleanest capacity curve of any Hazel generation run so far -- both boundaries below are
+confirmed by an actual sharp knee, not a best-guess pick from a noisy/continuous ramp:**
+- **L1D: well-confirmed at 32,768 B (32 KiB).** Flat ~4.77-4.80 ticks/access from 1,216 B
+  through 30,048 B, then a clean, sustained climb starting at 32,768 B itself (4.92, already
+  departing) and clearly climbing by the next point, 35,728 B (5.32) -- matches the frozen
+  prediction's L1D=32,768 B exactly.
+- **L2: a genuine (if not perfectly sharp) transition region, 512 KiB-2 MiB, distinct from
+  both L1's plateau below and a second, much flatter shelf above.** Latency climbs steadily
+  from 524,288 B (12.19) through 1,923,096 B (32.14), then the growth rate drops sharply --
+  2,097,152 B (29.61, actually a slight DIP) through 21,757,352 B (46.20) is a comparatively
+  flat, slow-climbing shelf (only +56% across a 10x size range, vs. +78% across less than 2x
+  in the transition just below it) -- read as the genuine LLC-resident plateau, not still-L2.
+  **L2 best-guess: 1,048,576 B (1 MiB)** -- sits inside the observed 512 KiB-2 MiB transition
+  region at the architecturally-standard per-core L2 size for Skylake-SP (same reasoning
+  category as haswell's/cascadelake's own L2 best-guesses), not an independently sharp knee.
+- **LLC: well-confirmed at 23,726,560 B (~22.6 MiB) -- a genuinely sharp, clean knee, the
+  cleanest LLC edge of any Hazel generation so far.** The shelf above holds flat through
+  21,757,352 B (46.20), then the very next tested point, 23,726,560 B, already departs (50.03),
+  followed by a sharp, sustained acceleration: 25,874,000 B -> 65.93, 28,215,800 B -> 78.44,
+  30,769,544 B -> 89.85, 33,554,432 B -> 102.69. This is a real inflection, not a noise
+  artifact -- the auto-detector's own 2 boundaries in this region (23,726,560 / 30,769,544 B)
+  bracket exactly this one clean transition.
+- **LLC-to-DRAM: does NOT fully plateau within the default tail extension (up to 256 MiB) --
+  same open item as haswell.** Medians keep climbing through the whole tail: 67,108,864 B ->
+  145.47, 136,169,968 B -> 170.39, 181,765,096 B -> 181.80, 268,435,456 B -> 182.53 -- still
+  rising, though the rate has clearly slowed (roughly +26% total across the last 4x of the
+  range vs. the sharp +180% climb from 21.7 to 33.5 MiB). A further manual extension past
+  256 MiB (mirroring every lab machine's own capacity/ follow-up) would be needed to find the
+  true DRAM floor -- not attempted this pass.
+- **Held-out comparison against the frozen prediction:** the frozen L1D prediction
+  (32,768 B / 8-way, Chen-Ngo Invariance Law) matches this run's timing-derived L1D capacity
+  exactly. No frozen LLC prediction exists specifically for a Skylake-SP generation
+  (`PREDICTION_FREEZE.md` covers only the 8 lab machines).
 - Run command + arguments: 
 - Sample count: 1,000,000 (timed; warm-up excluded)
 - Random seed(s): 
@@ -61,23 +115,105 @@ by a separate `hw1_skylake_<experiment>.sh` job script per experiment type (see
 - Excluded runs (if any) and reason: 
 
 ### line_size/
-- Source file(s): 
-- Build command: 
-- Run command + arguments: 
-- Sample count: 
-- Notes on alignment/candidate strides tested: 
+- Slurm job ID: 838181, elapsed (see log), exit 0.
+- Source file(s): `main_code/common/line_size.{c,h}`, `scripts/run_line_size.sh`
+  (`HAZEL_MODE=1`), `scripts/detect_line_size.py`, `scripts/plot_line_size*.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_line_size.sh hazel_skylake 16
+  32768,1048576,23726560` (default coarse strides 8,16,32,64,128,256; no
+  `candidate_overrides_csv`, so Method A step 4 was skipped at every level)
+- Sample count: 1,000,000 (timed; warm-up excluded), seed=12345
+- **Inconclusive -- Method B found no transition at any of the 3 levels** (`-- detected
+  line-size estimate (bytes): none --` at L1/L2/LLC). No citable value from this run at all.
+  **Best-guess: 64 B** (matching the frozen prediction and every other x86 machine so far),
+  unconfirmed by this machine's own data.
+
+**Follow-up re-run (2026-09-15), L3 only:** flagged as not looking clean; re-ran into a
+separate `data_raw/hazel_skylake/line_size_rerun/` / `data_processed/hazel_skylake/
+line_size_rerun/` subdirectory (original data above kept, not overwritten). **Result:
+improved further** -- the original plot was already reasonably clean (only a minor blip in
+the 32 B-stride curve around 2^22.7); the rerun shows no such blip at all, with every stride
+tracking together smoothly through the whole sweep. See
+`data_processed/hazel_skylake/line_size_rerun/line_size/level_23726560/plots/
+line_size_family_curve.png` vs. `data_processed/hazel_skylake/line_size/level_23726560/
+plots/line_size_family_curve.png` (original).
 
 ### associativity/
-- Source file(s): 
-- Run command + arguments: 
-- Conflict-set construction method: 
-- Notes: 
+- Slurm job ID: 838348 (resubmit of 838182, which failed with "Invalid associativity
+  parameter values (--cache-bytes must be a multiple of 4096)" -- the reasoned LLC edge,
+  23,726,560 B, wasn't page-aligned; rounded to 23,728,128 B for this experiment's own
+  `--cache-bytes` argument only, see `hpc_slurm/hw1_skylake_associativity.sh`'s own note),
+  logical CPU 16, elapsed 50s, exit 0.
+- Source file(s): `main_code/common/associativity.{c,h}`,
+  `scripts/run_associativity_full.sh` (`HAZEL_MODE=1`), `scripts/detect_associativity.py`,
+  `scripts/plot_associativity.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_associativity_full.sh hazel_skylake 16
+  32768,1048576,23728128` (explicit `cache_bytes_csv`, base_seed=12345, repeats at
+  seed+1/seed+2, max_ways=40, 1,000,000 samples/point)
+- Conflict-set construction method: node-to-node stride fixed at each level's own capacity
+  candidate, forcing every probed node into the same cache set (standard method).
+- **Notes / results: L1=8, L2=8, L3_LLC=8 -- all three fully reproducible (base + both
+  repeats agree exactly).** L1=8-way matches the frozen prediction and is arithmetically
+  valid (32,768 B / 64 B lines / 8-way = 64 sets, a clean integer). **L2 and L3_LLC's
+  identical "8" is the same cross-machine DTLB-scale confound extensively documented in
+  `CLAUDE.md`'s associativity section** -- do not cite either as this machine's real L2/LLC
+  associativity (both values are also arithmetically "valid" in isolation, since 8 divides
+  the page-line-count 64 evenly regardless of scale, so the integer-sets check alone can't
+  rule them out here the way it can on other machines below -- the cross-level identity with
+  L1 is the load-bearing evidence, not the arithmetic).
 
 ### latency/
-- Source file(s): 
-- Run command + arguments: 
-- Dependent-chain batch size N used: 
-- Regular vs. randomized control included? 
+**hit_latency (Slurm job 838183, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_hit_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_hit_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_hit_latency_full.sh hazel_skylake 16
+  L1:32768,L2:1048576,LLC:23726560,DRAM:536870912` (base_seed=12345, 2 repeats, 1,000,000
+  samples/point, batch_size=1000)
+- Dependent-chain batch size N used: 1,000
+- Regular vs. randomized control included? Yes -- both load modes, both patterns, every
+  level. No `[UNEXPECTED]` flags -- independent read faster than dependent everywhere.
+- **Results (dependent, random, base-run median, ticks/access): L1=9.54, L2=17.41,
+  LLC=152.41, DRAM=194.99** -- a clean, monotonic 4-tier ladder, and unlike hazel_cascadelake's
+  own result, LLC and DRAM are well-separated here (~28% apart), consistent with this
+  machine's independently-confirmed (not best-guess) LLC boundary.
+
+**miss_latency (Slurm job 838184, elapsed 1h05m23s, exit 0):**
+- Source file(s): `main_code/common/latency.{c,h}`, `scripts/run_miss_latency_full.sh`
+  (`HAZEL_MODE=1`), `scripts/plot_miss_latency.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_miss_latency_full.sh hazel_skylake 16
+  L1_to_L2:32768:1048576,L2_to_LLC:1048576:23726560,LLC_to_DRAM:23726560:536870912`
+- **Results (base run, random pattern, median ticks/access): L1_to_L2=58.0, L2_to_LLC=378.0,
+  LLC_to_DRAM=654.0** -- increasing as expected. All 3 transitions flagged repeat-to-repeat
+  spread (32-42%/32%/71%), not re-run.
+
+### inclusion_policy/
+**(Slurm job 838185, elapsed 1m40s, exit 0.)**
+- Source file(s): `main_code/common/inclusion_policy.{c,h}`,
+  `scripts/run_inclusion_policy_full.sh` (`HAZEL_MODE=1`),
+  `scripts/classify_inclusion_policy.py`, `scripts/plot_inclusion_policy.py`
+- Run command + arguments: `HAZEL_MODE=1 ./scripts/run_inclusion_policy_full.sh hazel_skylake
+  16 L1_vs_L2:32768:1048576:L1_to_L2,L2_vs_LLC:1048576:23726560:L2_to_LLC,
+  L1_vs_LLC:32768:23726560:LLC_to_DRAM` (`ASSUMED_LINE_SIZE_BYTES` default 64).
+- **Results:**
+  - **L1_vs_L2: the pipeline's own calibration sanity check FAILED here** -- "invalidated-
+    class median (58.0) is not clearly above survived-class median (60.4)" -- i.e. this
+    machine's forced-eviction-to-L2 single-shot reload (58.0, from miss_latency's own
+    L1_to_L2 data) is not measurably slower than the survived-class calibration baseline
+    (60.4), which shouldn't be physically possible if the eviction is working. The pipeline
+    still produced a verdict regardless (98.0% survived-like target, 100% control) --
+    **EXCLUSIVE / NON-INCLUSIVE nominally, but this specific pairing's own calibration is
+    untrustworthy on this machine and the verdict should be read with that caveat**, unlike
+    every other machine's own clean L1_vs_L2 result.
+  - **L2_vs_LLC**: target 31.5% survived-like / 50.5% invalidated-like / 36 ambiguous, control
+    100% survived-like. **Verdict: UNCERTAIN (mixed result)** -- same lowest-confidence
+    pairing status as every other machine (L2's index doesn't fit in one page).
+  - **L1_vs_LLC (skip-level)**: target 100% survived-like, control 100% survived-like.
+    **Verdict: EXCLUSIVE / NON-INCLUSIVE** -- clean on both channels, though the small
+    target/control gap (52.0 vs 46.0 median) makes this a less dramatic separation than
+    hazel_haswell's own equivalent result.
+  - **Best-guess overall reading:** leans non-inclusive throughout, but L1_vs_L2's own
+    calibration failure means this machine's inclusion-policy picture is less solid than
+    most others -- treat with more caution than usual before citing.
+- Full transcript: see `data_raw/hazel_skylake/inclusion_policy/run_inclusion_policy_full_*.log`
 
 ### inclusion_policy/
 - Source file(s): 

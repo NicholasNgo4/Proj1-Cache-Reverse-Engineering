@@ -1,0 +1,130 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+c050n02
+Linux c050n02 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) Gold 6130 CPU @ 2.10GHz
+Assigned logical CPU: 16, SLURM_JOB_ID=838348
+
+=== Running scripts/run_associativity_full.sh (HAZEL_MODE=1) ===
+== run_associativity_full: machine=hazel_skylake core=16 base_seed=12345 max_ways=40 ==
+== timestamp=20260915T024301Z ==
+-- using explicit cache_bytes override: 32768 1048576 23728128 --
+
+== level L1: cache_bytes=32768 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L1/associativity_base_random_20260915T024301Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L1/associativity_base_sequential_20260915T024301Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L1/base_random_summary_20260915T024301Z.csv
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L1/base_sequential_summary_20260915T024301Z.csv
+-- detected associativity estimate: 8 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L1/associativity_rep1_random_20260915T024301Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L1/associativity_rep1_sequential_20260915T024301Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L1/rep1_random_summary_20260915T024301Z.csv
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L1/rep1_sequential_summary_20260915T024301Z.csv
+     repeat 1 detected estimate: 8
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L1/associativity_rep2_random_20260915T024301Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L1/associativity_rep2_sequential_20260915T024301Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L1/rep2_random_summary_20260915T024301Z.csv
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L1/rep2_sequential_summary_20260915T024301Z.csv
+     repeat 2 detected estimate: 8
+-- generating plots for L1 --
+  note: num_ways=2 (random) has 3 overlapping summary rows with medians [5.7, 7.1, 5.0] (spread 2.0 ticks, 34.0%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (random) has 3 overlapping summary rows with medians [5.7, 7.1, 5.0] (spread 2.0 ticks, 34.0%) -- averaging, widening whiskers to the union
+  note: num_ways=8 (random) has 3 overlapping summary rows with medians [4.8, 4.8, 6.3] (spread 1.5 ticks, 29.0%) -- averaging, widening whiskers to the union
+  note: num_ways=2 (sequential) has 3 overlapping summary rows with medians [5.0, 7.1, 5.2] (spread 2.0 ticks, 35.0%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (sequential) has 3 overlapping summary rows with medians [5.9, 7.1, 5.2] (spread 1.9 ticks, 30.9%) -- averaging, widening whiskers to the union
+  note: num_ways=4 (sequential) has 3 overlapping summary rows with medians [5.9, 5.2, 4.8] (spread 1.1 ticks, 21.1%) -- averaging, widening whiskers to the union
+  note: num_ways=7 (sequential) has 3 overlapping summary rows with medians [4.8, 4.8, 6.4] (spread 1.6 ticks, 30.5%) -- averaging, widening whiskers to the union
+  note: num_ways=8 (sequential) has 3 overlapping summary rows with medians [4.8, 4.8, 6.4] (spread 1.6 ticks, 29.4%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_skylake/associativity/L1/plots/associativity_curve.pdf and .png
+Wrote data_processed/hazel_skylake/associativity/L1/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: cache_bytes=1048576 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L2/associativity_base_random_20260915T024301Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L2/associativity_base_sequential_20260915T024301Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L2/base_random_summary_20260915T024301Z.csv
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L2/base_sequential_summary_20260915T024301Z.csv
+-- detected associativity estimate: 8 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L2/associativity_rep1_random_20260915T024301Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L2/associativity_rep1_sequential_20260915T024301Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L2/rep1_random_summary_20260915T024301Z.csv
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L2/rep1_sequential_summary_20260915T024301Z.csv
+     repeat 1 detected estimate: 8
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L2/associativity_rep2_random_20260915T024301Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L2/associativity_rep2_sequential_20260915T024301Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L2/rep2_random_summary_20260915T024301Z.csv
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L2/rep2_sequential_summary_20260915T024301Z.csv
+     repeat 2 detected estimate: 8
+-- generating plots for L2 --
+  note: num_ways=2 (random) has 3 overlapping summary rows with medians [7.1, 5.2, 7.1] (spread 1.9 ticks, 29.0%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (random) has 3 overlapping summary rows with medians [5.2, 5.2, 7.1] (spread 1.9 ticks, 32.1%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_skylake/associativity/L2/plots/associativity_curve.pdf and .png
+Wrote data_processed/hazel_skylake/associativity/L2/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level L3_LLC: cache_bytes=23728128 ==
+-- base sweep num_ways=2-40 --
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L3_LLC/associativity_base_random_20260915T024301Z.csv (seed=12345)
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L3_LLC/associativity_base_sequential_20260915T024301Z.csv (seed=12345)
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L3_LLC/base_random_summary_20260915T024301Z.csv
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L3_LLC/base_sequential_summary_20260915T024301Z.csv
+-- detected associativity estimate: 8 --
+  -- repeat 1/2 (seed=12346) --
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L3_LLC/associativity_rep1_random_20260915T024301Z.csv (seed=12346)
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L3_LLC/associativity_rep1_sequential_20260915T024301Z.csv (seed=12346)
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L3_LLC/rep1_random_summary_20260915T024301Z.csv
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L3_LLC/rep1_sequential_summary_20260915T024301Z.csv
+     repeat 1 detected estimate: 8
+  -- repeat 2/2 (seed=12347) --
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L3_LLC/associativity_rep2_random_20260915T024301Z.csv (seed=12347)
+  wrote 39002 lines -> data_raw/hazel_skylake/associativity/L3_LLC/associativity_rep2_sequential_20260915T024301Z.csv (seed=12347)
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L3_LLC/rep2_random_summary_20260915T024301Z.csv
+Wrote 39 summary rows to data_processed/hazel_skylake/associativity/L3_LLC/rep2_sequential_summary_20260915T024301Z.csv
+     repeat 2 detected estimate: 8
+-- generating plots for L3_LLC --
+  note: num_ways=2 (random) has 3 overlapping summary rows with medians [5.3, 5.2, 6.8] (spread 1.6 ticks, 27.6%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (random) has 3 overlapping summary rows with medians [5.3, 5.2, 6.8] (spread 1.6 ticks, 27.7%) -- averaging, widening whiskers to the union
+  note: num_ways=2 (sequential) has 3 overlapping summary rows with medians [6.8, 5.3, 5.0] (spread 1.7 ticks, 30.5%) -- averaging, widening whiskers to the union
+  note: num_ways=3 (sequential) has 3 overlapping summary rows with medians [6.8, 5.0, 5.0] (spread 1.7 ticks, 31.0%) -- averaging, widening whiskers to the union
+  note: num_ways=9 (sequential) has 3 overlapping summary rows with medians [9.9, 7.6, 9.9] (spread 2.3 ticks, 24.9%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_skylake/associativity/L3_LLC/plots/associativity_curve.pdf and .png
+Wrote data_processed/hazel_skylake/associativity/L3_LLC/plots/associativity_boxplots.pdf and .png
+-- compressing raw CSVs for L3_LLC --
+
+== done ==
+== L1: cache_bytes=32768 -> associativity=8 (repeats: 8 8) ==
+== L2: cache_bytes=1048576 -> associativity=8 (repeats: 8 8) ==
+== L3_LLC: cache_bytes=23728128 -> associativity=8 (repeats: 8 8) ==
+== record in data_raw/hazel_skylake/README.md: core=16, base_seed=12345 (repeats use base_seed+index), samples=1000000, max_ways=40, timestamp=20260915T024301Z ==
+== full transcript saved to: data_raw/hazel_skylake/associativity/run_associativity_full_20260915T024301Z.log ==
+
+=== Done ===
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 838348
+    Job name          : hw1_associativity
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-14T22:42:58
+    Started           : 2026-09-14T22:43:01
+    Wait time         : 3 sec
+    Elapsed (wall)    : 00:00:50
+    Nodes             : 1 (c050n02)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 22.75 sec  (user 16.50, sys 6.26)
+    CPU efficiency    : 45.5%
+    Memory in use     : 90.55 MB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 838348
+------------------------------------------------------------

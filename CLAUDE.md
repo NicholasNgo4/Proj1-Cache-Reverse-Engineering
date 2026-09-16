@@ -105,17 +105,103 @@ table and the two Team Cache Laws. This gates all real Hazel cache-experiment ru
     than Sunbird's mixed result. Full detail: `data_raw/hazel_haswell/README.md`'s
     `latency/` and `inclusion_policy/` sections.
 
-- **Other 8 generations (broadwell, skylake, cascadelake, icelake_6326, icelake_8358,
-  sapphirerapids, genoa, turin): only the access-check pilot has run on each. No capacity
-  or any other real experiment has been attempted yet.** Once haswell's full suite is
-  complete and reviewed, the natural next step is repeating the same experiment sequence
-  (capacity first, then line_size/associativity/hit_latency/miss_latency in parallel using
-  capacity's confirmed boundaries, then inclusion_policy) for each remaining generation --
-  mechanically the same as haswell's `hw1_haswell_*.sh` scripts, just with a different
-  `--constraint` and that generation's own boundary values once its own capacity run
-  exists. At minimum 5 distinct generations are required for the assignment, spanning
-  oldest-to-newest and including an AMD generation -- haswell (oldest) + genoa or turin
-  (AMD) + 3 more Intel generations would satisfy this.
+- **All other 8 generations (broadwell, skylake, cascadelake, icelake_6326, icelake_8358,
+  sapphirerapids, genoa, turin) now ALSO have their full Phase-I suites complete
+  (2026-09-15) -- all 9 Hazel generations are done.** This satisfies the assignment's
+  minimum-5-spanning-generations-with-an-AMD-generation requirement several times over
+  (both genoa and turin are AMD). Capacity jobs for all 8 were submitted in parallel;
+  downstream jobs (line_size/associativity/hit_latency/miss_latency, then
+  inclusion_policy chained via `--dependency=afterok`) were queued per machine as each
+  capacity run completed and its boundaries were read off the curve. **Real bug found and
+  fixed along the way**: 4 of the 8 machines' associativity jobs (skylake, icelake_6326,
+  sapphirerapids, broadwell) initially FAILED outright with "Invalid associativity
+  parameter values (--cache-bytes must be a multiple of 4096)" because their
+  reasoned/provisional LLC byte values (read straight off a log-spaced capacity-sweep
+  grid) weren't page-aligned -- fixed by rounding each to the nearest 4096-byte multiple
+  for that job's own argument only (not the value used elsewhere) and resubmitting.
+  Per-machine summary (full detail always in that machine's own
+  `data_raw/hazel_<gen>/README.md`):
+  - **cascadelake** (Xeon Gold 6226R): L1=32,768B confirmed; L2/LLC noisy, best-guessed
+    1,048,576B/16,777,216B. Associativity: same "8-way at every level" confound as haswell.
+    line_size inconclusive (best-guess 64B). hit_latency clean, but LLC/DRAM read
+    unusually close (224 vs 255 ticks) since the LLC footprint sits late in a still-
+    climbing transition. inclusion_policy: L1_vs_L2 and L1_vs_LLC clean NON-INCLUSIVE,
+    L2_vs_LLC UNCERTAIN (confound-suspected, control itself 23.5% invalidated-like).
+  - **skylake** (Xeon Gold 6130): cleanest capacity curve of any Hazel generation -- BOTH
+    L1 (32,768B) and LLC (23,726,560B, ~22.6MiB) confirmed via genuinely sharp knees, not
+    best-guesses. Associativity/line_size hit the usual confounds/inconclusiveness.
+    L1_vs_L2's own calibration sanity check FAILED (invalidated-class not clearly above
+    survived-class) -- verdict computed anyway but flagged untrustworthy; L2_vs_LLC
+    UNCERTAIN; L1_vs_LLC clean NON-INCLUSIVE.
+  - **icelake_6326** (Xeon Gold 6326): capacity shows a genuine, unexplained ~2x latency
+    DROP at exactly 9,975,792B (not a cache effect -- real boundaries only increase cost;
+    read as session-level interference) that poisons L1/L2 but NOT the region above it,
+    where LLC confirms cleanly at 25,874,000B (~24.68MiB, matching this SKU's 24MB spec
+    almost exactly). Associativity: L1's own reported value (9) fails a basic
+    sets-must-be-a-whole-number arithmetic check -- not physically possible, confound
+    bleeding into L1 here, not just L2/LLC. miss_latency non-monotonic (attributed to
+    spread, not a real anomaly). inclusion_policy: L1_vs_L2 and L1_vs_LLC clean
+    NON-INCLUSIVE, L2_vs_LLC UNCERTAIN (81% ambiguous, the most ambiguous of any machine).
+  - **sapphirerapids** (Xeon Platinum 8462Y+): the FIRST Hazel generation whose L1D does
+    NOT match the usual 32,768B -- capacity curve's flat baseline persists well past 32KiB,
+    best-guessed 49,152B (48KiB, consistent with a Golden-Cove-derived core). This was
+    independently corroborated by associativity: L1's own "12" passes the
+    sets-must-be-integer check EXACTLY (48KiB/64B-lines/12-way = 64 sets) while L2/LLC's
+    identical "12" fails the same check at their own scale -- the cleanest same-run
+    separation of real L1 signal from confound-echo of any machine. Two flagged capacity
+    anomalies (scattered small-footprint dips; a second ~2.5x drop around 10-12MiB, same
+    category/magnitude as icelake_6326's). inclusion_policy: L1_vs_L2/L1_vs_LLC clean
+    NON-INCLUSIVE, L2_vs_LLC UNCERTAIN (usual).
+  - **broadwell** (Xeon E5-2650 v4, haswell's own sibling SKU one gen newer): L1=32,768B
+    confirmed. L2 best-guessed 262,144B with unusually strong support (noisy region's
+    center lines up almost exactly with the architecturally-standard value). LLC
+    best-guessed 25,874,000B (provisional edge, undershoots this SKU's ~30MB spec).
+    Associativity: L2's own "4" is DISTINCT from L1's "8" and arithmetically valid --
+    matches the REAL 4-way several lab machines' own Phase II PMU work found for this
+    Skylake/Broadwell family (not just a confound echo). **inclusion_policy: ALL THREE
+    pairings UNCERTAIN** -- the least informative result of any Hazel generation, with the
+    two LLC-involving pairings showing severe confound contamination (control read
+    100.0%/86.0% invalidated-like despite never being touched).
+  - **genoa** (AMD EPYC 9654, Zen 4 -- satisfies the AMD-generation requirement):
+    smoothest/least-noisy capacity curve of any generation (only 2 auto-detected
+    boundaries). L1=32,768B confirmed. LLC confirmed 33,554,432B (exactly 32MiB) via a
+    clean acceleration matching Genoa's published per-CCD L3 spec almost too precisely to
+    be coincidental -- the cleanest LLC-to-known-spec match of any Hazel generation.
+    **inclusion_policy: ALL THREE pairings UNCERTAIN**, same total-non-answer category as
+    broadwell (control contamination 94.0%/91.5% on the two LLC-involving pairings).
+  - **icelake_8358** (Xeon Platinum 8358): the NOISIEST capacity run of any Hazel
+    generation -- genuinely unresolved (not just noisy) above ~2.9MiB, sustained
+    directionless 30-100%+ swings continuing essentially the whole sweep; flagged as
+    likely needing a full re-run when quiet (same category as Charnwood's own lab-machine
+    finding), best-guess placeholders used anyway per this project's established practice.
+    hit_latency's L1≈L2 (only ~14% apart, vs. every other machine's 2-4x gap) is
+    independent corroboration of the pervasive noise. **inclusion_policy: also
+    all-UNCERTAIN** (L1_vs_L2 calibration-failed like skylake's; L2_vs_LLC confound-
+    confirmed; L1_vs_LLC -- normally the cleanest pairing on every other machine -- came
+    back genuinely ambiguous here too). No directional inclusion-policy claim is
+    supportable from this machine at all.
+  - **turin** (AMD EPYC 9655, Zen 5 -- a second AMD generation): like sapphirerapids, L1D
+    does NOT match 32,768B -- best-guessed 49,152B (48KiB) from the same "flat baseline
+    persists well past 32KiB" timing shape, though NOT independently corroborated by
+    associativity here (unlike sapphirerapids, this machine's associativity run shows the
+    SAME arithmetically-invalid "13" at all three levels, the clearest single-machine
+    confound signature of any generation). Cleanest LLC-to-DRAM plateau of any Hazel
+    generation (~5% drift across the whole tail range). Confirmed correct node (n0405, not
+    a `gpu35-39` decoy). **inclusion_policy: also ALL THREE pairings UNCERTAIN** (same
+    pattern as genoa/broadwell).
+  - **Cross-machine inclusion_policy observation, not strong enough to call conclusive**:
+    both AMD generations tested (genoa, turin) landed in the total-non-answer
+    all-UNCERTAIN bucket, but so did one Intel machine (broadwell) -- 2 AMD + 1 Intel isn't
+    enough to call this AMD-specific, just a pattern worth watching if more AMD machines
+    are ever added to Table 4.
+  - **Line size, project-wide**: no Hazel generation (haswell included) produced a fully
+    clean, multi-level-confirmed line-size result the way several lab machines did --
+    64B is the working answer everywhere (matching every lab machine and the frozen
+    prediction), but on several machines (cascadelake, skylake, sapphirerapids,
+    icelake_8358) Method B found no transition at any level, and on two more
+    (genoa, broadwell) it found a real 64B at L1 alongside an implausible non-standard
+    outlier at LLC (112B, 136B -- neither a real hardware line size) that the pipeline
+    itself flags as a disagreement rather than something to average.
 
 - **Every experiment run so far used explicit boundary values, never auto-detected/
   power-of-two-rounded from a soft capacity knee** -- if resuming this work, keep using

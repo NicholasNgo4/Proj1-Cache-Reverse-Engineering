@@ -1,0 +1,2 @@
+footprint_bytes,load_mode,pattern,n,mean,median,stddev,min,q1,q3,p5,p95,max,n_outliers
+32768,independent,random,1000,5.05368,5.022,0.5581719713041399,4.93,5.004,5.042,4.976,5.0741,18.02,16

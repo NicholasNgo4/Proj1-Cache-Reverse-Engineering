@@ -1,0 +1,106 @@
+=== Machine identification (Phase Discipline whitelist only) ===
+n0406
+Linux n0406 5.14.0-611.5.1.el9_7.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 17 14:16:35 EDT 2025 x86_64 x86_64 x86_64 GNU/Linux
+model name	: AMD EPYC 9655 96-Core Processor
+Assigned logical CPU: 144, SLURM_JOB_ID=838247
+
+=== Running scripts/run_miss_latency_full.sh (HAZEL_MODE=1) ===
+== run_miss_latency_full: machine=hazel_turin core=144 base_seed=12345 ==
+== timestamp=20260915T024534Z ==
+
+== transition L1_to_L2: target_bytes=49152 evict_bytes=1048576 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L1_to_L2/miss_latency_base_random_20260915T024534Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L1_to_L2/base_random_summary_20260915T024534Z.csv
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L1_to_L2/miss_latency_base_sequential_20260915T024534Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L1_to_L2/base_sequential_summary_20260915T024534Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L1_to_L2/miss_latency_rep1_random_20260915T024534Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L1_to_L2/rep1_random_summary_20260915T024534Z.csv
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L1_to_L2/miss_latency_rep1_sequential_20260915T024534Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L1_to_L2/rep1_sequential_summary_20260915T024534Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L1_to_L2/miss_latency_rep2_random_20260915T024534Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L1_to_L2/rep2_random_summary_20260915T024534Z.csv
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L1_to_L2/miss_latency_rep2_sequential_20260915T024534Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L1_to_L2/rep2_sequential_summary_20260915T024534Z.csv
+-- found source-level (L1) hit_latency data for penalty annotation: data_processed/hazel_turin/latency/hit/L1/base_dependent_random_summary_20260915T024159Z.csv data_processed/hazel_turin/latency/hit/L1/rep1_dependent_random_summary_20260915T024159Z.csv data_processed/hazel_turin/latency/hit/L1/rep2_dependent_random_summary_20260915T024159Z.csv --
+-- generating plots for L1_to_L2 --
+  note: pattern=random has 3 overlapping summary rows with medians [130.0, 130.0, 104.0] (spread 26.0 ticks, 21.4%) -- averaging, widening whiskers to the union
+Wrote data_processed/hazel_turin/latency/miss/L1_to_L2/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1_to_L2 --
+
+== transition L2_to_LLC: target_bytes=1048576 evict_bytes=33554432 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L2_to_LLC/miss_latency_base_random_20260915T024534Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L2_to_LLC/base_random_summary_20260915T024534Z.csv
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L2_to_LLC/miss_latency_base_sequential_20260915T024534Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L2_to_LLC/base_sequential_summary_20260915T024534Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L2_to_LLC/miss_latency_rep1_random_20260915T024534Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L2_to_LLC/rep1_random_summary_20260915T024534Z.csv
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L2_to_LLC/miss_latency_rep1_sequential_20260915T024534Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L2_to_LLC/rep1_sequential_summary_20260915T024534Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L2_to_LLC/miss_latency_rep2_random_20260915T024534Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L2_to_LLC/rep2_random_summary_20260915T024534Z.csv
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/L2_to_LLC/miss_latency_rep2_sequential_20260915T024534Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/L2_to_LLC/rep2_sequential_summary_20260915T024534Z.csv
+-- found source-level (L2) hit_latency data for penalty annotation: data_processed/hazel_turin/latency/hit/L2/base_dependent_random_summary_20260915T024159Z.csv data_processed/hazel_turin/latency/hit/L2/rep1_dependent_random_summary_20260915T024159Z.csv data_processed/hazel_turin/latency/hit/L2/rep2_dependent_random_summary_20260915T024159Z.csv --
+-- generating plots for L2_to_LLC --
+Wrote data_processed/hazel_turin/latency/miss/L2_to_LLC/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2_to_LLC --
+
+== transition LLC_to_DRAM: target_bytes=33554432 evict_bytes=536870912 ==
+-- base (seed=12345) --
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/LLC_to_DRAM/miss_latency_base_random_20260915T024534Z.csv (pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/LLC_to_DRAM/base_random_summary_20260915T024534Z.csv
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/LLC_to_DRAM/miss_latency_base_sequential_20260915T024534Z.csv (pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/LLC_to_DRAM/base_sequential_summary_20260915T024534Z.csv
+-- rep1 (seed=12346) --
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/LLC_to_DRAM/miss_latency_rep1_random_20260915T024534Z.csv (pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/LLC_to_DRAM/rep1_random_summary_20260915T024534Z.csv
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/LLC_to_DRAM/miss_latency_rep1_sequential_20260915T024534Z.csv (pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/LLC_to_DRAM/rep1_sequential_summary_20260915T024534Z.csv
+-- rep2 (seed=12347) --
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/LLC_to_DRAM/miss_latency_rep2_random_20260915T024534Z.csv (pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/LLC_to_DRAM/rep2_random_summary_20260915T024534Z.csv
+  wrote 202 lines -> data_raw/hazel_turin/latency/miss/LLC_to_DRAM/miss_latency_rep2_sequential_20260915T024534Z.csv (pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/miss/LLC_to_DRAM/rep2_sequential_summary_20260915T024534Z.csv
+-- found source-level (LLC) hit_latency data for penalty annotation: data_processed/hazel_turin/latency/hit/LLC/base_dependent_random_summary_20260915T024159Z.csv data_processed/hazel_turin/latency/hit/LLC/rep1_dependent_random_summary_20260915T024159Z.csv data_processed/hazel_turin/latency/hit/LLC/rep2_dependent_random_summary_20260915T024159Z.csv --
+-- generating plots for LLC_to_DRAM --
+Wrote data_processed/hazel_turin/latency/miss/LLC_to_DRAM/plots/miss_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC_to_DRAM --
+
+== done ==
+== L1_to_L2: target_bytes=49152 evict_bytes=1048576 ==
+== L2_to_LLC: target_bytes=1048576 evict_bytes=33554432 ==
+== LLC_to_DRAM: target_bytes=33554432 evict_bytes=536870912 ==
+== record in data_raw/hazel_turin/README.md: core=144, base_seed=12345 (repeats use base_seed+index), trials=200, timestamp=20260915T024534Z ==
+== full transcript saved to: data_raw/hazel_turin/latency/run_miss_latency_full_20260915T024534Z.log ==
+
+=== Done ===
+
+------------------------------------------------------------
+Resource usage summary:
+
+    Job ID            : 838247
+    Job name          : hw1_miss_latency
+    User / Account    : krchen / ece592f26_cpu
+    Partition / QOS   : compute_partners / short
+    Submitted         : 2026-09-14T22:41:25
+    Started           : 2026-09-14T22:45:34
+    Wait time         : 249 sec
+    Elapsed (wall)    : 01:38:43
+    Nodes             : 1 (n0406)
+    CPUs allocated    : 1
+    Tasks             : 1
+    CPU time (total)  : 5859.35 sec  (user 5857.22, sys 2.14)
+    CPU efficiency    : 98.9%
+    Memory in use     : 1.05 GB  (sampled at job end; see seff for peak)
+    Memory requested  : 8G
+    Working directory : /gpfs_common/share01/titan/krchen/Proj1-Cache-Reverse-Engineering
+    Exit code         : 0:0
+
+    For final accounting (Slurm's MaxRSS, billing, etc.):  seff 838247
+------------------------------------------------------------

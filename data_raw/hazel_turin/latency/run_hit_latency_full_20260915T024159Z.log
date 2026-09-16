@@ -1,0 +1,146 @@
+== run_hit_latency_full: machine=hazel_turin core=144 base_seed=12345 ==
+== timestamp=20260915T024159Z ==
+
+== level L1: footprint_bytes=49152 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_base_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/base_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_base_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/base_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_base_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/base_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_base_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/base_independent_sequential_summary_20260915T024159Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_rep1_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/rep1_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_rep1_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/rep1_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_rep1_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/rep1_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_rep1_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/rep1_independent_sequential_summary_20260915T024159Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_rep2_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/rep2_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_rep2_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/rep2_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_rep2_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/rep2_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L1/hit_latency_rep2_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L1/rep2_independent_sequential_summary_20260915T024159Z.csv
+-- generating plots for L1 --
+random: independent < dependent (3.07 vs 3.36 ticks) [expected]
+sequential: independent < dependent (3.04 vs 3.25 ticks) [expected]
+Wrote data_processed/hazel_turin/latency/hit/L1/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: footprint_bytes=1048576 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_base_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/base_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_base_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/base_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_base_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/base_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_base_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/base_independent_sequential_summary_20260915T024159Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_rep1_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/rep1_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_rep1_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/rep1_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_rep1_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/rep1_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_rep1_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/rep1_independent_sequential_summary_20260915T024159Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_rep2_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/rep2_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_rep2_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/rep2_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_rep2_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/rep2_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/L2/hit_latency_rep2_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/L2/rep2_independent_sequential_summary_20260915T024159Z.csv
+-- generating plots for L2 --
+random: independent < dependent (4.00 vs 17.97 ticks) [expected]
+sequential: independent < dependent (3.06 vs 3.25 ticks) [expected]
+Wrote data_processed/hazel_turin/latency/hit/L2/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level LLC: footprint_bytes=33554432 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_base_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/base_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_base_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/base_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_base_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/base_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_base_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/base_independent_sequential_summary_20260915T024159Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_rep1_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/rep1_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_rep1_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/rep1_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_rep1_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/rep1_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_rep1_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/rep1_independent_sequential_summary_20260915T024159Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_rep2_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/rep2_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_rep2_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/rep2_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_rep2_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/rep2_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/LLC/hit_latency_rep2_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/LLC/rep2_independent_sequential_summary_20260915T024159Z.csv
+-- generating plots for LLC --
+random: independent < dependent (25.13 vs 40.79 ticks) [expected]
+sequential: independent < dependent (3.09 vs 3.25 ticks) [expected]
+Wrote data_processed/hazel_turin/latency/hit/LLC/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC --
+
+== level DRAM: footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_base_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/base_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_base_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/base_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_base_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/base_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_base_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/base_independent_sequential_summary_20260915T024159Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_rep1_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/rep1_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_rep1_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/rep1_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_rep1_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/rep1_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_rep1_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/rep1_independent_sequential_summary_20260915T024159Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_rep2_dependent_random_20260915T024159Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/rep2_dependent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_rep2_dependent_sequential_20260915T024159Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/rep2_dependent_sequential_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_rep2_independent_random_20260915T024159Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/rep2_independent_random_summary_20260915T024159Z.csv
+  wrote 1002 lines -> data_raw/hazel_turin/latency/hit/DRAM/hit_latency_rep2_independent_sequential_20260915T024159Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_turin/latency/hit/DRAM/rep2_independent_sequential_summary_20260915T024159Z.csv
+-- generating plots for DRAM --
+random: independent < dependent (27.28 vs 345.49 ticks) [expected]
+sequential: independent < dependent (3.04 vs 3.25 ticks) [expected]
+Wrote data_processed/hazel_turin/latency/hit/DRAM/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for DRAM --
+
+== done ==
+== L1: footprint_bytes=49152 ==
+== L2: footprint_bytes=1048576 ==
+== LLC: footprint_bytes=33554432 ==
+== DRAM: footprint_bytes=536870912 ==
+== record in data_raw/hazel_turin/README.md: core=144, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260915T024159Z ==
+== full transcript saved to: data_raw/hazel_turin/latency/run_hit_latency_full_20260915T024159Z.log ==

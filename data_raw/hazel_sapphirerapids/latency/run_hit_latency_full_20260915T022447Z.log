@@ -1,0 +1,154 @@
+== run_hit_latency_full: machine=hazel_sapphirerapids core=42 base_seed=12345 ==
+== timestamp=20260915T022447Z ==
+
+== level L1: footprint_bytes=49152 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_base_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/base_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_base_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/base_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_base_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/base_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_base_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/base_independent_sequential_summary_20260915T022447Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_rep1_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/rep1_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_rep1_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/rep1_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_rep1_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/rep1_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_rep1_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/rep1_independent_sequential_summary_20260915T022447Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_rep2_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/rep2_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_rep2_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/rep2_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_rep2_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/rep2_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L1/hit_latency_rep2_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L1/rep2_independent_sequential_summary_20260915T022447Z.csv
+-- generating plots for L1 --
+  note: ('independent', 'random') has 3 overlapping summary rows with medians [12.6, 20.7, 22.9] (spread 10.3 ticks, 54.8%) -- averaging, widening whiskers to the union
+  note: ('independent', 'sequential') has 3 overlapping summary rows with medians [24.1, 13.5, 22.8] (spread 10.6 ticks, 52.6%) -- averaging, widening whiskers to the union
+random: independent < dependent (18.75 vs 19.06 ticks) [expected]
+sequential: independent >= dependent (20.14 vs 17.67 ticks) [UNEXPECTED -- investigate]
+Wrote data_processed/hazel_sapphirerapids/latency/hit/L1/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L1 --
+
+== level L2: footprint_bytes=2097152 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_base_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/base_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_base_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/base_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_base_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/base_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_base_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/base_independent_sequential_summary_20260915T022447Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_rep1_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/rep1_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_rep1_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/rep1_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_rep1_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/rep1_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_rep1_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/rep1_independent_sequential_summary_20260915T022447Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_rep2_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/rep2_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_rep2_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/rep2_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_rep2_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/rep2_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/L2/hit_latency_rep2_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/L2/rep2_independent_sequential_summary_20260915T022447Z.csv
+-- generating plots for L2 --
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [17.1, 13.1, 13.3] (spread 4.0 ticks, 27.5%) -- averaging, widening whiskers to the union
+  note: ('independent', 'random') has 3 overlapping summary rows with medians [8.5, 6.9, 10.7] (spread 3.8 ticks, 43.4%) -- averaging, widening whiskers to the union
+  note: ('independent', 'sequential') has 3 overlapping summary rows with medians [13.9, 9.3, 14.5] (spread 5.1 ticks, 41.0%) -- averaging, widening whiskers to the union
+random: independent < dependent (8.68 vs 24.09 ticks) [expected]
+sequential: independent < dependent (12.55 vs 14.51 ticks) [expected]
+Wrote data_processed/hazel_sapphirerapids/latency/hit/L2/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for L2 --
+
+== level LLC: footprint_bytes=39903168 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_base_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/base_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_base_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/base_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_base_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/base_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_base_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/base_independent_sequential_summary_20260915T022447Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_rep1_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/rep1_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_rep1_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/rep1_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_rep1_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/rep1_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_rep1_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/rep1_independent_sequential_summary_20260915T022447Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_rep2_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/rep2_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_rep2_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/rep2_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_rep2_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/rep2_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/LLC/hit_latency_rep2_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/LLC/rep2_independent_sequential_summary_20260915T022447Z.csv
+-- generating plots for LLC --
+  note: ('dependent', 'random') has 3 overlapping summary rows with medians [156.0, 195.9, 191.4] (spread 39.9 ticks, 22.1%) -- averaging, widening whiskers to the union
+random: independent < dependent (25.32 vs 181.10 ticks) [expected]
+sequential: independent < dependent (4.72 vs 5.90 ticks) [expected]
+Wrote data_processed/hazel_sapphirerapids/latency/hit/LLC/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for LLC --
+
+== level DRAM: footprint_bytes=536870912 ==
+-- base (seed=12345) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_base_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/base_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_base_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/base_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_base_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/base_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_base_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12345)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/base_independent_sequential_summary_20260915T022447Z.csv
+-- rep1 (seed=12346) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_rep1_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/rep1_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_rep1_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/rep1_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_rep1_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/rep1_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_rep1_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12346)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/rep1_independent_sequential_summary_20260915T022447Z.csv
+-- rep2 (seed=12347) --
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_rep2_dependent_random_20260915T022447Z.csv (mode=dependent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/rep2_dependent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_rep2_dependent_sequential_20260915T022447Z.csv (mode=dependent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/rep2_dependent_sequential_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_rep2_independent_random_20260915T022447Z.csv (mode=independent pattern=random seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/rep2_independent_random_summary_20260915T022447Z.csv
+  wrote 1002 lines -> data_raw/hazel_sapphirerapids/latency/hit/DRAM/hit_latency_rep2_independent_sequential_20260915T022447Z.csv (mode=independent pattern=sequential seed=12347)
+Wrote 1 summary rows to data_processed/hazel_sapphirerapids/latency/hit/DRAM/rep2_independent_sequential_summary_20260915T022447Z.csv
+-- generating plots for DRAM --
+  note: ('dependent', 'sequential') has 3 overlapping summary rows with medians [4.1, 3.9, 6.7] (spread 2.8 ticks, 56.2%) -- averaging, widening whiskers to the union
+  note: ('independent', 'sequential') has 3 overlapping summary rows with medians [3.6, 4.9, 3.8] (spread 1.2 ticks, 30.5%) -- averaging, widening whiskers to the union
+random: independent < dependent (25.43 vs 285.28 ticks) [expected]
+sequential: independent < dependent (4.10 vs 4.90 ticks) [expected]
+Wrote data_processed/hazel_sapphirerapids/latency/hit/DRAM/plots/hit_latency_boxplots.pdf and .png
+-- compressing raw CSVs for DRAM --
+
+== done ==
+== L1: footprint_bytes=49152 ==
+== L2: footprint_bytes=2097152 ==
+== LLC: footprint_bytes=39903168 ==
+== DRAM: footprint_bytes=536870912 ==
+== record in data_raw/hazel_sapphirerapids/README.md: core=42, base_seed=12345 (repeats use base_seed+index), samples=1000000, timestamp=20260915T022447Z ==
+== full transcript saved to: data_raw/hazel_sapphirerapids/latency/run_hit_latency_full_20260915T022447Z.log ==

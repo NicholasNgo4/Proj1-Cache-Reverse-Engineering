@@ -6,6 +6,12 @@ cache_bench
 *.dis
 *.s
 
+# Hazel HAZEL_MODE=1 per-job isolated build dirs (source copy + binary,
+# to avoid concurrent-job race conditions building in the shared checkout
+# -- see CLAUDE.md). Not data; a prior session committed one (834508) and
+# it was later removed from tracking, so keep future ones out too.
+hazel_build/
+
 # OS/editor cruft
 .DS_Store
 Thumbs.db
