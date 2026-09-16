@@ -199,18 +199,18 @@ def plot_dual_series(rows, field_a, label_a, field_b, label_b, out_path, ylabel,
 
 
 def plot_law_heldout(rows, field, out_path, ylabel, title, model_fn,
-                      last_lab_year, future_year, hazel_year, hazel_value,
-                      hazel_label, future_uncertainty=None, log_y=False,
-                      y_is_bytes=False, hazel_jitter_years=0.0,
-                      hazel_text_xy=(0.40, 0.62)):
+                      last_lab_year, future_year, hazel_rows,
+                      future_uncertainty=None, log_y=False,
+                      y_is_bytes=False, hazel_jitter_years=0.25):
     """Moore-style frozen-prediction / held-out-reveal figure (PROJECT 1.pdf
     Section 9's required visual logic): lab observations solid, the frozen
     model's own extrapolation dashed starting at the last measured lab
-    point and extending only into future/unmeasured years, and the
-    held-out Hazel reveal as a star (real measurement) or an open/gray
-    diamond (untestable this pass -- never a fabricated measured point).
-    The dashed line and its future-year value are computed purely from the
-    frozen model; no Hazel point is ever used to refit it."""
+    point and extending only into future/unmeasured years, and every
+    held-out Hazel generation in `hazel_rows` drawn as its own unconnected
+    star (real measurement) or open/gray diamond (untestable for this
+    field -- never a fabricated measured point) at its own introduction
+    year. The dashed line and its future-year value are computed purely
+    from the frozen model; no Hazel point is ever used to refit it."""
     fig, ax = base_plot()
 
     by_vendor = {}
@@ -245,28 +245,26 @@ def plot_law_heldout(rows, field, out_path, ylabel, title, model_fn,
         ax.errorbar([future_year], [yv], yerr=[[yv - lo], [hi - yv]],
                      color="0.35", capsize=5, linewidth=1.6, zorder=2)
 
-    hx = hazel_year + hazel_jitter_years
-    if hazel_value is not None:
-        ax.plot([hx], [hazel_value], marker="*", markersize=20, color="#B8860B",
-                 markeredgecolor="black", markeredgewidth=1.0, linestyle="none",
-                 zorder=5, label="Hazel-Haswell (held-out reveal)")
-        ax.annotate(hazel_label, xy=(hx, hazel_value), xycoords="data",
-                    xytext=hazel_text_xy, textcoords="axes fraction",
-                    fontsize=8, color="#7a5c00",
-                    arrowprops=dict(arrowstyle="->", color="#B8860B", linewidth=1.1),
-                    bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
-                              edgecolor="#B8860B", linewidth=0.8))
-    else:
-        hy = model_fn(hazel_year)
-        ax.plot([hx], [hy], marker="D", markersize=12, markerfacecolor="none",
-                 markeredgecolor="0.4", markeredgewidth=1.8, linestyle="none",
-                 zorder=5, label="Hazel-Haswell (untestable this pass)")
-        ax.annotate(hazel_label, xy=(hx, hy), xycoords="data",
-                    xytext=hazel_text_xy, textcoords="axes fraction",
-                    fontsize=8, color="0.3",
-                    arrowprops=dict(arrowstyle="->", color="0.4", linewidth=1.1),
-                    bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
-                              edgecolor="0.4", linewidth=0.8))
+    drew_star = drew_diamond = False
+    for r in hazel_rows:
+        y = fnum(r[field])
+        hx = r["year"] + hazel_jitter_years
+        label = "Hazel " + short_label(r)
+        if y is not None:
+            ax.plot([hx], [y], marker="*", markersize=18, color="#B8860B",
+                     markeredgecolor="black", markeredgewidth=1.0, linestyle="none",
+                     zorder=5, label="Hazel (validated, held-out)" if not drew_star else None)
+            ax.annotate(label, (hx, y), textcoords="offset points",
+                        xytext=(6, -13), fontsize=7, color="#7a5c00")
+            drew_star = True
+        else:
+            hy = model_fn(r["year"])
+            ax.plot([hx], [hy], marker="D", markersize=10, markerfacecolor="none",
+                     markeredgecolor="0.4", markeredgewidth=1.6, linestyle="none",
+                     zorder=5, label="Hazel (untestable this field)" if not drew_diamond else None)
+            ax.annotate(f"{label} (untestable)", (hx, hy), textcoords="offset points",
+                        xytext=(6, -13), fontsize=7, color="0.3")
+            drew_diamond = True
 
     if log_y:
         ax.set_yscale("log", base=2)
@@ -274,8 +272,7 @@ def plot_law_heldout(rows, field, out_path, ylabel, title, model_fn,
             ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: human_bytes(v)))
             distinct_vals = {fnum(r[field]) for r in rows if fnum(r[field]) is not None}
             distinct_vals |= {model_fn(last_lab_year), model_fn(future_year)}
-            if hazel_value is not None:
-                distinct_vals.add(hazel_value)
+            distinct_vals |= {fnum(r[field]) for r in hazel_rows if fnum(r[field]) is not None}
             if future_uncertainty is not None:
                 distinct_vals |= set(future_uncertainty)
             ax.set_yticks(sorted(distinct_vals))
@@ -284,7 +281,8 @@ def plot_law_heldout(rows, field, out_path, ylabel, title, model_fn,
     ax.set_xlabel("Year (processor generation / microarchitecture introduction)")
     ax.set_ylabel(ylabel)
     ax.set_title(title, fontsize=12)
-    all_years = [r["year"] for r in rows] + [future_year, hazel_year]
+    all_years = ([r["year"] for r in rows] + [future_year] +
+                 [r["year"] for r in hazel_rows])
     ax.set_xlim(min(all_years) - 1, max(all_years) + 1)
     ax.legend(frameon=False, fontsize=7.5, loc="best")
     fig.tight_layout()
@@ -549,12 +547,23 @@ def main():
                       "Miss rate (%)",
                       "PMU-derived normalized metrics vs. year")
 
+    # Held-out Hazel generations (broadwell, skylake, cascadelake,
+    # icelake_6326, genoa, sapphirerapids -- the 6 generations that actually
+    # ran the full Phase-I suite; loaded once here and reused by both the
+    # Law 1/Law 2 evidence plots below and the final combined comparison.
+    hazel_rows = []
+    if args.final_csv:
+        final_rows = load_rows(args.final_csv)
+        lab_machines = {r["machine"] for r in rows}
+        lab_rows = [r for r in final_rows if r["machine"] in lab_machines]
+        hazel_rows = [r for r in final_rows if r["machine"] not in lab_machines]
+
     # Law 1 (Chen-Ngo Cache Capacity Doubling Law): frozen model
     # C(t) = 256 KiB * 2^((t-2014)/3), dashed extrapolation 2023->2028,
-    # Hazel-Haswell's own L2 boundary was never cleanly resolved this pass
-    # (Section "Hazel-Haswell: Timing-Only Results") -- shown as an open,
-    # explicitly-labeled "untestable" diamond at the model's own predicted
-    # value, never a fabricated measured point.
+    # overlaid with each held-out Hazel generation's own L2 reading at its
+    # own introduction year (star if resolved, open diamond where that
+    # generation's own L2 boundary was never cleanly resolved -- see each
+    # machine's own Cache Hierarchy and Capacity subsection).
     def law1_model(t):
         return 256 * 1024 * (2 ** ((t - 2014) / 3.0))
     plot_law_heldout(
@@ -562,17 +571,17 @@ def main():
         "L2 capacity per core (bytes, log2)",
         "Law 1 (Chen–Ngo Capacity Doubling): frozen prediction and held-out reveal",
         model_fn=law1_model, last_lab_year=2023, future_year=2028,
-        hazel_year=2014, hazel_value=None,
-        hazel_label="Hazel-Haswell target (2014):\nL2 UNTESTABLE this pass\n(no resolved capacity boundary)",
+        hazel_rows=hazel_rows,
         future_uncertainty=(law1_model(2023), 2 * law1_model(2028)),
-        log_y=True, y_is_bytes=True, hazel_text_xy=(0.30, 0.72),
+        log_y=True, y_is_bytes=True,
     )
 
     # Law 2 (Chen-Ngo Cache Invariance Law): frozen model is the constant
-    # 6-of-8 majority baseline (32,768 B), not a per-machine curve fit --
-    # Hazel-Haswell's own L1D (32,768 B, 8-way, fully reproducible) is a
-    # real, resolved measurement, so it is drawn as a filled star, jittered
-    # slightly in x so it does not fully occlude Sunbird's own 2014 point.
+    # 6-of-8 majority baseline (32,768 B), not a per-machine curve fit.
+    # Every held-out Hazel generation has a resolved L1D reading (4 of 6
+    # match the 32,768 B baseline exactly; icelake_6326 and
+    # sapphirerapids are genuine deviations, same as this law's own two
+    # lab-fleet exceptions), so all 6 are drawn as stars, never diamonds.
     def law2_model(_t):
         return 32768
     plot_law_heldout(
@@ -580,25 +589,18 @@ def main():
         "L1D capacity (bytes, log2)",
         "Law 2 (Chen–Ngo Invariance): frozen prediction and held-out reveal",
         model_fn=law2_model, last_lab_year=2023, future_year=2028,
-        hazel_year=2014, hazel_value=32768,
-        hazel_label="Hazel-Haswell (2014): 32,768 B,\n8-way, 64 B line — exact match",
+        hazel_rows=hazel_rows,
         future_uncertainty=(32768, 65536),
-        log_y=True, y_is_bytes=True, hazel_jitter_years=0.35,
-        hazel_text_xy=(0.32, 0.55),
+        log_y=True, y_is_bytes=True,
     )
 
     # Final post-validation historical comparison: now that the frozen
-    # lab-only prediction has been checked against Hazel-Haswell
-    # (Section "Held-Out Prediction Evaluation"), combine every
-    # successfully measured system -- 8 lab machines + the validated
-    # Hazel-Haswell generation -- into one chronological dataset, sorted
-    # oldest to newest, in the same empirical spirit as Moore's own plot.
+    # lab-only prediction has been checked against all 6 held-out Hazel
+    # generations (Section "Held-Out Prediction Evaluation"), combine
+    # every successfully measured system -- 8 lab machines + 6 validated
+    # Hazel generations -- into one chronological dataset, sorted oldest
+    # to newest, in the same empirical spirit as Moore's own plot.
     if args.final_csv:
-        final_rows = load_rows(args.final_csv)
-        lab_machines = {r["machine"] for r in rows}
-        lab_rows = [r for r in final_rows if r["machine"] in lab_machines]
-        hazel_rows = [r for r in final_rows if r["machine"] not in lab_machines]
-
         plot_final_combined(
             lab_rows, hazel_rows, "l1_size_b", p("final_01_l1_capacity_with_hazel"),
             "L1D capacity (bytes, log2)",
