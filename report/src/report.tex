@@ -3213,10 +3213,11 @@ comparable to the verification value, shown for completeness only, not as a real
 disagreement.
 
 \begin{table}[H]
-\centering\tiny
+\centering
+{\tiny\setlength{\tabcolsep}{3pt}
 \caption{Required chronological master table, part 1 of 2: identifying columns, L1D, line size, and L1 hit latency. All 14 machines, oldest to newest.}
 \label{tab:master-full-l1}
-\begin{tabularx}{\textwidth}{|l|l|l|X|l|l|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|X|X|l|X|X|X|X|}
 \hline
 Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size (Phase I $\to$ verify) & L1D ways (Phase I $\to$ verify) & Line & L1 hit lat.\\
 \hline
@@ -3225,8 +3226,8 @@ Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size (Phase I $\to$ ver
 2016 & Intel / x86-64 & Broadwell-EP & Xeon E5-2650 v4 (Hazel-Broadwell) & 14\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 8 $\to$ 8 (lit.) \cmark & 64\,B & 7.85\,ticks (no Hazel PMU)\\
 2017 & Intel / x86-64 & Kaby Lake & Core i7-7700 (Ookay) & 14\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 7.49\,ticks / 2.08\,ns\\
 2017 & Intel / x86-64 & Skylake-SP & Xeon Gold 6130 (Hazel-Skylake) & 14\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 8 $\to$ 8 (lit.) \cmark & 64\,B (unconfirmed) & 9.54\,ticks (no Hazel PMU)\\
-2017 & Intel / x86-64 & Coffee Lake & Core i7-8700 (Upgrade) & 14\,nm & 32,768\,B & 8 $\to$ 4 \xmark & 64\,B & 6.17\,ticks / 1.93\,ns\\
-2019 & Intel / x86-64 & Coffee Lake Refresh & Core i7-9700 (Crux) & 14\,nm & 32,768\,B & 8 $\to$ 4 \xmark & 64\,B & 7.42\,ticks / 2.47\,ns\\
+2017 & Intel / x86-64 & Coffee Lake & Core i7-8700 (Upgrade) & 14\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 6.17\,ticks / 1.93\,ns\\
+2019 & Intel / x86-64 & Coffee Lake Refresh & Core i7-9700 (Crux) & 14\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 7.42\,ticks / 2.47\,ns\\
 2019 & Intel / x86-64 & Cascade Lake-SP Refresh & Xeon Gold 6226R (Hazel-Cascadelake) & 14\,nm & 32,768\,B $\to$ 32,768\,B (lit.) \cmark & 8 $\to$ 8 (lit.) \cmark & 64\,B (unconfirmed) & 6.93\,ticks (no Hazel PMU)\\
 2019 & AMD / x86-64 & Zen 2 & 2x EPYC 7532 (Skylark) & 7\,nm & 32,768\,B & 8 $\to$ 8 \cmark & 64\,B & 6.24\,ticks / 2.60\,ns\\
 2020 & Ampere / AArch64 & Neoverse N1 & Ampere Q80-30 (Thunderbird) & 7\,nm & 65,536\,B & 4 $\to$ 4 \cmark & 64\,B & 0.130\,ticks / 5.0\,ns\\
@@ -3236,6 +3237,7 @@ Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size (Phase I $\to$ ver
 2023 & Intel / x86-64 & Sapphire Rapids & Xeon Platinum 8462Y+ (Hazel-Sapphirerapids) & 10\,nm / Intel 7 & 65,536\,B $\to$ 49,152\,B (lit.) \xmark$^\ddagger$ & 12 $\to$ 12 (lit.) \cmark & 64\,B (unconfirmed) & 17.45\,ticks (no Hazel PMU)\\
 \hline
 \end{tabularx}
+}
 \end{table}
 
 $\ddagger$ Hazel-Sapphirerapids' own README first read this identical raw timing data as
@@ -3245,10 +3247,11 @@ $\approx$49,152\,B before \texttt{CAPACITY\_RESULTS.md}'s hand-corrected reading
 kept rather than silently resolved in either direction.
 
 \begin{table}[H]
-\centering\tiny
+\centering
+{\tiny\setlength{\tabcolsep}{3pt}
 \caption{Required chronological master table, part 2 of 2: L2 and LLC organization, same 14 machines/row order as Table~\ref{tab:master-full-l1}.}
 \label{tab:master-full-l2llc}
-\begin{tabularx}{\textwidth}{|X|l|l|l|l|X|}
+\begin{tabularx}{\textwidth}{|X|X|X|X|X|X|}
 \hline
 Machine & L2 size (Phase I $\to$ verify) & L2 ways (Phase I $\to$ verify) & LLC size (Phase I $\to$ verify) & LLC ways (Phase I $\to$ verify) & Verified against\\
 \hline
@@ -3268,6 +3271,7 @@ Artemisia & 2,097,152\,B$^{*}$ & 16 $\to$ 16 \cmark & 31,457,280\,B $\to$ 55,050
 Hazel-Sapphirerapids & 2,097,152\,B (best guess) $\to$ 2,097,152\,B (lit., 2\,MiB) \cmark & 12$^\dagger$ $\to$ unconfirmed in lit. & 50,331,648\,B (best guess) $\to$ 62,914,560\,B (lit., 60\,MiB, whole-socket) \xmark & 12$^\dagger$ $\to$ unconfirmed in lit. & Lit.\ only (no Hazel PMU)\\
 \hline
 \end{tabularx}
+}
 \end{table}
 
 $^{*}$ Artemisia's L2 size is a \texttt{CAPACITY\_RESULTS.md} placeholder this machine's own
@@ -3297,9 +3301,11 @@ fits.
 \subsection{Lab-Only Master Table (8-Machine Trend-Fitting Subset)}
 
 \begin{table}[H]
-\centering\tiny
+\centering
+{\tiny\setlength{\tabcolsep}{3pt}
 \caption{Chronological master table (condensed) -- L1D row per machine, oldest to newest. Ways column shows Phase I $\to$ PMU where they disagree.}
-\begin{tabularx}{\textwidth}{|l|l|l|X|l|l|l|l|l|l|}
+\label{tab:master-lab-condensed}
+\begin{tabularx}{\textwidth}{|l|l|X|X|l|l|l|l|l|l|}
 \hline
 Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size & Ways & Sets & Line & Hit lat.\ (ticks/ns)\\
 \hline
@@ -3313,6 +3319,7 @@ Year & Vendor/ISA & Microarch & Machine/CPU & Node & L1D size & Ways & Sets & Li
 2023 & Intel x86-64 & Sapphire Rapids & 2x Xeon Gold 5420+ (Artemisia) & 10\,nm/Intel 7 & 49,152\,B & 12 & 64 & 64\,B & 9.87 / 4.94\\
 \hline
 \end{tabularx}
+}
 \end{table}
 
 L2/LLC/DRAM columns (including the many Phase I $\to$ PMU disagreements documented in
@@ -3457,13 +3464,19 @@ represented in this fleet.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{chrono_05_l2_capacity.png}
-\caption{Evidence plot for the Chen--Ngo Cache Capacity Doubling Law: per-core L2 capacity vs.\
-processor introduction year, all 8 lab machines (solid points/line, log$_2$ y-axis) --
-the same underlying data as Section~\ref{sec:evolution}'s required L2-capacity plot. The fitted
-model $C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/3}$ is evaluated at Hazel's \texttt{haswell}
-target generation ($t \approx 2014$, the model's own lower fit endpoint) rather than
-extrapolated forward, per the frozen prediction below.}
+\includegraphics[width=0.85\textwidth]{law1_l2_capacity_heldout.png}
+\caption{Held-out prediction figure for the Chen--Ngo Cache Capacity Doubling Law: per-core L2
+capacity vs.\ processor introduction year. Solid vendor-shaped markers/line are the 8 lab
+observations the model was fit from (same underlying data as Section~\ref{sec:evolution}'s
+required L2-capacity plot); the dashed black segment is the frozen model
+$C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/3}$, drawn starting at the last measured lab point
+(Artemisia, 2023) and extended \emph{only} into the unmeasured year 2028 (the ``5 years beyond''
+prediction of Section~\ref{sec:hazel}), never refit using any Hazel point; the vertical bar at
+2028 is the model's own stated uncertainty band (a continued-flat $\sim$2\,MiB floor to a further
+doubling-burst ceiling, Section~\ref{sec:hazel}). The open gray diamond at Hazel's \texttt{haswell}
+target generation ($t \approx 2014$, the model's own lower fit endpoint) marks that this quantity
+came back \textbf{untestable} on Hazel this pass -- Hazel-Haswell's own L2 boundary was never
+cleanly resolved (Section~\ref{sec:hazel}) -- shown explicitly rather than omitted or faked.}
 \label{fig:law1-plot}
 \end{figure}
 \noindent
@@ -3493,12 +3506,18 @@ for machine classes outside this fleet.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{chrono_01_l1_capacity.png}
-\caption{Evidence plot for the Chen--Ngo Cache Invariance Law: L1D capacity vs.\ processor
-introduction year, all 8 lab machines -- 6 clustered flat at 32\,KiB, with Thunderbird
-(2020, 64\,KiB) and Artemisia (2023, 48\,KiB) as the labeled outliers. Line-size and
-associativity invariance (the other two legs of this law) are shown in the L1D
-associativity and line-size plots in Section~\ref{sec:evolution}.}
+\includegraphics[width=0.85\textwidth]{law2_l1d_invariance_heldout.png}
+\caption{Held-out prediction figure for the Chen--Ngo Cache Invariance Law: L1D capacity vs.\
+processor introduction year. Solid markers/line are the 8 lab observations -- 6 clustered flat at
+32\,KiB, with Thunderbird (2020, 64\,KiB) and Artemisia (2023, 48\,KiB) as the labeled outliers.
+The dashed black segment is the frozen model's constant 32,768\,B majority-baseline prediction,
+drawn from the last lab point (2023) out to 2028, with a vertical uncertainty bar spanning up to
+64\,KiB (the largest deviation the two known outliers have already shown, i.e.\ the wall is soft,
+not absolute, per Section~\ref{sec:cachelaws}'s Wall for Law 2). The filled gold star is the
+held-out Hazel-Haswell reveal (2014): 32,768\,B, 8-way, 64\,B line, an \textbf{exact match} to the
+frozen prediction -- plotted at the same year as, and slightly offset from, Sunbird's own lab point
+for visibility. Line-size and associativity invariance (the other two legs of this law) are shown
+in the L1D associativity and line-size plots in Section~\ref{sec:evolution}.}
 \label{fig:law2-plot}
 \end{figure}
 
@@ -3688,14 +3707,87 @@ meaningfully newer than 2014 would test that.
 \textbf{Further quantitative prediction, $\sim$5 years beyond the newest measured lab
 system} (Artemisia, 2023 $\to$ target year $\approx$2028), per the Capacity Doubling Law:
 $C(2028) = 256\,\text{KiB}\cdot2^{(2028-2014)/3} \approx 256\,\text{KiB}\cdot 2^{4.67}
-\approx 6.5\,\text{MiB}$ per core, with a wide uncertainty band (the model's own step-function
+\approx 6.35\,\text{MiB}$ per core, with a wide uncertainty band (the model's own step-function
 shape, Section~\ref{sec:evolution} item 2, means the true value could land anywhere from a
-continued-flat $\sim$2\,MiB to well above 6.5\,MiB if another rapid-doubling burst occurs) --
-stated with the same future-scaling-wall caveats as Section~\ref{sec:cachelaws}'s own
+continued-flat $\sim$2\,MiB to well above 6.35\,MiB if another rapid-doubling burst occurs) --
+shown as the dashed continuation and vertical uncertainty bar in Figure~\ref{fig:law1-plot}, per
+the required at-least-three-observed-points-plus-dashed-continuation presentation, and stated
+with the same future-scaling-wall caveats as Section~\ref{sec:cachelaws}'s own
 analysis (SRAM density/access-time tradeoff, core-count competition for die area). No
 lab-only or Hazel machine in this dataset can directly test a 2028 prediction; it is recorded
 here as the assignment's required forward-looking estimate, not a claim this project can
 itself validate.
+
+\subsection{Final Combined Chronological Comparison (Post-Validation)}
+\label{sec:final-combined}
+
+With the frozen lab-only prediction now checked against the held-out Hazel-Haswell measurement
+(Table~\ref{tab:hazel-heldout}), the lab-only/Hazel separation that Phase Discipline required
+before the freeze no longer needs to be preserved. Table~\ref{tab:final-combined} folds
+Hazel-Haswell back into one final chronological dataset alongside the 8 lab machines, sorted
+oldest to newest by processor introduction year, for the final historical comparison -- the same
+9-system combination plotted in Figures~\ref{fig:final-l1}--\ref{fig:final-l2} below. This is
+narrower than Table~\ref{tab:master-full-l1}/Table~\ref{tab:master-full-l2llc}'s already-published
+14-machine fleet listing (which includes 5 further Hazel generations with only Phase-I capacity
+data and no held-out prediction to validate against): this table and its two figures specifically
+answer the assignment's post-validation instruction to recombine \emph{only} the systems that were
+actually held out and then validated, not to re-list every machine touched anywhere in this report.
+
+\begin{table}[H]
+\centering
+{\scriptsize\setlength{\tabcolsep}{3pt}
+\caption{Final combined chronological dataset: 8 lab machines + the validated Hazel-Haswell
+generation, sorted oldest to newest. Values are Phase I timing-only (Hazel-Haswell has no PMU
+access, Section~\ref{sec:hazel}). L2/LLC capacity are left blank, not fabricated, for
+Hazel-Haswell since neither boundary was cleanly resolved this pass (Section~\ref{sec:hazel}).}
+\label{tab:final-combined}
+\begin{tabularx}{\textwidth}{|l|l|X|X|X|l|X|}
+\hline
+Year & Machine & L1D size/ways & L2 size/ways & LLC size/ways & L1 hit lat.\ & Inclusion (L1 vs.\ LLC)\\
+\hline
+2014 & Sunbird & 32,768\,B / 8 & 262,144\,B / 8 & 31,457,280\,B / 9$\to$20 & 10.35 ticks & UNCERTAIN (leans INCLUSIVE)\\
+2014 & \textbf{Hazel-Haswell} & 32,768\,B / 8 & untestable & untestable ($\sim$22--24\,MiB edge) & 8.46 ticks & EXCLUSIVE/NON-INCLUSIVE\\
+2015 & Charnwood & 32,768\,B / 8 & 262,144\,B / 8$\to$4 & 8,388,608\,B / 8$\to$16 & 7.98 ticks & leans INCLUSIVE (moderate)\\
+2017 & Ookay & 32,768\,B / 8 & 262,144\,B / 8$\to$4 & 8,388,608\,B / 8$\to$16 & 7.49 ticks & leans INCLUSIVE (moderate)\\
+2017 & Upgrade & 32,768\,B / 8 & 262,144\,B / 8$\to$4 & 12,582,912\,B / 8$\to$16 & 6.17 ticks & NON-INCLUSIVE (leans)\\
+2019 & Crux & 32,768\,B / 8 & 262,144\,B / 8$\to$4 & 8,388,608$\to$12,582,912\,B / 8$\to$12 & 7.42 ticks & UNCERTAIN (barely leans NON-INCLUSIVE)\\
+2019 & Skylark & 32,768\,B / 8 & 524,288\,B / 8 & 8,388,608$\to$16,777,216\,B / 8$\to$16 & 6.24 ticks & NON-INCLUSIVE (confident, 100\%)\\
+2020 & Thunderbird & 65,536\,B / 4 & 1,048,576\,B / 12$\to$8 & 31,457,280\,B / 10 & 0.130 ticks & leans NON-INCLUSIVE (80.5\%)\\
+2023 & Artemisia & 49,152\,B / 12 & 2,097,152\,B / 16 & 31,457,280$\to$55,050,240\,B / 16$\to$15 & 9.87 ticks & INCLUSIVE (confident)\\
+\hline
+\end{tabularx}
+}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{final_01_l1_capacity_with_hazel.png}
+\caption{Final combined comparison, L1D capacity vs.\ year: the 8 lab observations (solid,
+vendor-shaped markers/line, same fit as Figure~\ref{fig:law2-plot}) plus the validated
+Hazel-Haswell generation, drawn as an unconnected filled star at its own introduction year
+rather than blended into the fitted line, per the assignment's visual convention for a
+held-out reveal. Hazel-Haswell's exact-match L1D result sits on top of the lab trend, visually
+confirming the Chen--Ngo Invariance Law's majority baseline now that both are shown together.}
+\label{fig:final-l1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{final_02_l2_capacity_with_hazel.png}
+\caption{Final combined comparison, L2 capacity per core vs.\ year: same 8 lab observations as
+Figure~\ref{fig:law1-plot}, with Hazel-Haswell shown as an open gray diamond rather than a star
+because its L2 boundary was never cleanly resolved this pass (Section~\ref{sec:hazel}) -- an
+honest gap in the final combined dataset rather than an invented data point.}
+\label{fig:final-l2}
+\end{figure}
+
+Reading the two figures together: the quantity the Invariance Law targeted (L1D) now visibly
+closes the loop between frozen prediction and held-out reveal in Figure~\ref{fig:final-l1}, while
+the Capacity Doubling Law's own flagship quantity (L2) in Figure~\ref{fig:final-l2} still cannot
+be closed the same way -- not because the combination step failed, but because Hazel-Haswell's own
+capacity sweep never produced a resolvable L2 boundary (Section~\ref{sec:hazel}). Both outcomes are
+carried forward honestly into this final dataset rather than one being suppressed to make the
+figure pair look more conclusive than the underlying measurements support.
 
 \section{Discussion}
 
