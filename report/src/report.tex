@@ -214,8 +214,7 @@ single portable command-line tool, \texttt{cache\_bench}
 (\texttt{main\_code/common/main.c}). Every experiment differs only in \emph{which}
 parameter it sweeps and how it lays out the pointer-chase graph; the load, timing, and
 batching machinery underneath is identical across all six targets and is described once
-here so later subsections can point back to a listing number instead of repeating it, per
-the reused-common-code convention required for this report.
+here so later subsections can point back to a listing number instead of repeating it.
 
 \subsubsection{Dependent Pointer-Chase Primitive}
 
@@ -399,7 +398,7 @@ genuine cache-level transition apart from run-to-run system noise. The
 by convention: \texttt{num\_batches} is computed by ceiling division of
 \texttt{samples}/\texttt{batch\_size}, and untimed warm-up passes never write into the
 latency array that is later printed, so a warm-up access can never be miscounted as a timed
-sample. Listing~\ref{lst:benchmark} also shows the required independent-load control used
+sample. Listing~\ref{lst:benchmark} also shows the independent-load control used
 by the hit-latency experiment (Section~\ref{sec:hitlatency}): each load's address is drawn
 from a precomputed permutation instead of the previous load's result, which exposes
 memory-level parallelism (MLP) and is expected to read \emph{faster} than the dependent
@@ -709,7 +708,7 @@ default) from 1\,KiB up to a coarse ceiling (64\,MiB by default, extended manual
 node size, batch size, seed, warm-up passes, core pinning. \textbf{What is measured:}
 median ticks/access per footprint, at both the random and sequential access patterns.
 Listing~\ref{lst:capacity} is the complete implementation: for each swept size it builds a
-fresh dependent cycle sized to exactly fill that footprint, runs the required warm-up
+fresh dependent cycle sized to exactly fill that footprint, runs the warm-up
 passes untimed, then times \texttt{num\_batches} batches via
 \texttt{measure\_dependency\_chain\_batched()} (Listing~\ref{lst:benchmark}) and prints one
 raw CSV row per (size, batch).
@@ -2196,8 +2195,7 @@ generations are the held-out observations the frozen lab-only prediction
 identical code, build flags, and sample counts to the lab machines, bound via
 \texttt{srun --cpu-bind=cores} instead of \texttt{taskset} (\texttt{HAZEL\_MODE=1}).
 \textbf{No Phase-II PMU verification has run on Hazel} (no \texttt{perf}/PMU access is
-available there, per the assignment; Section~\ref{sec:hazel}), so unlike the lab
-machines' own final tables, every table below is Phase~I only -- sharing scope is an
+available there), so unlike the lab machines' own final tables, every table below is Phase~I only -- sharing scope is an
 architectural assumption (private per-core L1/L2, whole-socket LLC), not a
 \texttt{lscpu}/\texttt{shared\_cpu\_list} measurement. Capacity boundaries (L1D/L2/LLC
 byte values) are taken from \texttt{CAPACITY\_RESULTS.md}'s hand-corrected values
@@ -3080,8 +3078,7 @@ are cleanly separated everywhere, confirming the single-threshold design assumpt
 documented in \texttt{software\_hit\_rate.h} rather than merely asserting it.
 
 \subsection{Cross-Machine Results at a Standardized Workload}
-Per the assignment's chronological-plot requirement (item 14), all 8 machines were swept
-over an identical set of absolute byte sizes; 262,144\,B (256\,KiB) was chosen as the
+All 8 machines were swept over an identical set of absolute byte sizes; 262,144\,B (256\,KiB) was chosen as the
 single cross-machine comparison point because it sits above every machine's L1 (32--65\,KiB
 on this team) without depending on any machine-specific L2/LLC boundary.
 
@@ -3158,7 +3155,7 @@ Artemisia & 0.783 & 27.8 & 0.716 & 20.4 & 0.006 & 99.3 & 0.0001 & 100.0\\
 \end{tabular}
 \end{table}
 
-\textbf{Absolute/relative error, quantified as required (Section 8.5, item 4):} across all 8
+\textbf{Absolute/relative error:} across all 8
 machines, L1 median relative error is 0.1--48.0\% (mean $\approx$20\%), L2 is 0.8--20.4\%
 (mean $\approx$10\%) -- the estimator's core design goal, distinguishing cache-resident from
 non-resident, is met at these tiers on every machine. \textbf{The estimator systematically
@@ -3188,11 +3185,10 @@ flaw hidden from the reader.
 \subsection{Chronological Master Table (Full Fleet, 14 Machines)}
 \label{sec:master-table-full}
 
-Table~\ref{tab:master-full-l1} and Table~\ref{tab:master-full-l2llc} give the assignment's
-required chronological master table: one row per measured machine/CPU generation, sorted
+Table~\ref{tab:master-full-l1} and Table~\ref{tab:master-full-l2llc} are the chronological master table: one row per measured machine/CPU generation, sorted
 oldest to newest by first public introduction year of the specific
 microarchitecture/processor generation (Section~\ref{sec:platforms}'s year convention),
-with the required identifying columns (Year, Vendor/ISA, Microarchitecture, Machine/CPU,
+with the identifying columns (Year, Vendor/ISA, Microarchitecture, Machine/CPU,
 Process node) followed by the measured cache columns. This covers all \textbf{14} machines
 discussed anywhere in this report -- the 8 ECE lab machines (Section~\ref{sec:permachine})
 and the 6 Hazel HPC generations that ran the full Phase-I suite
@@ -3222,7 +3218,7 @@ disagreement.
 \begin{table}[H]
 \centering
 {\tiny\setlength{\tabcolsep}{3pt}
-\caption{Required chronological master table, part 1 of 2: identifying columns, L1D, line size, and L1 hit latency. All 14 machines, oldest to newest.}
+\caption{Chronological master table, part 1 of 2: identifying columns, L1D, line size, and L1 hit latency. All 14 machines, oldest to newest.}
 \label{tab:master-full-l1}
 \begin{tabularx}{\textwidth}{|l|X|X|X|l|X|X|X|X|}
 \hline
@@ -3256,7 +3252,7 @@ kept rather than silently resolved in either direction.
 \begin{table}[H]
 \centering
 {\tiny\setlength{\tabcolsep}{3pt}
-\caption{Required chronological master table, part 2 of 2: L2 and LLC organization, same 14 machines/row order as Table~\ref{tab:master-full-l1}.}
+\caption{Chronological master table, part 2 of 2: L2 and LLC organization, same 14 machines/row order as Table~\ref{tab:master-full-l1}.}
 \label{tab:master-full-l2llc}
 \begin{tabularx}{\textwidth}{|X|X|X|X|X|X|}
 \hline
@@ -3335,7 +3331,7 @@ columns are in \texttt{CHRONOLOGICAL\_MASTER\_TABLE.md} and each machine's own f
 (Section~\ref{sec:permachine}); repeating all $\sim$15 columns here would duplicate that
 data rather than adding new information.
 
-\subsection{Required Moore-Style Plot Set}
+\subsection{Moore-Style Plot Set}
 
 \begin{figure}[H]\centering\includegraphics[width=0.85\textwidth]{chrono_01_l1_capacity.png}\caption{L1D capacity vs.\ year.}\end{figure}
 \begin{figure}[H]\centering\includegraphics[width=0.85\textwidth]{chrono_02_l1_associativity.png}\caption{L1D associativity vs.\ year.}\end{figure}
@@ -3352,7 +3348,7 @@ data rather than adding new information.
 \begin{figure}[H]\centering\includegraphics[width=0.85\textwidth]{chrono_12_line_size.png}\caption{Cache line/block size vs.\ year, all levels.}\end{figure}
 \begin{figure}[H]\centering\includegraphics[width=0.85\textwidth]{chrono_13_inclusion_exclusion.png}\caption{Inclusion/exclusion behavior vs.\ year (categorical/step-style summary).}\label{fig:chrono13}\end{figure}
 \begin{figure}[H]\centering\includegraphics[width=0.85\textwidth]{chrono_15_pmu_normalized_metrics.png}\caption{Two PMU-derived normalized metrics vs.\ year (L1 miss rate sanity check; generic cache-miss rate at the LLC footprint).}\end{figure}
-Figure~\ref{fig:chrono14} (Section~\ref{sec:hitrate}) provides the 14th required plot, the
+Figure~\ref{fig:chrono14} (Section~\ref{sec:hitrate}) provides the 14th plot, the
 timing-derived hit-rate metric vs.\ year.
 
 \subsection{Interpretation}
@@ -3387,7 +3383,7 @@ timing-derived hit-rate metric vs.\ year.
     a units artifact; in nanoseconds it is 79--152\,ns with no clean trend, reflecting memory
     technology/NUMA/server-vs-desktop platform differences more than CPU generation
     (Section~\ref{sec:evolution} treats DRAM latency explicitly as a system-level, not
-    CPU-only, quantity per the assignment's own instruction).
+    CPU-only).
     \item \textbf{Vendor/ISA/class differences.} L1D is remarkably uniform across all three
     vendors/ISAs (Intel, AMD, Arm) -- the one property that looks architecturally
     "solved," not vendor-specific. LLC sharing scope is the opposite: Thunderbird's SLC
@@ -3441,8 +3437,7 @@ Two named laws are formulated below, using both team members' surnames (Chen, Ng
 assignment's naming convention. Both are fit exclusively from Phase I, timing-only measurements on
 the team's 8 ECE lab machines (\texttt{CHRONOLOGICAL\_MASTER\_TABLE.md}; backing data
 \texttt{data\_processed/master/chronological\_master\_table.csv}) -- no Hazel data was used to fit
-either law. They concern two structurally different cache-related quantities, per the assignment's
-requirement: per-core L2 capacity (a growth law) and L1D capacity/associativity/line size (an
+either law. They concern two structurally different cache-related quantities: per-core L2 capacity (a growth law) and L1D capacity/associativity/line size (an
 approximate-constancy law). Both laws' parameters and their Hazel predictions were frozen together in
 \texttt{PREDICTION\_FREEZE.md} at commit \texttt{b7d98c0} (git tag \texttt{predictions-frozen},
 2026-09-14 18:23 UTC) \textbf{before} any Hazel cache experiment ran, satisfying this project's Phase
@@ -3475,7 +3470,7 @@ represented in this fleet.
 \caption{Held-out prediction figure for the Chen--Ngo Cache Capacity Doubling Law: per-core L2
 capacity vs.\ processor introduction year. Solid vendor-shaped markers/line are the 8 lab
 observations the model was fit from (same underlying data as Section~\ref{sec:evolution}'s
-required L2-capacity plot); the dashed black segment is the frozen model
+L2-capacity plot); the dashed black segment is the frozen model
 $C(t) = 256\,\text{KiB}\cdot 2^{(t-2014)/3}$, drawn starting at the last measured lab point
 (Artemisia, 2023) and extended \emph{only} into the unmeasured year 2028 (the ``5 years beyond''
 prediction of Section~\ref{sec:hazel}), never refit using any Hazel point; the vertical bar at
@@ -3730,13 +3725,9 @@ $C(2028) = 256\,\text{KiB}\cdot2^{(2028-2014)/3} \approx 256\,\text{KiB}\cdot 2^
 \approx 6.35\,\text{MiB}$ per core, with a wide uncertainty band (the model's own step-function
 shape, Section~\ref{sec:evolution} item 2, means the true value could land anywhere from a
 continued-flat $\sim$2\,MiB to well above 6.35\,MiB if another rapid-doubling burst occurs) --
-shown as the dashed continuation and vertical uncertainty bar in Figure~\ref{fig:law1-plot}, per
-the required at-least-three-observed-points-plus-dashed-continuation presentation, and stated
+shown as the dashed continuation and vertical uncertainty bar in Figure~\ref{fig:law1-plot}, and stated
 with the same future-scaling-wall caveats as Section~\ref{sec:cachelaws}'s own
-analysis (SRAM density/access-time tradeoff, core-count competition for die area). No
-lab-only or Hazel machine in this dataset can directly test a 2028 prediction; it is recorded
-here as the assignment's required forward-looking estimate, not a claim this project can
-itself validate.
+analysis (SRAM density/access-time tradeoff, core-count competition for die area).
 
 \subsection{Final Combined Chronological Comparison (Post-Validation)}
 \label{sec:final-combined}
@@ -3789,8 +3780,7 @@ Year & Machine & L1D size/ways & L2 size/ways & LLC size/ways & L1 hit lat.\ & I
 \includegraphics[width=0.85\textwidth]{final_01_l1_capacity_with_hazel.png}
 \caption{Final combined comparison, L1D capacity vs.\ year: the 8 lab observations (solid,
 vendor-shaped markers/line, same fit as Figure~\ref{fig:law2-plot}) plus all 6 validated Hazel
-generations, each drawn as its own unconnected filled star at its own introduction year rather
-than blended into the fitted line, per the assignment's visual convention for a held-out reveal.
+generations, each drawn as its own unconnected filled star at its own introduction year.
 4 of 6 Hazel stars sit exactly on the 32,768\,B lab baseline; the 2 exceptions
 (\texttt{icelake\_6326}, \texttt{sapphirerapids}) sit at 65,536\,B, mirroring this law's own two
 lab-fleet exceptions (Thunderbird, Artemisia) in kind if not in generation.}
@@ -4167,7 +4157,7 @@ List the code components, scripts, benchmark modules, build files, and infrastru
 \end{longtable}
 
 
-\subsubsection*{Required GitHub Contribution-Plot Screenshot}
+\subsubsection*{GitHub Contribution-Plot Screenshot}
 
 Immediately after the code-contribution table, insert a screenshot of the GitHub repository's contributor/contribution plot.
 
