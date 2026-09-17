@@ -144,6 +144,91 @@ def const_model(value):
     return lambda _t, _v=value: _v
 
 
+def _last_observed(rows, field):
+    """Returns (year, x_position, value) for the chronologically last lab
+    row with a non-null value for `field`, or None if every row is blank."""
+    valid = [r for r in rows if fnum(r[field]) is not None]
+    if not valid:
+        return None
+    r = max(valid, key=lambda r: r["year"])
+    return r["year"], vendor_x(r), fnum(r[field])
+
+
+def _dashed_extrapolation_points(rows, field, model_fn, last_lab_year, future_year):
+    """Returns (dash_xs, dash_ys) for a frozen model's dashed extrapolation
+    that ACTUALLY CONTINUES from the real last lab observation, rather than
+    jumping from it to the model's own value at `last_lab_year`.
+
+    A flat/constant "no chronological trend" model (e.g. the Invariance
+    Law's 32,768 B majority baseline) does not always equal the last lab
+    machine's own real measurement -- it is a majority-baseline or
+    same-era-analog value, not a fit forced through every point, so a real
+    machine at the last lab year can sit off it (e.g. Artemisia's own
+    49,152 B L1D). Starting the dashed segment at the model's own
+    `last_lab_year` value regardless would make it visibly jump away from
+    wherever the solid line actually ends -- not a realistic-looking
+    extrapolation. Instead this anchors the dashed segment's START to the
+    real last observation and its END to the model's own `future_year`
+    prediction, so the line always continues smoothly out of the actual
+    data and slopes toward (rather than teleports to) whatever the frozen
+    model predicts -- exactly the "begin the dashed frozen extrapolation
+    at the last measured lab point" rule PROJECT 1.pdf's plot-format
+    section requires, applied literally."""
+    last = _last_observed(rows, field)
+    if last is None:
+        return [last_lab_year, future_year], [model_fn(last_lab_year), model_fn(future_year)]
+    _, last_x, last_y = last
+    return [last_x, future_year], [last_y, model_fn(future_year)]
+
+
+def _local_trend_dashed_points(rows, field, future_year, get_value=None):
+    """Returns (dash_xs, dash_ys) for a dashed segment that continues the
+    lab fleet's own most recent trajectory -- a straight line through the
+    last TWO chronological lab observations of `field`, extended out to
+    `future_year` -- instead of the frozen model's own value.
+
+    Used (per explicit user direction, 2026-09-16) on the general chrono_*
+    plot set in place of `_dashed_extrapolation_points` specifically
+    because several of those quantities are governed by the frozen
+    Chen-Ngo Invariance Law (a majority-baseline constant, e.g. 32,768 B
+    L1D), which treats the last lab machine's own reading as a documented
+    one-off exception rather than the start of a new trend -- so its
+    dashed line does not continue the fleet's most recent upward step, it
+    reverts toward the historical baseline. That is the model's actual,
+    already-frozen claim (and the Held-Out Evaluation in
+    PREDICTION_FREEZE.md shows it mostly held up against Hazel), but it
+    looks unintuitive on a plot with no room to explain the reasoning, so
+    these general plots instead show a naive two-point local continuation
+    for illustrative purposes. This function does NOT change
+    PREDICTION_FREEZE.md or the frozen model itself -- `law1_l2_capacity_
+    heldout.png`/`law2_l1d_invariance_heldout.png` (Section 9.1's actual
+    graded Law evidence plots) and the Held-Out Evaluation table still use
+    `_dashed_extrapolation_points`/the real `model_fn` unchanged.
+
+    The "last two points" are the last two observations from the SAME
+    VENDOR as the chronologically-last one, not just the last two rows by
+    year -- otherwise a different vendor's single intervening point (e.g.
+    Thunderbird/Arm sitting between Crux/Skylark's 2019 and Artemisia's
+    2023) gets used as the trend's start, producing a slope between two
+    unrelated architectural families exactly like the "do not connect
+    unrelated architectural families with a line" problem `vendor_x`
+    already exists to avoid for the solid series."""
+    get_value = get_value or (lambda r: fnum(r[field]))
+    valid = sorted(
+        ((r["year"], vendor_x(r), get_value(r), r["vendor"]) for r in rows if get_value(r) is not None),
+        key=lambda t: t[0])
+    if not valid:
+        return None
+    last_vendor = valid[-1][3]
+    same_vendor = [v for v in valid if v[3] == last_vendor]
+    if len(same_vendor) < 2 or same_vendor[-1][0] == same_vendor[-2][0]:
+        _, x2, y2, _ = valid[-1]
+        return [x2, future_year], [y2, y2]
+    (_, x1, y1, _), (_, x2, y2, _) = same_vendor[-2], same_vendor[-1]
+    slope = (y2 - y1) / (x2 - x1)
+    return [x2, future_year], [y2, y2 + slope * (future_year - x2)]
+
+
 def _draw_hazel_overlay(ax, hazel_rows, field, model_fn, hazel_jitter_years,
                          marker="*", markersize=18, star_label=None,
                          diamond_label=None, annotate=True):
@@ -183,7 +268,7 @@ def plot_series(rows, field_phase1, out_path, ylabel, title, log_y=False,
                  model_fn=None, hazel_rows=None, hazel_field=None,
                  last_lab_year=LAST_LAB_YEAR, future_year=FUTURE_YEAR,
                  future_uncertainty=None, hazel_jitter_years=0.25,
-                 legend_fontsize=None):
+                 legend_fontsize=None, use_local_trend=False):
     """Generic scalar-metric-vs-year plot. field_phase1 is always drawn as
     the solid, vendor-shaped marker series (the observed/primary value),
     one connected line PER VENDOR (never a single line spanning different
@@ -195,12 +280,26 @@ def plot_series(rows, field_phase1, out_path, ylabel, title, log_y=False,
     Phase-II-resolved value without replacing the Phase-I point.
 
     If model_fn is given, this is treated as a "held-out prediction figure"
-    (PROJECT 1.pdf Section 9's required visual logic): the frozen model's
-    own dashed extrapolation is drawn from `last_lab_year` to `future_year`,
-    and -- when `hazel_rows` is also given -- every held-out Hazel
-    generation is overlaid as its own star (resolved) or open diamond
-    (untestable for this field) at its own real introduction year. Hazel
-    points are never used to refit the dashed line."""
+    (PROJECT 1.pdf Section 9's required visual logic): a dashed segment
+    continues out to the frozen model's own `future_year` prediction, and
+    -- when `hazel_rows` is also given -- every held-out Hazel generation
+    is overlaid as its own star (resolved) or open diamond (untestable for
+    this field) at its own real introduction year, still placed using the
+    real frozen `model_fn` even when `use_local_trend` is set. Hazel points
+    are never used to refit the dashed line.
+
+    By default the dashed segment continues from the real last lab
+    observation to the model's own `future_year` value
+    (`_dashed_extrapolation_points`). If `use_local_trend` is True, the
+    dashed segment instead continues the lab fleet's own last-two-point
+    trajectory (`_local_trend_dashed_points`) -- used on the general
+    chrono_* plots per explicit user direction so a quantity whose frozen
+    model reverts to a historical baseline (e.g. the Invariance Law) does
+    not visually show the dashed line reversing direction right after an
+    observed uptick; the two dedicated Law evidence plots
+    (`law1_l2_capacity_heldout`/`law2_l1d_invariance_heldout`) keep
+    `use_local_trend=False` so they still show the actual frozen
+    prediction the report's Held-Out Evaluation table is built from."""
     fig, ax = base_plot()
 
     by_vendor = {}
@@ -243,12 +342,22 @@ def plot_series(rows, field_phase1, out_path, ylabel, title, log_y=False,
             drew_p2_label = True
 
     if model_fn is not None:
-        dash_xs = [last_lab_year, future_year]
-        dash_ys = [model_fn(last_lab_year), model_fn(future_year)]
+        if use_local_trend:
+            dash_xs, dash_ys = _local_trend_dashed_points(rows, field_phase1, future_year)
+            dash_label = f"Trend continuation, dashed to {future_year}"
+        else:
+            dash_xs, dash_ys = _dashed_extrapolation_points(
+                rows, field_phase1, model_fn, last_lab_year, future_year)
+            dash_label = f"Frozen model, dashed extrapolation to {future_year}"
         ax.plot(dash_xs, dash_ys, color="black", linestyle="--", linewidth=1.6,
                  marker="x", markersize=8, markeredgewidth=1.6, zorder=2,
-                 label=f"Frozen model, dashed extrapolation to {future_year}")
-        if future_uncertainty is not None:
+                 label=dash_label)
+        # The uncertainty band is the FROZEN model's own stated range --
+        # skip it under use_local_trend, where the dashed line's endpoint
+        # is a different (naive two-point) value and an error bar drawn at
+        # model_fn(future_year) would land away from that endpoint with no
+        # visible connection to it.
+        if future_uncertainty is not None and not use_local_trend:
             lo, hi = future_uncertainty
             yv = model_fn(future_year)
             ax.errorbar([future_year], [yv], yerr=[[yv - lo], [hi - yv]],
@@ -269,11 +378,14 @@ def plot_series(rows, field_phase1, out_path, ylabel, title, log_y=False,
             if field_phase2:
                 distinct_vals |= {fnum(r[field_phase2]) for r in rows if fnum(r[field_phase2])}
             if model_fn is not None:
-                distinct_vals |= {model_fn(last_lab_year), model_fn(future_year)}
+                if use_local_trend:
+                    distinct_vals |= set(dash_ys)
+                else:
+                    distinct_vals |= {model_fn(last_lab_year), model_fn(future_year)}
             if hazel_rows:
                 hf = hazel_field or field_phase1
                 distinct_vals |= {fnum(r[hf]) for r in hazel_rows if fnum(r[hf]) is not None}
-            if future_uncertainty is not None:
+            if future_uncertainty is not None and not use_local_trend:
                 distinct_vals |= set(future_uncertainty)
             ax.set_yticks(sorted(v for v in distinct_vals if v))
             ax.set_yticks([], minor=True)
@@ -298,7 +410,8 @@ def plot_series(rows, field_phase1, out_path, ylabel, title, log_y=False,
 def plot_dual_series(rows, field_a, label_a, field_b, label_b, out_path, ylabel, title,
                       model_fn_a=None, model_fn_b=None, hazel_rows=None,
                       hazel_field_a=None, hazel_field_b=None,
-                      last_lab_year=LAST_LAB_YEAR, future_year=FUTURE_YEAR):
+                      last_lab_year=LAST_LAB_YEAR, future_year=FUTURE_YEAR,
+                      use_local_trend=False):
     """Two metrics vs year on the same axes (used for LLC hit-latency +
     LLC-to-memory miss penalty, and for the two PMU-derived normalized
     metrics). Both metrics are drawn SOLID and per-vendor -- dashed is
@@ -333,14 +446,19 @@ def plot_dual_series(rows, field_a, label_a, field_b, label_b, out_path, ylabel,
             ax.plot(xs, ys, color=color, marker=style["marker"], markersize=8,
                      markerfacecolor=color, linewidth=1.4, linestyle="-", zorder=2)
         if model_fn is not None:
-            dash_xs = [last_lab_year, future_year]
-            dash_ys = [model_fn(last_lab_year), model_fn(future_year)]
+            if use_local_trend:
+                dash_xs, dash_ys = _local_trend_dashed_points(rows, field, future_year)
+            else:
+                dash_xs, dash_ys = _dashed_extrapolation_points(
+                    rows, field, model_fn, last_lab_year, future_year)
             ax.plot(dash_xs, dash_ys, color=color, linestyle="--", linewidth=1.6,
                      marker="x", markersize=7, markeredgewidth=1.4, zorder=2)
 
     if model_fn_a is not None or model_fn_b is not None:
+        dash_label = (f"Trend continuation, dashed to {future_year}" if use_local_trend
+                      else f"Frozen model, dashed extrapolation to {future_year}")
         legend_handles.append(Line2D([0], [0], color="black", lw=1.6, linestyle="--",
-                                      marker="x", label=f"Frozen model, dashed extrapolation to {future_year}"))
+                                      marker="x", label=dash_label))
 
     hazel_markers = [("*", 16), ("P", 11)]
     if hazel_rows:
@@ -517,12 +635,16 @@ def plot_inclusion(rows, out_path, hazel_rows=None, predicted=None,
                     last_lab_year=LAST_LAB_YEAR, future_year=FUTURE_YEAR):
     """Categorical inclusion/exclusion-vs-year plot. `predicted`, when
     given, is {field: predicted_category} from PREDICTION_FREEZE.md's own
-    frozen call for that pairing -- drawn as a short dashed guideline from
-    the last lab year to the future year (the categorical equivalent of a
-    numeric plot's dashed extrapolation: the model here is "stays at this
-    frozen category," not a fitted curve). Each held-out Hazel generation's
-    ACTUAL measured category is then overlaid as an open, gold-edged marker
-    at its own real year, never used to move the dashed guideline."""
+    frozen call for that pairing -- drawn as a dashed guideline that
+    CONTINUES from the last lab machine's own real category at
+    `last_lab_year` to the frozen prediction's category at `future_year`
+    (the categorical equivalent of the numeric plots' "start the dashed
+    line at the last real point" rule; a flat guideline starting at the
+    predicted category itself would jump away from wherever the real data
+    left off whenever the frozen call differs from the last machine's own
+    reading). Each held-out Hazel generation's ACTUAL measured category is
+    then overlaid as an open, gold-edged marker at its own real year, never
+    used to move the dashed guideline."""
     fig, ax = base_plot(figsize=(9.5, 5))
     # A small fixed x-jitter per pairing keeps all three pairings visible
     # side-by-side even when two land on the identical (year, category) cell
@@ -540,8 +662,20 @@ def plot_inclusion(rows, out_path, hazel_rows=None, predicted=None,
                  markerfacecolor="black", linewidth=0, label=label)
 
         if predicted and field in predicted:
-            pred_y = y_of[predicted[field]]
-            ax.plot([last_lab_year + jitter, future_year + jitter], [pred_y, pred_y],
+            # Per explicit user direction (2026-09-16), the dashed guideline
+            # continues the lab fleet's own last-two-point categorical
+            # trajectory (same `_local_trend_dashed_points` mechanism as the
+            # numeric plots) rather than the frozen prediction's category --
+            # a flat/reverting guideline back to the frozen call looked like
+            # it was ignoring a real recent shift. This does not change
+            # `predicted`/PREDICTION_FREEZE.md's own frozen call itself,
+            # only which category the dashed line visually points toward on
+            # this general chrono_13 plot.
+            dash_xs, dash_ys = _local_trend_dashed_points(
+                rows, field, future_year, get_value=lambda r, f=field: y_of[incl_category(r[f])])
+            dash_xs = [dash_xs[0] + jitter, dash_xs[1] + jitter]
+            dash_ys = [min(max(y, 0), len(INCL_ORDER) - 1) for y in dash_ys]
+            ax.plot(dash_xs, dash_ys,
                      color="black", linestyle="--", linewidth=1.4, marker="x",
                      markersize=7, zorder=2)
 
@@ -660,48 +794,49 @@ def main():
                 "L1D capacity (bytes, log2)", "L1D capacity vs. year",
                 log_y=True, y_is_bytes=True,
                 model_fn=MODELS["l1_size_b"], hazel_rows=hazel_rows,
-                future_uncertainty=(32768, 65536))
+                future_uncertainty=(32768, 65536), use_local_trend=True)
     # 2. L1D associativity vs year
     plot_series(rows, "l1_assoc_phase1", p("chrono_02_l1_associativity"),
                 "L1D associativity (ways)", "L1D associativity vs. year",
                 field_phase2="l1_assoc_pmu",
                 model_fn=MODELS["l1_assoc_phase1"], hazel_rows=hazel_rows,
-                future_uncertainty=(4, 12))
+                future_uncertainty=(4, 12), use_local_trend=True)
     # 3. L1D hit latency vs year (ns/access)
     plot_series(rows, "l1_hit_ns", p("chrono_03_l1_hit_latency"),
                 "L1D hit latency (ns/access)", "L1D hit latency vs. year",
-                model_fn=MODELS["l1_hit_ns"], hazel_rows=hazel_rows)
+                model_fn=MODELS["l1_hit_ns"], hazel_rows=hazel_rows, use_local_trend=True)
     # 4. L1 miss penalty vs year
     plot_series(rows, "l1_missp_ns", p("chrono_04_l1_miss_penalty"),
                 "L1 miss penalty, L1→L2 (ns/access)", "L1 miss penalty vs. year",
-                model_fn=MODELS["l1_missp_ns"], hazel_rows=hazel_rows)
+                model_fn=MODELS["l1_missp_ns"], hazel_rows=hazel_rows, use_local_trend=True)
     # 5. L2 capacity per core vs year
     plot_series(rows, "l2_size_b", p("chrono_05_l2_capacity"),
                 "L2 capacity per core (bytes, log2)", "L2 capacity per core vs. year",
                 log_y=True, y_is_bytes=True,
                 model_fn=MODELS["l2_size_b"], hazel_rows=hazel_rows,
-                future_uncertainty=(law1_model(LAST_LAB_YEAR), 2 * law1_model(FUTURE_YEAR)))
+                future_uncertainty=(law1_model(LAST_LAB_YEAR), 2 * law1_model(FUTURE_YEAR)),
+                use_local_trend=True)
     # 6. L2 associativity vs year
     plot_series(rows, "l2_assoc_phase1", p("chrono_06_l2_associativity"),
                 "L2 associativity (ways)", "L2 associativity vs. year",
                 field_phase2="l2_assoc_pmu",
                 model_fn=MODELS["l2_assoc_phase1"], hazel_rows=hazel_rows,
-                future_uncertainty=(4, 8))
+                future_uncertainty=(4, 8), use_local_trend=True)
     # 7. L2 hit latency vs year
     plot_series(rows, "l2_hit_ns", p("chrono_07_l2_hit_latency"),
                 "L2 hit latency (ns/access)", "L2 hit latency vs. year",
-                model_fn=MODELS["l2_hit_ns"], hazel_rows=hazel_rows)
+                model_fn=MODELS["l2_hit_ns"], hazel_rows=hazel_rows, use_local_trend=True)
     # 8. L2 miss penalty vs year
     plot_series(rows, "l2_missp_ns", p("chrono_08_l2_miss_penalty"),
                 "L2 miss penalty, L2→LLC (ns/access)", "L2 miss penalty vs. year",
-                model_fn=MODELS["l2_missp_ns"], hazel_rows=hazel_rows)
+                model_fn=MODELS["l2_missp_ns"], hazel_rows=hazel_rows, use_local_trend=True)
     # 9. LLC capacity vs year (sharing domain) + normalized MiB/core
     plot_series(rows, "llc_size_phase1_b", p("chrono_09a_llc_capacity_domain"),
                 "LLC capacity, sharing domain (bytes, log2)",
                 "LLC capacity (sharing domain) vs. year",
                 log_y=True, y_is_bytes=True, field_phase2="llc_size_pmu_b",
                 model_fn=MODELS["llc_size_phase1_b"], hazel_rows=hazel_rows,
-                future_uncertainty=(8 * 1024 * 1024, 52 * 1024 * 1024))
+                future_uncertainty=(8 * 1024 * 1024, 52 * 1024 * 1024), use_local_trend=True)
     plot_series(rows, "llc_mib_per_core", p("chrono_09b_llc_capacity_per_core"),
                 "LLC capacity per core within its sharing domain (MiB)",
                 "LLC capacity per core (normalized) vs. year")
@@ -710,7 +845,7 @@ def main():
                 "LLC associativity (ways, effective)", "LLC associativity vs. year",
                 field_phase2="llc_assoc_pmu",
                 model_fn=MODELS["llc_assoc_phase1"], hazel_rows=hazel_rows,
-                future_uncertainty=(15, 20))
+                future_uncertainty=(15, 20), use_local_trend=True)
     # 11. LLC hit latency and LLC-to-memory miss penalty vs year
     plot_dual_series(rows, "llc_hit_ns", "LLC hit latency",
                       "llc_missp_ns", "LLC→DRAM miss penalty",
@@ -718,12 +853,12 @@ def main():
                       "Latency (ns/access)",
                       "LLC hit latency and LLC→DRAM miss penalty vs. year",
                       model_fn_a=MODELS["llc_hit_ns"], model_fn_b=MODELS["llc_missp_ns"],
-                      hazel_rows=hazel_rows)
+                      hazel_rows=hazel_rows, use_local_trend=True)
     # 12. Cache line/block size vs year
     plot_series(rows, "l1_line_b", p("chrono_12_line_size"),
                 "Cache line size (bytes)", "L1D line size vs. year (LLC line size noted per-machine "
                 "in CHRONOLOGICAL_MASTER_TABLE.md where it differs)",
-                model_fn=MODELS["l1_line_b"], hazel_rows=hazel_rows)
+                model_fn=MODELS["l1_line_b"], hazel_rows=hazel_rows, use_local_trend=True)
     # 13. Inclusion/exclusion behavior vs year (categorical)
     PREDICTED_INCL = {
         "incl_l1_l2": "NON-INCLUSIVE",

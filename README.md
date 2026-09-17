@@ -111,6 +111,10 @@ benchmark on the login node. See `hpc_slurm/` for job scripts.
    `PREDICTION_FREEZE.md`.
 
 ## Script Index
+**Full list of all scripts (43), with input/output/notes for each: see
+[`scripts/README.md`](scripts/README.md).** The table below highlights the core capacity/
+line-size/associativity pipeline only.
+
 | Script | Purpose |
 |---|---|
 | `scripts/run_capacity_sweep.sh` | Build, pin (`taskset`), and run the capacity sweep on a lab machine; writes `data_raw/<machine>/capacity/`. |
